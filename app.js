@@ -2802,14 +2802,13 @@ const signInLocalAccount = async () => {
   const email = normalizeEmail(loginAccountEmail?.value || "");
   const code = loginAccountCode?.value || "";
   if (!email || !code) {
-    setAccountMessage("Enter your email and password.", "bad");
+    alert("Enter your email and password.");
     return;
   }
-  setAccountMessage("Signing in...", "neutral");
   try {
     const result = await supabaseSignIn(email, code);
     if (result.error) {
-      setAccountMessage(result.error.message || "Sign in failed. Check your email and password.", "bad");
+      alert("Sign in failed: " + (result.error.message || "Check your email and password."));
       return;
     }
     const token = result.access_token;
@@ -2820,9 +2819,9 @@ const signInLocalAccount = async () => {
     if (loginAccountCode) loginAccountCode.value = "";
     renderAccountStatus();
     renderSettings();
-    setAccountMessage(`Signed in as ${activeAccount.name}.`, "good");
+    alert("Signed in as " + activeAccount.name + "!");
   } catch (err) {
-    setAccountMessage("Sign in failed. Try again.", "bad");
+    alert("Sign in error: " + err.message);
   }
 };
 
