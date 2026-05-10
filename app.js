@@ -1,3 +1,32 @@
+
+// Supabase Auth
+const SUPABASE_URL = "https://xkfxofcmrmpazfjviatq.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
+
+const supabaseSignUp = async (email, password) => {
+  const res = await fetch(SUPABASE_URL + "/auth/v1/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY },
+    body: JSON.stringify({ email, password })
+  });
+  return res.json();
+};
+
+const supabaseSignIn = async (email, password) => {
+  const res = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY },
+    body: JSON.stringify({ email, password })
+  });
+  return res.json();
+};
+
+const supabaseSignOut = async (token) => {
+  await fetch(SUPABASE_URL + "/auth/v1/logout", {
+    method: "POST",
+    headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + token }
+  });
+};
 const form = document.querySelector("#ratioForm");
 const ratioGrid = document.querySelector("#ratioGrid");
 const decisionNotes = document.querySelector("#decisionNotes");
