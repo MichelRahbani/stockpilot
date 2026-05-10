@@ -505,7 +505,7 @@ const currentLocalOrigin =
     : "";
 const STOCKPILOT_API_CANDIDATES = ["https://mystockspilot.com"];
 const STOCKPILOT_SAME_ORIGIN = Boolean(
-  typeof window !== "undefined" && /^https?:\/\/(127\.0\.0\.1|localhost):8787$/i.test(window.location.origin)
+  typeof window !== "undefined" && (/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(window.location.origin) || window.location.hostname === "mystockspilot.com")
 );
 let stockPilotApiOnline = false;
 let stockPilotProviderStatus = null;
