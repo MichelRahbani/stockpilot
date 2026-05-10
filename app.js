@@ -6305,7 +6305,7 @@ const buildDemoHolding = ({ ticker, name, category, assetClass, allocation, pric
   return holding;
 };
 
-const loadDemoHoldings = () => {
+const loadDemoHoldings = async () => {
   const demoHoldings = [
     { ticker: "AAPL", name: "Apple", category: "Technology", assetClass: "Stock", allocation: 18, price: 293, pe: 35, ps: 9.5, dividendYield: 0.5, beta: 1.07, roe: 68, debtEquity: 1.5, growth: 8 },
     { ticker: "MSFT", name: "Microsoft", category: "Technology", assetClass: "Stock", allocation: 17, price: 449, pe: 34, ps: 13, dividendYield: 0.7, beta: 0.92, roe: 36, debtEquity: 0.35, growth: 12 },
@@ -6316,6 +6316,24 @@ const loadDemoHoldings = () => {
     { ticker: "BTC-USD", name: "Bitcoin", category: "Crypto", assetClass: "Crypto", allocation: 15, price: 103000, pe: NaN, ps: NaN, dividendYield: 0, beta: 2.2, roe: 0, debtEquity: 0, growth: 18 }
   ];
   holdings = demoHoldings.map(buildDemoHolding);
+  // Fetch real prices from API
+  try {
+    const tickers = demoHoldings.map(h => h.ticker).join(",");
+    const apiBase = stockPilotApiOnline ? stockPilotApiBaseUrl : "https://mystockspilot.com";
+    const res = await fetch(`${apiBase}/api/quotes?symbols=${tickers}`);
+    const data = await res.json();
+    const quotes = data?.quoteResponse?.result || [];
+    quotes.forEach(quote => {
+      const holding = holdings.find(h => h.ticker === quote.symbol);
+      if (holding && quote.regularMarketPrice) {
+        holding.price = quote.regularMarketPrice;
+        holding.dataAsOf = "Live";
+      }
+    });
+    renderPortfolio();
+  } catch(e) {
+    // fallback to hardcoded prices
+  }
 };
 
 const fillDemoTables = () => {
