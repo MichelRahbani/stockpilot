@@ -567,12 +567,6 @@ if (!localStorage.getItem(SESSION_ID_KEY)) {
   localStorage.removeItem(APP_STATE_KEY);
   localStorage.setItem(SESSION_ID_KEY, newSessionId);
 }
-const SESSION_ID_KEY = "stockPilot.sessionId";
-const newSessionId = Math.random().toString(36).slice(2);
-if (!localStorage.getItem(SESSION_ID_KEY)) {
-  localStorage.removeItem(APP_STATE_KEY);
-  localStorage.setItem(SESSION_ID_KEY, newSessionId);
-}
 const APP_DATA_VERSION = "2026-05-10";
 const savedVersion = localStorage.getItem("stockPilot.dataVersion");
 if (savedVersion !== APP_DATA_VERSION) {
