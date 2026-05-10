@@ -561,6 +561,12 @@ BTC-USD 15`;
 const SAVED_PORTFOLIOS_KEY = "portfolioAnalyzer.savedPortfolios";
 const WATCHLIST_KEY = "portfolioAnalyzer.watchlist";
 const APP_STATE_KEY = "stockPilot.appState";
+const APP_DATA_VERSION = "2026-05-10";
+const savedVersion = localStorage.getItem("stockPilot.dataVersion");
+if (savedVersion !== APP_DATA_VERSION) {
+  localStorage.removeItem(APP_STATE_KEY);
+  localStorage.setItem("stockPilot.dataVersion", APP_DATA_VERSION);
+}
 const ONBOARDING_KEY = "stockPilot.onboardingComplete";
 const ACCOUNT_KEY = "stockPilot.localAccounts";
 const ACCOUNT_SESSION_KEY = "stockPilot.activeAccount";
