@@ -2785,6 +2785,7 @@ const createLocalAccount = async () => {
     if (token) {
       localStorage.setItem("supabase_token", token);
       localStorage.setItem("supabase_email", email);
+      localStorage.setItem("supabase_name", name);
     }
     activeAccount = { id: result.user?.id || email, name, email, createdAt: new Date().toISOString(), lastLoginAt: new Date().toISOString() };
     if (createAccountName) createAccountName.value = "";
@@ -2814,7 +2815,8 @@ const signInLocalAccount = async () => {
     const token = result.access_token;
     localStorage.setItem("supabase_token", token);
     localStorage.setItem("supabase_email", email);
-    activeAccount = { id: result.user?.id || result.id || email, name: email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
+    const savedName = localStorage.getItem("supabase_name") || email.split("@")[0];
+    activeAccount = { id: result.user?.id || result.id || email, name: savedName, email, lastLoginAt: new Date().toISOString() };
     if (loginAccountEmail) loginAccountEmail.value = "";
     if (loginAccountCode) loginAccountCode.value = "";
     try { renderAccountStatus(); } catch(e) {}
