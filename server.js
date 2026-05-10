@@ -27,7 +27,7 @@ const FINNHUB_BASE_URL = "https://finnhub.io/api/v1";
 const SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json";
 const SEC_COMPANY_FACTS_BASE_URL = "https://data.sec.gov/api/xbrl/companyfacts/";
 const CACHE_TTL_MS = Number(process.env.CACHE_TTL_MS || 60_000);
-const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY || "";
+const FINNHUB_API_KEY = (process.env.FINNHUB_API_KEY || "").replace(/^["']|["']$/g, "");
 const SEC_USER_AGENT = process.env.SEC_USER_AGENT || "StockPilot educational app contact@example.com";
 
 const cache = new Map();
