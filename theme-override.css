@@ -1,0 +1,45 @@
+/* StockPilot Premium Finance Theme */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --sp-bg: #0a0e17;
+  --sp-bg-2: #0f1520;
+  --sp-bg-3: #141c2e;
+  --sp-card: #111827;
+  --sp-card-border: rgba(255,255,255,0.07);
+  --sp-green: #00d68f;
+  --sp-green-dim: rgba(0,214,143,0.12);
+  --sp-red: #ff4d6a;
+  --sp-gold: #f5c842;
+  --sp-text: #e8edf5;
+  --sp-text-dim: #6b7a9a;
+  --sp-text-muted: #3d4a6b;
+  --sp-radius: 12px;
+  --sp-font: 'DM Sans', sans-serif;
+  --sp-mono: 'DM Mono', monospace;
+}
+
+body { background: var(--sp-bg) !important; color: var(--sp-text) !important; font-family: var(--sp-font) !important; }
+.card, .command-card, .api-status-card, .account-card, .settings-card, .educational-card, [class*="-card"] { background: var(--sp-card) !important; border: 1px solid var(--sp-card-border) !important; border-radius: 12px !important; color: var(--sp-text) !important; box-shadow: 0 4px 24px rgba(0,0,0,0.4) !important; }
+h1, h2, h3, h4, h5, h6 { color: var(--sp-text) !important; font-family: var(--sp-font) !important; letter-spacing: -0.02em !important; }
+p, span, label, td, th, li { color: var(--sp-text-dim) !important; font-family: var(--sp-font) !important; }
+strong, b { color: var(--sp-text) !important; }
+.primary-button { background: var(--sp-green) !important; color: #000 !important; border: none !important; border-radius: 8px !important; font-weight: 600 !important; }
+button:not(.primary-button) { background: transparent !important; border: 1px solid var(--sp-card-border) !important; color: var(--sp-text) !important; border-radius: 8px !important; }
+button:not(.primary-button):hover { border-color: var(--sp-green) !important; background: var(--sp-green-dim) !important; }
+input, select, textarea { background: var(--sp-bg-3) !important; border: 1px solid var(--sp-card-border) !important; color: var(--sp-text) !important; border-radius: 8px !important; font-family: var(--sp-font) !important; }
+input:focus, select:focus, textarea:focus { border-color: var(--sp-green) !important; outline: none !important; box-shadow: 0 0 0 3px var(--sp-green-dim) !important; }
+input::placeholder, textarea::placeholder { color: var(--sp-text-muted) !important; }
+.good, .positive, [class*="good"] { color: var(--sp-green) !important; }
+.bad, .negative, [class*="bad"] { color: #ff4d6a !important; }
+.warn, [class*="warn"] { color: var(--sp-gold) !important; }
+th { background: var(--sp-bg-3) !important; color: var(--sp-text-dim) !important; font-size: 11px !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; border-bottom: 1px solid var(--sp-card-border) !important; }
+td { border-bottom: 1px solid rgba(255,255,255,0.04) !important; }
+tr:hover td { background: rgba(255,255,255,0.02) !important; }
+a { color: var(--sp-green) !important; }
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--sp-bg); }
+::-webkit-scrollbar-thumb { background: #3d4a6b; border-radius: 3px; }
+select option { background: var(--sp-card) !important; color: var(--sp-text) !important; }
+body::before { content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-image: linear-gradient(rgba(0,214,143,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,214,143,0.03) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; }
+body > * { position: relative; z-index: 1; }
