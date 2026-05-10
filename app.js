@@ -2814,7 +2814,7 @@ const signInLocalAccount = async () => {
     const token = result.access_token;
     localStorage.setItem("supabase_token", token);
     localStorage.setItem("supabase_email", email);
-    activeAccount = { id: result.user.id, name: email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
+    activeAccount = { id: result.user?.id || result.id || email, name: email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
     if (loginAccountEmail) loginAccountEmail.value = "";
     if (loginAccountCode) loginAccountCode.value = "";
     renderAccountStatus();
