@@ -548,7 +548,7 @@ const server = http.createServer(async (req, res) => {
   }
 });
 
-const HOST_CANDIDATES = process.env.HOST ? [process.env.HOST] : ["127.0.0.1", "localhost"];
+const HOST_CANDIDATES = process.env.HOST ? [process.env.HOST] : ["0.0.0.0", "127.0.0.1", "localhost"];
 let hostIndex = 0;
 
 const startServer = () => {
