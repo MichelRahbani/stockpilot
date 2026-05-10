@@ -482,7 +482,10 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
-    if (req.method === "GET" && (reqUrl.pathname === "/" || reqUrl.pathname === "/index.html")) {
+    if (req.method === "GET" && reqUrl.pathname === "/") {
+      return sendStaticFile(res, "landing.html");
+    }
+    if (req.method === "GET" && (reqUrl.pathname === "/app" || reqUrl.pathname === "/app/" || reqUrl.pathname === "/index.html")) {
       return sendStaticFile(res, "index.html");
     }
 
