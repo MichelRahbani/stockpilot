@@ -2817,8 +2817,8 @@ const signInLocalAccount = async () => {
     activeAccount = { id: result.user?.id || result.id || email, name: email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
     if (loginAccountEmail) loginAccountEmail.value = "";
     if (loginAccountCode) loginAccountCode.value = "";
-    renderAccountStatus();
-    renderSettings();
+    try { renderAccountStatus(); } catch(e) {}
+    try { renderSettings(); } catch(e) {}
     alert("Signed in as " + activeAccount.name + "!");
   } catch (err) {
     alert("Sign in error: " + err.message);
