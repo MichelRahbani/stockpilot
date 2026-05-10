@@ -483,12 +483,12 @@ const CORS_PROXY_URL = "https://api.allorigins.win/raw?url=";
 let stockPilotApiBaseUrl =
   typeof window !== "undefined" && /^https?:$/i.test(window.location.protocol)
     ? window.location.origin
-    : "http://127.0.0.1:8787";
+    : "https://mystockspilot.com";
 const currentLocalOrigin =
   typeof window !== "undefined" && /^https?:$/i.test(window.location.protocol)
     ? window.location.origin
     : "";
-const STOCKPILOT_API_CANDIDATES = [...new Set([currentLocalOrigin, "http://127.0.0.1:8787", "http://localhost:8787"].filter(Boolean))];
+const STOCKPILOT_API_CANDIDATES = ["https://mystockspilot.com"];
 const STOCKPILOT_SAME_ORIGIN = Boolean(
   typeof window !== "undefined" && /^https?:\/\/(127\.0\.0\.1|localhost):8787$/i.test(window.location.origin)
 );
