@@ -211,6 +211,28 @@
             </div>
           </div>
 
+          <section class="empire-panel command-account-panel" aria-label="Create user and account tools">
+            <div class="section-title">
+              <div>
+                <h2>User Profile</h2>
+                <span class="table-note">Create a demo user so plans, portfolio notes, goals, and backups feel personal.</span>
+              </div>
+              <span class="pricing-badge" id="commandAccountBadge">Guest</span>
+            </div>
+            <div class="command-account-layout">
+              <article>
+                <span id="commandAccountStatus">Guest Mode</span>
+                <strong id="commandAccountName">No user yet</strong>
+                <p id="commandAccountDetail">Create a user before presenting saved plans, goals, and portfolios.</p>
+              </article>
+              <div class="command-account-actions">
+                <button class="primary-button small-button" id="commandCreateUserButton" type="button">Create User</button>
+                <button class="ghost-button small-button" id="commandSignInButton" type="button">Sign In</button>
+                <button class="ghost-button small-button" id="commandSettingsButton" type="button">Settings</button>
+              </div>
+            </div>
+          </section>
+
           <section class="empire-panel command-search-panel" aria-label="Find a StockPilot tool">
             <div class="section-title">
               <div>
@@ -966,14 +988,25 @@
             <div class="section-title">
               <div>
                 <p class="eyebrow">StockPilot Account</p>
-                <h2 id="accountModalTitle">Sign in or create a local profile</h2>
-                <span class="table-note">Demo accounts are saved only in this browser. Do not use a real password.</span>
+                <h2 id="accountModalTitle">Create a user or sign in</h2>
+                <span class="table-note">Demo users are saved only in this browser. Use a simple demo code, not a real password.</span>
               </div>
               <button class="info-close" id="closeAccountButton" type="button" aria-label="Close account panel">x</button>
             </div>
+            <div class="account-current-card" id="accountCurrentCard">
+              <div>
+                <span>Current User</span>
+                <strong id="accountCurrentName">Guest</strong>
+                <p id="accountCurrentDetail">Create a user before presenting saved plans, goals, and portfolios.</p>
+              </div>
+              <div class="account-current-actions">
+                <button class="ghost-button small-button" id="accountFocusCreateButton" type="button">Create User</button>
+                <button class="ghost-button small-button" id="accountFocusLoginButton" type="button">Sign In</button>
+              </div>
+            </div>
             <div class="account-form-grid">
               <article>
-                <h3>Create Profile</h3>
+                <h3>Create User</h3>
                 <label class="field">
                   <span>Name</span>
                   <input id="createAccountName" autocomplete="name" placeholder="Michel" />
@@ -986,7 +1019,7 @@
                   <span>Demo Access Code</span>
                   <input id="createAccountCode" type="password" autocomplete="new-password" placeholder="Use a demo code" />
                 </label>
-                <button class="primary-button" id="createAccountButton" type="button">Create Local Profile</button>
+                <button class="primary-button" id="createAccountButton" type="button">Create User</button>
               </article>
               <article>
                 <h3>Sign In</h3>
@@ -998,8 +1031,10 @@
                   <span>Demo Access Code</span>
                   <input id="loginAccountCode" type="password" autocomplete="current-password" placeholder="Your demo code" />
                 </label>
-                <button class="primary-button" id="loginAccountButton" type="button">Sign In</button>
-                <button class="ghost-button" id="signOutButton" type="button">Sign Out</button>
+                <div class="button-row">
+                  <button class="primary-button" id="loginAccountButton" type="button">Sign In</button>
+                  <button class="ghost-button" id="signOutButton" type="button">Sign Out</button>
+                </div>
               </article>
               <article class="account-backup-card">
                 <h3>Backup</h3>
@@ -1017,7 +1052,7 @@
                 <p class="helper-text" id="cloudReadinessStatus">Local demo today. Future production version would use secure login, encrypted storage, and server-side backups.</p>
               </article>
             </div>
-            <p class="helper-text" id="accountMessage">This is a simple local demo account. A future online version would use secure cloud login.</p>
+            <p class="helper-text" id="accountMessage">This is a simple local demo user. A future online version would use secure cloud login.</p>
           </div>
         </section>
 
@@ -1094,6 +1129,33 @@
               <button class="ghost-button" id="settingsCloseSecondaryButton" type="button">Done</button>
             </div>
             <p class="helper-text" id="settingsStatus">Settings are saved in this browser. Production cloud sync would come later.</p>
+          </div>
+        </section>
+
+        <section class="educational-overlay" id="educationalOverlay" hidden aria-label="Educational use notice">
+          <div class="educational-card" role="dialog" aria-modal="true" aria-labelledby="educationalNoticeTitle">
+            <span class="pricing-badge">Learning Only</span>
+            <h2 id="educationalNoticeTitle">StockPilot is for learning, practice, and planning.</h2>
+            <p>
+              This app is not financial advice, investment advice, tax advice, or legal advice.
+              It helps organize public data, demo inputs, and educational calculations so you can learn and ask better questions.
+            </p>
+            <div class="educational-notice-grid">
+              <article>
+                <span>Always verify</span>
+                <strong>Real numbers can change</strong>
+                <p>Prices, ratios, news, macro data, and filing data may be delayed, revised, incomplete, or unavailable.</p>
+              </article>
+              <article>
+                <span>You decide</span>
+                <strong>No buy or sell commands</strong>
+                <p>Scores and risk meters are educational signals, not instructions to make real-money decisions.</p>
+              </article>
+            </div>
+            <div class="educational-actions">
+              <button class="primary-button" id="acceptEducationalNoticeButton" type="button">I Understand</button>
+              <button class="ghost-button" id="reviewEducationalNoticeButton" type="button">Open Settings</button>
+            </div>
           </div>
         </section>
 
@@ -3083,5 +3145,29 @@ Old app 14 day 28</textarea>
     <button class="settings-floating-button" id="openSettingsFloatingButton" type="button">Settings</button>
 
     <script src="./app.js"></script>
+    <script>
+      (() => {
+        const overlay = document.querySelector("#settingsOverlay");
+        const openButtons = [
+          document.querySelector("#openSettingsButton"),
+          document.querySelector("#openSettingsFloatingButton"),
+          document.querySelector("#commandSettingsButton")
+        ].filter(Boolean);
+        const closeButtons = [document.querySelector("#closeSettingsButton"), document.querySelector("#settingsCloseSecondaryButton")].filter(Boolean);
+        const openSettings = () => {
+          if (overlay) overlay.hidden = false;
+        };
+        const closeSettings = () => {
+          if (overlay) overlay.hidden = true;
+        };
+        openButtons.forEach((button) => button.addEventListener("click", openSettings));
+        closeButtons.forEach((button) => button.addEventListener("click", closeSettings));
+        if (overlay) {
+          overlay.addEventListener("click", (event) => {
+            if (event.target === overlay) closeSettings();
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
