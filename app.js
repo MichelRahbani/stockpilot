@@ -6301,13 +6301,13 @@ const buildDemoHolding = ({ ticker, name, category, assetClass, allocation, pric
 
 const loadDemoHoldings = () => {
   const demoHoldings = [
-    { ticker: "AAPL", name: "Apple", category: "Technology", assetClass: "Stock", allocation: 18, price: 188, pe: 29, ps: 7.2, dividendYield: 0.5, beta: 1.18, roe: 68, debtEquity: 1.5, growth: 8 },
-    { ticker: "MSFT", name: "Microsoft", category: "Technology", assetClass: "Stock", allocation: 17, price: 425, pe: 34, ps: 12, dividendYield: 0.7, beta: 0.92, roe: 36, debtEquity: 0.35, growth: 12 },
-    { ticker: "NVDA", name: "Nvidia", category: "Semiconductors", assetClass: "Stock", allocation: 15, price: 910, pe: 42, ps: 22, dividendYield: 0.03, beta: 1.75, roe: 70, debtEquity: 0.25, growth: 28 },
-    { ticker: "BND", name: "Vanguard Total Bond Market ETF", category: "Core Bonds", assetClass: "Bond", allocation: 15, price: 72, pe: NaN, ps: NaN, dividendYield: 3.5, beta: 0.18, roe: 0, debtEquity: 0, growth: 2 },
-    { ticker: "VNQ", name: "Vanguard Real Estate ETF", category: "Real Estate", assetClass: "Real Estate", allocation: 12, price: 84, pe: 31, ps: 8, dividendYield: 4.0, beta: 1.05, roe: 0, debtEquity: 0.8, growth: 3 },
-    { ticker: "GLD", name: "SPDR Gold Shares", category: "Commodity", assetClass: "Commodity", allocation: 8, price: 215, pe: NaN, ps: NaN, dividendYield: 0, beta: 0.35, roe: 0, debtEquity: 0, growth: 4 },
-    { ticker: "BTC-USD", name: "Bitcoin", category: "Crypto", assetClass: "Crypto", allocation: 15, price: 64000, pe: NaN, ps: NaN, dividendYield: 0, beta: 2.2, roe: 0, debtEquity: 0, growth: 18 }
+    { ticker: "AAPL", name: "Apple", category: "Technology", assetClass: "Stock", allocation: 18, price: 293, pe: 35, ps: 9.5, dividendYield: 0.5, beta: 1.07, roe: 68, debtEquity: 1.5, growth: 8 },
+    { ticker: "MSFT", name: "Microsoft", category: "Technology", assetClass: "Stock", allocation: 17, price: 449, pe: 34, ps: 13, dividendYield: 0.7, beta: 0.92, roe: 36, debtEquity: 0.35, growth: 12 },
+    { ticker: "NVDA", name: "Nvidia", category: "Semiconductors", assetClass: "Stock", allocation: 15, price: 114, pe: 38, ps: 20, dividendYield: 0.03, beta: 1.75, roe: 70, debtEquity: 0.25, growth: 28 },
+    { ticker: "BND", name: "Vanguard Total Bond Market ETF", category: "Core Bonds", assetClass: "Bond", allocation: 15, price: 73, pe: NaN, ps: NaN, dividendYield: 3.5, beta: 0.18, roe: 0, debtEquity: 0, growth: 2 },
+    { ticker: "VNQ", name: "Vanguard Real Estate ETF", category: "Real Estate", assetClass: "Real Estate", allocation: 12, price: 82, pe: 31, ps: 8, dividendYield: 4.0, beta: 1.05, roe: 0, debtEquity: 0.8, growth: 3 },
+    { ticker: "GLD", name: "SPDR Gold Shares", category: "Commodity", assetClass: "Commodity", allocation: 8, price: 306, pe: NaN, ps: NaN, dividendYield: 0, beta: 0.35, roe: 0, debtEquity: 0, growth: 4 },
+    { ticker: "BTC-USD", name: "Bitcoin", category: "Crypto", assetClass: "Crypto", allocation: 15, price: 103000, pe: NaN, ps: NaN, dividendYield: 0, beta: 2.2, roe: 0, debtEquity: 0, growth: 18 }
   ];
   holdings = demoHoldings.map(buildDemoHolding);
 };
