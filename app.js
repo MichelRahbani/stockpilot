@@ -2766,61 +2766,64 @@ const applySettingsFromPanel = () => {
   }
 };
 
-const createLocalAccount = () => {
+const createLocalAccount = async () => {
   const name = createAccountName?.value.trim();
   const email = normalizeEmail(createAccountEmail?.value || "");
   const code = createAccountCode?.value || "";
-  if (!name || !email || code.length < 4) {
-    setAccountMessage("Add a name, email, and a demo access code with at least 4 characters.", "bad");
+  if (!name || !email || code.length < 6) {
+    setAccountMessage("Add a name, email, and a password with at least 6 characters.", "bad");
     return;
   }
-  const accounts = getLocalAccounts();
-  if (accounts.some((account) => account.email === email)) {
-    setAccountMessage("That local profile already exists. Use Sign In instead.", "bad");
-    return;
+  setAccountMessage("Creating account...", "neutral");
+  try {
+    const result = await supabaseSignUp(email, code);
+    if (result.error) {
+      setAccountMessage(result.error.message || "Sign up failed. Try a different email.", "bad");
+      return;
+    }
+    const token = result.access_token;
+    if (token) {
+      localStorage.setItem("supabase_token", token);
+      localStorage.setItem("supabase_email", email);
+    }
+    activeAccount = { id: result.user?.id || email, name, email, createdAt: new Date().toISOString(), lastLoginAt: new Date().toISOString() };
+    if (createAccountName) createAccountName.value = "";
+    if (createAccountEmail) createAccountEmail.value = "";
+    if (createAccountCode) createAccountCode.value = "";
+    renderAccountStatus();
+    renderSettings();
+    setAccountMessage(`Account created for ${name}! Check your email to confirm your account.`, "good");
+  } catch (err) {
+    setAccountMessage("Account creation failed. Try again.", "bad");
   }
-  const account = {
-    id: createDemoAccountId(),
-    name,
-    email,
-    codeHash: demoCodeHash(code),
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString()
-  };
-  accounts.unshift(account);
-  saveLocalAccounts(accounts);
-  localStorage.setItem(ACCOUNT_SESSION_KEY, account.id);
-  activeAccount = account;
-  if (createAccountName) createAccountName.value = "";
-  if (createAccountEmail) createAccountEmail.value = "";
-  if (createAccountCode) createAccountCode.value = "";
-  renderAccountStatus();
-  renderSettings();
-  setAccountMessage(`User created for ${name}. This prototype profile is stored only in this browser.`, "good");
 };
 
-const signInLocalAccount = () => {
+const signInLocalAccount = async () => {
   const email = normalizeEmail(loginAccountEmail?.value || "");
   const code = loginAccountCode?.value || "";
   if (!email || !code) {
-    setAccountMessage("Enter the email and demo access code for this browser.", "bad");
+    setAccountMessage("Enter your email and password.", "bad");
     return;
   }
-  const accounts = getLocalAccounts();
-  const index = accounts.findIndex((account) => account.email === email && account.codeHash === demoCodeHash(code));
-  if (index < 0) {
-    setAccountMessage("No local profile matched that email and demo access code.", "bad");
-    return;
+  setAccountMessage("Signing in...", "neutral");
+  try {
+    const result = await supabaseSignIn(email, code);
+    if (result.error) {
+      setAccountMessage(result.error.message || "Sign in failed. Check your email and password.", "bad");
+      return;
+    }
+    const token = result.access_token;
+    localStorage.setItem("supabase_token", token);
+    localStorage.setItem("supabase_email", email);
+    activeAccount = { id: result.user.id, name: email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
+    if (loginAccountEmail) loginAccountEmail.value = "";
+    if (loginAccountCode) loginAccountCode.value = "";
+    renderAccountStatus();
+    renderSettings();
+    setAccountMessage(`Signed in as ${activeAccount.name}.`, "good");
+  } catch (err) {
+    setAccountMessage("Sign in failed. Try again.", "bad");
   }
-  accounts[index].lastLoginAt = new Date().toISOString();
-  saveLocalAccounts(accounts);
-  localStorage.setItem(ACCOUNT_SESSION_KEY, accounts[index].id);
-  activeAccount = accounts[index];
-  if (loginAccountEmail) loginAccountEmail.value = "";
-  if (loginAccountCode) loginAccountCode.value = "";
-  renderAccountStatus();
-  renderSettings();
-  setAccountMessage(`Signed in as ${activeAccount.name}.`, "good");
 };
 
 const signOutLocalAccount = () => {
