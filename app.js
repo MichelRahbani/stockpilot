@@ -2457,7 +2457,7 @@ const renderAccountStatus = () => {
   if (accountCurrentName) accountCurrentName.textContent = account ? account.name : "Guest";
   if (accountCurrentDetail) {
     accountCurrentDetail.textContent = account
-      ? `${account.email} · created ${new Date(account.createdAt).toLocaleDateString()} · saved on this browser`
+      ? `${account.email} · created ${new Date(account.createdAt).toLocaleDateString()} · saved in the cloud`
       : "Create a user before presenting saved plans, goals, and portfolios.";
   }
   updateSaveStatus(account ? `Saved locally for ${account.name}` : "Saved locally");
