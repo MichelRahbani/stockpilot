@@ -85,11 +85,23 @@ const investingSectionSelect = document.querySelector("#investingSectionSelect")
 const viewPanels = document.querySelectorAll("[data-view-panel]");
 const accountStatus = document.querySelector("#accountStatus");
 const accountName = document.querySelector("#accountName");
+const createUserHeaderButton = document.querySelector("#createUserHeaderButton");
+const commandAccountBadge = document.querySelector("#commandAccountBadge");
+const commandAccountStatus = document.querySelector("#commandAccountStatus");
+const commandAccountName = document.querySelector("#commandAccountName");
+const commandAccountDetail = document.querySelector("#commandAccountDetail");
+const commandCreateUserButton = document.querySelector("#commandCreateUserButton");
+const commandSignInButton = document.querySelector("#commandSignInButton");
+const commandSettingsButton = document.querySelector("#commandSettingsButton");
 const openAccountButton = document.querySelector("#openAccountButton");
 const openSettingsButton = document.querySelector("#openSettingsButton");
 const openSettingsFloatingButton = document.querySelector("#openSettingsFloatingButton");
 const accountOverlay = document.querySelector("#accountOverlay");
 const closeAccountButton = document.querySelector("#closeAccountButton");
+const accountCurrentName = document.querySelector("#accountCurrentName");
+const accountCurrentDetail = document.querySelector("#accountCurrentDetail");
+const accountFocusCreateButton = document.querySelector("#accountFocusCreateButton");
+const accountFocusLoginButton = document.querySelector("#accountFocusLoginButton");
 const createAccountName = document.querySelector("#createAccountName");
 const createAccountEmail = document.querySelector("#createAccountEmail");
 const createAccountCode = document.querySelector("#createAccountCode");
@@ -113,6 +125,9 @@ const settingsReadinessGrid = document.querySelector("#settingsReadinessGrid");
 const settingsStatus = document.querySelector("#settingsStatus");
 const settingsOpenAccountButton = document.querySelector("#settingsOpenAccountButton");
 const settingsShowTourButton = document.querySelector("#settingsShowTourButton");
+const educationalOverlay = document.querySelector("#educationalOverlay");
+const acceptEducationalNoticeButton = document.querySelector("#acceptEducationalNoticeButton");
+const reviewEducationalNoticeButton = document.querySelector("#reviewEducationalNoticeButton");
 const exportAppDataButton = document.querySelector("#exportAppDataButton");
 const importAppDataButton = document.querySelector("#importAppDataButton");
 const appDataTransfer = document.querySelector("#appDataTransfer");
@@ -520,6 +535,7 @@ const APP_STATE_KEY = "stockPilot.appState";
 const ONBOARDING_KEY = "stockPilot.onboardingComplete";
 const ACCOUNT_KEY = "stockPilot.localAccounts";
 const ACCOUNT_SESSION_KEY = "stockPilot.activeAccount";
+const EDUCATIONAL_NOTICE_SESSION_KEY = "stockPilot.educationalNoticeSeen";
 const BOND_TICKERS = new Set(["AGG", "BND", "BNDX", "BSV", "IEF", "IEI", "IGSB", "LQD", "MBB", "MUB", "SHY", "TIP", "TLT", "VCIT", "VCSH"]);
 const CRYPTO_TICKERS = new Set(["BTC-USD", "ETH-USD", "SOL-USD", "XRP-USD", "ADA-USD", "DOGE-USD", "AVAX-USD", "LINK-USD"]);
 const COMMODITY_TICKERS = new Set(["DBC", "GLD", "IAU", "SLV", "USO", "UNG", "PDBC", "GSG", "CORN", "WEAT", "DBA", "CPER"]);
@@ -2338,7 +2354,7 @@ const checkStockPilotApi = async () => {
       const payload = await response.json().catch(() => ({}));
       stockPilotApiBaseUrl = baseUrl;
       stockPilotApiOnline = true;
-      stockPilotProviderStatus = payload.providerStatus || null;
+      stockPilotProviderStatus = payload.providerStatus || payload.providers || null;
       stockPilotApiError = "";
       updateDataSourceStatus();
       renderDataFreshness();
@@ -2381,6 +2397,9 @@ const demoCodeHash = (value) =>
 
 const normalizeEmail = (value) => value.trim().toLowerCase();
 
+const createDemoAccountId = () =>
+  globalThis.crypto?.randomUUID ? globalThis.crypto.randomUUID() : `local-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
 const setAccountMessage = (message, tone = "neutral") => {
   if (!accountMessage) return;
   accountMessage.textContent = message;
@@ -2394,9 +2413,43 @@ const renderAccountStatus = () => {
   if (accountStatus) accountStatus.textContent = account ? "Signed In" : "Guest Mode";
   if (accountName) accountName.textContent = account ? account.name : "No account";
   if (openAccountButton) openAccountButton.textContent = account ? "Account" : "Sign In";
+  if (createUserHeaderButton) createUserHeaderButton.hidden = Boolean(account);
   if (signOutButton) signOutButton.disabled = !account;
+  if (commandAccountBadge) commandAccountBadge.textContent = account ? "Signed In" : "Guest";
+  if (commandAccountStatus) commandAccountStatus.textContent = account ? "Signed In" : "Guest Mode";
+  if (commandAccountName) commandAccountName.textContent = account ? account.name : "No user yet";
+  if (commandAccountDetail) {
+    commandAccountDetail.textContent = account
+      ? `${account.email} · local demo user · use Backup before switching browsers`
+      : "Create a user before presenting saved plans, goals, and portfolios.";
+  }
+  if (commandCreateUserButton) commandCreateUserButton.hidden = Boolean(account);
+  if (commandSignInButton) commandSignInButton.textContent = account ? "Account" : "Sign In";
+  if (accountCurrentName) accountCurrentName.textContent = account ? account.name : "Guest";
+  if (accountCurrentDetail) {
+    accountCurrentDetail.textContent = account
+      ? `${account.email} · created ${new Date(account.createdAt).toLocaleDateString()} · saved on this browser`
+      : "Create a user before presenting saved plans, goals, and portfolios.";
+  }
   updateSaveStatus(account ? `Saved locally for ${account.name}` : "Saved locally");
   renderCloudReadiness();
+};
+
+const openAccountPanel = (focusTarget = "create") => {
+  if (!accountOverlay) return;
+  accountOverlay.hidden = false;
+  renderAccountStatus();
+  setTimeout(() => {
+    if (focusTarget === "login") {
+      loginAccountEmail?.focus();
+      return;
+    }
+    if (activeAccount) {
+      closeAccountButton?.focus();
+      return;
+    }
+    createAccountName?.focus();
+  }, 0);
 };
 
 const renderCloudReadiness = () => {
@@ -2657,6 +2710,16 @@ const closeSettings = () => {
   if (settingsOverlay) settingsOverlay.hidden = true;
 };
 
+const showEducationalNotice = () => {
+  if (!educationalOverlay || sessionStorage.getItem(EDUCATIONAL_NOTICE_SESSION_KEY) === "true") return;
+  educationalOverlay.hidden = false;
+};
+
+const closeEducationalNotice = () => {
+  sessionStorage.setItem(EDUCATIONAL_NOTICE_SESSION_KEY, "true");
+  if (educationalOverlay) educationalOverlay.hidden = true;
+};
+
 const applySettingsFromPanel = () => {
   if (settingsMarketRefresh) refreshSettings.marketMinutes = Number(settingsMarketRefresh.value) || 0;
   if (settingsNewsRefresh) refreshSettings.newsMinutes = Number(settingsNewsRefresh.value) || 0;
@@ -2688,7 +2751,7 @@ const createLocalAccount = () => {
     return;
   }
   const account = {
-    id: crypto.randomUUID(),
+    id: createDemoAccountId(),
     name,
     email,
     codeHash: demoCodeHash(code),
@@ -2699,14 +2762,21 @@ const createLocalAccount = () => {
   saveLocalAccounts(accounts);
   localStorage.setItem(ACCOUNT_SESSION_KEY, account.id);
   activeAccount = account;
+  if (createAccountName) createAccountName.value = "";
+  if (createAccountEmail) createAccountEmail.value = "";
   if (createAccountCode) createAccountCode.value = "";
   renderAccountStatus();
-  setAccountMessage(`Local profile created for ${name}. This prototype profile is stored only in this browser.`, "good");
+  renderSettings();
+  setAccountMessage(`User created for ${name}. This prototype profile is stored only in this browser.`, "good");
 };
 
 const signInLocalAccount = () => {
   const email = normalizeEmail(loginAccountEmail?.value || "");
   const code = loginAccountCode?.value || "";
+  if (!email || !code) {
+    setAccountMessage("Enter the email and demo access code for this browser.", "bad");
+    return;
+  }
   const accounts = getLocalAccounts();
   const index = accounts.findIndex((account) => account.email === email && account.codeHash === demoCodeHash(code));
   if (index < 0) {
@@ -2717,8 +2787,10 @@ const signInLocalAccount = () => {
   saveLocalAccounts(accounts);
   localStorage.setItem(ACCOUNT_SESSION_KEY, accounts[index].id);
   activeAccount = accounts[index];
+  if (loginAccountEmail) loginAccountEmail.value = "";
   if (loginAccountCode) loginAccountCode.value = "";
   renderAccountStatus();
+  renderSettings();
   setAccountMessage(`Signed in as ${activeAccount.name}.`, "good");
 };
 
@@ -2726,6 +2798,7 @@ const signOutLocalAccount = () => {
   localStorage.removeItem(ACCOUNT_SESSION_KEY);
   activeAccount = null;
   renderAccountStatus();
+  renderSettings();
   setAccountMessage("Signed out. Your local app data is still saved in this browser.", "neutral");
 };
 
@@ -6947,10 +7020,10 @@ const getSetupChecklistItems = (stats, savingsStats) => {
     },
     {
       id: "account",
-      title: "Save your workspace",
-      detail: activeProfile ? `Signed in locally as ${activeProfile.name}. Use Backup before switching browsers.` : "Create a local demo profile and use Backup if you want to move data later.",
+      title: "Create a user",
+      detail: activeProfile ? `Signed in locally as ${activeProfile.name}. Use Backup before switching browsers.` : "Create a local demo user so the app feels personal during presentations.",
       done: Boolean(activeProfile),
-      action: activeProfile ? "Open Account" : "Sign In"
+      action: activeProfile ? "Open Account" : "Create User"
     }
   ];
 };
@@ -6999,9 +7072,8 @@ const handleSetupAction = (action) => {
     setMoneyMode("plan");
   } else if (action === "refresh") {
     refreshAllData();
-  } else if (action === "account" && accountOverlay) {
-    accountOverlay.hidden = false;
-    renderAccountStatus();
+  } else if (action === "account") {
+    openAccountPanel(activeAccount ? "account" : "create");
   }
 };
 
@@ -10558,10 +10630,11 @@ document.querySelectorAll("[data-demo-route]").forEach((button) => {
   button.addEventListener("click", () => runDemoRoute(button.dataset.demoRoute));
 });
 if (refreshMacroButton) refreshMacroButton.addEventListener("click", fetchMacroData);
-if (openAccountButton) openAccountButton.addEventListener("click", () => {
-  if (accountOverlay) accountOverlay.hidden = false;
-  renderAccountStatus();
-});
+if (createUserHeaderButton) createUserHeaderButton.addEventListener("click", () => openAccountPanel("create"));
+if (commandCreateUserButton) commandCreateUserButton.addEventListener("click", () => openAccountPanel("create"));
+if (commandSignInButton) commandSignInButton.addEventListener("click", () => openAccountPanel(activeAccount ? "account" : "login"));
+if (commandSettingsButton) commandSettingsButton.addEventListener("click", openSettings);
+if (openAccountButton) openAccountButton.addEventListener("click", () => openAccountPanel(activeAccount ? "account" : "login"));
 if (openSettingsButton) openSettingsButton.addEventListener("click", openSettings);
 if (openSettingsFloatingButton) openSettingsFloatingButton.addEventListener("click", openSettings);
 if (closeAccountButton) closeAccountButton.addEventListener("click", () => {
@@ -10580,6 +10653,18 @@ if (settingsOverlay) {
     if (event.target === settingsOverlay) closeSettings();
   });
 }
+if (acceptEducationalNoticeButton) acceptEducationalNoticeButton.addEventListener("click", closeEducationalNotice);
+if (reviewEducationalNoticeButton) {
+  reviewEducationalNoticeButton.addEventListener("click", () => {
+    closeEducationalNotice();
+    openSettings();
+  });
+}
+if (educationalOverlay) {
+  educationalOverlay.addEventListener("click", (event) => {
+    if (event.target === educationalOverlay) closeEducationalNotice();
+  });
+}
 settingsExperienceButtons.forEach((button) =>
   button.addEventListener("click", () => {
     setExperienceMode(button.dataset.settingsExperience);
@@ -10593,8 +10678,7 @@ settingsExperienceButtons.forEach((button) =>
 if (settingsOpenAccountButton) {
   settingsOpenAccountButton.addEventListener("click", () => {
     closeSettings();
-    if (accountOverlay) accountOverlay.hidden = false;
-    renderAccountStatus();
+    openAccountPanel("create");
   });
 }
 if (settingsShowTourButton) {
@@ -10606,6 +10690,18 @@ if (settingsShowTourButton) {
 if (createAccountButton) createAccountButton.addEventListener("click", createLocalAccount);
 if (loginAccountButton) loginAccountButton.addEventListener("click", signInLocalAccount);
 if (signOutButton) signOutButton.addEventListener("click", signOutLocalAccount);
+if (accountFocusCreateButton) accountFocusCreateButton.addEventListener("click", () => openAccountPanel("create"));
+if (accountFocusLoginButton) accountFocusLoginButton.addEventListener("click", () => openAccountPanel("login"));
+[createAccountName, createAccountEmail, createAccountCode].filter(Boolean).forEach((input) => {
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") createLocalAccount();
+  });
+});
+[loginAccountEmail, loginAccountCode].filter(Boolean).forEach((input) => {
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") signInLocalAccount();
+  });
+});
 if (exportAppDataButton) exportAppDataButton.addEventListener("click", exportAppData);
 if (importAppDataButton) importAppDataButton.addEventListener("click", importAppData);
 if (copyCopilotReportButton) {
@@ -10816,5 +10912,6 @@ setMoneyMode(restoredMode || "command");
 if (restoredMode === "savings") showSavingsPanel(restoredSavingsPanel || "plan");
 if (restoredMode === "education") showLearningPanel(restoredLearningPanel || "tips");
 if (restoredMode === "investing") switchView(sectionSelect.value || "portfolio");
+showEducationalNotice();
 showOnboardingIfNeeded();
 saveAppState();
