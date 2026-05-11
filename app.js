@@ -10999,3 +10999,27 @@ if (forgotPasswordButton) {
     }
   });
 }
+
+// Restore Supabase session on page load
+const restoreSupabaseSession = async () => {
+  const token = localStorage.getItem("supabase_token");
+  const email = localStorage.getItem("supabase_email");
+  const name = localStorage.getItem("supabase_name");
+  if (!token || !email) return;
+  try {
+    const res = await fetch(SUPABASE_URL + "/auth/v1/user", {
+      headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + token }
+    });
+    if (res.ok) {
+      const user = await res.json();
+      activeAccount = { id: user.id, name: name || email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
+      try { renderAccountStatus(); } catch(e) {}
+      try { renderSettings(); } catch(e) {}
+    } else {
+      localStorage.removeItem("supabase_token");
+      localStorage.removeItem("supabase_email");
+      localStorage.removeItem("supabase_name");
+    }
+  } catch(e) {}
+};
+window.addEventListener("DOMContentLoaded", restoreSupabaseSession);
