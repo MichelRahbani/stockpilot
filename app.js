@@ -10978,3 +10978,24 @@ if (restoredMode === "investing") switchView(sectionSelect.value || "portfolio")
 showEducationalNotice();
 showOnboardingIfNeeded();
 saveAppState();
+
+const forgotPasswordButton = document.querySelector("#forgotPasswordButton");
+if (forgotPasswordButton) {
+  forgotPasswordButton.addEventListener("click", async () => {
+    const email = loginAccountEmail?.value || "";
+    if (!email) {
+      alert("Enter your email address first, then click Forgot Password.");
+      return;
+    }
+    try {
+      const res = await fetch(SUPABASE_URL + "/auth/v1/recover", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY },
+        body: JSON.stringify({ email })
+      });
+      alert("Password reset email sent to " + email + "! Check your inbox.");
+    } catch (err) {
+      alert("Could not send reset email. Try again.");
+    }
+  });
+}
