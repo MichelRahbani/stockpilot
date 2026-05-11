@@ -489,7 +489,7 @@ const server = http.createServer(async (req, res) => {
       return sendStaticFile(res, "index.html");
     }
 
-    if (req.method === "GET" && ["/app.js", "/styles.css", "/theme-override.css"].includes(reqUrl.pathname)) {
+    if (req.method === "GET" && ["/app.js", "/styles.css", "/theme-override.css", "/logo.jpg"].includes(reqUrl.pathname)) {
       return sendStaticFile(res, reqUrl.pathname.slice(1));
     }
 
