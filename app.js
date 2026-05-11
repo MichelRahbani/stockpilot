@@ -3517,9 +3517,9 @@ const formatRelativeTime = (isoValue) => {
 };
 
 const freshnessTone = (key, item) => {
-  if (!item?.updatedAt) return "warn";
-  if (item.status === "failed") return "bad";
-  if (item.status === "skipped") return "warn";
+  if (!item || !item?.updatedAt) return "warn";
+  if (item?.status === "failed") return "bad";
+  if (item?.status === "skipped") return "warn";
   const ageMinutes = (Date.now() - new Date(item.updatedAt).getTime()) / 60000;
   const limit = key === "portfolio" ? refreshSettings.portfolioStaleMinutes : FRESHNESS_LIMITS_MINUTES[key] || 60;
   return ageMinutes > limit ? "warn" : "good";
