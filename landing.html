@@ -25,13 +25,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .btn-primary:hover{background:var(--green-d);transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,158,110,0.3)}
 .btn-lg{padding:13px 26px;font-size:15px;border-radius:11px}
 .btn-xl{padding:15px 32px;font-size:16px;border-radius:12px}
-.ticker-bar{background:var(--g900);padding:10px 0;overflow:hidden;margin-top:57px}
+.ticker-bar{background:var(--g900);padding:10px 0;overflow:hidden;position:fixed;top:53px;left:0;right:0;z-index:99}
 .ticker-track{display:flex;gap:40px;animation:scroll 30s linear infinite;width:max-content}
 .ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6)}
 .ticker-item strong{color:white;font-weight:500}
 .ticker-item .up{color:#2ecc9a}.ticker-item .down{color:#ff6b6b}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.hero{min-height:calc(100vh - 93px);display:flex;align-items:center;padding:80px 40px;background:linear-gradient(160deg,rgba(232,247,242,0.4) 0%,rgba(255,255,255,0) 50%,rgba(239,245,255,0.3) 100%);position:relative;overflow:hidden}
+.hero{min-height:calc(100vh - 93px);display:flex;align-items:center;padding:80px 40px;margin-top:40px;background:linear-gradient(160deg,rgba(232,247,242,0.4) 0%,rgba(255,255,255,0) 50%,rgba(239,245,255,0.3) 100%);position:relative;overflow:hidden}
 .hero-dots{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(0,0,0,0.06) 1px,transparent 1px);background-size:28px 28px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 30%,transparent 100%)}
 .hero-inner{max-width:1120px;margin:0 auto;width:100%;display:grid;grid-template-columns:1.1fr 0.9fr;gap:72px;align-items:center;position:relative}
 .hero-tag{display:inline-flex;align-items:center;background:var(--green-l);color:var(--green);border:1px solid rgba(26,158,110,0.2);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600;margin-bottom:20px}
