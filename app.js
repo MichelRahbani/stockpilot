@@ -2497,7 +2497,7 @@ const renderCloudReadiness = () => {
   if (!cloudReadinessGrid) return;
   const hasAccount = Boolean(activeAccount || getLocalAccounts().find((item) => item.id === localStorage.getItem(ACCOUNT_SESSION_KEY)));
   const hasData = holdings.length || moneyGoals.length || decisionJournal.length || getSavingsSnapshot().income > 0;
-  const freshCount = Object.values(dataFreshness).filter((item) => item.status === "success").length;
+  const freshCount = Object.values(dataFreshness).filter((item) => item?.status === "success").length;
   const items = [
     {
       done: hasAccount,
@@ -2551,7 +2551,7 @@ const syncSettingsInputs = () => {
 
 const getSettingsReadinessItems = () => {
   const activeProfile = activeAccount || getLocalAccounts().find((item) => item.id === localStorage.getItem(ACCOUNT_SESSION_KEY));
-  const freshCount = Object.values(dataFreshness).filter((item) => item.status === "success").length;
+  const freshCount = Object.values(dataFreshness).filter((item) => item?.status === "success").length;
   return [
     {
       title: "Profile",
@@ -7034,7 +7034,7 @@ const deleteMoneyGoal = (id) => {
 };
 
 const getSetupChecklistItems = (stats, savingsStats) => {
-  const freshCount = Object.values(dataFreshness).filter((item) => item.status === "success").length;
+  const freshCount = Object.values(dataFreshness).filter((item) => item?.status === "success").length;
   const totalFreshness = Object.keys(freshnessLabels).length || 1;
   const activeProfile = activeAccount || getLocalAccounts().find((item) => item.id === localStorage.getItem(ACCOUNT_SESSION_KEY));
   return [
