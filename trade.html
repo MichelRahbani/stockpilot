@@ -613,9 +613,10 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
 // Restore session on load - instant from cache first
 document.addEventListener("DOMContentLoaded", function() {
   const _email = localStorage.getItem("supabase_email");
-  const _name = localStorage.getItem("supabase_name") || (_email ? _email.split("@")[0] : null);
+  const _name = localStorage.getItem("supabase_name") || localStorage.getItem("sp_active_account") && JSON.parse(localStorage.getItem("sp_active_account") || "{}").name || (_email ? _email.split("@")[0] : null);
   const _token = localStorage.getItem("supabase_token");
   if (_token && _name && typeof showNavUser === "function") showNavUser(_name);
+  else if (_token && _email && typeof showNavUser === "function") showNavUser(_email.split("@")[0]);
 });
 (async function(){
   const token = localStorage.getItem('supabase_token');
