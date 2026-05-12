@@ -179,7 +179,7 @@ h1{animation:fadeUp 0.45s 0.08s ease both}
 .hero-sub{animation:fadeUp 0.45s 0.16s ease both}
 .hero-actions{animation:fadeUp 0.45s 0.24s ease both}
 .mock-wrap{animation:fadeUp 0.55s 0.15s ease both}
-@media(max-width:900px){body{overflow-x:hidden!important;width:100vw!important}html{overflow-x:hidden!important}.vm-btn{display:none!important}nav{padding:12px 20px}.nav-links{display:none}.hero{padding:60px 20px}.hero-inner{grid-template-columns:1fr;gap:48px}.mock-wrap{display:none}.stats-bar{padding:20px}.stats-inner{gap:16px}.stat-div{display:none}.how,.features,.compare,.for-who,.faq,.signup,.cta{padding:60px 20px}.steps{grid-template-columns:1fr;gap:12px}.step{border-radius:16px !important}.feat-grid{grid-template-columns:1fr}.aud-grid{grid-template-columns:1fr}.signup-form{flex-direction:column}footer{flex-direction:column;text-align:center}.foot-links{justify-content:center}}
+@media(max-width:900px){body{overflow-x:hidden!important;width:100vw!important}html{overflow-x:hidden!important}.vm-btn{display:none!important}nav{padding:12px 20px}.compare-inner{padding:0 4px}.compare-table{font-size:12px}.compare-table th,.compare-table td{padding:8px 10px}.nav-links{display:none}.hero{padding:60px 20px}.hero-inner{grid-template-columns:1fr;gap:48px}.mock-wrap{display:none}.stats-bar{padding:20px}.stats-inner{gap:16px}.stat-div{display:none}.how,.features,.compare,.for-who,.faq,.signup,.cta{padding:60px 20px}.steps{grid-template-columns:1fr;gap:12px}.step{border-radius:16px !important}.feat-grid{grid-template-columns:1fr}.aud-grid{grid-template-columns:1fr}.signup-form{flex-direction:column}footer{flex-direction:column;text-align:center}.foot-links{justify-content:center}}
 </style>
 </head>
 <body>
@@ -341,7 +341,7 @@ h1{animation:fadeUp 0.45s 0.08s ease both}
 
 <section style="padding:90px 40px;background:var(--g900);position:relative;overflow:hidden">
   <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 30% 50%,rgba(26,158,110,0.12) 0%,transparent 70%)"></div>
-  <div style="max-width:1060px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;position:relative">
+  <div style="max-width:1060px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;position:relative;max-width:1060px;margin:0 auto;width:100%">
     <div>
       <div style="display:inline-flex;align-items:center;background:rgba(26,158,110,0.15);color:#2ecc9a;border:1px solid rgba(46,204,154,0.2);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600;margin-bottom:20px">🎮 Paper Trading · No real money</div>
       <div style="font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:white;letter-spacing:-0.02em;line-height:1.15;margin-bottom:16px">Practice trading with <em style="font-style:italic;color:#2ecc9a">$100,000</em> of virtual cash.</div>
@@ -399,7 +399,7 @@ h1{animation:fadeUp 0.45s 0.08s ease both}
     <p class="section-tag" style="color:rgba(255,255,255,0.35)">How we compare</p>
     <h2>Professional context. Zero cost.</h2>
     <p class="s-sub">Bloomberg costs $24K/year. StockPilot gives students and beginners the same learning context — for free.</p>
-    <table class="compare-table">
+    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="compare-table" style="min-width:500px">
       <thead><tr><th>Feature</th><th class="sp-col">StockPilot</th><th>Bloomberg</th><th>Investopedia</th><th>Nothing</th></tr></thead>
       <tbody>
         <tr><td>Real market data</td><td class="sp-col"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="partial">Partial</span></td><td><span class="cross">✗</span></td></tr>
@@ -410,7 +410,7 @@ h1{animation:fadeUp 0.45s 0.08s ease both}
         <tr><td>Learning pathways</td><td class="sp-col"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
         <tr><td>Price</td><td class="sp-col"><span class="free-tag">Free</span></td><td><span class="price-tag">$24,000/yr</span></td><td><span class="price-tag">Free + Ads</span></td><td><span class="price-tag">Free</span></td></tr>
       </tbody>
-    </table>
+    </table></div>
   </div>
 </section>
 <section class="for-who" id="for-who">
