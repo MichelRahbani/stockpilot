@@ -8651,3 +8651,4 @@ body.command-mode .services-panel {
   }
 }
 .settings-floating-button { display: none !important; }
+#signOutButton:disabled { display: none !important; }
