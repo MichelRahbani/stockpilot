@@ -2356,10 +2356,11 @@ const updateDataSourceStatus = () => {
     ? `Gateway on${finnhubReady ? " + Finnhub" : ""}${secReady ? " + SEC" : ""}`
     : "Live gateway offline";
   const checkedAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  const checkedAtRelative = "just now";
 
   if (liveDataPill && liveDataStatus && liveDataDetail) {
     liveDataStatus.textContent = statusText;
-    liveDataDetail.textContent = `${providerText} · checked ${checkedAt}`;
+    liveDataDetail.textContent = `${providerText} · checked ${checkedAtRelative}`;
     liveDataPill.className = `live-data-pill ${stockPilotApiOnline ? "connected" : "fallback"}`;
     liveDataPill.title = stockPilotApiOnline
       ? "StockPilot is routing supported data through the local API gateway. Market data may still be delayed by the provider."
