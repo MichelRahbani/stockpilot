@@ -2830,6 +2830,7 @@ const signInLocalAccount = async () => {
     const savedName = localStorage.getItem("supabase_name") || email.split("@")[0];
     activeAccount = { id: result.user?.id || result.id || email, name: savedName, email, lastLoginAt: new Date().toISOString() };
     localStorage.setItem(ACCOUNT_SESSION_KEY, activeAccount.id);
+    localStorage.setItem("sp_active_account", JSON.stringify(activeAccount));
     if (loginAccountEmail) loginAccountEmail.value = "";
     if (loginAccountCode) loginAccountCode.value = "";
     try { renderAccountStatus(); } catch(e) {}
@@ -2843,6 +2844,9 @@ const signInLocalAccount = async () => {
 const signOutLocalAccount = () => {
   localStorage.removeItem(ACCOUNT_SESSION_KEY);
   activeAccount = null;
+  localStorage.removeItem("sp_active_account");
+  localStorage.removeItem("supabase_token");
+  localStorage.removeItem("supabase_email");
   renderAccountStatus();
   renderSettings();
   setAccountMessage("Signed out. Your local app data is still saved in this browser.", "neutral");
@@ -11037,6 +11041,15 @@ if (forgotPasswordButton) {
 }
 
 // Restore Supabase session on page load
+// Instant session restore from cache
+const cachedAccount = localStorage.getItem("sp_active_account");
+if (cachedAccount) {
+  try {
+    activeAccount = JSON.parse(cachedAccount);
+    try { renderAccountStatus(); } catch(e) {}
+  } catch(e) {}
+}
+
 const restoreSupabaseSession = async () => {
   const token = localStorage.getItem("supabase_token");
   const email = localStorage.getItem("supabase_email");
