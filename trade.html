@@ -136,7 +136,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
   <div style="display:flex;gap:8px">
     <a href="/app" class="nav-btn">← Learning App</a>
-    <button onclick="openSignin()" class="nav-btn">Sign In</button>
+    <button onclick="openSignin()" class="nav-btn" id="signInNavBtn">Sign In</button>
     <button class="nav-btn red" id="resetBtn">Reset Portfolio</button>
   </div>
 </nav>
@@ -547,5 +547,27 @@ async function doForgot(){
 }
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
 </script>
-</body>
+
+<script>
+// Restore session on load
+(async function(){
+  const token = localStorage.getItem('supabase_token');
+  const email = localStorage.getItem('supabase_email');
+  const name = localStorage.getItem('supabase_name') || (email ? email.split('@')[0] : null);
+  if (!token || !email) return;
+  try {
+    const r = await fetch('https://xkfxofcmrmpazfjviatq.supabase.co/auth/v1/user', {
+      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q', 'Authorization': 'Bearer ' + token }
+    });
+    if (r.ok) {
+      // Update sign in button to show name
+      const btnSI = document.querySelector('#signInNavBtn');
+      if (btnSI) { btnSI.textContent = name; btnSI.style.color = '#2ecc9a'; }
+    } else {
+      localStorage.removeItem('supabase_token');
+      localStorage.removeItem('supabase_email');
+    }
+  } catch(e) {}
+})();
+</script></body>
 </html>
