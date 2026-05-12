@@ -11079,3 +11079,23 @@ const restoreSupabaseSession = async () => {
   } catch(e) {}
 };
 window.addEventListener("DOMContentLoaded", restoreSupabaseSession);
+
+// Toggle between Create User and Sign In forms
+const accountFocusCreateButton = document.querySelector("#accountFocusCreateButton");
+const accountFocusLoginButton = document.querySelector("#accountFocusLoginButton");
+if (accountFocusCreateButton) {
+  accountFocusCreateButton.addEventListener("click", () => {
+    document.getElementById("createUserForm").style.display = "";
+    document.getElementById("signInForm").style.display = "none";
+    accountFocusCreateButton.style.fontWeight = "700";
+    accountFocusLoginButton.style.fontWeight = "400";
+  });
+}
+if (accountFocusLoginButton) {
+  accountFocusLoginButton.addEventListener("click", () => {
+    document.getElementById("createUserForm").style.display = "none";
+    document.getElementById("signInForm").style.display = "";
+    accountFocusLoginButton.style.fontWeight = "700";
+    accountFocusCreateButton.style.fontWeight = "400";
+  });
+}
