@@ -286,6 +286,32 @@ async function loadWatchlist(){try{const res=await fetch(API+'/api/quotes?symbol
 async function updateStats(){const symbols=Object.keys(portfolio.positions);let posValue=0;if(symbols.length){try{const res=await fetch(API+'/api/quotes?symbols='+symbols.join(','));const data=await res.json();const quotes=data?.quoteResponse?.result||[];quotes.forEach(q=>{const pos=portfolio.positions[q.symbol];if(pos)posValue+=pos.shares*(q.regularMarketPrice||pos.avgCost);});}catch(e){symbols.forEach(s=>{posValue+=portfolio.positions[s].shares*portfolio.positions[s].avgCost;});}}const totalValue=portfolio.cash+posValue,pnl=totalValue-STARTING_CASH,pnlPct=(pnl/STARTING_CASH)*100;document.getElementById('stat-cash').textContent=fmt(portfolio.cash);document.getElementById('stat-value').textContent=fmt(totalValue);document.getElementById('stat-pnl').textContent=(pnl>=0?'+':'')+fmt(pnl);document.getElementById('stat-pnl').style.color=pnl>=0?'#86efac':'#fca5a5';document.getElementById('stat-trades').textContent=portfolio.trades.length;document.getElementById('cash-display').textContent=fmt(portfolio.cash);document.getElementById('portfolio-value').textContent=fmt(totalValue);document.getElementById('portfolio-pnl').textContent=(pnl>=0?'+':'')+fmt(pnl)+' ('+(pnlPct>=0?'+':'')+pnlPct.toFixed(2)+'%)';document.getElementById('portfolio-pnl').style.color=pnl>=0?'#86efac':'#fca5a5';document.getElementById('ts-cash').textContent=fmt(portfolio.cash);}
 function resetPortfolio(){if(!confirm('Reset your portfolio to $100,000 starting cash? All trades will be cleared.'))return;portfolio={cash:STARTING_CASH,positions:{},trades:[]};savePortfolio();renderPortfolio();renderTradeHistory();updateStats();showToast('Portfolio reset to $100,000 starting cash');}
 renderPortfolio();renderTradeHistory();updateStats();loadWatchlist();
+
+// Fix search on Enter key
+document.addEventListener('DOMContentLoaded', function() {
+  const input = document.getElementById('symbolInput');
+  const btn = document.querySelector('.btn-search');
+  if (input) {
+    input.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') searchStock();
+    });
+  }
+  if (btn) {
+    btn.onclick = searchStock;
+  }
+  const sharesInput = document.getElementById('sharesInput');
+  if (sharesInput) {
+    sharesInput.addEventListener('input', updateTradeSummary);
+  }
+  const execBtn = document.getElementById('executeBtn');
+  if (execBtn) {
+    execBtn.onclick = executeTrade;
+  }
+  const tabBuy = document.getElementById('tab-buy');
+  const tabSell = document.getElementById('tab-sell');
+  if (tabBuy) tabBuy.onclick = () => setTradeType('buy');
+  if (tabSell) tabSell.onclick = () => setTradeType('sell');
+});
 </script>
 </body>
 </html>
