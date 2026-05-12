@@ -8650,3 +8650,4 @@ body.command-mode .services-panel {
     grid-template-columns: 1fr;
   }
 }
+.settings-floating-button { display: none !important; }
