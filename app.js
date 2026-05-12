@@ -2449,8 +2449,6 @@ const setAccountMessage = (message, tone = "neutral") => {
 };
 
 const renderAccountStatus = () => {
-  const signOutBtn = document.getElementById('signOutButton');
-  if (signOutBtn) signOutBtn.style.display = activeAccount ? 'inline-flex' : 'none';
   const account = activeAccount || getLocalAccounts().find((item) => item.id === localStorage.getItem(ACCOUNT_SESSION_KEY));
   activeAccount = account || null;
   if (accountStatus) accountStatus.textContent = account ? "Signed In" : "Guest Mode";

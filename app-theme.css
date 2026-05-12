@@ -1,4 +1,4 @@
-/* StockPilot App Theme */
+/* StockPilot App Theme — matches landing page style */
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,600;1,9..144,300&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap');
 
 :root {
@@ -15,25 +15,54 @@
   --sp-green-m: #2ecc9a;
   --sp-green-d: #147a55;
   --sp-blue: #2563eb;
+  --sp-blue-l: #eff5ff;
   --sp-purple: #7c3aed;
+  --sp-purple-l: #f3effe;
   --sp-gold: #d97706;
+  --sp-gold-l: #fef3e2;
   --sp-red: #dc2626;
+  --sp-red-l: #fef2f2;
   --sp-radius: 14px;
 }
 
 body { font-family: 'DM Sans', sans-serif !important; background: var(--sp-off) !important; color: var(--sp-g900) !important; }
-h1,h2,h3,h4,h5,h6 { font-family: 'Fraunces', serif !important; letter-spacing: -0.02em !important; }
-.primary-button { background: var(--sp-green) !important; color: white !important; border: none !important; border-radius: 10px !important; font-weight: 600 !important; box-shadow: 0 2px 8px rgba(26,158,110,0.25) !important; transition: all 0.2s !important; }
+h1,h2,h3,h4,h5,h6,[class*="title"],[class*="heading"] { font-family: 'Fraunces', serif !important; color: var(--sp-g900) !important; letter-spacing: -0.02em !important; }
+p,span,label,li,div { font-family: 'DM Sans', sans-serif !important; }
+.primary-button { background: var(--sp-green) !important; color: white !important; border: none !important; border-radius: 10px !important; font-family: 'DM Sans', sans-serif !important; font-weight: 600 !important; box-shadow: 0 2px 8px rgba(26,158,110,0.25) !important; transition: all 0.2s !important; }
 .primary-button:hover { background: var(--sp-green-d) !important; transform: translateY(-1px) !important; }
-.ghost-button { background: transparent !important; border: 1px solid var(--sp-g100) !important; color: var(--sp-g600) !important; border-radius: 10px !important; font-weight: 500 !important; transition: all 0.2s !important; }
+.ghost-button,.secondary-button { background: transparent !important; border: 1px solid var(--sp-g100) !important; color: var(--sp-g600) !important; border-radius: 10px !important; font-family: 'DM Sans', sans-serif !important; font-weight: 500 !important; transition: all 0.2s !important; }
 .ghost-button:hover { background: var(--sp-off) !important; color: var(--sp-g900) !important; }
-input:focus,select:focus,textarea:focus { border-color: var(--sp-green) !important; outline: none !important; box-shadow: 0 0 0 3px rgba(26,158,110,0.1) !important; }
-.good,.positive { color: var(--sp-green) !important; }
-.bad,.negative { color: var(--sp-red) !important; }
+input[type="text"],input[type="email"],input[type="password"],input[type="number"],input[type="search"],select,textarea { background: var(--sp-off) !important; border: 1px solid var(--sp-g100) !important; border-radius: 10px !important; color: var(--sp-g900) !important; font-family: 'DM Sans', sans-serif !important; transition: border-color 0.2s, box-shadow 0.2s !important; }
+input:focus,select:focus,textarea:focus { border-color: var(--sp-green) !important; outline: none !important; box-shadow: 0 0 0 3px rgba(26,158,110,0.1) !important; background: var(--sp-white) !important; }
+input::placeholder,textarea::placeholder { color: var(--sp-g400) !important; }
+th { background: var(--sp-g50) !important; color: var(--sp-g600) !important; font-size: 11px !important; font-weight: 700 !important; text-transform: uppercase !important; letter-spacing: 0.08em !important; border-bottom: 1px solid var(--sp-g100) !important; }
+td { border-bottom: 1px solid rgba(0,0,0,0.04) !important; color: var(--sp-g900) !important; }
+tr:hover td { background: var(--sp-off) !important; }
+.good,.positive,[class*="good-"] { color: var(--sp-green) !important; }
+.bad,.negative,[class*="bad-"] { color: var(--sp-red) !important; }
 .warn,.warning { color: var(--sp-gold) !important; }
+a { color: var(--sp-green) !important; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: var(--sp-off); }
 ::-webkit-scrollbar-thumb { background: var(--sp-g200); border-radius: 3px; }
+hr,[class*="divider"] { border-color: var(--sp-g100) !important; }
+[role="dialog"],.account-card,.settings-card,.educational-card { background: var(--sp-white) !important; border-radius: 20px !important; box-shadow: 0 12px 40px rgba(0,0,0,0.1) !important; }
+#welcomePopup > div { font-family: 'DM Sans', sans-serif !important; border-radius: 20px !important; }
+#welcomePopup h2 { font-family: 'Fraunces', serif !important; }
+select option { background: var(--sp-white) !important; color: var(--sp-g900) !important; }
+.number-cell,[class*="price"],[class*="metric"] { font-family: 'DM Mono', monospace !important; }
+small,[class*="note"],[class*="hint"],.table-note { color: var(--sp-g400) !important; font-size: 12px !important; }
+
+/* Onboarding redesign */
 .onboarding-overlay { background: rgba(0,0,0,0.6) !important; backdrop-filter: blur(8px) !important; }
-.onboarding-card { background: var(--sp-white) !important; border-radius: 20px !important; box-shadow: 0 24px 64px rgba(0,0,0,0.15) !important; }
+.onboarding-card { background: var(--sp-white) !important; border-radius: 20px !important; box-shadow: 0 24px 64px rgba(0,0,0,0.15) !important; border: 1px solid var(--sp-g100) !important; max-width: 560px !important; }
+.onboarding-card h2 { font-family: 'Fraunces', serif !important; font-size: 24px !important; color: var(--sp-g900) !important; letter-spacing: -0.02em !important; }
+.onboarding-steps article { background: var(--sp-off) !important; border-radius: 12px !important; border: 1px solid var(--sp-g100) !important; padding: 16px !important; }
+.onboarding-steps span { background: var(--sp-green) !important; color: white !important; border-radius: 50% !important; width: 28px !important; height: 28px !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 13px !important; font-weight: 700 !important; }
+.onboarding-steps strong { color: var(--sp-g900) !important; font-family: 'Fraunces', serif !important; font-size: 15px !important; }
+.onboarding-steps p { color: var(--sp-g600) !important; font-size: 13px !important; }
+.onboarding-route-grid button { border-radius: 12px !important; border: 1px solid var(--sp-g100) !important; background: var(--sp-white) !important; transition: all 0.2s !important; }
+.onboarding-route-grid button:hover { background: var(--sp-green-l) !important; border-color: rgba(26,158,110,0.2) !important; transform: translateY(-2px) !important; }
+.onboarding-route-grid strong { color: var(--sp-g900) !important; font-family: 'Fraunces', serif !important; }
+.onboarding-route-grid span { color: var(--sp-green) !important; }
 #startOnboardingButton { background: var(--sp-green) !important; color: white !important; border-radius: 10px !important; font-weight: 600 !important; }
