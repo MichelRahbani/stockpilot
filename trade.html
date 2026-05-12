@@ -481,6 +481,24 @@ renderPort();
 renderTrades();
 updatePortStats();
 loadWatchlist();
+
+// Auto-refresh every 30 seconds
+setInterval(async()=>{
+  await loadWatchlist();
+  await renderPort();
+  await updatePortStats();
+  if(current){try{const q=await getQuote(current.symbol);if(q){current=q;showQuote(q);updateSummary();}}catch(e){}}
+},30000);
+
+// Live indicator
+const li=document.createElement('div');
+li.style.cssText='position:fixed;bottom:16px;left:16px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.4);font-family:DM Mono,monospace;z-index:50;display:flex;align-items:center;gap:6px';
+li.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block;animation:p 2s infinite"></span>Live · refreshes every 30s';
+document.body.appendChild(li);
+const st=document.createElement('style');
+st.textContent='@keyframes p{0%,100%{opacity:1}50%{opacity:0.3}}';
+document.head.appendChild(st);
+
 </script>
 
 <!-- Sign In Modal -->
