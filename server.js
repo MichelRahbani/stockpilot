@@ -488,6 +488,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && (reqUrl.pathname === "/app" || reqUrl.pathname === "/app/" || reqUrl.pathname === "/index.html")) {
       return sendStaticFile(res, "index.html");
     }
+    if (req.method === "GET" && (reqUrl.pathname === "/trade" || reqUrl.pathname === "/trade/")) {
+      return sendStaticFile(res, "trade.html");
+    }
 
     if (req.method === "GET" && ["/app.js", "/styles.css", "/theme-override.css", "/logo.jpg", "/app-theme.css"].includes(reqUrl.pathname)) {
       return sendStaticFile(res, reqUrl.pathname.slice(1));

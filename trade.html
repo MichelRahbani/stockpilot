@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>StockPilot Trade — Virtual Market</title>
+<meta name="description" content="Practice trading with $100,000 of virtual cash. Real prices, zero risk."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#dc2626;--red-l:#fef2f2;--red-d:#b91c1c;--red-m:#ef4444;--green:#16a34a;--green-l:#dcfce7;--bg:#0a0a0a;--bg2:#111111;--bg3:#1a1a1a;--border:rgba(255,255,255,0.08);--text:rgba(255,255,255,0.9);--text-dim:rgba(255,255,255,0.45);--text-muted:rgba(255,255,255,0.2);--font:'DM Sans',sans-serif;--mono:'DM Mono',monospace;--serif:'Fraunces',serif}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 32px;background:rgba(10,10,10,0.95);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.nav-left{display:flex;align-items:center;gap:20px}
+.logo{font-family:var(--serif);font-size:18px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo-icon{width:24px;height:24px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:12px}
+.trade-badge{background:var(--red);color:white;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;letter-spacing:0.05em}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s;border:none}
+.btn-ghost{background:transparent;color:var(--text-dim);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.btn-red{background:var(--red);color:white;box-shadow:0 2px 8px rgba(220,38,38,0.3)}
+.btn-red:hover{background:var(--red-d);transform:translateY(-1px)}
+.ticker-bar{background:var(--red);margin-top:53px;padding:8px 0;overflow:hidden}
+.ticker-track{display:flex;gap:32px;animation:scroll 25s linear infinite;width:max-content}
+.ticker-item{display:flex;align-items:center;gap:6px;white-space:nowrap;font-family:var(--mono);font-size:11px;color:rgba(255,255,255,0.8)}
+.ticker-item strong{color:white;font-weight:500}
+.t-up{color:#86efac}.t-down{color:#fca5a5}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.hero{padding:60px 32px 40px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(220,38,38,0.12) 0%,transparent 70%)}
+.hero *{position:relative}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(220,38,38,0.15);color:#fca5a5;border:1px solid rgba(220,38,38,0.3);border-radius:100px;padding:5px 14px;font-size:12px;font-weight:600;margin-bottom:20px}
+.hero h1{font-family:var(--serif);font-size:clamp(32px,5vw,52px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:12px;line-height:1.1}
+.hero h1 em{font-style:italic;color:#fca5a5}
+.hero-sub{font-size:16px;color:var(--text-dim);max-width:480px;margin:0 auto 32px;line-height:1.65}
+.hero-actions{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.hero-note{font-size:12px;color:var(--text-muted);margin-top:14px}
+.stats-strip{display:flex;align-items:center;justify-content:center;gap:40px;padding:20px 32px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);flex-wrap:wrap}
+.stat{text-align:center}
+.stat-num{font-family:var(--mono);font-size:22px;font-weight:500;color:white}
+.stat-label{font-size:11px;color:var(--text-muted);margin-top:2px;letter-spacing:0.05em;text-transform:uppercase}
+.main{max-width:1200px;margin:0 auto;padding:32px;display:grid;grid-template-columns:1fr 340px;gap:24px}
+.panel{background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-family:var(--serif);font-size:16px;font-weight:600;color:white}
+.panel-body{padding:20px}
+.search-row{display:flex;gap:8px;margin-bottom:20px}
+.search-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--text);font-family:var(--mono);font-size:14px;outline:none;transition:border-color 0.2s}
+.search-input:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(220,38,38,0.1)}
+.search-input::placeholder{color:var(--text-muted)}
+.btn-search{background:var(--red);color:white;border:none;border-radius:10px;padding:10px 18px;font-family:var(--font);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-search:hover{background:var(--red-d)}
+.quote-card{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:16px;display:none}
+.quote-card.visible{display:block}
+.quote-symbol{font-family:var(--serif);font-size:24px;font-weight:700;color:white}
+.quote-name{font-size:13px;color:var(--text-dim);margin-bottom:12px}
+.quote-price{font-family:var(--mono);font-size:36px;font-weight:500;color:white;margin-bottom:4px}
+.quote-change{font-family:var(--mono);font-size:14px;margin-bottom:16px}
+.quote-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.quote-meta-item{background:var(--bg);border-radius:8px;padding:10px;text-align:center}
+.qm-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px}
+.qm-value{font-family:var(--mono);font-size:13px;color:var(--text)}
+.trade-form{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:18px}
+.trade-tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--bg);border-radius:8px;padding:3px}
+.trade-tab{flex:1;padding:8px;border-radius:6px;border:none;background:transparent;color:var(--text-dim);font-family:var(--font);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center}
+.trade-tab.buy.active{background:var(--green);color:white}
+.trade-tab.sell.active{background:var(--red);color:white}
+.trade-input-label{font-size:11px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+.trade-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:var(--mono);font-size:15px;outline:none;margin-bottom:12px;transition:border-color 0.2s}
+.trade-input:focus{border-color:var(--red)}
+.trade-summary{background:var(--bg);border-radius:8px;padding:12px;margin-bottom:14px;font-size:13px}
+.trade-summary-row{display:flex;justify-content:space-between;padding:3px 0;color:var(--text-dim)}
+.trade-summary-row strong{color:var(--text);font-family:var(--mono)}
+.btn-execute{width:100%;padding:13px;border-radius:10px;border:none;font-family:var(--font);font-size:15px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-execute.buy{background:var(--green);color:white}
+.btn-execute.sell{background:var(--red);color:white}
+.btn-execute:hover{transform:translateY(-1px);opacity:0.9}
+.btn-execute:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+.portfolio-header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px}
+.portfolio-value{font-family:var(--mono);font-size:32px;font-weight:500;color:white}
+.portfolio-pnl{font-family:var(--mono);font-size:14px;margin-top:2px}
+.cash-pill{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:13px;color:var(--text-dim)}
+.cash-pill span{color:white;font-weight:500}
+.positions-table{width:100%;border-collapse:collapse}
+.positions-table th{padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-muted);text-align:left;border-bottom:1px solid var(--border)}
+.positions-table td{padding:10px;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.positions-table tr:last-child td{border-bottom:none}
+.positions-table tr:hover td{background:rgba(255,255,255,0.02)}
+.pos-symbol{font-family:var(--serif);font-size:14px;font-weight:600;color:white}
+.pos-name{font-size:11px;color:var(--text-muted)}
+.pos-price,.pos-value,.pos-pnl{font-family:var(--mono);font-size:13px}
+.pos-pnl.up{color:#86efac}.pos-pnl.down{color:#fca5a5}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:14px}
+.empty-state div{font-size:32px;margin-bottom:12px}
+.trade-list{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.trade-item{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border)}
+.trade-item-left{display:flex;align-items:center;gap:10px}
+.trade-type{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.trade-type.buy{background:rgba(22,163,74,0.15);color:#86efac}
+.trade-type.sell{background:rgba(220,38,38,0.15);color:#fca5a5}
+.trade-symbol{font-family:var(--serif);font-size:13px;font-weight:600;color:white}
+.trade-detail{font-size:11px;color:var(--text-muted)}
+.trade-amount{font-family:var(--mono);font-size:13px;color:var(--text)}
+.side-panel{display:flex;flex-direction:column;gap:16px}
+.watchlist-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.watchlist-item:last-child{border-bottom:none}
+.wl-symbol{font-family:var(--serif);font-size:14px;font-weight:600;color:white;cursor:pointer}
+.wl-symbol:hover{color:#fca5a5}
+.wl-name{font-size:11px;color:var(--text-muted)}
+.wl-right{text-align:right}
+.wl-price{font-family:var(--mono);font-size:13px;color:white}
+.wl-change{font-family:var(--mono);font-size:11px}
+.disclaimer-bar{background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.15);border-radius:10px;padding:12px 16px;margin:0 32px 24px;font-size:12px;color:var(--text-dim);text-align:center}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;font-size:14px;color:var(--text);box-shadow:0 8px 32px rgba(0,0,0,0.4);z-index:999;transform:translateY(100px);opacity:0;transition:all 0.3s;max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(22,163,74,0.3)}
+.toast.error{border-color:rgba(220,38,38,0.3)}
+.reset-link{font-size:12px;color:var(--text-muted);cursor:pointer;text-decoration:underline}
+.reset-link:hover{color:var(--red-m)}
+@media(max-width:900px){.main{grid-template-columns:1fr;padding:16px}nav{padding:12px 16px}.hero{padding:40px 16px 24px}.stats-strip{gap:20px;padding:16px}.disclaimer-bar{margin:0 16px 16px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-left">
+    <a href="/" class="logo"><div class="logo-icon">↗</div>StockPilot</a>
+    <span class="trade-badge">TRADE</span>
+  </div>
+  <div style="display:flex;gap:10px">
+    <a href="/app" class="btn btn-ghost">← Back to Learning</a>
+    <button class="btn btn-red" onclick="resetPortfolio()">Reset Portfolio</button>
+  </div>
+</nav>
+<div class="ticker-bar">
+  <div class="ticker-track">
+    <div class="ticker-item"><strong>AAPL</strong> $293.32 <span class="t-up">+2.04%</span></div>
+    <div class="ticker-item"><strong>MSFT</strong> $449.00 <span class="t-up">+0.87%</span></div>
+    <div class="ticker-item"><strong>NVDA</strong> $114.20 <span class="t-up">+1.32%</span></div>
+    <div class="ticker-item"><strong>TSLA</strong> $248.50 <span class="t-down">-1.14%</span></div>
+    <div class="ticker-item"><strong>AMZN</strong> $198.30 <span class="t-up">+1.05%</span></div>
+    <div class="ticker-item"><strong>GOOGL</strong> $172.80 <span class="t-down">-0.33%</span></div>
+    <div class="ticker-item"><strong>META</strong> $612.00 <span class="t-up">+0.72%</span></div>
+    <div class="ticker-item"><strong>SPY</strong> $518.20 <span class="t-up">+0.62%</span></div>
+    <div class="ticker-item"><strong>BTC-USD</strong> $103,200 <span class="t-down">-0.8%</span></div>
+    <div class="ticker-item"><strong>AAPL</strong> $293.32 <span class="t-up">+2.04%</span></div>
+    <div class="ticker-item"><strong>MSFT</strong> $449.00 <span class="t-up">+0.87%</span></div>
+    <div class="ticker-item"><strong>NVDA</strong> $114.20 <span class="t-up">+1.32%</span></div>
+    <div class="ticker-item"><strong>TSLA</strong> $248.50 <span class="t-down">-1.14%</span></div>
+    <div class="ticker-item"><strong>AMZN</strong> $198.30 <span class="t-up">+1.05%</span></div>
+    <div class="ticker-item"><strong>GOOGL</strong> $172.80 <span class="t-down">-0.33%</span></div>
+    <div class="ticker-item"><strong>META</strong> $612.00 <span class="t-up">+0.72%</span></div>
+    <div class="ticker-item"><strong>SPY</strong> $518.20 <span class="t-up">+0.62%</span></div>
+    <div class="ticker-item"><strong>BTC-USD</strong> $103,200 <span class="t-down">-0.8%</span></div>
+  </div>
+</div>
+<section class="hero">
+  <div class="hero-tag">🎮 Paper Trading · Zero Real Money</div>
+  <h1>Practice trading with <em>$100,000</em><br>of virtual cash.</h1>
+  <p class="hero-sub">Buy and sell real stocks at real prices with no risk. Build your strategy, test your instincts, and learn from every trade.</p>
+  <div class="hero-actions">
+    <button class="btn btn-red" style="padding:13px 28px;font-size:15px;border-radius:12px" onclick="document.querySelector('.main').scrollIntoView({behavior:'smooth'})">Start Trading</button>
+    <a href="/app" class="btn btn-ghost" style="padding:13px 24px;font-size:15px;border-radius:12px">Learn First</a>
+  </div>
+  <p class="hero-note">No real money · No account required · Prices from live market data</p>
+</section>
+<div class="stats-strip">
+  <div class="stat"><div class="stat-num" id="stat-cash">$100,000</div><div class="stat-label">Starting Cash</div></div>
+  <div class="stat"><div class="stat-num" id="stat-value">$100,000</div><div class="stat-label">Portfolio Value</div></div>
+  <div class="stat"><div class="stat-num" id="stat-pnl" style="color:#86efac">+$0</div><div class="stat-label">Total P&L</div></div>
+  <div class="stat"><div class="stat-num" id="stat-trades">0</div><div class="stat-label">Trades Made</div></div>
+</div>
+<div class="disclaimer-bar">Warning: This is a paper trading simulator. No real money is involved. Prices are sourced from public APIs and may be delayed. Not financial advice.</div>
+<div class="main">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">My Portfolio</div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div class="cash-pill">Cash: <span id="cash-display">$100,000</span></div>
+          <span class="reset-link" onclick="resetPortfolio()">Reset</span>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="portfolio-header">
+          <div>
+            <div class="portfolio-value" id="portfolio-value">$100,000.00</div>
+            <div class="portfolio-pnl" id="portfolio-pnl" style="color:#86efac">+$0.00 (0.00%)</div>
+          </div>
+        </div>
+        <table class="positions-table">
+          <thead><tr><th>Symbol</th><th>Shares</th><th>Avg Cost</th><th>Price</th><th>Value</th><th>P&L</th></tr></thead>
+          <tbody id="positions-body"><tr><td colspan="6"><div class="empty-state"><div>📭</div>No positions yet. Search for a stock and make your first trade!</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Place Trade</div>
+        <div id="quote-status" style="font-size:12px;color:var(--text-muted)">Search for a stock above</div>
+      </div>
+      <div class="panel-body">
+        <div class="search-row">
+          <input type="text" class="search-input" id="symbolInput" placeholder="Enter ticker (e.g. AAPL, TSLA, NVDA)" onkeydown="if(event.key==='Enter')searchStock()"/>
+          <button class="btn-search" onclick="searchStock()">Search</button>
+        </div>
+        <div class="quote-card" id="quoteCard">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px">
+            <div><div class="quote-symbol" id="q-symbol">AAPL</div><div class="quote-name" id="q-name">Apple Inc.</div></div>
+            <div style="text-align:right"><div class="quote-price" id="q-price">$0.00</div><div class="quote-change" id="q-change">+0.00 (0.00%)</div></div>
+          </div>
+          <div class="quote-meta">
+            <div class="quote-meta-item"><div class="qm-label">Open</div><div class="qm-value" id="q-open">-</div></div>
+            <div class="quote-meta-item"><div class="qm-label">High</div><div class="qm-value" id="q-high">-</div></div>
+            <div class="quote-meta-item"><div class="qm-label">Low</div><div class="qm-value" id="q-low">-</div></div>
+            <div class="quote-meta-item"><div class="qm-label">Mkt Cap</div><div class="qm-value" id="q-mktcap">-</div></div>
+            <div class="quote-meta-item"><div class="qm-label">P/E</div><div class="qm-value" id="q-pe">-</div></div>
+            <div class="quote-meta-item"><div class="qm-label">Beta</div><div class="qm-value" id="q-beta">-</div></div>
+          </div>
+          <div class="trade-form">
+            <div class="trade-tabs">
+              <button class="trade-tab buy active" id="tab-buy" onclick="setTradeType('buy')">BUY</button>
+              <button class="trade-tab sell" id="tab-sell" onclick="setTradeType('sell')">SELL</button>
+            </div>
+            <div class="trade-input-label">Number of Shares</div>
+            <input type="number" class="trade-input" id="sharesInput" placeholder="0" min="1" step="1" oninput="updateTradeSummary()"/>
+            <div class="trade-summary" id="tradeSummary">
+              <div class="trade-summary-row"><span>Price per share</span><strong id="ts-price">-</strong></div>
+              <div class="trade-summary-row"><span>Shares</span><strong id="ts-shares">0</strong></div>
+              <div class="trade-summary-row"><span>Total cost</span><strong id="ts-total">$0.00</strong></div>
+              <div class="trade-summary-row"><span>Cash available</span><strong id="ts-cash">$100,000</strong></div>
+            </div>
+            <button class="btn-execute buy" id="executeBtn" onclick="executeTrade()" disabled>Enter shares to trade</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Trade History</div>
+        <span style="font-size:12px;color:var(--text-muted)" id="trade-count">0 trades</span>
+      </div>
+      <div class="panel-body">
+        <div class="trade-list" id="tradeList"><div class="empty-state" style="padding:24px"><div>📋</div>Your trades will appear here</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="side-panel">
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Watchlist</div></div>
+      <div class="panel-body" id="watchlistBody"><div style="font-size:13px;color:var(--text-muted);text-align:center;padding:20px">Loading prices...</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><div class="panel-title">Quick Tips</div></div>
+      <div class="panel-body">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:13px;color:var(--text-dim);line-height:1.5"><strong style="color:white;display:block;margin-bottom:4px">📊 Diversify</strong>Don't put all your virtual cash in one stock. Spread across sectors to reduce risk.</div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:13px;color:var(--text-dim);line-height:1.5"><strong style="color:white;display:block;margin-bottom:4px">📈 Think long-term</strong>The best investors buy and hold. Avoid overtrading based on daily price moves.</div>
+          <div style="background:var(--bg3);border-radius:8px;padding:12px;font-size:13px;color:var(--text-dim);line-height:1.5"><strong style="color:white;display:block;margin-bottom:4px">🔍 Do your research</strong>Check P/E ratio, market cap, and beta before buying. <a href="/app" style="color:#fca5a5">Learn what these mean</a>.</div>
+          <div style="background:rgba(220,38,38,0.08);border:1px solid rgba(220,38,38,0.15);border-radius:8px;padding:12px;font-size:12px;color:var(--text-muted);line-height:1.5">This is paper trading only. No real money is involved. Not financial advice.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+const API=window.location.origin,STORAGE_KEY='sp_trade_portfolio',STARTING_CASH=100000;
+let portfolio=loadPortfolio(),currentQuote=null,tradeType='buy';
+const WATCHLIST=['AAPL','MSFT','NVDA','TSLA','AMZN','GOOGL','META','SPY','BTC-USD','GLD'];
+function loadPortfolio(){try{const s=JSON.parse(localStorage.getItem(STORAGE_KEY));if(s&&s.cash!==undefined)return s;}catch(e){}return{cash:STARTING_CASH,positions:{},trades:[]};}
+function savePortfolio(){localStorage.setItem(STORAGE_KEY,JSON.stringify(portfolio));}
+function fmt(n){if(n===null||n===undefined||isNaN(n))return'-';return'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtShort(n){if(!n||isNaN(n))return'-';if(n>=1e12)return'$'+(n/1e12).toFixed(2)+'T';if(n>=1e9)return'$'+(n/1e9).toFixed(2)+'B';if(n>=1e6)return'$'+(n/1e6).toFixed(2)+'M';return fmt(n);}
+function showToast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;setTimeout(()=>t.className='toast',3000);}
+async function fetchQuote(symbol){const res=await fetch(API+'/api/quotes?symbols='+symbol.toUpperCase());const data=await res.json();return data?.quoteResponse?.result?.[0]||null;}
+async function searchStock(){const sym=document.getElementById('symbolInput').value.trim().toUpperCase();if(!sym)return;document.getElementById('quote-status').textContent='Loading...';try{const q=await fetchQuote(sym);if(!q||!q.regularMarketPrice){document.getElementById('quote-status').textContent='Symbol not found';return;}currentQuote=q;displayQuote(q);document.getElementById('quote-status').textContent='Live data';document.getElementById('quoteCard').classList.add('visible');document.getElementById('sharesInput').value='';updateTradeSummary();}catch(e){document.getElementById('quote-status').textContent='Error loading data';}}
+function displayQuote(q){document.getElementById('q-symbol').textContent=q.symbol;document.getElementById('q-name').textContent=q.longName||q.shortName||q.symbol;document.getElementById('q-price').textContent=fmt(q.regularMarketPrice);const chg=q.regularMarketChange||0,chgPct=q.regularMarketChangePercent||0,chgEl=document.getElementById('q-change');chgEl.textContent=(chg>=0?'+':'')+chg.toFixed(2)+' ('+chgPct.toFixed(2)+'%)';chgEl.style.color=chg>=0?'#86efac':'#fca5a5';document.getElementById('q-open').textContent=fmt(q.regularMarketOpen);document.getElementById('q-high').textContent=fmt(q.regularMarketDayHigh);document.getElementById('q-low').textContent=fmt(q.regularMarketDayLow);document.getElementById('q-mktcap').textContent=fmtShort(q.marketCap);document.getElementById('q-pe').textContent=q.trailingPE?q.trailingPE.toFixed(1):'-';document.getElementById('q-beta').textContent=q.beta?q.beta.toFixed(2):'-';}
+function setTradeType(type){tradeType=type;document.getElementById('tab-buy').classList.toggle('active',type==='buy');document.getElementById('tab-sell').classList.toggle('active',type==='sell');updateTradeSummary();}
+function updateTradeSummary(){if(!currentQuote)return;const shares=parseInt(document.getElementById('sharesInput').value)||0,price=currentQuote.regularMarketPrice,total=shares*price,btn=document.getElementById('executeBtn');document.getElementById('ts-price').textContent=fmt(price);document.getElementById('ts-shares').textContent=shares;document.getElementById('ts-total').textContent=fmt(total);document.getElementById('ts-cash').textContent=fmt(portfolio.cash);btn.className='btn-execute '+tradeType;if(shares<=0){btn.disabled=true;btn.textContent='Enter shares to trade';}else if(tradeType==='buy'&&total>portfolio.cash){btn.disabled=true;btn.textContent='Insufficient cash';}else if(tradeType==='sell'){const pos=portfolio.positions[currentQuote.symbol];if(!pos||pos.shares<shares){btn.disabled=true;btn.textContent='Not enough shares';}else{btn.disabled=false;btn.textContent='Sell '+shares+' share'+(shares>1?'s':'')+' of '+currentQuote.symbol;}}else{btn.disabled=false;btn.textContent='Buy '+shares+' share'+(shares>1?'s':'')+' of '+currentQuote.symbol;}}
+function executeTrade(){if(!currentQuote)return;const shares=parseInt(document.getElementById('sharesInput').value)||0,price=currentQuote.regularMarketPrice,symbol=currentQuote.symbol,total=shares*price;if(tradeType==='buy'){if(total>portfolio.cash){showToast('Insufficient cash!','error');return;}portfolio.cash-=total;if(!portfolio.positions[symbol])portfolio.positions[symbol]={shares:0,avgCost:0,name:currentQuote.longName||currentQuote.shortName||symbol};const pos=portfolio.positions[symbol],oldTotal=pos.shares*pos.avgCost;pos.shares+=shares;pos.avgCost=(oldTotal+total)/pos.shares;portfolio.trades.unshift({type:'buy',symbol,shares,price,total,date:new Date().toISOString()});showToast('Bought '+shares+' share'+(shares>1?'s':'')+' of '+symbol+' at '+fmt(price));}else{const pos=portfolio.positions[symbol];if(!pos||pos.shares<shares){showToast('Not enough shares!','error');return;}portfolio.cash+=total;pos.shares-=shares;if(pos.shares===0)delete portfolio.positions[symbol];portfolio.trades.unshift({type:'sell',symbol,shares,price,total,date:new Date().toISOString()});showToast('Sold '+shares+' share'+(shares>1?'s':'')+' of '+symbol+' at '+fmt(price));}savePortfolio();document.getElementById('sharesInput').value='';updateTradeSummary();renderPortfolio();renderTradeHistory();updateStats();}
+function renderPortfolio(){const tbody=document.getElementById('positions-body'),symbols=Object.keys(portfolio.positions);if(!symbols.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state"><div>📭</div>No positions yet. Search for a stock and make your first trade!</div></td></tr>';return;}Promise.all(symbols.map(s=>fetchQuote(s))).then(quotes=>{const priceMap={};quotes.forEach(q=>{if(q)priceMap[q.symbol]=q.regularMarketPrice;});tbody.innerHTML=symbols.map(sym=>{const pos=portfolio.positions[sym],currentPrice=priceMap[sym]||pos.avgCost,value=pos.shares*currentPrice,cost=pos.shares*pos.avgCost,pnl=value-cost,pnlPct=(pnl/cost)*100,pnlClass=pnl>=0?'up':'down';return'<tr><td><div class="pos-symbol">'+sym+'</div><div class="pos-name">'+pos.name+'</div></td><td class="pos-price">'+pos.shares+'</td><td class="pos-price">'+fmt(pos.avgCost)+'</td><td class="pos-price">'+fmt(currentPrice)+'</td><td class="pos-value">'+fmt(value)+'</td><td class="pos-pnl '+pnlClass+'">'+(pnl>=0?'+':'')+fmt(pnl)+'<br><span style="font-size:10px">'+(pnlPct>=0?'+':'')+pnlPct.toFixed(2)+'%</span></td></tr>';}).join('');});}
+function renderTradeHistory(){const list=document.getElementById('tradeList');document.getElementById('trade-count').textContent=portfolio.trades.length+' trade'+(portfolio.trades.length!==1?'s':'');if(!portfolio.trades.length){list.innerHTML='<div class="empty-state" style="padding:24px"><div>📋</div>Your trades will appear here</div>';return;}list.innerHTML=portfolio.trades.slice(0,20).map(t=>'<div class="trade-item"><div class="trade-item-left"><div class="trade-type '+t.type+'">'+t.type.toUpperCase()+'</div><div><div class="trade-symbol">'+t.symbol+'</div><div class="trade-detail">'+t.shares+' shares @ '+fmt(t.price)+' · '+new Date(t.date).toLocaleDateString()+'</div></div></div><div class="trade-amount">'+(t.type==='buy'?'-':'+')+fmt(t.total)+'</div></div>').join('');}
+async function loadWatchlist(){try{const res=await fetch(API+'/api/quotes?symbols='+WATCHLIST.join(','));const data=await res.json();const quotes=data?.quoteResponse?.result||[];const body=document.getElementById('watchlistBody');if(!quotes.length){body.innerHTML='<div style="font-size:13px;color:var(--text-muted);text-align:center;padding:20px">Could not load prices</div>';return;}body.innerHTML=quotes.map(q=>{const chg=q.regularMarketChangePercent||0,chgClass=chg>=0?'t-up':'t-down';return'<div class="watchlist-item"><div><div class="wl-symbol" onclick="document.getElementById('symbolInput').value=''+q.symbol+'';searchStock()">'+q.symbol+'</div><div class="wl-name">'+(q.shortName||q.symbol)+'</div></div><div class="wl-right"><div class="wl-price">'+fmt(q.regularMarketPrice)+'</div><div class="wl-change '+chgClass+'">'+(chg>=0?'+':'')+chg.toFixed(2)+'%</div></div></div>';}).join('');}catch(e){}}
+async function updateStats(){const symbols=Object.keys(portfolio.positions);let posValue=0;if(symbols.length){try{const res=await fetch(API+'/api/quotes?symbols='+symbols.join(','));const data=await res.json();const quotes=data?.quoteResponse?.result||[];quotes.forEach(q=>{const pos=portfolio.positions[q.symbol];if(pos)posValue+=pos.shares*(q.regularMarketPrice||pos.avgCost);});}catch(e){symbols.forEach(s=>{posValue+=portfolio.positions[s].shares*portfolio.positions[s].avgCost;});}}const totalValue=portfolio.cash+posValue,pnl=totalValue-STARTING_CASH,pnlPct=(pnl/STARTING_CASH)*100;document.getElementById('stat-cash').textContent=fmt(portfolio.cash);document.getElementById('stat-value').textContent=fmt(totalValue);document.getElementById('stat-pnl').textContent=(pnl>=0?'+':'')+fmt(pnl);document.getElementById('stat-pnl').style.color=pnl>=0?'#86efac':'#fca5a5';document.getElementById('stat-trades').textContent=portfolio.trades.length;document.getElementById('cash-display').textContent=fmt(portfolio.cash);document.getElementById('portfolio-value').textContent=fmt(totalValue);document.getElementById('portfolio-pnl').textContent=(pnl>=0?'+':'')+fmt(pnl)+' ('+(pnlPct>=0?'+':'')+pnlPct.toFixed(2)+'%)';document.getElementById('portfolio-pnl').style.color=pnl>=0?'#86efac':'#fca5a5';document.getElementById('ts-cash').textContent=fmt(portfolio.cash);}
+function resetPortfolio(){if(!confirm('Reset your portfolio to $100,000 starting cash? All trades will be cleared.'))return;portfolio={cash:STARTING_CASH,positions:{},trades:[]};savePortfolio();renderPortfolio();renderTradeHistory();updateStats();showToast('Portfolio reset to $100,000 starting cash');}
+renderPortfolio();renderTradeHistory();updateStats();loadWatchlist();
+</script>
+</body>
+</html>
