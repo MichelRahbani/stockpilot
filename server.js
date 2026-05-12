@@ -492,7 +492,7 @@ const server = http.createServer(async (req, res) => {
       return sendStaticFile(res, "trade.html");
     }
 
-    if (req.method === "GET" && ["/app.js", "/styles.css", "/theme-override.css", "/logo.jpg", "/app-theme.css"].includes(reqUrl.pathname)) {
+    if (req.method === "GET" && ["/app.js", "/styles.css", "/theme-override.css", "/logo.jpg", "/app-theme.css", "/logo-dark.jpg"].includes(reqUrl.pathname)) {
       return sendStaticFile(res, reqUrl.pathname.slice(1));
     }
 
