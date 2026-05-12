@@ -2829,6 +2829,7 @@ const signInLocalAccount = async () => {
     localStorage.setItem("supabase_email", email);
     const savedName = localStorage.getItem("supabase_name") || email.split("@")[0];
     activeAccount = { id: result.user?.id || result.id || email, name: savedName, email, lastLoginAt: new Date().toISOString() };
+    localStorage.setItem(ACCOUNT_SESSION_KEY, activeAccount.id);
     if (loginAccountEmail) loginAccountEmail.value = "";
     if (loginAccountCode) loginAccountCode.value = "";
     try { renderAccountStatus(); } catch(e) {}
