@@ -492,6 +492,12 @@ const server = http.createServer(async (req, res) => {
       return sendStaticFile(res, "trade.html");
     }
 
+    if (req.method === "GET" && reqUrl.pathname === "/googlefa7a35b495fb0342.html") {
+      return sendStaticFile(res, "googlefa7a35b495fb0342.html");
+    }
+    if (req.method === "GET" && reqUrl.pathname === "/sitemap.xml") {
+      return sendStaticFile(res, "sitemap.xml");
+    }
     if (req.method === "GET" && ["/app.js", "/styles.css", "/theme-override.css", "/logo.jpg", "/app-theme.css", "/logo-dark.jpg"].includes(reqUrl.pathname)) {
       return sendStaticFile(res, reqUrl.pathname.slice(1));
     }
