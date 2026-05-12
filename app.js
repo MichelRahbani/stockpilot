@@ -6321,10 +6321,17 @@ const clearAllAppData = () => {
   completedBudgetActions = [];
   portfolioTheses = {};
   macroData = null;
-  restoredSpendingRows = [];
-  restoredInsuranceRows = [];
+  restoredSpendingRows = null;
+  restoredInsuranceRows = null;
   dataFreshness = {};
-  // Re-render all tables
+  // Clear all input fields
+  document.querySelectorAll('input[type="number"], input[type="text"], textarea').forEach(el => {
+    if (el.id !== 'tickerImport' && el.id !== 'bulkInput') el.value = '';
+  });
+  // Clear subscription list
+  const subList = document.querySelector('#subscriptionList');
+  if (subList) subList.value = '';
+  // Re-render all tables with defaults
   try { renderSpendingInputTable(); } catch(e) {}
   try { renderInsuranceInputTable(); } catch(e) {}
   try { renderAssetInputTable(); } catch(e) {}
