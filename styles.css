@@ -8654,3 +8654,4 @@ body.command-mode .services-panel {
 #signOutButton:disabled { display: none !important; }
 .data-quality-banner { font-size: 11px !important; padding: 6px 16px !important; opacity: 0.6 !important; }
 .data-quality-banner strong { font-size: 11px !important; }
+#workspaceNavigatorHint { display: none !important; }
