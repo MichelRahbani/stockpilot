@@ -6311,6 +6311,27 @@ const buildDemoHolding = ({ ticker, name, category, assetClass, allocation, pric
   return holding;
 };
 
+const clearAllAppData = () => {
+  // Clear all saved state
+  localStorage.removeItem(APP_STATE_KEY);
+  // Reset all variables
+  holdings = [];
+  decisionJournal = [];
+  moneyGoals = [];
+  completedBudgetActions = [];
+  portfolioTheses = {};
+  macroData = null;
+  restoredSpendingRows = [];
+  restoredInsuranceRows = [];
+  dataFreshness = {};
+  // Re-render all tables
+  try { renderSpendingInputTable(); } catch(e) {}
+  try { renderInsuranceInputTable(); } catch(e) {}
+  try { renderAssetInputTable(); } catch(e) {}
+  try { renderSubscriptionInputTable(); } catch(e) {}
+  try { updatePortfolio(); } catch(e) {}
+};
+
 const loadDemoHoldings = async () => {
   const demoHoldings = [
     { ticker: "AAPL", name: "Apple", category: "Technology", assetClass: "Stock", allocation: 18, price: 293, pe: 35, ps: 9.5, dividendYield: 0.5, beta: 1.07, roe: 68, debtEquity: 1.5, growth: 8 },
@@ -6514,6 +6535,7 @@ const prepareProfessorDemo = () => {
     renderAssetInputTable();
     updateBulkStatus();
   }
+  clearAllAppData();
   loadDemoHoldings();
   fillDemoTables();
   const demoValues = {
@@ -10939,7 +10961,12 @@ loadButtons.forEach((button) => {
 
 holdings = [];
 updateServerWarning();
-restoreAppState();
+// Only restore state for returning visitors
+if (localStorage.getItem(SESSION_ID_KEY)) {
+  restoreAppState();
+} else {
+  localStorage.setItem(SESSION_ID_KEY, Math.random().toString(36).slice(2));
+}
 renderAccountStatus();
 syncRefreshSettingsInputs();
 renderAssetInputTable();
