@@ -52,3 +52,17 @@ hr,[class*="divider"] { border-color: var(--sp-g100) !important; }
 select option { background: var(--sp-white) !important; color: var(--sp-g900) !important; }
 .number-cell,[class*="price"],[class*="metric"] { font-family: 'DM Mono', monospace !important; }
 small,[class*="note"],[class*="hint"],.table-note { color: var(--sp-g400) !important; font-size: 12px !important; }
+
+/* Onboarding redesign */
+.onboarding-overlay { background: rgba(0,0,0,0.6) !important; backdrop-filter: blur(8px) !important; }
+.onboarding-card { background: var(--sp-white) !important; border-radius: 20px !important; box-shadow: 0 24px 64px rgba(0,0,0,0.15) !important; border: 1px solid var(--sp-g100) !important; max-width: 560px !important; }
+.onboarding-card h2 { font-family: 'Fraunces', serif !important; font-size: 24px !important; color: var(--sp-g900) !important; letter-spacing: -0.02em !important; }
+.onboarding-steps article { background: var(--sp-off) !important; border-radius: 12px !important; border: 1px solid var(--sp-g100) !important; padding: 16px !important; }
+.onboarding-steps span { background: var(--sp-green) !important; color: white !important; border-radius: 50% !important; width: 28px !important; height: 28px !important; display: flex !important; align-items: center !important; justify-content: center !important; font-size: 13px !important; font-weight: 700 !important; }
+.onboarding-steps strong { color: var(--sp-g900) !important; font-family: 'Fraunces', serif !important; font-size: 15px !important; }
+.onboarding-steps p { color: var(--sp-g600) !important; font-size: 13px !important; }
+.onboarding-route-grid button { border-radius: 12px !important; border: 1px solid var(--sp-g100) !important; background: var(--sp-white) !important; transition: all 0.2s !important; }
+.onboarding-route-grid button:hover { background: var(--sp-green-l) !important; border-color: rgba(26,158,110,0.2) !important; transform: translateY(-2px) !important; }
+.onboarding-route-grid strong { color: var(--sp-g900) !important; font-family: 'Fraunces', serif !important; }
+.onboarding-route-grid span { color: var(--sp-green) !important; }
+#startOnboardingButton { background: var(--sp-green) !important; color: white !important; border-radius: 10px !important; font-weight: 600 !important; }

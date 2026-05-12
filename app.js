@@ -4087,7 +4087,8 @@ const completeOnboarding = () => {
 
 const showOnboardingIfNeeded = () => {
   if (!onboardingOverlay) return;
-  onboardingOverlay.hidden = localStorage.getItem(ONBOARDING_KEY) === "true";
+  const done = localStorage.getItem(ONBOARDING_KEY) === "true";
+  onboardingOverlay.hidden = done;
 };
 
 const closeOnboarding = () => {
