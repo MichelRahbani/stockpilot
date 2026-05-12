@@ -107,7 +107,25 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 .disc{padding:8px 16px;background:rgba(220,38,38,0.06);border-top:1px solid rgba(220,38,38,0.1);font-size:10px;color:var(--muted);text-align:center;flex-shrink:0}
 
-@media(max-width:900px){.layout{grid-template-columns:1fr;height:auto}.watchlist-panel,.portfolio-panel{display:none}}
+@media(max-width:900px){
+    nav{padding:10px 14px}
+    .logo{font-size:16px}
+    .badge{display:none}
+    .ticker{margin-top:49px}
+    .layout{grid-template-columns:1fr;height:auto;overflow:visible}
+    .watchlist-panel,.portfolio-panel{display:none}
+    .trade-panel{height:auto;overflow:visible}
+    .quote-area{padding:14px}
+    .trade-area{padding:14px;overflow:visible}
+    .q-header{flex-direction:column;gap:8px}
+    .q-price{font-size:24px}
+    .q-meta{grid-template-columns:repeat(3,1fr);gap:6px}
+    .qm{padding:6px}
+    .qm-v{font-size:11px}
+    .exec-btn{font-size:15px;padding:14px}
+    .search-inp{font-size:14px}
+    body{overflow-x:hidden}
+  }
 </style>
 </head>
 <body>
