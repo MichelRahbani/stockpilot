@@ -145,7 +145,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
   <div style="display:flex;gap:8px">
     <a href="/app" class="nav-btn">← Learning App</a>
+    <div id="navAccountArea" style="display:flex;align-items:center;gap:8px">
     <button onclick="openSignin()" class="nav-btn" id="signInNavBtn">Sign In</button>
+    <div id="navUserBadge" style="display:none;align-items:center;gap:8px">
+      <div style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);border-radius:8px;padding:6px 12px;font-size:13px;color:#2ecc9a;font-family:DM Sans,sans-serif">
+        <span id="navUserName"></span>
+      </div>
+      <button onclick="signOutTrade()" class="nav-btn" style="font-size:12px">Sign Out</button>
+    </div>
+  </div>
     <button class="nav-btn red" id="resetBtn">Reset Portfolio</button>
   </div>
 </nav>
@@ -246,6 +254,20 @@ function save(){ localStorage.setItem(KEY,JSON.stringify(port)); if(typeof saveP
 const SUPA_URL2='https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPA_KEY2='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
 function getToken(){return localStorage.getItem('supabase_token');}
+function signOutTrade(){
+  localStorage.removeItem('supabase_token');
+  localStorage.removeItem('supabase_email');
+  localStorage.removeItem('supabase_name');
+  localStorage.removeItem('sp_active_account');
+  document.getElementById('navUserBadge').style.display='none';
+  document.getElementById('signInNavBtn').style.display='';
+  showToast('Signed out','ok');
+}
+function showNavUser(name){
+  document.getElementById('signInNavBtn').style.display='none';
+  document.getElementById('navUserBadge').style.display='flex';
+  document.getElementById('navUserName').textContent=name;
+}
 async function savePortfolioToCloud(){
   const t=getToken();if(!t)return;
   try{await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{method:'POST',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({portfolio:port})});}catch(e){}
@@ -574,7 +596,8 @@ async function doSignin(){
     localStorage.setItem('supabase_email',email);
     localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
     showSiMsg('Signed in! Redirecting...', true);
-    setTimeout(()=>closeSignin(),1200);
+    const uname = localStorage.getItem('supabase_name') || email.split('@')[0];
+    setTimeout(()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);},1200);
   }catch(e){showSiMsg('Error signing in. Try again.',false);}
 }
 async function doForgot(){
@@ -598,9 +621,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
       headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q', 'Authorization': 'Bearer ' + token }
     });
     if (r.ok) {
-      // Update sign in button to show name
-      const btnSI = document.querySelector('#signInNavBtn');
-      if (btnSI) { btnSI.textContent = name; btnSI.style.color = '#2ecc9a'; }
+      if (typeof showNavUser === 'function') showNavUser(name || email.split('@')[0]);
     } else {
       localStorage.removeItem('supabase_token');
       localStorage.removeItem('supabase_email');
