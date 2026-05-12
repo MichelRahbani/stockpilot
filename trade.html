@@ -232,7 +232,36 @@ function load(){
   try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.cash!==undefined)return s; }catch(e){}
   return {cash:START,pos:{},trades:[]};
 }
-function save(){ localStorage.setItem(KEY,JSON.stringify(port)); }
+function save(){ localStorage.setItem(KEY,JSON.stringify(port)); if(typeof savePortfolioToCloud==="function") savePortfolioToCloud(); }
+
+const SUPA_URL2='https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY2='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+function getToken(){return localStorage.getItem('supabase_token');}
+async function savePortfolioToCloud(){
+  const t=getToken();if(!t)return;
+  try{await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{method:'POST',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({portfolio:port})});}catch(e){}
+}
+async function loadPortfolioFromCloud(){
+  const t=getToken();if(!t)return false;
+  try{
+    const r=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?select=portfolio&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
+    const data=await r.json();
+    if(data&&data[0]&&data[0].portfolio){port=data[0].portfolio;save();return true;}
+  }catch(e){}
+  return false;
+}
+(async function(){
+  const loaded=await loadPortfolioFromCloud();
+  if(loaded){
+    renderPort();renderTrades();updatePortStats();
+    const el=document.createElement('div');
+    el.style.cssText='position:fixed;top:70px;right:16px;background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);border-radius:8px;padding:6px 12px;font-size:11px;color:#86efac;z-index:50';
+    el.textContent='Portfolio synced from your account';
+    document.body.appendChild(el);
+    setTimeout(function(){el.remove();},3000);
+  }
+})();
+
 
 function f(n){
   if(n==null||isNaN(n))return '—';
