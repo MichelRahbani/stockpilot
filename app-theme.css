@@ -66,3 +66,16 @@ small,[class*="note"],[class*="hint"],.table-note { color: var(--sp-g400) !impor
 .onboarding-route-grid strong { color: var(--sp-g900) !important; font-family: 'Fraunces', serif !important; }
 .onboarding-route-grid span { color: var(--sp-green) !important; }
 #startOnboardingButton { background: var(--sp-green) !important; color: white !important; border-radius: 10px !important; font-weight: 600 !important; }
+
+/* font-leak-fix */
+.good-label, .bad-label, .warn-label,
+[class*="label"], [class*="risk"],
+[class*="score"], [class*="status"] {
+  font-family: 'DM Sans', sans-serif !important;
+}
+/* Only use mono for actual prices/numbers */
+[class*="price"]:not([class*="label"]),
+[class*="value"]:not([class*="label"]),
+[class*="equity"], [class*="pnl"] {
+  font-family: 'DM Mono', monospace !important;
+}

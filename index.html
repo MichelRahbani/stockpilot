@@ -1019,7 +1019,7 @@
                 <h3>Create User</h3>
                 <label class="field">
                   <span>Name</span>
-                  <input id="createAccountName" autocomplete="name" placeholder="Michel" />
+                  <input id="createAccountName" autocomplete="name" placeholder="Your name" />
                 </label>
                 <label class="field">
                   <span>Email</span>
@@ -1044,7 +1044,7 @@
                 <div class="button-row">
                   <button class="primary-button" id="loginAccountButton" type="button">Sign In</button>
                   <button class="ghost-button small-button" id="forgotPasswordButton" type="button" style="margin-top:8px;width:100%;font-size:13px;color:#6b7a9a">Forgot password?</button>
-                  <button class="ghost-button" id="signOutButton" type="button">Sign Out</button>
+                  <button class="ghost-button" id="signOutButton" style="display:none" type="button">Sign Out</button>
                 </div>
               </article>
               <article class="account-backup-card">
@@ -1175,12 +1175,7 @@
           <span>StockPilot uses the local API gateway for public market quotes, SEC filing facts, FRED macro series, and RSS headlines when connected. Data can still be delayed, revised, rate-limited, or unavailable, so verify critical figures before acting.</span>
         </section>
 
-        <section class="server-warning" id="serverWarning" hidden aria-label="Local server notice">
-          <div>
-            <strong>Open the live version for demos</strong>
-            <span>The file version can show the layout, but real data needs the local StockPilot server.</span>
-          </div>
-          <a class="primary-button small-button" href="http://127.0.0.1:8787/">Open Live App</a>
+        <section class="server-warning" id="serverWarning" hidden aria-label="
         </section>
 
         <nav class="app-tabs section-picker surface-card" aria-label="Investing subsections">
