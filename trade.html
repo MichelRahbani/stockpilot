@@ -610,12 +610,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
 </script>
 
 <script>
-// Restore session on load
+// Restore session on load - instant from cache first
 (async function(){
   const token = localStorage.getItem('supabase_token');
   const email = localStorage.getItem('supabase_email');
   const name = localStorage.getItem('supabase_name') || (email ? email.split('@')[0] : null);
   if (!token || !email) return;
+  // Show instantly from cache without waiting for Supabase
+  if (name && typeof showNavUser === 'function') showNavUser(name);
   try {
     const r = await fetch('https://xkfxofcmrmpazfjviatq.supabase.co/auth/v1/user', {
       headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q', 'Authorization': 'Bearer ' + token }
