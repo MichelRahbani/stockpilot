@@ -191,7 +191,7 @@ h1{animation:fadeUp 0.45s 0.08s ease both}
     <a href="#faq" class="nav-link">FAQ</a>
   </div>
   <div style="display:flex;gap:10px">
-    <a href="/app" class="btn btn-ghost">Sign In</a>
+    <button onclick="openSignin()" class="btn btn-ghost">Sign In</button>
     <a href="/app" class="btn btn-primary">Launch Free →</a>
     <a href="/trade" class="vm-btn" style="display:inline-flex;align-items:center;padding:9px 18px;border-radius:9px;font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;text-decoration:none;background:#dc2626;color:white;box-shadow:0 2px 8px rgba(220,38,38,0.3);transition:all 0.2s">🎮 Virtual Market</a>
   </div>
@@ -478,6 +478,53 @@ h1{animation:fadeUp 0.45s 0.08s ease both}
 document.querySelectorAll('.faq-q').forEach(q=>{q.addEventListener('click',()=>{const item=q.parentElement;const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!wasOpen)item.classList.add('open')})});
 function handleSignup(){const email=document.getElementById('signup-email').value;if(!email||!email.includes('@')){alert('Please enter a valid email.');return;}const leads=JSON.parse(localStorage.getItem('sp_leads')||'[]');leads.push({email,date:new Date().toISOString()});localStorage.setItem('sp_leads',JSON.stringify(leads));document.querySelector('.signup-form').style.display='none';document.getElementById('signup-success').style.display='block';}
 document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'})})});
+</script>
+
+<!-- Sign In Modal -->
+<div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
+    <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
+    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:6px">Welcome back</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">Sign in to your StockPilot account</div>
+    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
+    <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
+    <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
+    <button onclick="doSignin()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
+    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">Don't have an account? <a href="/app" style="color:#2ecc9a;text-decoration:none">Create one in the app</a></div>
+    <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
+  </div>
+</div>
+<script>
+const SUPA_URL="https://xkfxofcmrmpazfjviatq.supabase.co";
+const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
+function openSignin(){document.getElementById('signinModal').style.display='flex';}
+function closeSignin(){document.getElementById('signinModal').style.display='none';}
+function showSiMsg(msg,ok){const el=document.getElementById('signinMsg');el.textContent=msg;el.style.display='block';el.style.background=ok?'rgba(22,163,74,0.15)':'rgba(220,38,38,0.15)';el.style.color=ok?'#86efac':'#fca5a5';el.style.border='1px solid '+(ok?'rgba(22,163,74,0.3)':'rgba(220,38,38,0.3)');}
+async function doSignin(){
+  const email=document.getElementById('siEmail').value.trim();
+  const pass=document.getElementById('siPass').value;
+  if(!email||!pass){showSiMsg('Enter your email and password.', false);return;}
+  showSiMsg('Signing in...', true);
+  try{
+    const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email,password:pass})});
+    const d=await r.json();
+    if(d.error){showSiMsg(d.error.message||'Sign in failed.',false);return;}
+    localStorage.setItem('supabase_token',d.access_token);
+    localStorage.setItem('supabase_email',email);
+    localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
+    showSiMsg('Signed in! Redirecting...', true);
+    setTimeout(()=>closeSignin(),1200);
+  }catch(e){showSiMsg('Error signing in. Try again.',false);}
+}
+async function doForgot(){
+  const email=document.getElementById('siEmail').value.trim();
+  if(!email){showSiMsg('Enter your email first.',false);return;}
+  await fetch(SUPA_URL+'/auth/v1/recover',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email})});
+  showSiMsg('Password reset email sent!',true);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
 </script>
 </body>
 </html>
