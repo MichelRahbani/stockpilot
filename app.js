@@ -7332,7 +7332,7 @@ const renderHoldingsTable = () => {
             <strong>${Number.isFinite(Number(holding.price)) ? currency(holding.price) : "N/A"}</strong>
             <small class="price-source">${escapeHtml(holding.priceSource || "Price source")}</small>
           </td>
-          <td>${holding.score}</td>
+          <td>${holding.score}/100</td>
           <td>${Number.isFinite(holding.pe) ? formatNumber(holding.pe) : holding.assetClass === "Stock" ? "N/A" : "-"}</td>
           <td>${Number.isFinite(holding.dividendYield) ? `${formatNumber(holding.dividendYield, 2)}%` : "N/A"}</td>
           <td>${formatNumber(holding.beta, 2)}</td>
