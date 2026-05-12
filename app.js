@@ -2831,6 +2831,12 @@ const signInLocalAccount = async () => {
     activeAccount = { id: result.user?.id || result.id || email, name: savedName, email, lastLoginAt: new Date().toISOString() };
     localStorage.setItem(ACCOUNT_SESSION_KEY, activeAccount.id);
     localStorage.setItem("sp_active_account", JSON.stringify(activeAccount));
+    // Save to local accounts list so renderAccountStatus finds it on refresh
+    try {
+      const accts = JSON.parse(localStorage.getItem("stockPilot.accounts") || "[]");
+      if (!accts.find(a => a.id === activeAccount.id)) accts.push(activeAccount);
+      localStorage.setItem("stockPilot.accounts", JSON.stringify(accts));
+    } catch(e) {}
     if (loginAccountEmail) loginAccountEmail.value = "";
     if (loginAccountCode) loginAccountCode.value = "";
     try { renderAccountStatus(); } catch(e) {}
