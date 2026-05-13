@@ -10892,6 +10892,7 @@ tabButtons.forEach((button) => button.addEventListener("click", () => switchView
 sectionSelect.addEventListener("change", () => switchView(sectionSelect.value));
 if (investingSectionSelect) {
   investingSectionSelect.addEventListener("change", () => {
+    if (sectionSelect) sectionSelect.value = investingSectionSelect.value;
     setMoneyMode("investing");
     switchView(investingSectionSelect.value);
   });
