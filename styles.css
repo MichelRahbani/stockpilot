@@ -8655,9 +8655,3 @@ body.command-mode .services-panel {
 .data-quality-banner { font-size: 11px !important; padding: 6px 16px !important; opacity: 0.6 !important; }
 .data-quality-banner strong { font-size: 11px !important; }
 #workspaceNavigatorHint { display: none !important; }
-/* Always show topbar regardless of mode */
-body.command-mode .topbar,
-body.plan-mode .topbar,
-body.goals-mode .topbar,
-body.savings-mode .topbar,
-body.education-mode .topbar { display: flex !important; }

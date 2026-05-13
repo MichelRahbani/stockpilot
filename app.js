@@ -4378,8 +4378,8 @@ const setMoneyMode = (mode) => {
   document.body.classList.toggle("investing-mode", !isCommand && !isPlan && !isGoals && !isSavings && !isEducation);
   document.body.classList.toggle("savings-mode", isSavings);
   document.body.classList.toggle("education-mode", isEducation);
-  if(brandTitle) brandTitle.textContent = isCommand ? "StockPilot" : isPlan ? "PlanPilot" : isGoals ? "GoalPilot" : isSavings ? "BudgetPilot" : isEducation ? "LearnPilot" : "StockPilot";
-  if(brandSubtitle) brandSubtitle.textContent = isCommand
+  brandTitle.textContent = isCommand ? "StockPilot" : isPlan ? "PlanPilot" : isGoals ? "GoalPilot" : isSavings ? "BudgetPilot" : isEducation ? "LearnPilot" : "StockPilot";
+  brandSubtitle.textContent = isCommand
     ? "A financial command center for real-life decisions."
     : isPlan
     ? "Weekly actions and decision tracking."
