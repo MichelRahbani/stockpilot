@@ -106,30 +106,31 @@
       </aside>
 
       <section class="workspace">
-        <header class="topbar">
-          <div>
-            <p class="eyebrow" id="workspaceEyebrow">StockPilot</p>
-            <h2 id="workspaceTitle">Build, test, and understand a portfolio with simple asset tools.</h2>
-            <p class="topbar-copy" id="workspaceCopy">Analyze holdings, compare risk, read market context, and practice decisions in one clean workspace.</p>
+        <header class="topbar" style="display:flex;align-items:center;justify-content:space-between;padding:12px 24px;background:white;border-bottom:1px solid #e4e7ed;position:sticky;top:0;z-index:50;gap:16px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <a href="/" style="display:flex;align-items:center;gap:8px;text-decoration:none">
+              <img src="/logo.jpg" style="height:28px;width:auto;object-fit:contain" alt="StockPilot"/>
+              <span style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:#12161f">StockPilot</span>
+            </a>
           </div>
-          <div class="topbar-actions" id="workspaceTags">
-            <span>Free public data</span>
-            <span>Paper trading</span>
-            <span>Educational</span>
-          </div>
-          <div class="live-data-pill checking" id="liveDataPill" aria-live="polite">
+          <div class="live-data-pill checking" id="liveDataPill" aria-live="polite" style="flex:1;max-width:400px">
             <span id="liveDataDot" aria-hidden="true"></span>
             <div>
               <strong id="liveDataStatus">Checking data</strong>
               <small id="liveDataDetail">Connecting to StockPilot gateway...</small>
             </div>
           </div>
-          <div class="account-widget" id="accountWidget">
-            <span id="accountStatus">Guest Mode</span>
-            <strong id="accountName">No account</strong>
-            <div class="account-widget-actions">
-              <button class="ghost-button small-button" id="openAccountButton" type="button">Sign In</button>
-              <button class="ghost-button small-button" id="openSettingsButton" type="button">Settings</button>
+          <div style="display:flex;align-items:center;gap:8px">
+            <a href="/trade" style="display:inline-flex;align-items:center;padding:7px 14px;border-radius:8px;font-family:DM Sans,sans-serif;font-size:13px;font-weight:600;text-decoration:none;background:#dc2626;color:white">🎮 Trade</a>
+            <div class="account-widget" id="accountWidget" style="display:flex;align-items:center;gap:8px;background:#f7f8fa;border:1px solid #e4e7ed;border-radius:10px;padding:6px 12px">
+              <div>
+                <span id="accountStatus" style="font-size:10px;color:#9aa3b4;text-transform:uppercase;letter-spacing:0.06em;display:block">Guest Mode</span>
+                <strong id="accountName" style="font-size:13px;color:#12161f">No account</strong>
+              </div>
+              <div style="display:flex;gap:6px">
+                <button class="ghost-button small-button" id="openAccountButton" type="button">Sign In</button>
+                <button class="ghost-button small-button" id="openSettingsButton" type="button">Settings</button>
+              </div>
             </div>
           </div>
         </header>
