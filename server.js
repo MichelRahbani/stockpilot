@@ -575,7 +575,18 @@ const server = http.createServer(async (req, res) => {
           sections.push("📊 **Market Overview** — The S&P 500 (SPY) is " + spyDir + " " + Math.abs(spy.change).toFixed(2) + "% today, a " + spyMood + ". " + (spy.change > 0 ? "Bulls are in control for now." : "Bears are applying pressure."));
         }
 
-        // Top movers
+        // All stocks breakdown
+        const stockLines = quotes
+          .filter(q => q.symbol !== "SPY" && q.symbol !== "GLD" && q.symbol !== "TLT" && q.symbol !== "BTC-USD")
+          .sort((a,b) => b.change - a.change)
+          .map(q => {
+            const dir = q.change >= 0 ? "▲" : "▼";
+            const mood = q.change >= 5 ? " 🔥 Major surge" : q.change >= 3 ? " 📈 Strong move" : q.change <= -5 ? " 🚨 Major drop" : q.change <= -3 ? " 📉 Notable drop" : "";
+            return dir + " " + q.symbol + " " + (q.change >= 0 ? "+" : "") + q.change.toFixed(2) + "%" + mood;
+          });
+        if (stockLines.length > 0) {
+          sections.push("📋 **Stock Breakdown** — " + stockLines.join(" | "));
+        }
         if (topGainer && topGainer.change >= 2) {
           sections.push("🚀 **Top Gainer** — " + topGainer.symbol + " is up " + topGainer.change.toFixed(1) + "%" + (topGainer.change >= 5 ? " — a significant move that warrants attention." : "."));
         }
