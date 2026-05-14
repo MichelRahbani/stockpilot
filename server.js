@@ -506,6 +506,129 @@ const server = http.createServer(async (req, res) => {
       return send(res, 200, providerStatus());
     }
 
+    
+    if (reqUrl.pathname === "/api/market-brief" && req.method === "GET") {
+      try {
+        const KEY_SYMBOLS = ["SPY","QQQ","AAPL","NVDA","TSLA","AMZN","META","BTC-USD","GLD","TLT"];
+        const [quotesRaw, macroRaw] = await Promise.all([
+          cachedFetch(FINNHUB_BASE_URL + "/quote?symbol=SPY&token=" + FINNHUB_API_KEY, "json").catch(()=>null),
+          getMacroPayload().catch(()=>null)
+        ]);
+        
+        // Get multiple quotes
+        const quoteResults = await Promise.allSettled(
+          KEY_SYMBOLS.map(sym => 
+            cachedFetch(FINNHUB_BASE_URL + "/quote?symbol=" + sym + "&token=" + FINNHUB_API_KEY, "json")
+              .then(q => ({ symbol: sym, price: q.c, change: q.dp, prevClose: q.pc }))
+              .catch(() => null)
+          )
+        );
+        const quotes = quoteResults.map(r => r.value).filter(Boolean).filter(q => q.price > 0);
+
+        // Analyze for anomalies
+        const movers = quotes
+          .filter(q => q.change !== null && !isNaN(q.change))
+          .sort((a,b) => Math.abs(b.change) - Math.abs(a.change));
+        
+        const topGainer = movers.find(q => q.change > 0);
+        const topLoser = movers.find(q => q.change < 0);
+        const spy = quotes.find(q => q.symbol === "SPY");
+        const btc = quotes.find(q => q.symbol === "BTC-USD");
+        const gld = quotes.find(q => q.symbol === "GLD");
+        const tlt = quotes.find(q => q.symbol === "TLT");
+        const nvda = quotes.find(q => q.symbol === "NVDA");
+        const tsla = quotes.find(q => q.symbol === "TSLA");
+
+        // Get macro data
+        const macro = macroRaw?.series || [];
+        const fedRate = macro.find(s => s.id === "FEDFUNDS");
+        const treasury10y = macro.find(s => s.id === "DGS10");
+        const cpi = macro.find(s => s.id === "CPIAUCSL");
+        const unemployment = macro.find(s => s.id === "UNRATE");
+
+        // Build anomaly flags
+        const anomalies = [];
+        movers.forEach(q => {
+          if (Math.abs(q.change) >= 3) {
+            anomalies.push({
+              symbol: q.symbol,
+              change: q.change,
+              type: q.change > 0 ? "surge" : "drop",
+              message: q.symbol + " " + (q.change > 0 ? "surged" : "dropped") + " " + Math.abs(q.change).toFixed(1) + "% today — " + (Math.abs(q.change) >= 6 ? "major move, worth watching" : "notable move")
+            });
+          }
+        });
+
+        // Build plain-English brief
+        const date = new Date().toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+        
+        let sentiment = "mixed";
+        if (spy && spy.change > 0.5) sentiment = "risk-on";
+        else if (spy && spy.change < -0.5) sentiment = "risk-off";
+        
+        const sections = [];
+
+        // Market overview
+        if (spy) {
+          const spyDir = spy.change >= 0 ? "up" : "down";
+          const spyMood = Math.abs(spy.change) > 1 ? "strong move" : "modest move";
+          sections.push("📊 **Market Overview** — The S&P 500 (SPY) is " + spyDir + " " + Math.abs(spy.change).toFixed(2) + "% today, a " + spyMood + ". " + (spy.change > 0 ? "Bulls are in control for now." : "Bears are applying pressure."));
+        }
+
+        // Top movers
+        if (topGainer && topGainer.change >= 2) {
+          sections.push("🚀 **Top Gainer** — " + topGainer.symbol + " is up " + topGainer.change.toFixed(1) + "%" + (topGainer.change >= 5 ? " — a significant move that warrants attention." : "."));
+        }
+        if (topLoser && topLoser.change <= -2) {
+          sections.push("📉 **Top Loser** — " + topLoser.symbol + " is down " + Math.abs(topLoser.change).toFixed(1) + "%" + (topLoser.change <= -5 ? " — a steep drop that could signal broader weakness." : "."));
+        }
+
+        // BTC
+        if (btc) {
+          const btcDir = btc.change >= 0 ? "up" : "down";
+          sections.push("₿ **Crypto** — Bitcoin is " + btcDir + " " + Math.abs(btc.change).toFixed(1) + "% today. " + (btc.change > 3 ? "Crypto sentiment is bullish." : btc.change < -3 ? "Crypto is under pressure." : "Crypto is moving with the broader market."));
+        }
+
+        // Gold
+        if (gld) {
+          const gldDir = gld.change >= 0 ? "rising" : "falling";
+          const gldNote = spy && gld.change > 0.5 && spy.change > 0.5 ? " Both stocks and gold rising is unusual — could signal inflation concerns." : "";
+          sections.push("🥇 **Gold** — GLD is " + gldDir + " " + Math.abs(gld.change).toFixed(1) + "% today." + gldNote);
+        }
+
+        // Macro context
+        if (fedRate) {
+          sections.push("🏦 **Macro Context** — Fed Funds Rate sits at " + fedRate.latest?.value?.toFixed(2) + "%" + (treasury10y ? ", 10-Year Treasury at " + treasury10y.latest?.value?.toFixed(2) + "%." : ".") + (unemployment ? " Unemployment is " + unemployment.latest?.value?.toFixed(1) + "%." : ""));
+        }
+
+        // Anomaly summary
+        if (anomalies.length > 0) {
+          sections.push("⚠️ **Anomalies** — " + anomalies.map(a => a.message).join(" | "));
+        } else {
+          sections.push("✅ **No Major Anomalies** — Markets are moving within normal ranges today. No single stock has moved more than 3%.");
+        }
+
+        // Disclaimer
+        sections.push("_Educational context only. Not financial advice. Data may be delayed._");
+
+        const brief = {
+          date,
+          sentiment,
+          sections,
+          quotes: quotes.map(q => ({ symbol: q.symbol, price: q.price, change: q.change })),
+          anomalies,
+          generatedAt: new Date().toISOString()
+        };
+
+        res.writeHead(200, { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" });
+        res.end(JSON.stringify(brief));
+      } catch(e) {
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+      return;
+    }
+
     if (reqUrl.pathname === "/api/quotes") {
       return send(res, 200, await getQuotePayload((reqUrl.searchParams.get("symbols") || "").split(",")));
     }
