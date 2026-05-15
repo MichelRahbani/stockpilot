@@ -86,7 +86,7 @@ footer{background:var(--g900);padding:24px 40px;display:flex;align-items:center;
 .foot-links{display:flex;gap:20px}
 footer a{font-size:12px;color:rgba(255,255,255,0.3)}
 footer a:hover{color:#2ecc9a}
-@media(max-width:768px){
+@media(max-width:768px){.feat-grid{grid-template-columns:1fr 1fr!important}
     html,body{overflow-x:hidden;max-width:100vw}
     .ticker-wrap{display:none}
     nav{padding:12px 20px}
@@ -251,6 +251,44 @@ footer a:hover{color:#2ecc9a}
   </div>
 </section>
 
+
+<section style="padding:100px 40px;background:var(--off)">
+  <div style="max-width:1060px;margin:0 auto">
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--g400);text-align:center;margin-bottom:14px">What is inside</p>
+    <h2 style="font-family:Fraunces,serif;font-size:clamp(28px,4vw,42px);font-weight:700;text-align:center;color:var(--g900);letter-spacing:-0.02em;margin-bottom:56px">Four tools. One place.</h2>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
+
+      <div style="background:white;border-radius:16px;padding:28px;border:1px solid var(--g100)">
+        <div style="font-size:32px;margin-bottom:16px">🎮</div>
+        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px">Virtual Market</div>
+        <div style="font-size:14px;color:var(--g600);line-height:1.6">Trade real stocks with $100,000 of virtual cash. Real prices from Finnhub. Zero risk.</div>
+        <a href="/trade" style="display:inline-flex;margin-top:16px;font-size:13px;font-weight:600;color:var(--green);text-decoration:none">Try it now</a>
+      </div>
+
+      <div style="background:white;border-radius:16px;padding:28px;border:1px solid var(--g100)">
+        <div style="font-size:32px;margin-bottom:16px">📊</div>
+        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px">Portfolio Simulator</div>
+        <div style="font-size:14px;color:var(--g600);line-height:1.6">Build a virtual portfolio with any ticker. See allocation, risk, beta, volatility, and correlation explained in plain English.</div>
+        <a href="/app" style="display:inline-flex;margin-top:16px;font-size:13px;font-weight:600;color:var(--green);text-decoration:none">Explore</a>
+      </div>
+
+      <div style="background:white;border-radius:16px;padding:28px;border:1px solid var(--g100)">
+        <div style="font-size:32px;margin-bottom:16px">💰</div>
+        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px">Budget Planner</div>
+        <div style="font-size:14px;color:var(--g600);line-height:1.6">Track income, spending, savings goals, and subscriptions. Understand your cash flow before you invest a dollar.</div>
+        <a href="/app" style="display:inline-flex;margin-top:16px;font-size:13px;font-weight:600;color:var(--green);text-decoration:none">Explore</a>
+      </div>
+
+      <div style="background:white;border-radius:16px;padding:28px;border:1px solid var(--g100)">
+        <div style="font-size:32px;margin-bottom:16px">🎓</div>
+        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px">Learning Pathways</div>
+        <div style="font-size:14px;color:var(--g600);line-height:1.6">42 beginner lessons covering P/E ratios, diversification, compounding, inflation, and more. In plain English, not textbook language.</div>
+        <a href="/app" style="display:inline-flex;margin-top:16px;font-size:13px;font-weight:600;color:var(--green);text-decoration:none">Start learning</a>
+      </div>
+
+    </div>
+  </div>
+</section>
 <section class="cta">
   <h2>Ready to <em>practice?</em></h2>
   <p>No account needed. No real money. No excuses.</p>
