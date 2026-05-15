@@ -11080,3 +11080,12 @@ const restoreSupabaseSession = async () => {
   } catch(e) {}
 };
 window.addEventListener("DOMContentLoaded", restoreSupabaseSession);
+
+// Auto-load live data on page open
+window.addEventListener("load", () => {
+  setTimeout(() => {
+    if (typeof refreshAllData === "function") {
+      refreshAllData();
+    }
+  }, 1500);
+});
