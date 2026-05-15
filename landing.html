@@ -21,7 +21,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--g900);display:flex;align-items:center;gap:10px}
 .logo img{height:28px;width:auto}
 .nav-right{display:flex;gap:10px}
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:160px 24px 80px;background:#000;position:relative;overflow:hidden}
+.hero{min-height:calc(100vh - 44px);display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 24px 80px;background:#000;position:relative;overflow:hidden}
 .hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(26,158,110,0.12) 0%,transparent 70%)}
 .hero-content{position:relative;max-width:720px}
 .hero-pill{display:inline-flex;background:rgba(26,158,110,0.12);border:1px solid rgba(26,158,110,0.25);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:600;color:#2ecc9a;margin-bottom:28px}
@@ -108,7 +108,7 @@ footer a:hover{color:#2ecc9a}
   }
 
 <style>
-.ticker-wrap{background:#0a0e17;overflow:hidden;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);position:fixed;top:61px;left:0;right:0;z-index:99}
+.ticker-wrap{background:#0a0e17;overflow:hidden;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);margin-top:61px}
 .ticker-track{display:flex;gap:40px;animation:ticker 30s linear infinite;width:max-content}
 .ticker-track:hover{animation-play-state:paused}
 .ticker-item{display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);white-space:nowrap}
