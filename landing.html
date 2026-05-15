@@ -3,572 +3,204 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<meta name="robots" content="index, follow"/>
-<meta name="keywords" content="stock market simulator, paper trading, learn investing, portfolio simulator, free finance app, virtual trading, budgeting app"/>
-<meta property="og:title" content="StockPilot — Learn investing before risking real money"/>
-<meta property="og:description" content="Free finance learning app for students and beginners. Real stock data, virtual trading with $100,000, budgeting tools. No real money at risk."/>
-<meta property="og:url" content="https://mystockspilot.com"/>
-<meta property="og:type" content="website"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="StockPilot — Learn investing before risking real money"/>
-<meta name="twitter:description" content="Free finance learning app. Virtual trading, real prices, budgeting tools. No real money at risk."/>
-<title>StockPilot — Learn money decisions before risking real money</title>
-<meta name="description" content="Free finance learning app for students and beginners. Real stock data, portfolio simulator, budgeting tools, and learning pathways. No real money at risk."/>
+<title>StockPilot - Practice investing before risking real money</title>
+<meta name="description" content="Practice trading with $100,000 of virtual cash. Real stock prices, zero risk. Free forever."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300;0,9..144,400&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--white:#ffffff;--off:#f7f8fa;--g50:#f0f2f5;--g100:#e4e7ed;--g400:#9aa3b4;--g600:#5a6478;--g900:#12161f;--green:#1a9e6e;--green-l:#e8f7f2;--green-m:#2ecc9a;--green-d:#147a55;--blue:#2563eb;--blue-l:#eff5ff;--purple:#7c3aed;--purple-l:#f3effe;--gold:#d97706;--gold-l:#fef3e2;--red:#dc2626;--red-l:#fef2f2}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--g900);line-height:1.6;overflow-x:hidden}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(255,255,255,0.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--g100)}
-.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--g900);text-decoration:none;display:flex;align-items:center;gap:8px}
-.logo-icon{width:26px;height:26px;background:var(--green);border-radius:7px;display:flex;align-items:center;justify-content:center;color:white;font-size:13px}
-.nav-links{display:flex;align-items:center;gap:24px}
-.nav-link{font-size:14px;color:var(--g600);text-decoration:none;font-weight:500;transition:color 0.2s}
-.nav-link:hover{color:var(--g900)}
-.btn{display:inline-flex;align-items:center;padding:9px 18px;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.2s;border:none;white-space:nowrap}
-.btn-ghost{background:transparent;color:var(--g600);border:1px solid var(--g100)}
-.btn-ghost:hover{background:var(--off);color:var(--g900)}
-.btn-primary{background:var(--green);color:white;box-shadow:0 2px 8px rgba(26,158,110,0.25)}
-.btn-primary:hover{background:var(--green-d);transform:translateY(-1px);box-shadow:0 4px 16px rgba(26,158,110,0.3)}
-.btn-lg{padding:13px 26px;font-size:15px;border-radius:11px}
-.btn-xl{padding:15px 32px;font-size:16px;border-radius:12px}
-.ticker-bar{background:var(--g900);padding:10px 0;overflow:hidden;position:fixed;top:57px;left:0;right:0;z-index:99}
-.ticker-track{display:flex;gap:40px;animation:scroll 30s linear infinite;width:max-content}
-.ticker-item{display:flex;align-items:center;gap:8px;white-space:nowrap;font-family:'DM Mono',monospace;font-size:12px;color:rgba(255,255,255,0.6)}
-.ticker-item strong{color:white;font-weight:500}
-.ticker-item .up{color:#2ecc9a}.ticker-item .down{color:#ff6b6b}
-@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.hero{min-height:calc(100vh - 93px);display:flex;align-items:center;padding:80px 40px;margin-top:40px;background:linear-gradient(160deg,rgba(232,247,242,0.4) 0%,rgba(255,255,255,0) 50%,rgba(239,245,255,0.3) 100%);position:relative;overflow:hidden}
-.hero-dots{position:absolute;inset:0;background-image:radial-gradient(circle,rgba(0,0,0,0.06) 1px,transparent 1px);background-size:28px 28px;mask-image:radial-gradient(ellipse 70% 70% at 50% 50%,black 30%,transparent 100%)}
-.hero-inner{max-width:1120px;margin:0 auto;width:100%;display:grid;grid-template-columns:1.1fr 0.9fr;gap:72px;align-items:center;position:relative}
-.hero-tag{display:inline-flex;align-items:center;background:var(--green-l);color:var(--green);border:1px solid rgba(26,158,110,0.2);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600;margin-bottom:20px}
-h1{font-family:'Fraunces',serif;font-size:clamp(34px,4.5vw,54px);font-weight:700;line-height:1.08;letter-spacing:-0.025em;color:var(--g900);margin-bottom:18px}
-h1 em{font-style:italic;color:var(--green)}
-.hero-sub{font-size:17px;color:var(--g600);line-height:1.7;margin-bottom:32px;max-width:460px}
-.hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:20px}
-.hero-note{font-size:12px;color:var(--g400);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.mock-wrap{position:relative}
-.mock{background:var(--white);border-radius:18px;box-shadow:0 20px 60px rgba(0,0,0,0.12),0 0 0 1px var(--g100);overflow:hidden;transform:perspective(1000px) rotateY(-3deg) rotateX(1.5deg);transition:transform 0.5s ease}
-.mock:hover{transform:perspective(1000px) rotateY(-0.5deg) rotateX(0.5deg)}
-.mock-head{background:var(--g900);padding:12px 18px;display:flex;align-items:center;gap:5px}
-.dot{width:9px;height:9px;border-radius:50%}
-.mock-url{flex:1;background:rgba(255,255,255,0.08);border-radius:5px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,0.35);margin-left:8px}
-.mock-body{padding:16px}
-.mock-tickers{display:flex;gap:6px;margin-bottom:12px}
-.mock-ticker{flex:1;background:var(--off);border-radius:8px;padding:9px 10px}
-.mt-name{font-size:9px;color:var(--g400);font-weight:700;letter-spacing:0.07em;text-transform:uppercase}
-.mt-price{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--g900);margin:2px 0}
-.mt-chg{font-family:'DM Mono',monospace;font-size:10px;font-weight:500}
-.up{color:#1a9e6e}.down{color:#dc2626}
-.mock-chart{height:64px;background:var(--off);border-radius:8px;margin-bottom:12px;overflow:hidden}
-.mock-chart svg{width:100%;height:100%}
-.mock-holdings{display:flex;flex-direction:column;gap:5px}
-.mock-holding{display:flex;align-items:center;justify-content:space-between;padding:7px 9px;background:var(--off);border-radius:7px}
-.mh-left{display:flex;align-items:center;gap:7px}
-.mh-icon{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:white}
-.mh-ticker{font-size:11px;font-weight:600;color:var(--g900)}
-.mh-name{font-size:9px;color:var(--g400)}
-.mh-price{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;color:var(--g900);text-align:right}
-.mh-pct{font-family:'DM Mono',monospace;font-size:9px;text-align:right}
-.float-badge{position:absolute;background:white;border-radius:10px;padding:9px 13px;box-shadow:0 4px 16px rgba(0,0,0,0.08),0 0 0 1px var(--g100);font-size:11px;font-weight:600;color:var(--g900);animation:float 3s ease-in-out infinite;z-index:2}
-.fb1{top:-16px;left:-24px}.fb2{bottom:30px;right:-24px;animation-delay:1.5s}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
-.stats-bar{background:var(--g900);padding:20px 40px}
-.stats-inner{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-around;gap:20px;flex-wrap:wrap}
-.stat-item{text-align:center}
-.stat-num{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:white;line-height:1}
-.stat-label{font-size:12px;color:rgba(255,255,255,0.45);margin-top:4px}
-.stat-div{width:1px;height:32px;background:rgba(255,255,255,0.1)}
-.how{padding:90px 40px;background:var(--off)}
-.section-tag{text-align:center;font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--g400);margin-bottom:12px}
-h2{font-family:'Fraunces',serif;font-size:clamp(26px,3.5vw,38px);font-weight:700;text-align:center;color:var(--g900);letter-spacing:-0.02em;margin-bottom:12px;line-height:1.2}
-.s-sub{text-align:center;font-size:16px;color:var(--g600);max-width:500px;margin:0 auto 56px;line-height:1.65}
-.steps{max-width:860px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
-.step{background:white;border-radius:16px;padding:28px 24px;text-align:center;border:1px solid var(--g100)}
-.step:first-child{border-radius:16px 0 0 16px}
-.step:last-child{border-radius:0 16px 16px 0}
-.step-num{width:40px;height:40px;border-radius:50%;background:var(--green);color:white;font-family:'Fraunces',serif;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
-.step-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--g900);margin-bottom:8px}
-.step-desc{font-size:14px;color:var(--g600);line-height:1.6}
-.features{padding:90px 40px;background:white}
-.feat-grid{max-width:1060px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.feat-card{border-radius:16px;padding:32px;border:1px solid var(--g100);transition:transform 0.2s,box-shadow 0.2s}
-.feat-card:hover{transform:translateY(-3px);box-shadow:0 4px 16px rgba(0,0,0,0.08)}
-.feat-card.green{background:linear-gradient(135deg,var(--green-l) 0%,rgba(232,247,242,0.3) 100%);border-color:rgba(26,158,110,0.15)}
-.feat-card.blue{background:linear-gradient(135deg,var(--blue-l) 0%,rgba(239,245,255,0.3) 100%);border-color:rgba(37,99,235,0.12)}
-.feat-card.purple{background:linear-gradient(135deg,var(--purple-l) 0%,rgba(243,239,254,0.3) 100%);border-color:rgba(124,58,237,0.12)}
-.feat-card.gold{background:linear-gradient(135deg,var(--gold-l) 0%,rgba(254,243,226,0.3) 100%);border-color:rgba(217,119,6,0.12)}
-.feat-icon-wrap{display:flex;align-items:center;gap:12px;margin-bottom:16px}
-.feat-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px}
-.feat-card.green .feat-icon{background:rgba(26,158,110,0.15)}
-.feat-card.blue .feat-icon{background:rgba(37,99,235,0.12)}
-.feat-card.purple .feat-icon{background:rgba(124,58,237,0.12)}
-.feat-card.gold .feat-icon{background:rgba(217,119,6,0.12)}
-.feat-badge{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:3px 8px;border-radius:5px}
-.feat-card.green .feat-badge{background:rgba(26,158,110,0.12);color:var(--green)}
-.feat-card.blue .feat-badge{background:rgba(37,99,235,0.1);color:var(--blue)}
-.feat-card.purple .feat-badge{background:rgba(124,58,237,0.1);color:var(--purple)}
-.feat-card.gold .feat-badge{background:rgba(217,119,6,0.1);color:var(--gold)}
-.feat-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--g900);margin-bottom:10px}
-.feat-desc{font-size:15px;color:var(--g600);line-height:1.68}
-.feat-bullets{margin-top:14px;display:flex;flex-direction:column;gap:6px}
-.feat-bullet{font-size:13px;color:var(--g600);display:flex;align-items:flex-start;gap:7px}
-.feat-bullet::before{content:'✓';font-weight:700;flex-shrink:0;margin-top:1px}
-.feat-card.green .feat-bullet::before{color:var(--green)}
-.feat-card.blue .feat-bullet::before{color:var(--blue)}
-.feat-card.purple .feat-bullet::before{color:var(--purple)}
-.feat-card.gold .feat-bullet::before{color:var(--gold)}
-.compare{padding:90px 40px;background:var(--g900)}
-.compare-inner{max-width:900px;margin:0 auto}
-.compare h2{color:white}
-.compare .s-sub{color:rgba(255,255,255,0.5)}
-.compare-table{width:100%;border-collapse:collapse;margin-top:0}
-.compare-table th{padding:14px 20px;font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:rgba(255,255,255,0.4);text-align:left;border-bottom:1px solid rgba(255,255,255,0.08)}
-.compare-table th:not(:first-child){text-align:center}
-.compare-table td{padding:14px 20px;font-size:14px;color:rgba(255,255,255,0.7);border-bottom:1px solid rgba(255,255,255,0.05)}
-.compare-table td:not(:first-child){text-align:center}
-.compare-table tr:last-child td{border-bottom:none}
-.sp-col{background:rgba(26,158,110,0.08);border-left:2px solid #1a9e6e !important;border-right:2px solid #1a9e6e !important}
-.compare-table tr:first-child .sp-col{border-top:2px solid #1a9e6e}
-.compare-table tr:last-child .sp-col{border-bottom:2px solid #1a9e6e !important}
-.compare-table th.sp-col{color:#2ecc9a;font-size:13px}
-.check{color:#2ecc9a;font-size:16px}.cross{color:rgba(255,255,255,0.2);font-size:16px}.partial{color:#d97706;font-size:13px}
-.price-tag{font-family:'DM Mono',monospace;font-size:13px;color:rgba(255,255,255,0.4)}
-.free-tag{font-family:'DM Mono',monospace;font-size:13px;color:#2ecc9a;font-weight:600}
-.for-who{padding:90px 40px;background:white}
-.aud-grid{max-width:920px;margin:0 auto;display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
-.aud-card{border-radius:16px;padding:26px 28px;border:1px solid var(--g100);display:flex;gap:14px;align-items:flex-start;transition:transform 0.2s}
-.aud-card:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.06)}
-.aud-card:nth-child(1){background:var(--green-l);border-color:rgba(26,158,110,0.15)}
-.aud-card:nth-child(2){background:var(--blue-l);border-color:rgba(37,99,235,0.12)}
-.aud-card:nth-child(3){background:var(--purple-l);border-color:rgba(124,58,237,0.12)}
-.aud-card:nth-child(4){background:var(--gold-l);border-color:rgba(217,119,6,0.12)}
-.aud-emoji{font-size:30px;flex-shrink:0;margin-top:2px}
-.aud-title{font-family:'Fraunces',serif;font-size:17px;font-weight:600;color:var(--g900);margin-bottom:5px}
-.aud-desc{font-size:13px;color:var(--g600);line-height:1.6}
-.faq{padding:90px 40px;background:var(--off)}
-.faq-inner{max-width:700px;margin:0 auto}
-.faq-list{display:flex;flex-direction:column;gap:12px}
-.faq-item{background:white;border-radius:12px;border:1px solid var(--g100);overflow:hidden}
-.faq-q{padding:18px 22px;font-size:15px;font-weight:600;color:var(--g900);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;user-select:none}
-.faq-q:hover{background:var(--off)}
-.faq-icon{font-size:18px;color:var(--g400);transition:transform 0.2s;flex-shrink:0}
-.faq-a{padding:0 22px 18px;font-size:14px;color:var(--g600);line-height:1.7;display:none}
-.faq-item.open .faq-a{display:block}
-.faq-item.open .faq-icon{transform:rotate(45deg);color:var(--green)}
-.signup{padding:90px 40px;background:white;text-align:center}
-.signup-inner{max-width:520px;margin:0 auto}
-.signup-form{display:flex;gap:10px;max-width:440px;margin:0 auto}
-.signup-input{flex:1;padding:12px 16px;border:1px solid var(--g100);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;color:var(--g900);background:var(--off);outline:none;transition:border-color 0.2s}
-.signup-input:focus{border-color:var(--green);background:white;box-shadow:0 0 0 3px rgba(26,158,110,0.1)}
-.signup-input::placeholder{color:var(--g400)}
-.signup-note{font-size:12px;color:var(--g400);margin-top:12px}
-#signup-success{display:none;font-size:14px;color:var(--green);font-weight:600;margin-top:12px}
-.disclaimer{padding:48px 40px;background:var(--g50);border-top:1px solid var(--g100);text-align:center}
-.disc-inner{max-width:680px;margin:0 auto}
-.disc-title{font-family:'Fraunces',serif;font-size:20px;font-weight:600;color:var(--g900);margin:12px 0 10px}
-.disc-text{font-size:14px;color:var(--g600);line-height:1.7}
-.cta{padding:90px 40px;background:var(--g900);text-align:center;position:relative;overflow:hidden}
-.cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 50%,rgba(46,204,154,0.1) 0%,transparent 70%)}
-.cta *{position:relative}
-.cta-title{font-family:'Fraunces',serif;font-size:clamp(28px,4.5vw,48px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:14px;line-height:1.15}
-.cta-title em{font-style:italic;color:#2ecc9a}
-.cta-sub{font-size:16px;color:rgba(255,255,255,0.55);margin-bottom:32px}
-.cta-note{font-size:12px;color:rgba(255,255,255,0.3);margin-top:14px}
-footer{background:var(--g900);border-top:1px solid rgba(255,255,255,0.06);padding:22px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.foot-left{font-size:12px;color:rgba(255,255,255,0.25)}
-.foot-links{display:flex;gap:20px}
-footer a{font-size:12px;color:rgba(255,255,255,0.35);text-decoration:none;transition:color 0.2s}
-footer a:hover{color:#2ecc9a}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.hero-tag{animation:fadeUp 0.5s ease both}
-h1{animation:fadeUp 0.45s 0.08s ease both}
-.hero-sub{animation:fadeUp 0.45s 0.16s ease both}
-.hero-actions{animation:fadeUp 0.45s 0.24s ease both}
-.mock-wrap{animation:fadeUp 0.55s 0.15s ease both}
-@media(max-width:900px){body{overflow-x:hidden!important;width:100vw!important}html{overflow-x:hidden!important}.vm-btn{display:none!important}nav{padding:12px 20px}.vm-grid{grid-template-columns:1fr!important;gap:32px!important}.vm-grid>div:last-child{display:none!important}.compare-inner{padding:0 4px}.compare-table{font-size:12px}.compare-table th,.compare-table td{padding:8px 10px}.nav-links{display:none}.hero{padding:60px 20px}.hero-inner{grid-template-columns:1fr;gap:48px}.mock-wrap{display:none}.stats-bar{padding:20px}.stats-inner{gap:16px}.stat-div{display:none}.how,.features,.compare,.for-who,.faq,.signup,.cta{padding:60px 20px}.steps{grid-template-columns:1fr;gap:12px}.step{border-radius:16px !important}.feat-grid{grid-template-columns:1fr}.aud-grid{grid-template-columns:1fr}.signup-form{flex-direction:column}footer{flex-direction:column;text-align:center}.foot-links{justify-content:center}}
-</style>
-<!-- Google Analytics -->
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-TZLSC36Y26');
-</script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TZLSC36Y26');</script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g900:#12161f;--g600:#5a6478;--g400:#9aa3b4;--g100:#e4e7ed;--off:#f7f8fa;--green:#1a9e6e;--green-l:#e8f7f2;--red:#dc2626}
+body{font-family:'DM Sans',sans-serif;color:var(--g900);overflow-x:hidden}
+a{text-decoration:none}
+.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;white-space:nowrap}
+.btn-green{background:var(--green);color:white}.btn-green:hover{background:#147a55;transform:translateY(-1px)}
+.btn-outline{background:transparent;color:var(--g600);border:1px solid var(--g100)}.btn-outline:hover{background:var(--off)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--g100)}
+.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--g900);display:flex;align-items:center;gap:10px}
+.logo img{height:28px;width:auto}
+.nav-right{display:flex;gap:10px}
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;background:#000;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(26,158,110,0.12) 0%,transparent 70%)}
+.hero-content{position:relative;max-width:720px}
+.hero-pill{display:inline-flex;background:rgba(26,158,110,0.12);border:1px solid rgba(26,158,110,0.25);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:600;color:#2ecc9a;margin-bottom:28px}
+h1{font-family:'Fraunces',serif;font-size:clamp(40px,6vw,72px);font-weight:700;color:white;line-height:1.05;letter-spacing:-0.03em;margin-bottom:20px}
+h1 em{font-style:italic;color:#2ecc9a;font-weight:300}
+.hero-sub{font-size:18px;color:rgba(255,255,255,0.5);line-height:1.65;margin-bottom:36px;max-width:500px;margin:0 auto 36px}
+.hero-cta{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+.btn-hero{padding:16px 36px;font-size:16px;border-radius:14px}
+.hero-note{font-size:13px;color:rgba(255,255,255,0.2);margin-top:16px}
+.stories{padding:100px 40px;background:white}
+.stories-inner{max-width:1060px;margin:0 auto}
+.label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--g400);text-align:center;margin-bottom:14px}
+h2.section{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;text-align:center;color:var(--g900);letter-spacing:-0.02em;margin-bottom:56px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.card{border-radius:20px;padding:36px;transition:transform 0.2s}.card:hover{transform:translateY(-3px)}
+.card.dark{background:var(--g900)}
+.card.green{background:var(--green-l);border:1px solid rgba(26,158,110,0.15)}
+.card.light{background:var(--off);border:1px solid var(--g100)}
+.card.red{background:#1a0505;border:1px solid rgba(220,38,38,0.2)}
+.card-num{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px}
+.card.dark .card-num{color:rgba(255,255,255,0.3)}
+.card.green .card-num{color:var(--green)}
+.card.light .card-num{color:var(--g400)}
+.card.red .card-num{color:rgba(220,38,38,0.5)}
+.card-icon{font-size:36px;margin-bottom:16px;display:block}
+.card-q{font-family:'Fraunces',serif;font-size:22px;font-weight:700;line-height:1.2;margin-bottom:12px;letter-spacing:-0.02em}
+.card.dark .card-q,.card.red .card-q{color:white}
+.card.green .card-q,.card.light .card-q{color:var(--g900)}
+.card-a{font-size:15px;line-height:1.65}
+.card.dark .card-a{color:rgba(255,255,255,0.55)}
+.card.green .card-a,.card.light .card-a{color:var(--g600)}
+.card.red .card-a{color:rgba(255,255,255,0.45)}
+.card-link{display:inline-flex;margin-top:20px;font-size:14px;font-weight:600;color:#2ecc9a}
+.preview{padding:100px 40px;background:var(--g900);text-align:center}
+.preview-inner{max-width:860px;margin:0 auto}
+.preview h2{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:14px}
+.preview-sub{font-size:16px;color:rgba(255,255,255,0.4);margin-bottom:48px}
+.browser{background:#111;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
+.browser-bar{background:#1a1a1a;padding:12px 16px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.06)}
+.dot{width:10px;height:10px;border-radius:50%}
+.browser-url{flex:1;background:rgba(255,255,255,0.06);border-radius:5px;padding:4px 12px;font-family:monospace;font-size:11px;color:rgba(255,255,255,0.25);margin-left:8px}
+.browser-body{padding:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.stat{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px}
+.stat-label{font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
+.stat-val{font-family:monospace;font-size:20px;font-weight:500;color:white}
+.stat-chg{font-family:monospace;font-size:12px;margin-top:2px}
+.up{color:#2ecc9a}.dn{color:#ef4444}
+.positions{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px;grid-column:span 3}
+.pos-title{font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
+.pos{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px}
+.pos:last-child{border:none}
+.sym{font-weight:600;color:white}
+.price{font-family:monospace;color:rgba(255,255,255,0.6)}
+.chg{font-family:monospace;font-size:12px}
+.cta{padding:100px 40px;background:white;text-align:center}
+.cta h2{font-family:'Fraunces',serif;font-size:clamp(32px,5vw,52px);font-weight:700;color:var(--g900);letter-spacing:-0.03em;margin-bottom:14px;line-height:1.1}
+.cta h2 em{font-style:italic;color:var(--green);font-weight:300}
+.cta p{font-size:17px;color:var(--g600);margin-bottom:32px}
+.cta-note{font-size:13px;color:var(--g400);margin-top:14px}
+footer{background:var(--g900);padding:24px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.foot-copy{font-size:12px;color:rgba(255,255,255,0.2)}
+.foot-links{display:flex;gap:20px}
+footer a{font-size:12px;color:rgba(255,255,255,0.3)}
+footer a:hover{color:#2ecc9a}
+@media(max-width:768px){nav{padding:12px 20px}.hero{padding:100px 20px 60px}.stories,.preview,.cta{padding:60px 20px}.grid{grid-template-columns:1fr}.browser-body{grid-template-columns:1fr 1fr}.positions{grid-column:span 2}footer{flex-direction:column;text-align:center}.foot-links{justify-content:center}}
+</style>
 </head>
 <body>
+
 <nav>
-  <a href="/" class="logo"><img src="/logo.jpg" style="height:32px;width:auto;object-fit:contain;" alt="StockPilot logo"/>StockPilot</a>
-  <div class="nav-links">
-    <a href="#features" class="nav-link">Features</a>
-    <a href="#for-who" class="nav-link">Who it's for</a>
-    <a href="#faq" class="nav-link">FAQ</a>
-  </div>
-  <div style="display:flex;gap:10px">
-    <button onclick="openSignin()" class="btn btn-ghost" id="signInNavBtn">Sign In</button>
-    <a href="/app" class="btn btn-primary">Launch Free →</a>
-    <a href="/trade" class="vm-btn" style="display:inline-flex;align-items:center;padding:9px 18px;border-radius:9px;font-family:DM Sans,sans-serif;font-size:14px;font-weight:600;text-decoration:none;background:#dc2626;color:white;box-shadow:0 2px 8px rgba(220,38,38,0.3);transition:all 0.2s">🎮 Virtual Market</a>
+  <a href="/" class="logo"><img src="/logo.jpg" alt="StockPilot"/>StockPilot</a>
+  <div class="nav-right">
+    <a href="/app" class="btn btn-outline">Learning App</a>
+    <a href="/trade" class="btn btn-green">Start Trading Free</a>
   </div>
 </nav>
-<div class="ticker-bar">
-  <div class="ticker-track">
-    <div class="ticker-item"><strong>AAPL</strong> $293.32 <span class="up">+2.04%</span></div>
-    <div class="ticker-item"><strong>MSFT</strong> $449.00 <span class="up">+0.87%</span></div>
-    <div class="ticker-item"><strong>NVDA</strong> $114.20 <span class="up">+1.32%</span></div>
-    <div class="ticker-item"><strong>TSLA</strong> $248.50 <span class="down">−1.14%</span></div>
-    <div class="ticker-item"><strong>BTC</strong> $103,200 <span class="down">−0.8%</span></div>
-    <div class="ticker-item"><strong>GLD</strong> $306.40 <span class="up">+0.45%</span></div>
-    <div class="ticker-item"><strong>SPY</strong> $518.20 <span class="up">+0.62%</span></div>
-    <div class="ticker-item"><strong>AMZN</strong> $198.30 <span class="up">+1.05%</span></div>
-    <div class="ticker-item"><strong>GOOGL</strong> $172.80 <span class="down">−0.33%</span></div>
-    <div class="ticker-item"><strong>BND</strong> $73.10 <span class="up">+0.12%</span></div>
-    <div class="ticker-item"><strong>AAPL</strong> $293.32 <span class="up">+2.04%</span></div>
-    <div class="ticker-item"><strong>MSFT</strong> $449.00 <span class="up">+0.87%</span></div>
-    <div class="ticker-item"><strong>NVDA</strong> $114.20 <span class="up">+1.32%</span></div>
-    <div class="ticker-item"><strong>TSLA</strong> $248.50 <span class="down">−1.14%</span></div>
-    <div class="ticker-item"><strong>BTC</strong> $103,200 <span class="down">−0.8%</span></div>
-    <div class="ticker-item"><strong>GLD</strong> $306.40 <span class="up">+0.45%</span></div>
-    <div class="ticker-item"><strong>SPY</strong> $518.20 <span class="up">+0.62%</span></div>
-    <div class="ticker-item"><strong>AMZN</strong> $198.30 <span class="up">+1.05%</span></div>
-    <div class="ticker-item"><strong>GOOGL</strong> $172.80 <span class="down">−0.33%</span></div>
-    <div class="ticker-item"><strong>BND</strong> $73.10 <span class="up">+0.12%</span></div>
-  </div>
-<div style="background:#0a0e17;text-align:center;padding:4px;font-size:11px;color:rgba(255,255,255,0.3);font-family:DM Sans,sans-serif;position:fixed;top:93px;left:0;right:0;z-index:98;">Prices shown are for display purposes only · Not real-time data</div>
-</div>
-<section class="hero" style="margin-top:20px;">
-  <div class="hero-dots"></div>
-  <div class="hero-inner">
-    <div>
-      <div class="hero-tag">🎯 Duolingo meets Robinhood — for beginners</div>
-      <h1>Your first investing account<br>shouldn't be your <em>real one.</em></h1>
-      <p class="hero-sub">Practice with $100,000 of virtual cash using real market prices. Learn budgeting, investing, and market analysis — in plain English. No jargon. No real money at risk.</p>
-      <div class="hero-actions">
-        <a href="/trade" class="btn btn-primary btn-xl">Get $100,000 Virtual Cash →</a>
-        <a href="#features" class="btn btn-ghost btn-lg">See what's inside</a>
-        <a href="/trade" style="display:inline-flex;align-items:center;padding:13px 26px;border-radius:11px;font-family:DM Sans,sans-serif;font-size:15px;font-weight:600;text-decoration:none;background:#dc2626;color:white">🎮 Virtual Market</a>
-      </div>
-      <div class="hero-note">
-        <span>✓ No account needed</span>
-        <span>✓ Works on any device</span>
-        <span>✓ 100% free forever</span>
-      </div>
-      <div style="margin-top:20px;padding:14px 18px;background:var(--off);border-radius:12px;border:1px solid var(--g100);font-size:13px;color:var(--g600);line-height:1.6;max-width:440px">
-        <strong style="color:var(--g900);display:block;margin-bottom:4px">Built by a finance student 👋</strong>
-        I built StockPilot because I wanted to learn investing without risking real money first. Now it's free for everyone.
-        <span style="color:var(--green);font-weight:600;display:block;margin-top:6px">Just launched · Be one of the first 🚀</span>
-      </div>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-pill">Free forever · No real money · Real market data</div>
+    <h1>Your first investing account<br>should not be your <em>real one.</em></h1>
+    <p class="hero-sub">Practice trading with $100,000 of virtual cash using real stock prices. Build confidence before you risk a dollar.</p>
+    <div class="hero-cta">
+      <a href="/trade" class="btn btn-green btn-hero">Get $100,000 Virtual Cash</a>
+      <a href="/app" class="btn btn-outline btn-hero" style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15)">Explore Learning App</a>
     </div>
-    <div class="mock-wrap">
-      <div class="float-badge fb1">📈 AAPL &nbsp;<strong style="color:#1a9e6e">+2.04%</strong></div>
-      <div class="mock">
-        <div class="mock-head">
-          <div class="dot" style="background:#ff5f57"></div>
-          <div class="dot" style="background:#febc2e"></div>
-          <div class="dot" style="background:#28c840"></div>
-          <div class="mock-url">mystockspilot.com/app</div>
-        </div>
-        <div class="mock-body">
-          <div class="mock-tickers">
-            <div class="mock-ticker"><div class="mt-name">AAPL</div><div class="mt-price">$293.32</div><div class="mt-chg up">+2.04%</div></div>
-            <div class="mock-ticker"><div class="mt-name">NVDA</div><div class="mt-price">$114.20</div><div class="mt-chg up">+1.32%</div></div>
-            <div class="mock-ticker"><div class="mt-name">BTC</div><div class="mt-price">$103K</div><div class="mt-chg down">−0.8%</div></div>
-          </div>
-          <div class="mock-chart"><svg viewBox="0 0 300 64" preserveAspectRatio="none"><defs><linearGradient id="cg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#1a9e6e" stop-opacity="0.18"/><stop offset="100%" stop-color="#1a9e6e" stop-opacity="0"/></linearGradient></defs><path d="M0,50 C20,46 40,36 60,33 C80,29 100,41 120,35 C140,29 160,19 180,13 C200,7 220,16 240,9 C260,3 280,1 300,0" stroke="#1a9e6e" stroke-width="1.8" fill="none"/><path d="M0,50 C20,46 40,36 60,33 C80,29 100,41 120,35 C140,29 160,19 180,13 C200,7 220,16 240,9 C260,3 280,1 300,0 L300,64 L0,64Z" fill="url(#cg)"/></svg></div>
-          <div class="mock-holdings">
-            <div class="mock-holding"><div class="mh-left"><div class="mh-icon" style="background:#1a9e6e">A</div><div><div class="mh-ticker">AAPL</div><div class="mh-name">Apple · 18%</div></div></div><div><div class="mh-price">$293.32</div><div class="mh-pct up">+18.4%</div></div></div>
-            <div class="mock-holding"><div class="mh-left"><div class="mh-icon" style="background:#2563eb">M</div><div><div class="mh-ticker">MSFT</div><div class="mh-name">Microsoft · 17%</div></div></div><div><div class="mh-price">$449.00</div><div class="mh-pct up">+12.1%</div></div></div>
-            <div class="mock-holding"><div class="mh-left"><div class="mh-icon" style="background:#7c3aed">N</div><div><div class="mh-ticker">NVDA</div><div class="mh-name">Nvidia · 15%</div></div></div><div><div class="mh-price">$114.20</div><div class="mh-pct down">−3.2%</div></div></div>
-          </div>
-        </div>
-      </div>
-      <div class="float-badge fb2">🎓 Free for learning</div>
-    </div>
+    <p class="hero-note">No account needed · Works on any device · 100% free</p>
   </div>
 </section>
-<div class="stats-bar">
-  <div class="stats-inner">
-    <div class="stat-item"><div class="stat-num">7+</div><div class="stat-label">Asset Classes</div></div>
-    <div class="stat-div"></div>
-    <div class="stat-item"><div class="stat-num">Live</div><div class="stat-label">Market Data</div></div>
-    <div class="stat-div"></div>
-    <div class="stat-item"><div class="stat-num">SEC</div><div class="stat-label">Filing Facts</div></div>
-    <div class="stat-div"></div>
-    <div class="stat-item"><div class="stat-num">FRED</div><div class="stat-label">Macro Indicators</div></div>
-    <div class="stat-div"></div>
-    <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Forever Free</div></div>
-  </div>
-</div>
-<section class="how">
-  <p class="section-tag">How it works</p>
-  <h2>From zero to understanding in minutes.</h2>
-  <p class="s-sub">No finance background needed. StockPilot walks you through everything step by step.</p>
-  <div class="steps">
-    <div class="step"><div class="step-num">1</div><div class="step-title">Explore the demo</div><p class="step-desc">Load the built-in demo portfolio instantly. See real stocks, allocations, and market data — no signup required.</p></div>
-    <div class="step"><div class="step-num">2</div><div class="step-title">Build your own</div><p class="step-desc">Add your own stocks, ETFs, and assets. Set allocations, track performance, and see how risk changes your portfolio.</p></div>
-    <div class="step"><div class="step-num">3</div><div class="step-title">Learn as you go</div><p class="step-desc">Every number has an explanation. Explore lessons, quizzes, and plain-English breakdowns of finance concepts.</p></div>
-  </div>
-</section>
-<section class="features" id="features">
-  <p class="section-tag">What's inside</p>
-  <h2>Everything you need to learn finance.</h2>
-  <p class="s-sub">Four core tools covering investing, budgeting, macro context, and financial education.</p>
-  <div class="feat-grid">
-    <div class="feat-card green">
-      <div class="feat-icon-wrap"><div class="feat-icon">📊</div><span class="feat-badge">Investing</span></div>
-      <div class="feat-title">Portfolio Simulator</div>
-      <p class="feat-desc">Build virtual portfolios with real market data. Test different allocations across stocks, bonds, ETFs, crypto, and real estate. See risk, return, beta, and correlation — all explained simply.</p>
-      <div class="feat-bullets">
-        <div class="feat-bullet">Real live-ish prices from Finnhub & Yahoo Finance</div>
-        <div class="feat-bullet">Risk metrics: beta, volatility, Sharpe ratio</div>
-        <div class="feat-bullet">Paper trading simulator with virtual cash</div>
-        <div class="feat-bullet">SEC filing facts for US public companies</div>
+
+<section class="stories">
+  <div class="stories-inner">
+    <p class="label">Why StockPilot</p>
+    <h2 class="section">Four things worth knowing.</h2>
+    <div class="grid">
+      <div class="card dark">
+        <div class="card-num">01 — What we are</div>
+        <span class="card-icon">🎮</span>
+        <div class="card-q">A stock market simulator that uses real prices.</div>
+        <div class="card-a">Buy and sell any stock at real market prices. Track your gains and losses. Learn what moves markets. No real money involved, ever.</div>
+        <a href="/trade" class="card-link">Try the simulator</a>
       </div>
-    </div>
-    <div class="feat-card gold">
-      <div class="feat-icon-wrap"><div class="feat-icon">💰</div><span class="feat-badge">Budgeting</span></div>
-      <div class="feat-title">Budget & Savings Planner</div>
-      <p class="feat-desc">Track spending, plan savings goals, and understand where your money goes. Build a budget that works for your life — with clear categories, goal tracking, and actionable next steps.</p>
-      <div class="feat-bullets">
-        <div class="feat-bullet">Monthly spending tracker by category</div>
-        <div class="feat-bullet">Emergency fund & savings goal calculator</div>
-        <div class="feat-bullet">Subscription and insurance tracker</div>
-        <div class="feat-bullet">Time value of money calculators</div>
+      <div class="card green">
+        <div class="card-num">02 — Who it is for</div>
+        <span class="card-icon">🌱</span>
+        <div class="card-q">Anyone who keeps saying they should really learn about investing.</div>
+        <div class="card-a">Finance students, young professionals, complete beginners. If the stock market has ever felt intimidating, this is where you start safely.</div>
       </div>
-    </div>
-    <div class="feat-card blue">
-      <div class="feat-icon-wrap"><div class="feat-icon">📡</div><span class="feat-badge">Market Data</span></div>
-      <div class="feat-title">Real Stock & Macro Data</div>
-      <p class="feat-desc">Live-ish market prices, SEC EDGAR filing facts, and FRED macro indicators — Fed rates, CPI, unemployment, mortgage rates — all in one place, explained in plain English.</p>
-      <div class="feat-bullets">
-        <div class="feat-bullet">Fed rates, inflation (CPI), unemployment from FRED</div>
-        <div class="feat-bullet">Official SEC filing data for US companies</div>
-        <div class="feat-bullet">Finance news from major RSS sources</div>
+      <div class="card light">
+        <div class="card-num">03 — Why it exists</div>
+        <span class="card-icon">💡</span>
+        <div class="card-q">Because not knowing how to invest costs you every single year.</div>
+        <div class="card-a">Inflation erodes savings. Compounding rewards early starters. The gap between people who invest and those who do not grows over time. StockPilot helps you close that gap, starting today, for free.</div>
       </div>
-    </div>
-    <div class="feat-card purple">
-      <div class="feat-icon-wrap"><div class="feat-icon">🎓</div><span class="feat-badge">Education</span></div>
-      <div class="feat-title">Learning Pathways</div>
-      <p class="feat-desc">Beginner-friendly lessons, definitions, quizzes, and plain-English explanations of the concepts that matter — PE ratios, inflation, diversification, compounding, risk, and more.</p>
-      <div class="feat-bullets">
-        <div class="feat-bullet">Structured lessons from basics to advanced</div>
-        <div class="feat-bullet">Quizzes and knowledge checks</div>
-        <div class="feat-bullet">Definitions for every finance term in the app</div>
+      <div class="card red">
+        <div class="card-num">04 — What it means for you</div>
+        <span class="card-icon">🚀</span>
+        <div class="card-q">When you are ready to invest real money, you will not be guessing.</div>
+        <div class="card-a">Practice here first. Learn what a P/E ratio is. Understand risk and diversification. Build a portfolio you believe in. When you open a real account, you will know exactly what you are doing.</div>
+        <a href="/trade" class="card-link" style="color:#fca5a5">Start for free</a>
       </div>
     </div>
   </div>
 </section>
 
-<section style="padding:90px 40px;background:var(--g900);position:relative;overflow:hidden">
-  <div style="position:absolute;inset:0;background:radial-gradient(ellipse 50% 60% at 30% 50%,rgba(26,158,110,0.12) 0%,transparent 70%)"></div>
-  <div style="max-width:1060px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center;position:relative;max-width:1060px;margin:0 auto;width:100%" class="vm-grid">
-    <div>
-      <div style="display:inline-flex;align-items:center;background:rgba(26,158,110,0.15);color:#2ecc9a;border:1px solid rgba(46,204,154,0.2);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600;margin-bottom:20px">🎮 Paper Trading · No real money</div>
-      <div style="font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:white;letter-spacing:-0.02em;line-height:1.15;margin-bottom:16px">Practice trading with <em style="font-style:italic;color:#2ecc9a">$100,000</em> of virtual cash.</div>
-      <p style="font-size:16px;color:rgba(255,255,255,0.55);line-height:1.7;margin-bottom:28px">The Virtual Market lets you buy and sell real stocks with fake money. Build your strategy, test your instincts, and learn from your mistakes — before risking a single real dollar.</p>
-      <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:32px">
-        <div style="display:flex;align-items:flex-start;gap:12px">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(26,158,110,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">📈</div>
-          <div><div style="font-size:14px;font-weight:600;color:white;margin-bottom:2px">Buy & sell real stocks</div><div style="font-size:13px;color:rgba(255,255,255,0.45)">Trade AAPL, TSLA, NVDA, ETFs, crypto and more with live prices</div></div>
+<section class="preview">
+  <div class="preview-inner">
+    <h2>See it in action.</h2>
+    <p class="preview-sub">Real prices. Real companies. Fake money. Real learning.</p>
+    <div class="browser">
+      <div class="browser-bar">
+        <div class="dot" style="background:#ff5f57"></div>
+        <div class="dot" style="background:#febc2e"></div>
+        <div class="dot" style="background:#28c840"></div>
+        <div class="browser-url">mystockspilot.com/trade</div>
+      </div>
+      <div class="browser-body">
+        <div class="stat">
+          <div class="stat-label">Portfolio Value</div>
+          <div class="stat-val">$112,430</div>
+          <div class="stat-chg up">+$12,430 (+12.4%)</div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:12px">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(26,158,110,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">💼</div>
-          <div><div style="font-size:14px;font-weight:600;color:white;margin-bottom:2px">Track your performance</div><div style="font-size:13px;color:rgba(255,255,255,0.45)">See your portfolio value, gains, losses, and trade history over time</div></div>
+        <div class="stat">
+          <div class="stat-label">Cash Available</div>
+          <div class="stat-val">$34,200</div>
+          <div class="stat-chg" style="color:rgba(255,255,255,0.3)">Ready to invest</div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:12px">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(26,158,110,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🧠</div>
-          <div><div style="font-size:14px;font-weight:600;color:white;margin-bottom:2px">Learn from every trade</div><div style="font-size:13px;color:rgba(255,255,255,0.45)">Understand why prices move and what drives market returns</div></div>
+        <div class="stat">
+          <div class="stat-label">Starting Cash</div>
+          <div class="stat-val">$100,000</div>
+          <div class="stat-chg" style="color:rgba(255,255,255,0.3)">Virtual only</div>
         </div>
-        <div style="display:flex;align-items:flex-start;gap:12px">
-          <div style="width:28px;height:28px;border-radius:8px;background:rgba(26,158,110,0.2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">🔒</div>
-          <div><div style="font-size:14px;font-weight:600;color:white;margin-bottom:2px">Zero risk, real experience</div><div style="font-size:13px;color:rgba(255,255,255,0.45)">All trades are simulated — your real money stays in your pocket</div></div>
+        <div class="positions">
+          <div class="pos-title">My Positions</div>
+          <div class="pos"><span class="sym">AAPL</span><span class="price">$294.80</span><span class="chg up">+1.38%</span></div>
+          <div class="pos"><span class="sym">NVDA</span><span class="price">$225.83</span><span class="chg up">+2.29%</span></div>
+          <div class="pos"><span class="sym">TSLA</span><span class="price">$445.27</span><span class="chg up">+2.73%</span></div>
+          <div class="pos"><span class="sym">SPY</span><span class="price">$742.31</span><span class="chg up">+0.56%</span></div>
         </div>
       </div>
-      <a href="/app" style="display:inline-flex;align-items:center;padding:13px 26px;border-radius:11px;background:#1a9e6e;color:white;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.2s;box-shadow:0 4px 16px rgba(26,158,110,0.3)">Start Trading for Free →</a>
-    </div>
-    <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:24px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-        <div style="font-family:'Fraunces',serif;font-size:16px;font-weight:600;color:white">Virtual Portfolio</div>
-        <div style="font-family:'DM Mono',monospace;font-size:13px;color:#2ecc9a;background:rgba(46,204,154,0.1);padding:4px 10px;border-radius:6px">+12.4%</div>
-      </div>
-      <div style="margin-bottom:20px">
-        <div style="font-size:11px;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px">Portfolio Value</div>
-        <div style="font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:white">$112,400</div>
-        <div style="font-family:'DM Mono',monospace;font-size:13px;color:#2ecc9a;margin-top:2px">+$12,400 from $100,000 starting cash</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid rgba(255,255,255,0.06)">
-          <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:7px;background:#1a9e6e;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">A</div><div><div style="font-size:12px;font-weight:600;color:white">AAPL</div><div style="font-size:10px;color:rgba(255,255,255,0.35)">10 shares</div></div></div>
-          <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:12px;color:white">$2,933</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:#2ecc9a">+8.2%</div></div>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid rgba(255,255,255,0.06)">
-          <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:7px;background:#2563eb;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">N</div><div><div style="font-size:12px;font-weight:600;color:white">NVDA</div><div style="font-size:10px;color:rgba(255,255,255,0.35)">50 shares</div></div></div>
-          <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:12px;color:white">$5,710</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:#2ecc9a">+24.1%</div></div>
-        </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:8px;border:1px solid rgba(255,255,255,0.06)">
-          <div style="display:flex;align-items:center;gap:10px"><div style="width:28px;height:28px;border-radius:7px;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white">T</div><div><div style="font-size:12px;font-weight:600;color:white">TSLA</div><div style="font-size:10px;color:rgba(255,255,255,0.35)">8 shares</div></div></div>
-          <div style="text-align:right"><div style="font-family:'DM Mono',monospace;font-size:12px;color:white">$1,988</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:#dc2626">−5.3%</div></div>
-        </div>
-      </div>
-      <div style="margin-top:16px;padding:12px;background:rgba(26,158,110,0.08);border-radius:8px;border:1px solid rgba(26,158,110,0.15);font-size:12px;color:rgba(255,255,255,0.4);text-align:center">💡 This is a simulated portfolio · No real money involved</div>
     </div>
   </div>
 </section>
-<section class="compare">
-  <div class="compare-inner">
-    <p class="section-tag" style="color:rgba(255,255,255,0.35)">How we compare</p>
-    <h2>Professional context. Zero cost.</h2>
-    <p class="s-sub">Bloomberg costs $31,980/year. StockPilot gives students and beginners the same learning context — for free.</p>
-    <div style="overflow-x:auto;-webkit-overflow-scrolling:touch"><table class="compare-table" style="min-width:500px">
-      <thead><tr><th>Feature</th><th class="sp-col">StockPilot</th><th>Bloomberg</th><th>Investopedia</th><th>Nothing</th></tr></thead>
-      <tbody>
-        <tr><td>Real market data</td><td class="sp-col"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="partial">Partial</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Portfolio simulator</td><td class="sp-col"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Budget & savings tools</td><td class="sp-col"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Macro indicators (FRED)</td><td class="sp-col"><span class="check">✓</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Plain English explanations</td><td class="sp-col"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Learning pathways</td><td class="sp-col"><span class="check">✓</span></td><td><span class="cross">✗</span></td><td><span class="check">✓</span></td><td><span class="cross">✗</span></td></tr>
-        <tr><td>Price</td><td class="sp-col"><span class="free-tag">Free</span></td><td><span class="price-tag">$31,980/yr</span></td><td><span class="price-tag">Free + Ads</span></td><td><span class="price-tag">Free</span></td></tr>
-      </tbody>
-    </table></div>
-  </div>
-</section>
-<section class="for-who" id="for-who">
-  <p class="section-tag">Who it's for</p>
-  <h2>Built for people just getting started.</h2>
-  <p class="s-sub">You don't need a finance degree. You just need curiosity.</p>
-  <div class="aud-grid">
-    <div class="aud-card"><div class="aud-emoji">🎓</div><div><div class="aud-title">Finance Students</div><p class="aud-desc">Bring class concepts to life with real data. Practice portfolio theory and macro analysis without a Bloomberg terminal.</p></div></div>
-    <div class="aud-card"><div class="aud-emoji">🌱</div><div><div class="aud-title">Investing Beginners</div><p class="aud-desc">Understand what stocks, ETFs, and bonds actually are before putting real money in. Learn by doing, not by guessing.</p></div></div>
-    <div class="aud-card"><div class="aud-emoji">📱</div><div><div class="aud-title">Young Investors</div><p class="aud-desc">Test your instincts on paper. Simulate trades and build conviction before your first real investment.</p></div></div>
-    <div class="aud-card"><div class="aud-emoji">👩‍💼</div><div><div class="aud-title">Finance Educators</div><p class="aud-desc">A free teaching tool with real market context. Make abstract concepts concrete and interactive in class.</p></div></div>
-  </div>
-</section>
-<section class="faq" id="faq">
-  <div class="faq-inner">
-    <p class="section-tag">Common questions</p>
-    <h2>Frequently asked questions.</h2>
-    <p class="s-sub">Everything you need to know before you start.</p>
-    <div class="faq-list">
-      <div class="faq-item"><div class="faq-q">Is this real money? <span class="faq-icon">+</span></div><div class="faq-a">No. StockPilot is 100% a learning tool. You never connect a bank account or brokerage. All portfolios are virtual and all trading is simulated with fake cash.</div></div>
-      <div class="faq-item"><div class="faq-q">Is the stock data real? <span class="faq-icon">+</span></div><div class="faq-a">Yes — prices come from Finnhub and Yahoo Finance public APIs, so they reflect real market prices. Data may be slightly delayed and should be used for learning, not trading decisions.</div></div>
-      <div class="faq-item"><div class="faq-q">Is this financial advice? <span class="faq-icon">+</span></div><div class="faq-a">No. StockPilot is strictly educational. Nothing here constitutes financial advice. Always consult a licensed financial professional before making real investment decisions.</div></div>
-      <div class="faq-item"><div class="faq-q">Do I need an account? <span class="faq-icon">+</span></div><div class="faq-a">No account is required to explore the app. You can load the demo portfolio and browse all features immediately. Creating an account lets you save your custom portfolio from any device.</div></div>
-      <div class="faq-item"><div class="faq-q">Is it really free? <span class="faq-icon">+</span></div><div class="faq-a">Yes, completely free. No credit card, no trial period, no hidden fees. StockPilot is built for learning and is free for everyone.</div></div>
-      <div class="faq-item"><div class="faq-q">What devices does it work on? <span class="faq-icon">+</span></div><div class="faq-a">StockPilot works on any device with a browser — phone, tablet, laptop, or desktop. No app download required.</div></div>
-    </div>
-  </div>
-</section>
-<section class="signup">
-  <div class="signup-inner">
-    <p class="section-tag">Stay in the loop</p>
-    <h2>Get updates when we launch new features.</h2>
-    <p class="s-sub">We're adding premium tools soon. Drop your email to be first to know — no spam, ever.</p>
-    <div class="signup-form">
-      <input type="email" id="signup-email" class="signup-input" placeholder="your@email.com"/>
-      <button class="btn btn-primary" onclick="handleSignup()">Notify Me</button>
-    </div>
-    <div id="signup-success">🎉 You're on the list! We'll be in touch.</div>
-    <p class="signup-note">No spam. Unsubscribe anytime.</p>
-  </div>
-</section>
-<section class="disclaimer">
-  <div class="disc-inner">
-    <div style="font-size:28px">📋</div>
-    <div class="disc-title">For educational use only</div>
-    <p class="disc-text">StockPilot is a learning tool, not a financial advisor. Nothing on this platform constitutes financial advice. Market data is provided for educational context and may be delayed. Always consult a licensed financial professional before making real investment decisions.</p>
-  </div>
-</section>
+
 <section class="cta">
-  <div class="cta-title">Ready to start <em>learning</em>?</div>
-  <p class="cta-sub">Free, no account required, works on any device.</p>
-  <a href="/trade" class="btn btn-primary btn-xl">Launch StockPilot Free →</a>
-  <p class="cta-note">Takes 10 seconds · No real money involved</p>
+  <h2>Ready to <em>practice?</em></h2>
+  <p>No account needed. No real money. No excuses.</p>
+  <a href="/trade" class="btn btn-green" style="padding:16px 40px;font-size:16px;border-radius:14px">Get $100,000 Virtual Cash</a>
+  <p class="cta-note">Free forever · Real prices · Zero risk</p>
 </section>
+
 <footer>
-  <div class="foot-left">© 2026 StockPilot · Educational use only · Not financial advice</div>
+  <div class="foot-copy">2026 StockPilot · Educational use only · Not financial advice</div>
   <div class="foot-links">
-    <a href="/app">Launch App</a>
-    <a href="#features">Features</a>
-    <a href="#faq">FAQ</a>
-    <a href="mailto:dw2b459mbx@privaterelay.appleid.com">Contact</a>
+    <a href="/trade">Virtual Market</a>
+    <a href="/app">Learning App</a>
   </div>
 </footer>
-<script>
-document.querySelectorAll('.faq-q').forEach(q=>{q.addEventListener('click',()=>{const item=q.parentElement;const wasOpen=item.classList.contains('open');document.querySelectorAll('.faq-item').forEach(i=>i.classList.remove('open'));if(!wasOpen)item.classList.add('open')})});
-function handleSignup(){const email=document.getElementById('signup-email').value;if(!email||!email.includes('@')){alert('Please enter a valid email.');return;}const leads=JSON.parse(localStorage.getItem('sp_leads')||'[]');leads.push({email,date:new Date().toISOString()});localStorage.setItem('sp_leads',JSON.stringify(leads));document.querySelector('.signup-form').style.display='none';document.getElementById('signup-success').style.display='block';}
-document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener('click',e=>{e.preventDefault();const t=document.querySelector(a.getAttribute('href'));if(t)t.scrollIntoView({behavior:'smooth',block:'start'})})});
-</script>
 
-<!-- Sign In Modal -->
-<div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
-    <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
-    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:6px">Welcome back</div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">Sign in to your StockPilot account</div>
-    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
-    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
-    <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
-    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
-    <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
-    <button onclick="doSignin()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
-    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">Don't have an account? <a href="/app" style="color:#2ecc9a;text-decoration:none">Create one in the app</a></div>
-    <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
-  </div>
-</div>
-<script>
-const SUPA_URL="https://xkfxofcmrmpazfjviatq.supabase.co";
-const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
-function openSignin(){document.getElementById('signinModal').style.display='flex';}
-function closeSignin(){document.getElementById('signinModal').style.display='none';}
-function showSiMsg(msg,ok){const el=document.getElementById('signinMsg');el.textContent=msg;el.style.display='block';el.style.background=ok?'rgba(22,163,74,0.15)':'rgba(220,38,38,0.15)';el.style.color=ok?'#86efac':'#fca5a5';el.style.border='1px solid '+(ok?'rgba(22,163,74,0.3)':'rgba(220,38,38,0.3)');}
-async function doSignin(){
-  const email=document.getElementById('siEmail').value.trim();
-  const pass=document.getElementById('siPass').value;
-  if(!email||!pass){showSiMsg('Enter your email and password.', false);return;}
-  showSiMsg('Signing in...', true);
-  try{
-    const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email,password:pass})});
-    const d=await r.json();
-    if(d.error){showSiMsg(d.error.message||'Sign in failed.',false);return;}
-    localStorage.setItem('supabase_token',d.access_token);
-    localStorage.setItem('supabase_email',email);
-    localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
-    showSiMsg('Signed in! Redirecting...', true);
-    setTimeout(()=>closeSignin(),1200);
-  }catch(e){showSiMsg('Error signing in. Try again.',false);}
-}
-async function doForgot(){
-  const email=document.getElementById('siEmail').value.trim();
-  if(!email){showSiMsg('Enter your email first.',false);return;}
-  await fetch(SUPA_URL+'/auth/v1/recover',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email})});
-  showSiMsg('Password reset email sent!',true);
-}
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
-</script>
-
-<script>
-// Restore session on load
-(async function(){
-  const token = localStorage.getItem('supabase_token');
-  const email = localStorage.getItem('supabase_email');
-  const name = localStorage.getItem('supabase_name') || (email ? email.split('@')[0] : null);
-  if (!token || !email) return;
-  try {
-    const r = await fetch('https://xkfxofcmrmpazfjviatq.supabase.co/auth/v1/user', {
-      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q', 'Authorization': 'Bearer ' + token }
-    });
-    if (r.ok) {
-      // Update sign in button to show name
-      const btnSI = document.querySelector('#signInNavBtn');
-      if (btnSI) { btnSI.textContent = name; btnSI.style.color = '#2ecc9a'; }
-    } else {
-      localStorage.removeItem('supabase_token');
-      localStorage.removeItem('supabase_email');
-    }
-  } catch(e) {}
-})();
-</script></body>
+</body>
 </html>
