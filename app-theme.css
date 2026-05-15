@@ -66,3 +66,55 @@ small,[class*="note"],[class*="hint"],.table-note { color: var(--sp-g400) !impor
 .onboarding-route-grid strong { color: var(--sp-g900) !important; font-family: 'Fraunces', serif !important; }
 .onboarding-route-grid span { color: var(--sp-green) !important; }
 #startOnboardingButton { background: var(--sp-green) !important; color: white !important; border-radius: 10px !important; font-weight: 600 !important; }
+
+/* ── Navigation Redesign ── */
+.workspace-navigator {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 10px 16px !important;
+  background: var(--sp-white) !important;
+  border-radius: 14px !important;
+  border: 1px solid var(--sp-g100) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
+  flex-wrap: wrap !important;
+}
+
+.workspace-navigator .field {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.workspace-navigator .field span {
+  display: none !important;
+}
+
+.workspace-navigator select {
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: var(--sp-g50) !important;
+  border: 1px solid var(--sp-g100) !important;
+  border-radius: 100px !important;
+  padding: 7px 20px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--sp-g600) !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  min-width: 0 !important;
+}
+
+.workspace-navigator select:focus,
+.workspace-navigator select:hover {
+  background: var(--sp-green-l) !important;
+  border-color: rgba(26,158,110,0.3) !important;
+  color: var(--sp-green) !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+#saveProgressBanner {
+  border-radius: 12px !important;
+  font-size: 13px !important;
+}
