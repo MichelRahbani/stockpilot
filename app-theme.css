@@ -118,3 +118,66 @@ small,[class*="note"],[class*="hint"],.table-note { color: var(--sp-g400) !impor
   border-radius: 12px !important;
   font-size: 13px !important;
 }
+
+/* ── New App Header ── */
+.topbar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 12px 24px !important;
+  background: white !important;
+  border-bottom: 1px solid var(--sp-g100) !important;
+  gap: 16px !important;
+  flex-wrap: nowrap !important;
+}
+
+/* Hide old header content */
+.topbar h2,
+.topbar p,
+.topbar .eyebrow,
+.topbar-copy,
+.topbar-actions,
+#workspaceEyebrow,
+#workspaceTitle,
+#workspaceCopy { display: none !important; }
+
+/* Style live data pill to be compact */
+.live-data-pill {
+  flex: 1 !important;
+  max-width: 360px !important;
+  padding: 6px 12px !important;
+  border-radius: 100px !important;
+  font-size: 12px !important;
+}
+
+/* Account widget inline */
+.account-widget {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: var(--sp-g50) !important;
+  border: 1px solid var(--sp-g100) !important;
+  border-radius: 12px !important;
+  padding: 6px 12px !important;
+  flex-shrink: 0 !important;
+}
+
+#accountStatus {
+  font-size: 10px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--sp-g400) !important;
+  display: block !important;
+}
+
+#accountName {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--sp-g900) !important;
+  display: block !important;
+}
+
+.account-widget-actions {
+  display: flex !important;
+  gap: 6px !important;
+}
