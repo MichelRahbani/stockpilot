@@ -87,7 +87,17 @@ footer{background:var(--g900);padding:24px 40px;display:flex;align-items:center;
 footer a{font-size:12px;color:rgba(255,255,255,0.3)}
 footer a:hover{color:#2ecc9a}
 @media(max-width:768px){nav{padding:12px 20px}.hero{padding:100px 20px 60px}.stories,.preview,.cta{padding:60px 20px}.grid{grid-template-columns:1fr}.browser-body{grid-template-columns:1fr 1fr}.positions{grid-column:span 2}footer{flex-direction:column;text-align:center}.foot-links{justify-content:center}}
-</style>
+
+<style>
+.ticker-wrap{background:#0a0e17;overflow:hidden;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.ticker-track{display:flex;gap:40px;animation:ticker 30s linear infinite;width:max-content}
+.ticker-track:hover{animation-play-state:paused}
+.ticker-item{display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);white-space:nowrap}
+.ticker-item strong{color:white}
+.ticker-item .up{color:#2ecc9a}
+.ticker-item .dn{color:#ef4444}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+</style></style>
 </head>
 <body>
 
@@ -99,6 +109,31 @@ footer a:hover{color:#2ecc9a}
   </div>
 </nav>
 
+
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <div class="ticker-item"><strong>AAPL</strong> $294.80 <span class="up">+1.38%</span></div>
+    <div class="ticker-item"><strong>NVDA</strong> $225.83 <span class="up">+2.29%</span></div>
+    <div class="ticker-item"><strong>TSLA</strong> $445.27 <span class="up">+2.73%</span></div>
+    <div class="ticker-item"><strong>MSFT</strong> $407.77 <span class="dn">-1.19%</span></div>
+    <div class="ticker-item"><strong>AMZN</strong> $270.13 <span class="up">+1.62%</span></div>
+    <div class="ticker-item"><strong>META</strong> $616.63 <span class="up">+2.26%</span></div>
+    <div class="ticker-item"><strong>SPY</strong> $742.31 <span class="up">+0.56%</span></div>
+    <div class="ticker-item"><strong>QQQ</strong> $714.71 <span class="up">+1.06%</span></div>
+    <div class="ticker-item"><strong>GLD</strong> $430.50 <span class="dn">-0.56%</span></div>
+    <div class="ticker-item"><strong>BTC</strong> $103,200 <span class="up">+1.20%</span></div>
+    <div class="ticker-item"><strong>AAPL</strong> $294.80 <span class="up">+1.38%</span></div>
+    <div class="ticker-item"><strong>NVDA</strong> $225.83 <span class="up">+2.29%</span></div>
+    <div class="ticker-item"><strong>TSLA</strong> $445.27 <span class="up">+2.73%</span></div>
+    <div class="ticker-item"><strong>MSFT</strong> $407.77 <span class="dn">-1.19%</span></div>
+    <div class="ticker-item"><strong>AMZN</strong> $270.13 <span class="up">+1.62%</span></div>
+    <div class="ticker-item"><strong>META</strong> $616.63 <span class="up">+2.26%</span></div>
+    <div class="ticker-item"><strong>SPY</strong> $742.31 <span class="up">+0.56%</span></div>
+    <div class="ticker-item"><strong>QQQ</strong> $714.71 <span class="up">+1.06%</span></div>
+    <div class="ticker-item"><strong>GLD</strong> $430.50 <span class="dn">-0.56%</span></div>
+    <div class="ticker-item"><strong>BTC</strong> $103,200 <span class="up">+1.20%</span></div>
+  </div>
+</div>
 <section class="hero">
   <div class="hero-bg"></div>
   <div class="hero-content">
