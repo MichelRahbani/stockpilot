@@ -532,7 +532,7 @@ const currentLocalOrigin =
   typeof window !== "undefined" && /^https?:$/i.test(window.location.protocol)
     ? window.location.origin
     : "";
-const STOCKPILOT_API_CANDIDATES = ["https://mystockspilot.com"];
+const STOCKPILOT_API_CANDIDATES = ["https://mystockpilot.com", "https://stockpilot-production-c94f.up.railway.app"];
 const STOCKPILOT_SAME_ORIGIN = Boolean(
   typeof window !== "undefined" && (/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(window.location.origin) || window.location.hostname === "mystockspilot.com")
 );
