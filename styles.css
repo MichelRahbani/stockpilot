@@ -8672,3 +8672,14 @@ body.command-mode .services-panel {
     display: block;
   }
 }
+
+@media (max-width: 680px) {
+  #correlationMatrix {
+    overflow-x: auto !important;
+    max-width: 100vw !important;
+    display: block !important;
+  }
+  .matrix-grid {
+    min-width: max-content;
+  }
+}
