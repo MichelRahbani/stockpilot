@@ -135,6 +135,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     .search-inp{font-size:14px}
     body{overflow-x:hidden}
   }
+
+.explain-card{margin-top:12px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;}
+.explain-card h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+.explain-card p{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;}
+.explain-card .disclaimer{font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;}
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
@@ -366,6 +371,28 @@ async function search(){
   }
 }
 
+
+function explainMove(sym, chg, pct, beta, pe) {
+  const dir = chg >= 0 ? 'up' : 'down';
+  const absPct = Math.abs(pct).toFixed(2);
+  const big = Math.abs(pct) >= 3;
+  const small = Math.abs(pct) < 1;
+  let why = '';
+  if(big && chg < 0) why = 'This is a significant drop, likely tied to broader market pressure, sector weakness, or a company-specific news event.';
+  else if(big && chg >= 0) why = 'This is a strong gain, possibly driven by positive earnings, an analyst upgrade, or a broader market rally.';
+  else if(small) why = 'This is a small move, which is normal day-to-day price fluctuation with no single clear cause.';
+  else if(chg < 0) why = 'This moderate dip could reflect profit-taking, mild sector pressure, or routine market movement.';
+  else why = 'This moderate gain may reflect positive market sentiment, sector momentum, or light buying activity.';
+  let betaNote = '';
+  if(beta && beta > 1.5) betaNote = ' With a high beta of ' + beta.toFixed(2) + ', this stock tends to swing more than the average market.';
+  else if(beta && beta > 1) betaNote = ' With a beta of ' + beta.toFixed(2) + ', it tends to move slightly more than the broader market.';
+  else if(beta && beta < 0.8) betaNote = ' With a low beta of ' + beta.toFixed(2) + ', this stock is relatively stable compared to the market.';
+  let peNote = '';
+  if(pe && pe > 40) peNote = ' The high P/E of ' + pe.toFixed(1) + ' means investors are paying a premium — drops can be sharper when sentiment shifts.';
+  else if(pe && pe < 15) peNote = ' The low P/E of ' + pe.toFixed(1) + ' suggests the stock is valued conservatively relative to earnings.';
+  return sym + ' is ' + dir + ' ' + absPct + '% today. ' + why + betaNote + peNote + ' Educational context only — not financial advice.';
+}
+
 function showQuote(q){
   const chg=q.regularMarketChange||0, pct=q.regularMarketChangePercent||0;
   const col=chg>=0?'#86efac':'#fca5a5';
@@ -380,6 +407,7 @@ function showQuote(q){
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
       </div>
     </div>
+    <div id="explainCard" class="explain-card"><h4>Why is this moving?</h4><p style="color:rgba(255,255,255,0.3);font-size:13px;">Analyzing...</p></div>
     <div class="q-meta">
       <div class="qm"><div class="qm-l">Open</div><div class="qm-v">${f(q.regularMarketOpen)}</div></div>
       <div class="qm"><div class="qm-l">High</div><div class="qm-v">${f(q.regularMarketDayHigh)}</div></div>
@@ -389,6 +417,10 @@ function showQuote(q){
       <div class="qm"><div class="qm-l">Beta</div><div class="qm-v">${q.beta?q.beta.toFixed(2):'—'}</div></div>
     </div>
   `;
+  var _explain = explainMove(q.symbol, chg, pct, q.beta, q.trailingPE);
+  var _card = document.getElementById('explainCard');
+  if(_card && _explain) _card.innerHTML = '<h4>Why is this moving?</h4><p>' + _explain + '</p>';
+  else if(_card) _card.style.display = 'none';
 }
 
 function setSide(s){
