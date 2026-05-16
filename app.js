@@ -10971,6 +10971,29 @@ const restoreSupabaseSession = async () => {
 };
 window.addEventListener("DOMContentLoaded", restoreSupabaseSession);
 
+// Duolingo-style subject card click handler
+document.querySelectorAll('.duo-subject-card').forEach(card => {
+  card.addEventListener('click', () => {
+    const area = card.dataset.duoArea;
+    document.querySelectorAll('.duo-subject-card').forEach(c => c.classList.remove('duo-active'));
+    card.classList.add('duo-active');
+    if(area === 'overview') {
+      const btn = document.querySelector('.learning-area-tab[data-learning-area="overview"]');
+      if(btn) btn.click();
+    } else if(area === 'pathway') {
+      const btn = document.querySelector('.learning-area-tab[data-learning-area="pathway"]');
+      if(btn) btn.click();
+    } else if(area === 'practice') {
+      const btn = document.querySelector('.learning-area-tab[data-learning-area="practice"]');
+      if(btn) btn.click();
+    } else {
+      const btn = document.querySelector('.learning-area-tab[data-default-panel="' + area + '"]');
+      if(btn) btn.click();
+    }
+  });
+});
+
+
 
 
 

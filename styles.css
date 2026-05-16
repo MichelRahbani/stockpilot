@@ -8683,3 +8683,78 @@ body.command-mode .services-panel {
     min-width: max-content;
   }
 }
+
+/* Duolingo-style learning subject cards */
+.duo-subject-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  padding: 8px 0 24px;
+}
+.duo-subject-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+  width: 100%;
+}
+.duo-subject-card:hover {
+  border-color: #1a9e6e;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(26,158,110,0.12);
+}
+.duo-subject-card.duo-active {
+  border-color: #1a9e6e;
+  background: #f0fdf6;
+}
+.duo-subject-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.duo-subject-info {
+  flex: 1;
+  min-width: 0;
+}
+.duo-subject-info strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 2px;
+}
+.duo-subject-info span {
+  display: block;
+  font-size: 12px;
+  color: #6b7280;
+}
+.duo-subject-progress {
+  width: 100%;
+  height: 6px;
+  background: #f3f4f6;
+  border-radius: 99px;
+  margin-top: 8px;
+  overflow: hidden;
+  grid-column: 1 / -1;
+}
+.duo-subject-bar {
+  height: 100%;
+  width: 0%;
+  background: #1a9e6e;
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+.duo-subject-card {
+  flex-wrap: wrap;
+}
