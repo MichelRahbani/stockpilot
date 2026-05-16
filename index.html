@@ -299,7 +299,7 @@
             <div class="section-title">
               <div>
                 <h2>Real Data Status</h2>
-                <span class="table-note">Provider check and live data sources in one place.</span>
+                <span class="table-note">Provider check, live refresh, and demo-ready data sources in one place.</span>
               </div>
               <div class="button-row">
                 <button class="primary-button small-button" id="apiRefreshButton" type="button">Refresh Real Data</button>
@@ -387,7 +387,7 @@
             <p class="helper-text" id="copilotReportStatus">Educational summary only. Verify all real-world numbers before acting.</p>
           </section>
 
-          <details class="empire-panel weekly-snapshot-panel command-details"><summary class="command-details-summary"><span>Weekly Money Report</span></summary>
+          <section class="empire-panel weekly-snapshot-panel" aria-label="Weekly money report">
             <div class="section-title">
               <div>
                 <h2>Weekly Money Report</h2>
@@ -401,7 +401,126 @@
 <p class="helper-text" id="weeklyReportStatus">Built from the latest portfolio, budget, goals, learning, news, and refresh signals.</p>
           </section>
 
+          <section class="empire-panel pricing-panel" aria-label="StockPilot access and pro roadmap">
+            <div class="section-title">
+              <div>
+                <h2>Free Now. Pro Coming Soon.</h2>
+                <span class="table-note">No paid plans during the demo. StockPilot is free while the product is being tested and improved.</span>
+              </div>
+              <span class="pricing-badge">Free Beta</span>
+            </div>
+            <div class="pricing-grid">
+              <article class="pricing-card">
+                <span>Today</span>
+                <strong>$0</strong>
+                <p>Everything in the demo is free while StockPilot is being validated.</p>
+                <ul>
+                  <li>Portfolio builder</li>
+                  <li>Budget planner</li>
+                  <li>Calculators</li>
+                  <li>Learning pathway</li>
+                  <li>Local demo profile</li>
+                </ul>
+              </article>
+              <article class="pricing-card featured">
+                <span>Coming Soon</span>
+                <strong>Pro</strong>
+                <p>A future version for users who want deeper tracking and cleaner exports.</p>
+                <ul>
+                  <li>Cloud sync</li>
+                  <li>Portfolio history</li>
+                  <li>Custom alerts</li>
+                  <li>Export-ready reports</li>
+                  <li>More data integrations</li>
+                </ul>
+              </article>
+              <article class="early-access-card">
+                <span>Waitlist</span>
+                <strong>Get Pro updates</strong>
+                <label class="field">
+                  <span>Name</span>
+                  <input id="earlyAccessName" autocomplete="name" placeholder="Your name" />
+                </label>
+                <label class="field">
+                  <span>Email</span>
+                  <input id="earlyAccessEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+                </label>
+                <label class="field">
+                  <span>Most wanted feature</span>
+                  <select id="earlyAccessFeature">
+                    <option>Cloud sync</option>
+                    <option>Advanced reports</option>
+                    <option>Risk alerts</option>
+                    <option>Portfolio history</option>
+                    <option>PDF exports</option>
+                  </select>
+                </label>
+                <button class="primary-button" id="joinEarlyAccessButton" type="button">Notify Me</button>
+                <p class="helper-text" id="earlyAccessStatus">No payment. This only saves interest locally for the demo.</p>
+              </article>
+            </div>
+            <div class="early-access-list" id="earlyAccessList"></div>
+          </section>
 
+          <section class="empire-panel services-panel pro-roadmap-panel" aria-label="StockPilot pro roadmap">
+            <div class="section-title">
+              <div>
+                <h2>What Pro Might Add</h2>
+                <span class="table-note">A simple roadmap, not a paid offer. The goal is to prove the free version first.</span>
+              </div>
+              <span class="pricing-badge">Roadmap</span>
+            </div>
+            <div class="services-grid">
+              <article class="service-card">
+                <span>Saved History</span>
+                <strong>Track progress over time</strong>
+                <p>Store portfolio, budget, and learning snapshots so users can see what changed.</p>
+                <ul>
+                  <li>Portfolio history</li>
+                  <li>Budget history</li>
+                  <li>Weekly snapshots</li>
+                  <li>Progress timeline</li>
+                </ul>
+                <em>Result: users can see their money story improving.</em>
+              </article>
+              <article class="service-card">
+                <span>Smarter Alerts</span>
+                <strong>Important changes only</strong>
+                <p>Explain major portfolio moves, budget leaks, and data changes without overwhelming users.</p>
+                <ul>
+                  <li>Price drop context</li>
+                  <li>Risk alerts</li>
+                  <li>Recurring bill reminders</li>
+                  <li>Goal deadline warnings</li>
+                </ul>
+                <em>Result: users know what deserves attention.</em>
+              </article>
+              <article class="service-card">
+                <span>Cloud Sync</span>
+                <strong>Use it anywhere</strong>
+                <p>Move from local demo storage to secure accounts that work across devices.</p>
+                <ul>
+                  <li>Secure login</li>
+                  <li>Saved portfolios</li>
+                  <li>Saved budgets</li>
+                  <li>Backup and restore</li>
+                </ul>
+                <em>Result: the product becomes usable beyond one browser.</em>
+              </article>
+              <article class="service-card">
+                <span>Better Reports</span>
+                <strong>Presentation-ready output</strong>
+                <p>Turn the app’s analysis into cleaner weekly or monthly reports.</p>
+                <ul>
+                  <li>PDF exports</li>
+                  <li>Plain-English summaries</li>
+                  <li>Charts and tables</li>
+                  <li>Source notes</li>
+                </ul>
+                <em>Result: users can explain their plan clearly.</em>
+              </article>
+            </div>
+          </section>
 
           <details class="empire-panel freshness-panel command-details" aria-label="StockPilot update center">
             <summary class="section-title">
