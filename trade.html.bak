@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta name="robots" content="index, follow"/>
+<meta name="keywords" content="paper trading, virtual stock market, stock trading simulator, free trading app, practice trading"/>
+<meta property="og:title" content="StockPilot Trade — Practice trading with $100,000 virtual cash"/>
+<meta property="og:description" content="Buy and sell real stocks at real prices with zero risk. Free virtual trading simulator with live market data."/>
+<meta property="og:url" content="https://mystockspilot.com/trade"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="StockPilot Trade — Practice trading with $100,000 virtual cash"/>
+<meta name="twitter:description" content="Free paper trading simulator with real stock prices. No real money involved."/>
+<title>StockPilot Trade — Virtual Market</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#dc2626;--red-d:#b91c1c;--green:#16a34a;--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:rgba(255,255,255,0.08);--text:rgba(255,255,255,0.9);--dim:rgba(255,255,255,0.45);--muted:rgba(255,255,255,0.2)}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;max-width:100vw}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--border)}
+.logo{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo-dot{width:22px;height:22px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px}
+.badge{background:var(--red);color:white;font-size:10px;font-weight:700;padding:3px 7px;border-radius:4px}
+.nav-btn{padding:8px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid var(--border);background:transparent;color:var(--dim);transition:all 0.2s}
+.nav-btn:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.nav-btn.red{background:var(--red);color:white;border-color:var(--red)}
+.nav-btn.red:hover{background:var(--red-d)}
+
+.ticker{background:var(--red);padding:8px 0;overflow:hidden;margin-top:53px}
+.ticker-inner{display:flex;gap:28px;animation:scroll 20s linear infinite;width:max-content}
+.ti{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.75);white-space:nowrap;display:flex;gap:6px}
+.ti strong{color:white}
+.up{color:#86efac}.dn{color:#fca5a5}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+.layout{display:grid;grid-template-columns:300px 1fr 280px;gap:0;height:calc(100vh - 93px);overflow:hidden;max-width:100vw}
+
+/* LEFT — Watchlist */
+.watchlist-panel{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--border);font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:white;flex-shrink:0}
+.wl-item{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;display:flex;justify-content:space-between;align-items:center}
+.wl-item:hover{background:rgba(255,255,255,0.04)}
+.wl-item.active{background:rgba(220,38,38,0.1);border-left:2px solid var(--red)}
+.wl-sym{font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:white}
+.wl-name{font-size:10px;color:var(--muted);margin-top:1px}
+.wl-price{font-family:'DM Mono',monospace;font-size:13px;color:white;text-align:right}
+.wl-chg{font-family:'DM Mono',monospace;font-size:10px;text-align:right;margin-top:2px}
+
+/* MIDDLE — Trade Area */
+.trade-panel{display:flex;flex-direction:column;overflow:hidden}
+.search-bar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
+.search-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color 0.2s}
+.search-inp:focus{border-color:var(--red)}
+.search-inp::placeholder{color:var(--muted)}
+.search-btn{background:var(--red);color:white;border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.search-btn:hover{background:var(--red-d)}
+
+.quote-area{padding:20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.quote-empty{text-align:center;padding:32px;color:var(--muted);font-size:14px}
+.quote-empty div{font-size:28px;margin-bottom:8px}
+.q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.q-sym{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:white}
+.q-name{font-size:12px;color:var(--dim);margin-top:2px}
+.q-price{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:white;text-align:right}
+.q-chg{font-family:'DM Mono',monospace;font-size:13px;text-align:right;margin-top:2px}
+.q-meta{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
+.qm{background:var(--bg3);border-radius:6px;padding:8px;text-align:center}
+.qm-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px}
+.qm-v{font-family:'DM Mono',monospace;font-size:12px;color:var(--text)}
+
+.trade-area{padding:20px;flex:1;overflow-y:auto}
+.trade-tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--bg3);border-radius:8px;padding:3px}
+.ttab{flex:1;padding:9px;border-radius:6px;border:none;background:transparent;color:var(--dim);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.ttab.buy.on{background:var(--green);color:white}
+.ttab.sell.on{background:var(--red);color:white}
+.inp-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;outline:none;margin-bottom:14px;transition:border-color 0.2s}
+.inp:focus{border-color:var(--red)}
+.summary{background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:14px}
+.sum-row{display:flex;justify-content:space-between;padding:3px 0;font-size:13px;color:var(--dim)}
+.sum-row strong{color:var(--text);font-family:'DM Mono',monospace}
+.exec-btn{width:100%;padding:12px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.exec-btn.buy{background:var(--green);color:white}
+.exec-btn.sell{background:var(--red);color:white}
+.exec-btn:disabled{opacity:0.4;cursor:not-allowed}
+
+/* RIGHT — Portfolio */
+.portfolio-panel{background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
+.port-head{padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
+.port-value{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:white}
+.port-pnl{font-family:'DM Mono',monospace;font-size:12px;margin-top:2px}
+.port-cash{font-size:11px;color:var(--dim);margin-top:4px}
+.pos-item{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.pos-sym{font-family:'Fraunces',serif;font-size:13px;font-weight:600;color:white}
+.pos-detail{font-size:10px;color:var(--muted);margin-top:1px}
+.pos-vals{display:flex;justify-content:space-between;margin-top:5px}
+.pos-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text)}
+.pos-pnl{font-family:'DM Mono',monospace;font-size:11px}
+.no-pos{padding:24px 16px;text-align:center;color:var(--muted);font-size:13px}
+.no-pos div{font-size:24px;margin-bottom:6px}
+
+.hist-item{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:10px}
+.hist-badge{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.hist-badge.buy{background:rgba(22,163,74,0.15);color:#86efac}
+.hist-badge.sell{background:rgba(220,38,38,0.15);color:#fca5a5}
+.hist-sym{font-family:'Fraunces',serif;font-size:12px;font-weight:600;color:white}
+.hist-detail{font-size:10px;color:var(--muted)}
+.hist-amt{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);margin-left:auto}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);z-index:999;opacity:0;transition:all 0.3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1}
+.toast.ok{border-color:rgba(22,163,74,0.4)}
+.toast.err{border-color:rgba(220,38,38,0.4)}
+
+.disc{padding:8px 16px;background:rgba(220,38,38,0.06);border-top:1px solid rgba(220,38,38,0.1);font-size:10px;color:var(--muted);text-align:center;flex-shrink:0}
+
+@media(max-width:900px){
+    nav{padding:10px 14px}
+    .logo{font-size:16px}
+    .badge{display:none}
+    .ticker{margin-top:49px}
+    .layout{grid-template-columns:1fr;height:auto;overflow:visible}
+    .watchlist-panel{display:none}.portfolio-panel{display:flex;border-left:none;border-top:1px solid var(--border)}
+    .trade-panel{height:auto;overflow:visible}
+    .quote-area{padding:14px}
+    .trade-area{padding:14px;overflow:visible}
+    .q-header{flex-direction:column;gap:8px}
+    .q-price{font-size:24px}
+    .q-meta{grid-template-columns:repeat(3,1fr);gap:6px}
+    .qm{padding:6px}
+    .qm-v{font-size:11px}
+    .exec-btn{font-size:15px;padding:14px}
+    .search-inp{font-size:14px}
+    body{overflow-x:hidden}
+  }
+</style>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-TZLSC36Y26');
+</script>
+</head>
+<body>
+<nav>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="/" class="logo"><img src="/logo-dark.jpg" style="height:28px;width:auto;object-fit:contain;" alt="StockPilot"/>StockPilot</a>
+    <span class="badge">TRADE</span>
+  </div>
+  <div style="display:flex;gap:8px">
+    <a href="/app" class="nav-btn">← Learning App</a>
+    <div id="navAccountArea" style="display:flex;align-items:center;gap:8px">
+    
+    <div id="navUserBadge" style="display:none;align-items:center;gap:8px">
+      <div style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);border-radius:8px;padding:6px 12px;font-size:13px;color:#2ecc9a;font-family:DM Sans,sans-serif">
+        <span id="navUserName"></span>
+      </div>
+      <button onclick="signOutTrade()" class="nav-btn" style="font-size:12px">Sign Out</button>
+    </div>
+  </div>
+    <button class="nav-btn red" id="resetBtn">Reset Portfolio</button>
+  </div>
+</nav>
+
+<div class="ticker">
+  <div class="ticker-inner" id="tickerInner">
+    <div class="ti"><strong>AAPL</strong><span id="tick-AAPL">loading...</span></div>
+    <div class="ti"><strong>MSFT</strong><span id="tick-MSFT">loading...</span></div>
+    <div class="ti"><strong>NVDA</strong><span id="tick-NVDA">loading...</span></div>
+    <div class="ti"><strong>TSLA</strong><span id="tick-TSLA">loading...</span></div>
+    <div class="ti"><strong>AMZN</strong><span id="tick-AMZN">loading...</span></div>
+    <div class="ti"><strong>GOOGL</strong><span id="tick-GOOGL">loading...</span></div>
+    <div class="ti"><strong>META</strong><span id="tick-META">loading...</span></div>
+    <div class="ti"><strong>SPY</strong><span id="tick-SPY">loading...</span></div>
+    <div class="ti"><strong>AAPL</strong><span>—</span></div>
+    <div class="ti"><strong>MSFT</strong><span>—</span></div>
+    <div class="ti"><strong>NVDA</strong><span>—</span></div>
+    <div class="ti"><strong>TSLA</strong><span>—</span></div>
+    <div class="ti"><strong>AMZN</strong><span>—</span></div>
+    <div class="ti"><strong>GOOGL</strong><span>—</span></div>
+    <div class="ti"><strong>META</strong><span>—</span></div>
+    <div class="ti"><strong>SPY</strong><span>—</span></div>
+  </div>
+</div>
+
+<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 20px;margin:0 32px 12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:DM Sans,sans-serif">
+  <div style="font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:8px">💾 About your virtual portfolio</div>
+  <div style="display:flex;flex-wrap:wrap;gap:12px">
+    <span>✅ Survives refresh</span>
+    <span>✅ Survives closing the tab</span>
+    <span>✅ Survives closing the browser</span>
+    <span>❌ Cleared if you clear browser data</span>
+    <span>❌ Cleared in private/incognito mode</span>
+    <span>❌ Cleared if you click Reset Portfolio</span>
+    <span>❌ Not shared across devices</span>
+  </div>
+</div>
+<div style="margin:0 32px 16px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden">
+  <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between">
+    <span style="font-family:Fraunces,serif;font-size:16px;font-weight:600;color:white">Today's Market Brief</span>
+    <button id="generateBriefBtn" style="background:#dc2626;color:white;border:none;border-radius:8px;padding:7px 14px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;cursor:pointer">Generate →</button>
+  </div>
+  <div id="briefContent" style="padding:16px 20px;font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7">Click Generate to get today's live market analysis.</div>
+</div>
+<div class="layout">
+  <!-- WATCHLIST -->
+  <div class="watchlist-panel">
+    <div class="panel-head">Watchlist</div>
+    <div id="watchlistItems"><div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Loading...</div></div>
+    <div class="disc">Prices may be delayed · Not financial advice</div>
+  </div>
+
+  <!-- TRADE -->
+  <div class="trade-panel">
+    <div class="search-bar">
+      <input class="search-inp" id="symInput" placeholder="Search any ticker — AAPL, TSLA, BTC-USD, SPY..." autocomplete="off" autocapitalize="characters"/>
+      <button class="search-btn" id="searchBtn">Search</button>
+    </div>
+    <div class="quote-area" id="quoteArea">
+      <div class="quote-empty"><div>🔍</div>Search for a stock to start trading</div>
+    </div>
+    <div class="trade-area">
+      <div id="tradeForm" style="display:none">
+        <div class="trade-tabs">
+          <button class="ttab buy on" id="tabBuy">BUY</button>
+          <button class="ttab sell" id="tabSell">SELL</button>
+        </div>
+        <div class="inp-label">Number of Shares</div>
+        <input class="inp" type="number" id="sharesInp" placeholder="Enter number of shares" min="1" step="1"/>
+        <div class="summary">
+          <div class="sum-row"><span>Price per share</span><strong id="sumPrice">—</strong></div>
+          <div class="sum-row"><span>Shares</span><strong id="sumShares">0</strong></div>
+          <div class="sum-row"><span>Total</span><strong id="sumTotal">$0.00</strong></div>
+          <div class="sum-row"><span>Cash available</span><strong id="sumCash">$100,000</strong></div>
+        </div>
+        <button class="exec-btn buy" id="execBtn">Select shares to trade</button>
+      </div>
+      <div id="noStock" style="text-align:center;padding:40px;color:var(--muted);font-size:14px">
+        <div style="font-size:32px;margin-bottom:12px">📈</div>
+        Search for a stock above to start trading with your virtual $100,000
+      </div>
+    </div>
+  </div>
+
+  <!-- PORTFOLIO -->
+  <div class="portfolio-panel">
+    <div class="port-head">
+      <div class="port-value" id="portValue">$100,000.00</div>
+      <div class="port-pnl" id="portPnl" style="color:#86efac">+$0.00 (0.00%)</div>
+      <div class="port-cash" id="portCash">Cash: $100,000.00</div>
+    </div>
+    <div class="panel-head" style="border-top:1px solid var(--border)">Positions</div>
+    <div id="positions"><div class="no-pos"><div>📭</div>No positions yet</div></div>
+    <div class="panel-head" style="border-top:1px solid var(--border)">Recent Trades</div>
+    <div id="tradeHist"><div class="no-pos"><div>📋</div>No trades yet</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = window.location.origin;
+const KEY = 'sp_trade_v2';
+const START = 100000;
+const WL = ['AAPL','MSFT','NVDA','TSLA','AMZN','GOOGL','META','SPY','BTC-USD','GLD','AMD','NFLX'];
+
+let port = load();
+let current = null;
+let side = 'buy';
+
+function load(){
+  try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.cash!==undefined)return s; }catch(e){}
+  return {cash:START,pos:{},trades:[]};
+}
+function save(){ localStorage.setItem(KEY,JSON.stringify(port)); if(typeof savePortfolioToCloud==="function") savePortfolioToCloud(); }
+
+const SUPA_URL2='https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY2='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+function getToken(){return localStorage.getItem('supabase_token');}
+function signOutTrade(){
+  localStorage.removeItem('supabase_token');
+  localStorage.removeItem('supabase_email');
+  localStorage.removeItem('supabase_name');
+  localStorage.removeItem('sp_active_account');
+  document.getElementById('navUserBadge').style.display='none';
+  document.getElementById('signInNavBtn').style.display='';
+  showToast('Signed out','ok');
+}
+function showNavUser(name){
+  document.getElementById('signInNavBtn').style.display='none';
+  document.getElementById('navUserBadge').style.display='flex';
+  document.getElementById('navUserName').textContent=name;
+}
+async function savePortfolioToCloud(){
+  const t=getToken();if(!t)return;
+  try{await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{method:'POST',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({portfolio:port})});}catch(e){}
+}
+async function loadPortfolioFromCloud(){
+  const t=getToken();if(!t)return false;
+  try{
+    const r=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?select=portfolio&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
+    const data=await r.json();
+    if(data&&data[0]&&data[0].portfolio){port=data[0].portfolio;save();return true;}
+  }catch(e){}
+  return false;
+}
+(async function(){
+  const loaded=await loadPortfolioFromCloud();
+  if(loaded){
+    renderPort();renderTrades();updatePortStats();
+    const el=document.createElement('div');
+    el.style.cssText='position:fixed;top:70px;right:16px;background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);border-radius:8px;padding:6px 12px;font-size:11px;color:#86efac;z-index:50';
+    el.textContent='Portfolio synced from your account';
+    document.body.appendChild(el);
+    setTimeout(function(){el.remove();},3000);
+  }
+})();
+
+
+function f(n){
+  if(n==null||isNaN(n))return '—';
+  return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fs(n){
+  if(!n||isNaN(n))return '—';
+  if(n>=1e12)return '$'+(n/1e12).toFixed(1)+'T';
+  if(n>=1e9)return '$'+(n/1e9).toFixed(1)+'B';
+  if(n>=1e6)return '$'+(n/1e6).toFixed(1)+'M';
+  return f(n);
+}
+
+function toast(msg,type='ok'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show '+type;
+  setTimeout(()=>t.className='toast',3000);
+}
+
+async function getQuote(sym){
+  const r=await fetch(API+'/api/quotes?symbols='+sym);
+  const d=await r.json();
+  return d?.quoteResponse?.result?.[0]||null;
+}
+
+async function search(){
+  const sym=(document.getElementById('symInput').value||'').trim().toUpperCase();
+  if(!sym){ toast('Enter a ticker symbol','err'); return; }
+  document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>⏳</div>Loading '+sym+'...</div>';
+  try{
+    const q=await getQuote(sym);
+    if(!q||!q.regularMarketPrice){
+      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>❌</div>Could not find '+sym+'. Try AAPL, TSLA, or NVDA.</div>';
+      return;
+    }
+    current=q;
+    showQuote(q);
+    document.getElementById('tradeForm').style.display='block';
+    document.getElementById('noStock').style.display='none';
+    document.getElementById('sharesInp').value='';
+    updateSummary();
+  }catch(e){
+    document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>❌</div>Error loading data. Try again.</div>';
+  }
+}
+
+function showQuote(q){
+  const chg=q.regularMarketChange||0, pct=q.regularMarketChangePercent||0;
+  const col=chg>=0?'#86efac':'#fca5a5';
+  document.getElementById('quoteArea').innerHTML=`
+    <div class="q-header">
+      <div>
+        <div class="q-sym">${q.symbol}</div>
+        <div class="q-name">${q.longName||q.shortName||q.symbol}</div>
+      </div>
+      <div>
+        <div class="q-price">${f(q.regularMarketPrice)}</div>
+        <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
+      </div>
+    </div>
+    <div class="q-meta">
+      <div class="qm"><div class="qm-l">Open</div><div class="qm-v">${f(q.regularMarketOpen)}</div></div>
+      <div class="qm"><div class="qm-l">High</div><div class="qm-v">${f(q.regularMarketDayHigh)}</div></div>
+      <div class="qm"><div class="qm-l">Low</div><div class="qm-v">${f(q.regularMarketDayLow)}</div></div>
+      <div class="qm"><div class="qm-l">Mkt Cap</div><div class="qm-v">${fs(q.marketCap)}</div></div>
+      <div class="qm"><div class="qm-l">P/E</div><div class="qm-v">${q.trailingPE?q.trailingPE.toFixed(1):'—'}</div></div>
+      <div class="qm"><div class="qm-l">Beta</div><div class="qm-v">${q.beta?q.beta.toFixed(2):'—'}</div></div>
+    </div>
+  `;
+}
+
+function setSide(s){
+  side=s;
+  document.getElementById('tabBuy').className='ttab buy'+(s==='buy'?' on':'');
+  document.getElementById('tabSell').className='ttab sell'+(s==='sell'?' on':'');
+  updateSummary();
+}
+
+function updateSummary(){
+  if(!current)return;
+  const shares=parseInt(document.getElementById('sharesInp').value)||0;
+  const price=current.regularMarketPrice;
+  const total=shares*price;
+  const btn=document.getElementById('execBtn');
+  document.getElementById('sumPrice').textContent=f(price);
+  document.getElementById('sumShares').textContent=shares;
+  document.getElementById('sumTotal').textContent=f(total);
+  document.getElementById('sumCash').textContent=f(port.cash);
+  btn.className='exec-btn '+side;
+  if(shares<=0){
+    btn.disabled=true; btn.textContent='Enter number of shares';
+  } else if(side==='buy'&&total>port.cash){
+    btn.disabled=true; btn.textContent='Not enough cash';
+  } else if(side==='sell'){
+    const pos=port.pos[current.symbol];
+    if(!pos||pos.qty<shares){ btn.disabled=true; btn.textContent='Not enough shares to sell'; }
+    else{ btn.disabled=false; btn.textContent='Sell '+shares+' share'+(shares>1?'s':'')+' — '+f(total); }
+  } else {
+    btn.disabled=false; btn.textContent='Buy '+shares+' share'+(shares>1?'s':'')+' — '+f(total);
+  }
+}
+
+function execute(){
+  if(!current)return;
+  const shares=parseInt(document.getElementById('sharesInp').value)||0;
+  if(shares<=0)return;
+  const price=current.regularMarketPrice;
+  const sym=current.symbol;
+  const total=shares*price;
+
+  if(side==='buy'){
+    if(total>port.cash){ toast('Not enough cash!','err'); return; }
+    port.cash-=total;
+    if(!port.pos[sym]) port.pos[sym]={qty:0,avg:0,name:current.longName||current.shortName||sym};
+    const p=port.pos[sym];
+    const old=p.qty*p.avg;
+    p.qty+=shares;
+    p.avg=(old+total)/p.qty;
+    port.trades.unshift({side:'buy',sym,shares,price,total,date:new Date().toISOString()});
+    toast('✅ Bought '+shares+' '+sym+' @ '+f(price));
+  } else {
+    const p=port.pos[sym];
+    if(!p||p.qty<shares){ toast('Not enough shares!','err'); return; }
+    port.cash+=total;
+    p.qty-=shares;
+    if(p.qty===0) delete port.pos[sym];
+    port.trades.unshift({side:'sell',sym,shares,price,total,date:new Date().toISOString()});
+    toast('✅ Sold '+shares+' '+sym+' @ '+f(price));
+  }
+  save();
+  document.getElementById('sharesInp').value='';
+  updateSummary();
+  renderPort();
+  renderTrades();
+  updatePortStats();
+}
+
+async function renderPort(){
+  const syms=Object.keys(port.pos);
+  const el=document.getElementById('positions');
+  if(!syms.length){ el.innerHTML='<div class="no-pos"><div>📭</div>No positions yet</div>'; return; }
+  el.innerHTML='<div style="padding:12px 16px;font-size:11px;color:var(--muted)">Loading prices...</div>';
+  try{
+    const r=await fetch(API+'/api/quotes?symbols='+syms.join(','));
+    const d=await r.json();
+    const pm={};
+    (d?.quoteResponse?.result||[]).forEach(q=>pm[q.symbol]=q.regularMarketPrice);
+    el.innerHTML=syms.map(s=>{
+      const p=port.pos[s];
+      const cp=pm[s]||p.avg;
+      const val=p.qty*cp;
+      const pnl=val-(p.qty*p.avg);
+      const pct=(pnl/(p.qty*p.avg))*100;
+      const col=pnl>=0?'#86efac':'#fca5a5';
+      return `<div class="pos-item">
+        <div style="display:flex;justify-content:space-between">
+          <div><div class="pos-sym">${s}</div><div class="pos-detail">${p.qty} shares @ ${f(p.avg)}</div></div>
+          <div style="text-align:right"><div class="pos-val">${f(val)}</div><div class="pos-pnl" style="color:${col}">${pnl>=0?'+':''}${f(pnl)} (${pct>=0?'+':''}${pct.toFixed(1)}%)</div></div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){}
+}
+
+function renderTrades(){
+  const el=document.getElementById('tradeHist');
+  if(!port.trades.length){ el.innerHTML='<div class="no-pos"><div>📋</div>No trades yet</div>'; return; }
+  el.innerHTML=port.trades.slice(0,15).map(t=>`
+    <div class="hist-item">
+      <div class="hist-badge ${t.side}">${t.side.toUpperCase()}</div>
+      <div><div class="hist-sym">${t.sym}</div><div class="hist-detail">${t.shares} shares @ ${f(t.price)}</div></div>
+      <div class="hist-amt">${t.side==='buy'?'-':'+'}${f(t.total)}</div>
+    </div>
+  `).join('');
+}
+
+async function updatePortStats(){
+  const syms=Object.keys(port.pos);
+  let posVal=0;
+  if(syms.length){
+    try{
+      const r=await fetch(API+'/api/quotes?symbols='+syms.join(','));
+      const d=await r.json();
+      (d?.quoteResponse?.result||[]).forEach(q=>{
+        const p=port.pos[q.symbol];
+        if(p) posVal+=p.qty*(q.regularMarketPrice||p.avg);
+      });
+    }catch(e){ syms.forEach(s=>{ posVal+=port.pos[s].qty*port.pos[s].avg; }); }
+  }
+  const total=port.cash+posVal;
+  const pnl=total-START;
+  const pct=(pnl/START)*100;
+  const col=pnl>=0?'#86efac':'#fca5a5';
+  document.getElementById('portValue').textContent=f(total);
+  document.getElementById('portPnl').textContent=(pnl>=0?'+':'')+f(pnl)+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)';
+  document.getElementById('portPnl').style.color=col;
+  document.getElementById('portCash').textContent='Cash: '+f(port.cash);
+}
+
+async function loadWatchlist(){
+  try{
+    const r=await fetch(API+'/api/quotes?symbols='+WL.join(','));
+    const d=await r.json();
+    const qs=d?.quoteResponse?.result||[];
+    document.getElementById('watchlistItems').innerHTML=qs.map(q=>{
+      const chg=q.regularMarketChangePercent||0;
+      const col=chg>=0?'#86efac':'#fca5a5';
+      return `<div class="wl-item" onclick="document.getElementById('symInput').value='${q.symbol}';search()">
+        <div><div class="wl-sym">${q.symbol}</div><div class="wl-name">${q.shortName||''}</div></div>
+        <div><div class="wl-price">${f(q.regularMarketPrice)}</div><div class="wl-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)}%</div></div>
+      </div>`;
+    }).join('');
+    // Update ticker
+    qs.forEach(q=>{
+      const el=document.getElementById('tick-'+q.symbol);
+      if(el){
+        const chg=q.regularMarketChangePercent||0;
+        el.textContent=f(q.regularMarketPrice)+' '+(chg>=0?'+':'')+chg.toFixed(2)+'%';
+        el.className=chg>=0?'up':'dn';
+      }
+    });
+  }catch(e){ document.getElementById('watchlistItems').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Could not load prices</div>'; }
+}
+
+function reset(){
+  if(!confirm('Reset portfolio to $100,000? All trades cleared.'))return;
+  port={cash:START,pos:{},trades:[]};
+  save();
+  renderPort();
+  renderTrades();
+  updatePortStats();
+  toast('Portfolio reset to $100,000');
+}
+
+// Event listeners
+document.getElementById('searchBtn').addEventListener('click', search);
+document.getElementById('symInput').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+document.getElementById('tabBuy').addEventListener('click', ()=>setSide('buy'));
+document.getElementById('tabSell').addEventListener('click', ()=>setSide('sell'));
+document.getElementById('sharesInp').addEventListener('input', updateSummary);
+document.getElementById('execBtn').addEventListener('click', execute);
+document.getElementById('resetBtn').addEventListener('click', reset);
+
+// Init
+renderPort();
+renderTrades();
+updatePortStats();
+loadWatchlist();
+
+// Auto-refresh every 30 seconds
+setInterval(async()=>{
+  await loadWatchlist();
+  await renderPort();
+  await updatePortStats();
+  if(current){try{const q=await getQuote(current.symbol);if(q){current=q;showQuote(q);updateSummary();}}catch(e){}}
+},30000);
+
+// Live indicator
+const li=document.createElement('div');
+li.style.cssText='position:fixed;bottom:16px;left:16px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.4);font-family:DM Mono,monospace;z-index:50;display:flex;align-items:center;gap:6px';
+li.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block;animation:p 2s infinite"></span>Live · refreshes every 30s';
+document.body.appendChild(li);
+const st=document.createElement('style');
+st.textContent='@keyframes p{0%,100%{opacity:1}50%{opacity:0.3}}';
+document.head.appendChild(st);
+
+</script>
+
+<!-- Sign In Modal -->
+<div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
+    <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
+    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:6px">Welcome back</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">Sign in to your StockPilot account</div>
+    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
+    <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
+    <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
+    <button onclick="doSignin()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
+    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">Don't have an account? <a href="/app" style="color:#2ecc9a;text-decoration:none">Create one in the app</a></div>
+    <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
+  </div>
+</div>
+<script>
+const SUPA_URL="https://xkfxofcmrmpazfjviatq.supabase.co";
+const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
+function openSignin(){document.getElementById('signinModal').style.display='flex';}
+function closeSignin(){document.getElementById('signinModal').style.display='none';}
+function showSiMsg(msg,ok){const el=document.getElementById('signinMsg');el.textContent=msg;el.style.display='block';el.style.background=ok?'rgba(22,163,74,0.15)':'rgba(220,38,38,0.15)';el.style.color=ok?'#86efac':'#fca5a5';el.style.border='1px solid '+(ok?'rgba(22,163,74,0.3)':'rgba(220,38,38,0.3)');}
+async function doSignin(){
+  const email=document.getElementById('siEmail').value.trim();
+  const pass=document.getElementById('siPass').value;
+  if(!email||!pass){showSiMsg('Enter your email and password.', false);return;}
+  showSiMsg('Signing in...', true);
+  try{
+    const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email,password:pass})});
+    const d=await r.json();
+    if(d.error){showSiMsg(d.error.message||'Sign in failed.',false);return;}
+    localStorage.setItem('supabase_token',d.access_token);
+    localStorage.setItem('supabase_email',email);
+    localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
+    showSiMsg('Signed in! Redirecting...', true);
+    const uname = localStorage.getItem('supabase_name') || email.split('@')[0];
+    setTimeout(()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);},1200);
+  }catch(e){showSiMsg('Error signing in. Try again.',false);}
+}
+async function doForgot(){
+  const email=document.getElementById('siEmail').value.trim();
+  if(!email){showSiMsg('Enter your email first.',false);return;}
+  await fetch(SUPA_URL+'/auth/v1/recover',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email})});
+  showSiMsg('Password reset email sent!',true);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
+</script>
+
+<script>
+// Restore session on load - instant from cache first
+document.addEventListener("DOMContentLoaded", function() {
+  const _email = localStorage.getItem("supabase_email");
+  const _name = localStorage.getItem("supabase_name") || localStorage.getItem("sp_active_account") && JSON.parse(localStorage.getItem("sp_active_account") || "{}").name || (_email ? _email.split("@")[0] : null);
+  const _token = localStorage.getItem("supabase_token");
+  if (_token && _name && typeof showNavUser === "function") showNavUser(_name);
+  else if (_token && _email && typeof showNavUser === "function") showNavUser(_email.split("@")[0]);
+});
+(async function(){
+  const token = localStorage.getItem('supabase_token');
+  const email = localStorage.getItem('supabase_email');
+  const name = localStorage.getItem('supabase_name') || (email ? email.split('@')[0] : null);
+  if (!token || !email) return;
+  // Show instantly from cache without waiting for Supabase
+  if (name && typeof showNavUser === 'function') showNavUser(name);
+  try {
+    const r = await fetch('https://xkfxofcmrmpazfjviatq.supabase.co/auth/v1/user', {
+      headers: { 'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q', 'Authorization': 'Bearer ' + token }
+    });
+    if (r.ok) {
+      if (typeof showNavUser === 'function') showNavUser(name || email.split('@')[0]);
+    } else {
+      localStorage.removeItem('supabase_token');
+      localStorage.removeItem('supabase_email');
+    }
+  } catch(e) {}
+})();
+</script></body>
+</html><script>
+async function generateBrief(){
+  const btn=document.getElementById('generateBriefBtn');
+  const content=document.getElementById('briefContent');
+  if(!btn||!content)return;
+  btn.textContent='Loading...';btn.disabled=true;
+  content.innerHTML='<span style="color:rgba(255,255,255,0.3)">Fetching live market data...</span>';
+  try{
+    const r=await fetch('/api/market-brief');
+    const data=await r.json();
+    content.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">'+data.date+' &middot; '+data.sentiment.toUpperCase()+'</div>'+
+    data.sections.map(s=>'<p style="margin-bottom:10px;color:rgba(255,255,255,0.7);line-height:1.65">'+s.replace(/\*\*(.*?)\*\*/g,'<strong style="color:white">$1</strong>').replace(/_(.*?)_/g,'<em style="color:rgba(255,255,255,0.3);font-style:italic">$1</em>')+'</p>').join('');
+    btn.textContent='Refresh';btn.disabled=false;
+  }catch(e){
+    content.innerHTML='<span style="color:rgba(255,255,255,0.3)">Could not load. Try again.</span>';
+    btn.textContent='Generate';btn.disabled=false;
+  }
+}
+document.getElementById('generateBriefBtn').addEventListener('click',generateBrief);
+</script>
