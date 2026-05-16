@@ -140,6 +140,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .explain-card h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
 .explain-card p{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;}
 .explain-card .disclaimer{font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;}
+
+.port-story{padding:14px 16px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.06);}
+.port-story h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
+.port-story p{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;}
+.news-card{margin-top:12px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;}
+.news-card h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;}
+.news-item{padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
+.news-item:last-child{border-bottom:none;}
+.news-item a{font-size:13px;color:rgba(255,255,255,0.75);text-decoration:none;line-height:1.5;display:block;}
+.news-item a:hover{color:white;}
+.news-item .news-date{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;}
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
@@ -252,7 +263,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
 
   <!-- PORTFOLIO -->
-  <div class="portfolio-panel">
+  <div class="portfolio-panel"><div id="portStory" class="port-story" style="display:none"><h4>Portfolio Story</h4><p id="portStoryText"></p></div>
     <div class="port-head">
       <div class="port-value" id="portValue">$100,000.00</div>
       <div class="port-pnl" id="portPnl" style="color:#86efac">+$0.00 (0.00%)</div>
@@ -276,6 +287,55 @@ const WL = ['AAPL','MSFT','NVDA','TSLA','AMZN','GOOGL','META','SPY','BTC-USD','G
 let port = load();
 let current = null;
 let side = 'buy';
+
+
+async function loadStockNews(sym) {
+  var card = document.getElementById('newsCard');
+  var list = document.getElementById('newsList');
+  if(!card || !list) return;
+  card.style.display = 'none';
+  try {
+    var rssUrl = 'https://feeds.finance.yahoo.com/rss/2.0/headline?s=' + sym + '&region=US&lang=en-US';
+    var r = await fetch(API + '/api/news/rss?url=' + encodeURIComponent(rssUrl));
+    var text = await r.text();
+    var parser = new DOMParser();
+    var xml = parser.parseFromString(text, 'application/xml');
+    var items = Array.from(xml.querySelectorAll('item')).slice(0, 3);
+    if(!items.length) return;
+    list.innerHTML = items.map(function(item) {
+      var title = item.querySelector('title') ? item.querySelector('title').textContent : '';
+      var link = item.querySelector('link') ? item.querySelector('link').textContent : '#';
+      var date = item.querySelector('pubDate') ? new Date(item.querySelector('pubDate').textContent).toLocaleDateString() : '';
+      return '<div class="news-item"><a href="' + link + '" target="_blank" rel="noopener">' + title + '</a><div class="news-date">' + date + '</div></div>';
+    }).join('');
+    card.style.display = 'block';
+  } catch(e) {}
+}
+
+function buildPortStory(positions, prices) {
+  var syms = Object.keys(positions);
+  if(!syms.length) return null;
+  var totalCost = 0, totalVal = 0, best = null, worst = null, bestPct = -Infinity, worstPct = Infinity;
+  syms.forEach(function(s) {
+    var p = positions[s];
+    var cp = prices[s] || p.avg;
+    var val = p.qty * cp;
+    var cost = p.qty * p.avg;
+    var pct = ((val - cost) / cost) * 100;
+    totalCost += cost; totalVal += val;
+    if(pct > bestPct) { bestPct = pct; best = s; }
+    if(pct < worstPct) { worstPct = pct; worst = s; }
+  });
+  var totalPct = ((totalVal - totalCost) / totalCost) * 100;
+  var dir = totalPct >= 0 ? 'up' : 'down';
+  var absPct = Math.abs(totalPct).toFixed(1);
+  var story = 'Your virtual portfolio is ' + dir + ' ' + absPct + '% overall.';
+  if(best && bestPct > 0) story += ' ' + best + ' is your biggest winner (+' + bestPct.toFixed(1) + '%).';
+  if(worst && worstPct < 0) story += ' ' + worst + ' is your biggest drag (' + worstPct.toFixed(1) + '%).';
+  if(syms.length === 1) story += ' You are concentrated in one position — consider diversifying.';
+  else if(syms.length >= 5) story += ' With ' + syms.length + ' positions, your risk is spread across multiple stocks.';
+  return story;
+}
 
 function load(){
   try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.cash!==undefined)return s; }catch(e){}
@@ -407,6 +467,7 @@ function showQuote(q){
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
       </div>
     </div>
+    <div id="newsCard" class="news-card" style="display:none"><h4>Recent News</h4><div id="newsList"></div></div>
     <div id="explainCard" class="explain-card"><h4>Why is this moving?</h4><p style="color:rgba(255,255,255,0.3);font-size:13px;">Analyzing...</p></div>
     <div class="q-meta">
       <div class="qm"><div class="qm-l">Open</div><div class="qm-v">${f(q.regularMarketOpen)}</div></div>
@@ -421,6 +482,7 @@ function showQuote(q){
   var _card = document.getElementById('explainCard');
   if(_card && _explain) _card.innerHTML = '<h4>Why is this moving?</h4><p>' + _explain + '</p>';
   else if(_card) _card.style.display = 'none';
+  loadStockNews(q.symbol);
 }
 
 function setSide(s){
@@ -499,6 +561,9 @@ async function renderPort(){
     const d=await r.json();
     const pm={};
     (d?.quoteResponse?.result||[]).forEach(q=>pm[q.symbol]=q.regularMarketPrice);
+    var storyEl=document.getElementById('portStory');
+    var storyText=document.getElementById('portStoryText');
+    if(storyEl&&storyText){var s=buildPortStory(port.pos,pm);if(s){storyText.textContent=s;storyEl.style.display='block';}}
     el.innerHTML=syms.map(s=>{
       const p=port.pos[s];
       const cp=pm[s]||p.avg;
