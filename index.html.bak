@@ -2772,7 +2772,7 @@ Old app 14 day 28</textarea>
             </div>
           </div>
 
-          <nav class="learning-area-tabs" aria-label="Learning areas">
+          <nav class="learning-area-tabs" aria-label="Learning areas" style="display:none">
             <label class="field compact nav-select-field">
               <span>Learning section</span>
               <select id="learningAreaSelect">
@@ -2795,6 +2795,73 @@ Old app 14 day 28</textarea>
             <button class="learning-area-tab" data-learning-area="library" data-default-panel="behavior" type="button" aria-pressed="false">Behavior</button>
             <button class="learning-area-tab" data-learning-area="practice" type="button" aria-pressed="false">Practice</button>
           </nav>
+
+          <div class="duo-subject-grid">
+            <button class="duo-subject-card" data-duo-area="overview" type="button">
+              <div class="duo-subject-icon" style="background:#e8f5e9">🗺️</div>
+              <div class="duo-subject-info">
+                <strong>Overview</strong>
+                <span>Your roadmap & missions</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarOverview"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="pathway" type="button">
+              <div class="duo-subject-icon" style="background:#e3f2fd">📈</div>
+              <div class="duo-subject-info">
+                <strong>Guided Path</strong>
+                <span>Lessons in order</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarPathway" style="background:#1976d2"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="tips" type="button">
+              <div class="duo-subject-icon" style="background:#fff8e1">💡</div>
+              <div class="duo-subject-info">
+                <strong>Tips</strong>
+                <span>Practical money habits</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarTips" style="background:#f59e0b"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="terms" type="button">
+              <div class="duo-subject-icon" style="background:#f3e5f5">📖</div>
+              <div class="duo-subject-info">
+                <strong>Terms</strong>
+                <span>Plain-English definitions</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarTerms" style="background:#9c27b0"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="history" type="button">
+              <div class="duo-subject-icon" style="background:#fce4ec">🏛️</div>
+              <div class="duo-subject-info">
+                <strong>History</strong>
+                <span>Market events & lessons</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarHistory" style="background:#e91e63"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="concepts" type="button">
+              <div class="duo-subject-icon" style="background:#e0f7fa">🧠</div>
+              <div class="duo-subject-info">
+                <strong>Concepts</strong>
+                <span>Core finance ideas</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarConcepts" style="background:#00bcd4"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="behavior" type="button">
+              <div class="duo-subject-icon" style="background:#fff3e0">🧘</div>
+              <div class="duo-subject-info">
+                <strong>Behavior</strong>
+                <span>Investor psychology</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarBehavior" style="background:#ff9800"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="practice" type="button">
+              <div class="duo-subject-icon" style="background:#e8f5e9">🎯</div>
+              <div class="duo-subject-info">
+                <strong>Practice</strong>
+                <span>Quiz & scenario lab</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarPractice" style="background:#4caf50"></div></div>
+            </button>
+          </div>
 
           <section class="learning-dashboard-section" data-learning-area-panel="overview" aria-label="Learning roadmap dashboard">
             <div class="section-title">
