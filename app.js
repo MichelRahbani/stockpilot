@@ -2502,7 +2502,7 @@ const renderAccountStatus = () => {
   if (commandAccountName) commandAccountName.textContent = account ? account.name : "No user yet";
   if (commandAccountDetail) {
     commandAccountDetail.textContent = account
-      ? `${account.email} · local demo user · use Backup before switching browsers`
+      ? `${account.email} · signed in · data synced to cloud`
       : "Create a user before presenting saved plans, goals, and portfolios.";
   }
   if (commandCreateUserButton) commandCreateUserButton.hidden = Boolean(account);
@@ -7014,7 +7014,7 @@ const getSetupChecklistItems = (stats, savingsStats) => {
     {
       id: "account",
       title: "Create a user",
-      detail: activeProfile ? `Signed in locally as ${activeProfile.name}. Use Backup before switching browsers.` : "Create a local demo user so the app feels personal during presentations.",
+      detail: activeProfile ? `Signed in as ${activeProfile.name}. Your data is saved to the cloud.` : "Sign in to save your data across devices.",
       done: Boolean(activeProfile),
       action: activeProfile ? "Open Account" : "Create User"
     }
