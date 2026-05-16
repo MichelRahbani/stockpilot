@@ -303,7 +303,6 @@
               </div>
               <div class="button-row">
                 <button class="primary-button small-button" id="apiRefreshButton" type="button">Refresh Real Data</button>
-                <button class="ghost-button small-button" id="loadRealDemoButton" type="button">Load Real Demo Portfolio</button>
               </div>
             </div>
             <div class="api-status-grid" id="apiStatusGrid"></div>
@@ -311,22 +310,6 @@
             <p class="helper-text" id="apiStatusNote">Start the StockPilot API gateway, then refresh this panel to show live provider status.</p>
           </section>
 
-          <section class="empire-panel demo-flow-panel" aria-label="Professor demo flow">
-            <div class="section-title">
-              <div>
-                <h2>Demo Flow</h2>
-                <span class="table-note">A simple path for presenting the app without jumping around randomly.</span>
-              </div>
-            </div>
-            <div class="demo-flow-grid">
-              <button type="button" data-demo-route="real-data"><span>1</span><strong>Real Data</strong><small>Show gateway and providers</small></button>
-              <button type="button" data-demo-route="portfolio"><span>2</span><strong>Portfolio</strong><small>Load tickers and risk</small></button>
-              <button type="button" data-demo-route="research"><span>3</span><strong>Research</strong><small>Company, macro, news</small></button>
-              <button type="button" data-demo-route="savings"><span>4</span><strong>Savings</strong><small>Budget health and leaks</small></button>
-              <button type="button" data-demo-route="learning"><span>5</span><strong>Learning</strong><small>Pathway and checks</small></button>
-              <button type="button" data-demo-route="plan"><span>6</span><strong>My Plan</strong><small>Actions and next steps</small></button>
-            </div>
-          </section>
 
           <section class="empire-panel setup-panel" aria-label="StockPilot start checklist">
             <div class="section-title">
@@ -390,35 +373,6 @@
             </div>
           </section>
 
-          <section class="empire-panel professor-demo-panel" aria-label="Demo kit">
-            <div class="section-title">
-              <div>
-                <h2>Demo Kit</h2>
-                <span class="table-note">A clean presentation flow: problem, model, assistant, plan, and responsible limitations.</span>
-              </div>
-              <button class="primary-button small-button" id="prepareProfessorDemoButton" type="button">Run Full Demo</button>
-            </div>
-            <div class="professor-demo-grid" id="professorDemoGrid"></div>
-            <div class="presentation-mode-grid" id="presentationModeGrid"></div>
-            <div class="demo-talk-track">
-              <article>
-                <span>1</span>
-                <strong>Problem</strong>
-                <p>Finance tools are scattered. StockPilot connects portfolio risk, budget pressure, savings goals, and learning in one dashboard.</p>
-              </article>
-              <article>
-                <span>2</span>
-                <strong>Model</strong>
-                <p>The app turns ratios, allocations, risk meters, cash flow, and behavioral finance concepts into plain-English signals.</p>
-              </article>
-              <article>
-                <span>3</span>
-                <strong>Guardrail</strong>
-                <p>It is educational decision support, not financial advice. Real-world data should be verified before action.</p>
-              </article>
-            </div>
-            <p class="helper-text" id="professorDemoStatus">Use this before presenting so the app opens with a clear, defensible story.</p>
-          </section>
 
           <section class="empire-panel copilot-report-panel" aria-label="Personal finance copilot report">
             <div class="section-title">
