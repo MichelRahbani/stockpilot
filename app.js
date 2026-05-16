@@ -3876,8 +3876,7 @@ const withRefreshTimeout = (promise, key, source, timeoutMs = 12000) =>
   ]);
 
 const refreshAllData = async () => {
-  if (!refreshAllDataButton) return;
-  refreshAllDataButton.disabled = true;
+  if (refreshAllDataButton) refreshAllDataButton.disabled = true;
   refreshAllDataButton.textContent = "Refreshing...";
   if (apiRefreshButton) {
     apiRefreshButton.disabled = true;
