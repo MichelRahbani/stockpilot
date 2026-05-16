@@ -2385,7 +2385,7 @@ const checkStockPilotApi = async () => {
   let lastError = "";
   for (const baseUrl of STOCKPILOT_API_CANDIDATES) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 1200);
+    const timeout = setTimeout(() => controller.abort(), 4000);
     try {
       const response = await fetch(`${baseUrl}/health`, { signal: controller.signal });
       clearTimeout(timeout);
@@ -11080,11 +11080,4 @@ const restoreSupabaseSession = async () => {
 };
 window.addEventListener("DOMContentLoaded", restoreSupabaseSession);
 
-// Auto-load live data on page open
-window.addEventListener("load", () => {
-  setTimeout(() => {
-    if (typeof refreshAllData === "function") {
-      refreshAllData();
-    }
-  }, 1500);
-});
+
