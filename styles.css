@@ -8660,3 +8660,15 @@ body.command-mode .services-panel {
 .data-quality-banner { font-size: 11px !important; padding: 6px 16px !important; opacity: 0.6 !important; }
 .data-quality-banner strong { font-size: 11px !important; }
 #workspaceNavigatorHint { display: none !important; }
+
+@media (max-width: 680px) {
+  * {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  table, .input-table {
+    width: 100% !important;
+    overflow-x: auto;
+    display: block;
+  }
+}
