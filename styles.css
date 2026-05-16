@@ -769,7 +769,7 @@ body.goals-mode .goals-hub {
   display: block;
   margin-top: 0.35rem;
   color: #7a4c0a;
-  font-size: clamp(1.45rem, 2.3vw, 2.2rem);
+  font-size: 1.15rem;
   line-height: 1.05;
 }
 
@@ -1359,7 +1359,7 @@ body.pro-mode .beginner-copy {
 .early-access-card > strong,
 .service-card > strong {
   color: var(--ink);
-  font-size: clamp(1.55rem, 2.4vw, 2.15rem);
+  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -1749,7 +1749,7 @@ body.pro-mode .beginner-copy {
 .command-card strong {
   display: block;
   margin-top: 0.45rem;
-  font-size: clamp(1.8rem, 3vw, 2.45rem);
+  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -1870,7 +1870,7 @@ body.pro-mode .beginner-copy {
   display: block;
   margin-top: 0.35rem;
   color: #172026;
-  font-size: clamp(1.6rem, 2.6vw, 2.35rem);
+  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -2159,7 +2159,7 @@ body.pro-mode .beginner-copy {
 .onboarding-card h2 {
   margin-top: 0.35rem;
   max-width: 38rem;
-  font-size: clamp(1.45rem, 2.6vw, 2.2rem);
+  font-size: 1.15rem;
   line-height: 1.1;
 }
 
@@ -2370,7 +2370,7 @@ body.pro-mode .beginner-copy {
 
 .educational-card h2 {
   color: var(--ink);
-  font-size: clamp(1.65rem, 4vw, 2.35rem);
+  font-size: 1.15rem;
   line-height: 1.05;
 }
 
@@ -2794,7 +2794,7 @@ body.savings-mode .portfolio-section.app-view.active {
 .topbar h2 {
   max-width: 48rem;
   margin-top: 0.25rem;
-  font-size: clamp(1.55rem, 2.6vw, 2.65rem);
+  font-size: 1.15rem;
   line-height: 1.1;
   letter-spacing: 0;
 }
@@ -2851,7 +2851,7 @@ body.savings-mode .portfolio-section.app-view.active {
 
 .score-card strong {
   display: block;
-  font-size: clamp(2.1rem, 3vw, 2.75rem);
+  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -3723,7 +3723,7 @@ body.savings-mode .portfolio-section.app-view.active {
 .dna-hero strong {
   display: block;
   margin-top: 0.35rem;
-  font-size: clamp(1.8rem, 4vw, 3.4rem);
+  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -4081,7 +4081,7 @@ body.savings-mode .portfolio-section.app-view.active {
 .verdict-panel strong {
   display: block;
   margin-top: 0.35rem;
-  font-size: clamp(1.6rem, 3vw, 2.6rem);
+  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -4113,7 +4113,7 @@ body.savings-mode .portfolio-section.app-view.active {
 .verdict-score span {
   margin: 0;
   color: var(--ink);
-  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-size: 1.15rem;
   font-weight: 900;
   line-height: 1;
 }
@@ -4816,7 +4816,7 @@ body.education-mode .education-hub {
 .education-hero h2 {
   max-width: 44rem;
   margin-top: 0.25rem;
-  font-size: clamp(1.4rem, 2.4vw, 2.35rem);
+  font-size: 1.15rem;
   line-height: 1.1;
 }
 
@@ -5662,7 +5662,7 @@ td strong {
 
 .setup-progress-card strong {
   color: var(--ink);
-  font-size: clamp(2.2rem, 4vw, 3rem);
+  font-size: 1.15rem;
   line-height: 1;
 }
 
@@ -5800,7 +5800,7 @@ body {
 
 .topbar h2 {
   max-width: 44rem;
-  font-size: clamp(1.45rem, 2vw, 2.05rem);
+  font-size: 1.15rem;
   line-height: 1.12;
 }
 
@@ -6344,7 +6344,7 @@ body {
 .command-hero h2,
 .plan-hero h2,
 .goals-hero h2 {
-  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-size: 1.15rem;
 }
 
 .command-hero p:not(.eyebrow),
@@ -6390,7 +6390,7 @@ body {
 
 .command-card strong {
   margin-top: 0.35rem;
-  font-size: clamp(1.55rem, 2.3vw, 2.1rem);
+  font-size: 1.15rem;
 }
 
 .section-title {
@@ -6557,7 +6557,7 @@ body {
 }
 
 .topbar h2 {
-  font-size: clamp(1.28rem, 1.8vw, 1.85rem);
+  font-size: 1.15rem;
 }
 
 .topbar-copy {
@@ -6609,7 +6609,7 @@ body {
 .goals-hero h2,
 .savings-hero h2,
 .education-hero h2 {
-  font-size: clamp(1.25rem, 1.8vw, 1.75rem);
+  font-size: 1.15rem;
 }
 
 .command-grid {
@@ -6621,7 +6621,7 @@ body {
 }
 
 .command-card strong {
-  font-size: clamp(1.35rem, 2vw, 1.8rem);
+  font-size: 1.15rem;
 }
 
 .setup-panel,
@@ -6859,7 +6859,7 @@ body {
 .education-hero h2 {
   max-width: 48rem;
   margin-top: 0.25rem;
-  font-size: clamp(1.35rem, 2vw, 2rem);
+  font-size: 1.15rem;
   line-height: 1.1;
 }
 
@@ -7198,7 +7198,7 @@ table[aria-label="Insurance input table"] select {
 }
 
 .savings-goal-result strong {
-  font-size: clamp(1.55rem, 2.4vw, 2rem);
+  font-size: 1.15rem;
 }
 
 .savings-subnav,
@@ -7375,7 +7375,7 @@ body {
 }
 
 .topbar h2 {
-  font-size: clamp(1.18rem, 1.55vw, 1.55rem);
+  font-size: 1.15rem;
   line-height: 1.18;
 }
 
@@ -7456,7 +7456,7 @@ body.education-mode .mode-button.education-mode-button.active {
 .savings-hero h2,
 .education-hero h2 {
   max-width: 44rem;
-  font-size: clamp(1.3rem, 1.9vw, 1.85rem);
+  font-size: 1.15rem;
   line-height: 1.14;
 }
 
@@ -7513,7 +7513,7 @@ body.education-mode .mode-button.education-mode-button.active {
 .command-card strong,
 .metric-card strong,
 .macro-card strong {
-  font-size: clamp(1.28rem, 1.8vw, 1.75rem);
+  font-size: 1.15rem;
 }
 
 .command-card p,
@@ -7605,7 +7605,7 @@ body.education-mode .mode-button.education-mode-button.active {
 }
 
 .verdict-score span {
-  font-size: clamp(1.8rem, 3.2vw, 3.25rem);
+  font-size: 1.15rem;
 }
 
 .table-wrap,
@@ -8131,7 +8131,7 @@ body {
 
 .topbar h2 {
   max-width: 50rem;
-  font-size: clamp(1.55rem, 2.5vw, 2.35rem);
+  font-size: 1.15rem;
   letter-spacing: 0;
 }
 
@@ -8277,7 +8277,7 @@ textarea:focus {
 .savings-hero h2,
 .education-hero h2 {
   max-width: 52rem;
-  font-size: clamp(1.7rem, 3vw, 2.75rem);
+  font-size: 1.15rem;
   line-height: 1.05;
 }
 
@@ -8398,7 +8398,7 @@ textarea:focus {
 .metric-card strong,
 .macro-card strong {
   color: #0f172a;
-  font-size: clamp(1.45rem, 2.1vw, 2rem);
+  font-size: 1.15rem;
 }
 
 .command-search-panel,
@@ -8501,7 +8501,7 @@ canvas {
   .goals-hero h2,
   .savings-hero h2,
   .education-hero h2 {
-    font-size: clamp(1.45rem, 8vw, 2.2rem);
+    font-size: 1.15rem;
   }
 }
 
@@ -8591,7 +8591,7 @@ body.command-mode .command-card {
 }
 
 body.command-mode .command-card strong {
-  font-size: clamp(1.55rem, 2vw, 2rem);
+  font-size: 1.15rem;
 }
 
 body.command-mode .api-status-grid {
