@@ -8758,3 +8758,17 @@ body.command-mode .services-panel {
 .duo-subject-card {
   flex-wrap: wrap;
 }
+
+.lesson-card, .simple-term-card { border-radius: 16px; border: none; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.lesson-card:hover, .simple-term-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+.lesson-card:nth-child(6n+1), .simple-term-card:nth-child(6n+1) { background: linear-gradient(145deg, #f0f7ff, #e8f0fe); }
+.lesson-card:nth-child(6n+2), .simple-term-card:nth-child(6n+2) { background: linear-gradient(145deg, #fdf4ff, #f3e8ff); }
+.lesson-card:nth-child(6n+3), .simple-term-card:nth-child(6n+3) { background: linear-gradient(145deg, #ecfdf5, #d1fae5); }
+.lesson-card:nth-child(6n+4), .simple-term-card:nth-child(6n+4) { background: linear-gradient(145deg, #fff8e1, #fef3c7); }
+.lesson-card:nth-child(6n+5), .simple-term-card:nth-child(6n+5) { background: linear-gradient(145deg, #fff0f4, #fce7f3); }
+.lesson-card:nth-child(6n+6), .simple-term-card:nth-child(6n+6) { background: linear-gradient(145deg, #e0f7fa, #ccfbf1); }
+.lesson-card span:first-child, .simple-term-card span:first-child { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; background: rgba(0,0,0,0.07); color: #374151; margin-bottom: 8px; }
+.learning-dashboard-card { background: linear-gradient(145deg, #faf5ff, #f3e8ff); border: 2px solid rgba(107,79,200,0.1); border-radius: 16px; }
+.learning-mission-card { background: linear-gradient(145deg, #f0fdf4, #dcfce7); border: 2px solid rgba(26,158,110,0.1); border-radius: 16px; }
+.learning-review-card { background: linear-gradient(145deg, #fffbeb, #fef3c7); border: 2px solid rgba(245,158,11,0.1); border-radius: 16px; }
+.history-timeline article { background: linear-gradient(145deg, #fff5f7, #fce7f3); border: none; border-radius: 14px; padding: 1rem 1.2rem; }
