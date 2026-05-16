@@ -534,7 +534,11 @@ const currentLocalOrigin =
     : "";
 const STOCKPILOT_API_CANDIDATES = ["https://stockpilot-production-c94f.up.railway.app"];
 const STOCKPILOT_SAME_ORIGIN = Boolean(
-  typeof window !== "undefined" && (/^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(window.location.origin) || window.location.hostname === "mystockspilot.com")
+  typeof window !== "undefined" && (
+    /^https?:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/i.test(window.location.origin) ||
+    window.location.hostname === "mystockspilot.com" ||
+    window.location.hostname === "stockpilot-production-c94f.up.railway.app"
+  )
 );
 let stockPilotApiOnline = false;
 let stockPilotProviderStatus = null;
