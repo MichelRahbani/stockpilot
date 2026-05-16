@@ -27,6 +27,42 @@ const supabaseSignOut = async (token) => {
     headers: { "apikey": SUPABASE_ANON_KEY, "Authorization": "Bearer " + token }
   });
 };
+
+const pushAppStateToCloud = async (token, userId) => {
+  try {
+    const state = localStorage.getItem("stockPilot.appState");
+    if (!state) return;
+    await fetch(SUPABASE_URL + "/rest/v1/user_data", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + token,
+        "Prefer": "resolution=merge-duplicates"
+      },
+      body: JSON.stringify({ user_id: userId, app_state: JSON.parse(state), updated_at: new Date().toISOString() })
+    });
+  } catch(e) {}
+};
+
+const pullAppStateFromCloud = async (token) => {
+  try {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/user_data?select=app_state", {
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + token
+      }
+    });
+    if (!res.ok) return false;
+    const rows = await res.json();
+    if (rows && rows.length && rows[0].app_state) {
+      localStorage.setItem("stockPilot.appState", JSON.stringify(rows[0].app_state));
+      return true;
+    }
+  } catch(e) {}
+  return false;
+};
+
 const form = document.querySelector("#ratioForm");
 const ratioGrid = document.querySelector("#ratioGrid");
 const decisionNotes = document.querySelector("#decisionNotes");
@@ -4053,7 +4089,14 @@ const saveAppState = () => {
     savedAt: new Date().toISOString()
   };
   localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
-  updateSaveStatus("Saved locally");
+  const _token = localStorage.getItem("supabase_token");
+  const _uid = activeAccount && activeAccount.id;
+  if (_token && _uid) {
+    pushAppStateToCloud(_token, _uid);
+    updateSaveStatus("Saved to cloud");
+  } else {
+    updateSaveStatus("Saved locally");
+  }
 };
 
 const scheduleSaveAppState = () => {
@@ -10916,6 +10959,8 @@ const restoreSupabaseSession = async () => {
     if (res.ok) {
       const user = await res.json();
       activeAccount = { id: user.id, name: name || email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
+      const pulled = await pullAppStateFromCloud(token);
+      if (pulled) { try { restoreAppState(); } catch(e) {} }
       try { renderAccountStatus(); } catch(e) {}
       try { renderSettings(); } catch(e) {}
     } else {
