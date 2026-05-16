@@ -7278,17 +7278,22 @@ table[aria-label="Insurance input table"] select {
     grid-template-columns: 1fr;
   }
 
-  .section-title,
-  .button-row,
-  .builder-action-bar,
-  .portfolio-action-bar {
+  .section-title {
     align-items: stretch;
     flex-direction: column;
   }
+  .button-row,
+  .builder-action-bar,
+  .portfolio-action-bar {
+    flex-wrap: wrap;
+    flex-direction: row;
+  }
 
   .small-button,
-  .primary-button,
   .ghost-button {
+    width: auto;
+  }
+  .primary-button {
     width: 100%;
   }
 
