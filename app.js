@@ -10960,7 +10960,7 @@ const restoreSupabaseSession = async () => {
       const user = await res.json();
       activeAccount = { id: user.id, name: name || email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
       const pulled = await pullAppStateFromCloud(token);
-      if (pulled) { try { restoreAppState(); } catch(e) {} }
+      if (pulled && !sessionStorage.getItem("cloudRestored")) { sessionStorage.setItem("cloudRestored", "1"); window.location.reload(); return; }
       try { renderAccountStatus(); } catch(e) {}
       try { renderSettings(); } catch(e) {}
     } else {
