@@ -2707,7 +2707,6 @@ const renderApiStatusPanel = () => {
           <article class="api-status-card ${item.tone}">
             <span>${escapeHtml(item.title)}</span>
             <strong>${escapeHtml(item.value)}</strong>
-            <p>${escapeHtml(item.detail)}</p>
           </article>
         `
       )
