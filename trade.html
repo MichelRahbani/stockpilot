@@ -367,7 +367,8 @@ function showNavUser(name){
 }
 async function savePortfolioToCloud(){
   const t=getToken();if(!t)return;
-  try{await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{method:'POST',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({user_id:(JSON.parse(atob(t.split('.')[1])).sub),portfolio:port})});}catch(e){}
+  const uid=(JSON.parse(atob(t.split('.')[1])).sub);
+  try{await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?user_id=eq.'+uid,{method:'PATCH',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({portfolio:port,updated_at:new Date().toISOString()})});}catch(e){}
 }
 async function loadPortfolioFromCloud(){
   const t=getToken();if(!t)return false;
