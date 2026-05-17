@@ -361,7 +361,7 @@ function signOutTrade(){
 function showNavUser(name){
   document.getElementById('signInNavBtn').style.display='none';
   document.getElementById('navUserBadge').style.display='flex';
-  document.getElementById('navUserName').textContent=name;
+  document.getElementById('navUserName').textContent='Hello, '+name+' 👋';
 }
 async function savePortfolioToCloud(){
   const t=getToken();if(!t)return;
