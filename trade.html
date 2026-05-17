@@ -341,7 +341,11 @@ function load(){
   try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.cash!==undefined)return s; }catch(e){}
   return {cash:START,pos:{},trades:[]};
 }
-function save(){ port.savedAt = new Date().toISOString(); localStorage.setItem(KEY,JSON.stringify(port)); if(typeof savePortfolioToCloud==="function") savePortfolioToCloud(); }
+function save(){
+  port.savedAt = new Date().toISOString();
+  try { localStorage.setItem(KEY,JSON.stringify(port)); } catch(e) {}
+  if(typeof savePortfolioToCloud==="function") savePortfolioToCloud();
+}
 
 const SUPA_URL2='https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPA_KEY2='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
@@ -379,6 +383,13 @@ async function loadPortfolioFromCloud(){
   return false;
 }
 (async function(){
+  const token = localStorage.getItem('supabase_token');
+  if(!token) {
+    // Not signed in - show sign in modal immediately
+    setTimeout(function(){ openSignin(); }, 800);
+    renderPort(); renderTrades(); updatePortStats();
+    return;
+  }
   const loaded=await loadPortfolioFromCloud();
   if(loaded){
     renderPort();renderTrades();updatePortStats();
