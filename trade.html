@@ -336,95 +336,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div><!-- end grid -->
 </div>
 
-<script>
-const SUPA_LB = 'https://xkfxofcmrmpazfjviatq.supabase.co';
-const SUPA_LB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
-let lbFilter = 'all';
 
-function setLbFilter(f){
-  lbFilter = f;
-  ['week','month','all'].forEach(x=>{
-    const btn = document.getElementById('lb'+x.charAt(0).toUpperCase()+x.slice(1));
-    btn.style.background = x===f ? 'var(--red)' : 'transparent';
-    btn.style.color = x===f ? 'white' : 'var(--dim)';
-  });
-  loadLeaderboard();
-}
-
-async function loadLeaderboard(){
-  const el = document.getElementById('lbRows');
-  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">Loading...</div>';
-  try {
-    let url = SUPA_LB + '/rest/v1/leaderboard?select=nickname,return_pct,current_value,updated_at&order=return_pct.desc&limit=20';
-    if(lbFilter === 'week') {
-      const d = new Date(); d.setDate(d.getDate()-7);
-      url += '&updated_at=gte.' + d.toISOString();
-    } else if(lbFilter === 'month') {
-      const d = new Date(); d.setMonth(d.getMonth()-1);
-      url += '&updated_at=gte.' + d.toISOString();
-    }
-    const r = await fetch(url, {headers:{'apikey':SUPA_LB_KEY}});
-    const rows = await r.json();
-    if(!rows || !rows.length){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first! 🚀</div>'; return; }
-    const medals = ['🥇','🥈','🥉'];
-    el.innerHTML = rows.map((row,i)=>`
-      <div style="display:grid;grid-template-columns:50px 1fr 120px 120px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center">
-        <div style="font-size:${i<3?'20px':'14px'};font-weight:700;color:var(--dim)">${medals[i]||('#'+(i+1))}</div>
-        <div style="font-weight:600;color:var(--text);font-size:14px">${row.nickname}</div>
-        <div style="text-align:right;font-weight:700;color:${row.return_pct>=0?'#2ecc9a':'var(--red)'};font-size:14px">${row.return_pct>=0?'+':''}${Number(row.return_pct).toFixed(2)}%</div>
-        <div style="text-align:right;color:var(--dim);font-size:13px">$${Number(row.current_value).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
-      </div>
-    `).join('');
-  } catch(e){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first to join! 🚀</div>'; console.log('LB error:',e); }
-}
-
-async function joinLeaderboard(){
-  const t = getToken(); if(!t){ alert('Sign in first!'); return; }
-  const nickname = document.getElementById('lbNickname').value.trim();
-  if(!nickname){ document.getElementById('lbJoinMsg').textContent='Enter a nickname first!'; return; }
-  const uid = JSON.parse(atob(t.split('.')[1])).sub;
-  const returnPct = ((getTotalValue() - 100000) / 100000) * 100;
-  try {
-    const check = await fetch(SUPA_LB+'/rest/v1/leaderboard?user_id=eq.'+uid+'&select=id&limit=1',{headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t}});
-    const existing = await check.json();
-    if(existing && existing.length > 0){
-      await fetch(SUPA_LB+'/rest/v1/leaderboard?user_id=eq.'+uid,{method:'PATCH',headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({nickname,return_pct:returnPct,current_value:getTotalValue(),updated_at:new Date().toISOString()})});
-    } else {
-      await fetch(SUPA_LB+'/rest/v1/leaderboard',{method:'POST',headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({user_id:uid,nickname,return_pct:returnPct,current_value:getTotalValue(),updated_at:new Date().toISOString()})});
-    }
-    document.getElementById('lbJoinMsg').textContent = '✅ You're on the leaderboard as "'+nickname+'"!';
-    loadLeaderboard();
-  } catch(e){ document.getElementById('lbJoinMsg').textContent='Could not join. Try again.'; }
-}
-
-function getTotalValue(){
-  let val = port.cash;
-  Object.values(port.pos||{}).forEach(p=>{ val += (p.qty||0)*(p.avg||0); });
-  return val;
-}
-
-function copyInviteLink(){
-  const link = 'https://mystockspilot.com/trade?invite=1';
-  navigator.clipboard.writeText(link).then(()=>{
-    const btn = document.getElementById('inviteBtn');
-    btn.textContent = 'Copied! ✅';
-    setTimeout(()=>btn.textContent='Copy Invite Link 🔗',2000);
-  });
-}
-
-function showLbJoinCard(){
-  const t = getToken() || localStorage.getItem("supabase_token");
-  if(t){
-    document.getElementById("lbJoinCard").style.display="block";
-    document.getElementById("lbSignInPrompt").style.display="none";
-  } else {
-    document.getElementById("lbJoinCard").style.display="none";
-    document.getElementById("lbSignInPrompt").style.display="block";
-  }
-}
-
-setTimeout(()=>{ loadLeaderboard(); showLbJoinCard(); }, 500);
-</script>
 
 <script>
 const API = window.location.origin;
@@ -922,7 +834,97 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   } catch(e) {}
 })();
-</script></body>
+</script>
+<script>
+const SUPA_LB = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_LB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+let lbFilter = 'all';
+
+function setLbFilter(f){
+  lbFilter = f;
+  ['week','month','all'].forEach(x=>{
+    const btn = document.getElementById('lb'+x.charAt(0).toUpperCase()+x.slice(1));
+    btn.style.background = x===f ? 'var(--red)' : 'transparent';
+    btn.style.color = x===f ? 'white' : 'var(--dim)';
+  });
+  loadLeaderboard();
+}
+
+async function loadLeaderboard(){
+  const el = document.getElementById('lbRows');
+  el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">Loading...</div>';
+  try {
+    let url = SUPA_LB + '/rest/v1/leaderboard?select=nickname,return_pct,current_value,updated_at&order=return_pct.desc&limit=20';
+    if(lbFilter === 'week') {
+      const d = new Date(); d.setDate(d.getDate()-7);
+      url += '&updated_at=gte.' + d.toISOString();
+    } else if(lbFilter === 'month') {
+      const d = new Date(); d.setMonth(d.getMonth()-1);
+      url += '&updated_at=gte.' + d.toISOString();
+    }
+    const r = await fetch(url, {headers:{'apikey':SUPA_LB_KEY}});
+    const rows = await r.json();
+    if(!rows || !rows.length){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first! 🚀</div>'; return; }
+    const medals = ['🥇','🥈','🥉'];
+    el.innerHTML = rows.map((row,i)=>`
+      <div style="display:grid;grid-template-columns:50px 1fr 120px 120px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center">
+        <div style="font-size:${i<3?'20px':'14px'};font-weight:700;color:var(--dim)">${medals[i]||('#'+(i+1))}</div>
+        <div style="font-weight:600;color:var(--text);font-size:14px">${row.nickname}</div>
+        <div style="text-align:right;font-weight:700;color:${row.return_pct>=0?'#2ecc9a':'var(--red)'};font-size:14px">${row.return_pct>=0?'+':''}${Number(row.return_pct).toFixed(2)}%</div>
+        <div style="text-align:right;color:var(--dim);font-size:13px">$${Number(row.current_value).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+      </div>
+    `).join('');
+  } catch(e){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first to join! 🚀</div>'; console.log('LB error:',e); }
+}
+
+async function joinLeaderboard(){
+  const t = getToken(); if(!t){ alert('Sign in first!'); return; }
+  const nickname = document.getElementById('lbNickname').value.trim();
+  if(!nickname){ document.getElementById('lbJoinMsg').textContent='Enter a nickname first!'; return; }
+  const uid = JSON.parse(atob(t.split('.')[1])).sub;
+  const returnPct = ((getTotalValue() - 100000) / 100000) * 100;
+  try {
+    const check = await fetch(SUPA_LB+'/rest/v1/leaderboard?user_id=eq.'+uid+'&select=id&limit=1',{headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t}});
+    const existing = await check.json();
+    if(existing && existing.length > 0){
+      await fetch(SUPA_LB+'/rest/v1/leaderboard?user_id=eq.'+uid,{method:'PATCH',headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({nickname,return_pct:returnPct,current_value:getTotalValue(),updated_at:new Date().toISOString()})});
+    } else {
+      await fetch(SUPA_LB+'/rest/v1/leaderboard',{method:'POST',headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({user_id:uid,nickname,return_pct:returnPct,current_value:getTotalValue(),updated_at:new Date().toISOString()})});
+    }
+    document.getElementById('lbJoinMsg').textContent = '✅ You're on the leaderboard as "'+nickname+'"!';
+    loadLeaderboard();
+  } catch(e){ document.getElementById('lbJoinMsg').textContent='Could not join. Try again.'; }
+}
+
+function getTotalValue(){
+  let val = port.cash;
+  Object.values(port.pos||{}).forEach(p=>{ val += (p.qty||0)*(p.avg||0); });
+  return val;
+}
+
+function copyInviteLink(){
+  const link = 'https://mystockspilot.com/trade?invite=1';
+  navigator.clipboard.writeText(link).then(()=>{
+    const btn = document.getElementById('inviteBtn');
+    btn.textContent = 'Copied! ✅';
+    setTimeout(()=>btn.textContent='Copy Invite Link 🔗',2000);
+  });
+}
+
+function showLbJoinCard(){
+  const t = getToken() || localStorage.getItem("supabase_token");
+  if(t){
+    document.getElementById("lbJoinCard").style.display="block";
+    document.getElementById("lbSignInPrompt").style.display="none";
+  } else {
+    document.getElementById("lbJoinCard").style.display="none";
+    document.getElementById("lbSignInPrompt").style.display="block";
+  }
+}
+
+setTimeout(()=>{ loadLeaderboard(); showLbJoinCard(); }, 500);
+</script>
+</body>
 </html><script>
 async function generateBrief(){
   const btn=document.getElementById('generateBriefBtn');
