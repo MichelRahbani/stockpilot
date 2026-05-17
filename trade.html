@@ -279,65 +279,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 <div class="toast" id="toast"></div>
 
-<!-- LEADERBOARD SECTION -->
-<div style="max-width:900px;margin:40px auto;padding:0 20px">
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-    <div>
-      <h2 style="font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:var(--text);margin:0">🏆 Leaderboard</h2>
-      <p style="color:var(--dim);font-size:13px;margin:4px 0 0">Top virtual traders by portfolio return</p>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button onclick="setLbFilter('week')" id="lbWeek" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">This Week</button>
-      <button onclick="setLbFilter('month')" id="lbMonth" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">This Month</button>
-      <button onclick="setLbFilter('all')" id="lbAll" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--red);color:white;font-size:12px;font-weight:600;cursor:pointer">All Time</button>
-    </div>
-  </div>
-
-  <!-- Leaderboard layout: table + join card side by side -->
-  <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start">
-
-  <!-- Leaderboard table -->
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden">
-    <div style="display:grid;grid-template-columns:50px 1fr 120px 120px;padding:12px 20px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.05em">
-      <div>Rank</div><div>Trader</div><div style="text-align:right">Return</div><div style="text-align:right">Value</div>
-    </div>
-    <div id="lbRows"><div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">Loading leaderboard...</div></div>
-  </div>
-
-  <!-- Right side: join card + invite -->
-  <div style="display:flex;flex-direction:column;gap:16px">
-
-    <!-- Signed in: join card -->
-    <div id="lbJoinCard" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
-      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">📣 Join the Leaderboard</div>
-      <div style="font-size:12px;color:var(--dim);margin-bottom:14px">Pick a nickname and compete with other traders!</div>
-      <input id="lbNickname" placeholder="Your nickname..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px;box-sizing:border-box"/>
-      <button onclick="joinLeaderboard()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">Join 🚀</button>
-      <div id="lbJoinMsg" style="font-size:12px;color:var(--dim);margin-top:8px"></div>
-    </div>
-
-    <!-- Signed out: sign in prompt -->
-    <div id="lbSignInPrompt" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center">
-      <div style="font-size:28px;margin-bottom:8px">🏆</div>
-      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Want to compete?</div>
-      <div style="font-size:12px;color:var(--dim);margin-bottom:16px">Sign in to join the leaderboard and track your rank!</div>
-      <button onclick="openSignin()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">Sign In</button>
-      <a href="/app" style="display:block;text-align:center;font-size:12px;color:var(--dim);text-decoration:none">No account? Create one →</a>
-    </div>
-
-    <!-- Invite card -->
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
-      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">📨 Invite Friends</div>
-      <div style="font-size:12px;color:var(--dim);margin-bottom:14px">Challenge them to beat your return!</div>
-      <button onclick="copyInviteLink()" style="width:100%;padding:10px;border-radius:8px;background:transparent;color:var(--red);border:1px solid var(--red);font-size:13px;font-weight:700;cursor:pointer" id="inviteBtn">Copy Invite Link 🔗</button>
-    </div>
-
-  </div>
-  </div><!-- end grid -->
-</div>
-
-
-
 <script>
 const API = window.location.origin;
 const KEY = 'sp_trade_v2';
@@ -835,93 +776,134 @@ document.addEventListener("DOMContentLoaded", function() {
   } catch(e) {}
 })();
 </script>
-<script>
-const SUPA_LB = window.SUPA_URL2 || 'https://xkfxofcmrmpazfjviatq.supabase.co';
-const SUPA_LB_KEY = window.SUPA_KEY2 || window.SUPA_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
-let lbFilter = 'all';
+<!-- LEADERBOARD SECTION -->
+<div style="max-width:900px;margin:40px auto;padding:0 20px 60px">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+    <div>
+      <h2 style="font-family:Fraunces,serif;font-size:28px;font-weight:700;color:var(--text);margin:0">🏆 Leaderboard</h2>
+      <p style="color:var(--dim);font-size:13px;margin:4px 0 0">Top virtual traders by portfolio return</p>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button id="lbWeek" onclick="setLbFilter(this,'week')" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">This Week</button>
+      <button id="lbMonth" onclick="setLbFilter(this,'month')" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">This Month</button>
+      <button id="lbAll" onclick="setLbFilter(this,'all')" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--red);color:white;font-size:12px;font-weight:600;cursor:pointer">All Time</button>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:50px 1fr 100px 100px;padding:12px 20px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.05em">
+        <div>Rank</div><div>Trader</div><div style="text-align:right">Return</div><div style="text-align:right">Value</div>
+      </div>
+      <div id="lbRows"><div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">Loading...</div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div id="lbJoinCard" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">📣 Join</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:12px">Pick a nickname and compete!</div>
+        <input id="lbNickname" placeholder="Your nickname..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px;box-sizing:border-box"/>
+        <button onclick="joinLeaderboard()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">Join 🚀</button>
+        <div id="lbJoinMsg" style="font-size:12px;color:var(--dim);margin-top:8px"></div>
+      </div>
+      <div id="lbSignInPrompt" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">🏆</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Want to compete?</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:16px">Sign in to join the leaderboard!</div>
+        <button onclick="openSignin()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">Sign In</button>
+        <a href="/app" style="display:block;font-size:12px;color:var(--dim);text-decoration:none">No account? Create one →</a>
+      </div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">📨 Invite Friends</div>
+        <div style="font-size:12px;color:var(--dim);margin-bottom:12px">Challenge them to beat you!</div>
+        <button id="inviteBtn" onclick="copyInviteLink()" style="width:100%;padding:10px;border-radius:8px;background:transparent;color:var(--red);border:1px solid var(--red);font-size:13px;font-weight:700;cursor:pointer">Copy Invite Link 🔗</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-function setLbFilter(f){
+<script>
+var lbFilter = 'all';
+function setLbFilter(btn, f){
   lbFilter = f;
-  ['week','month','all'].forEach(x=>{
-    const btn = document.getElementById('lb'+x.charAt(0).toUpperCase()+x.slice(1));
-    btn.style.background = x===f ? 'var(--red)' : 'transparent';
-    btn.style.color = x===f ? 'white' : 'var(--dim)';
+  ['lbWeek','lbMonth','lbAll'].forEach(function(id){
+    var b = document.getElementById(id);
+    b.style.background = 'transparent';
+    b.style.color = 'var(--dim)';
   });
+  btn.style.background = 'var(--red)';
+  btn.style.color = 'white';
   loadLeaderboard();
 }
-
-async function loadLeaderboard(){
-  const el = document.getElementById('lbRows');
+function loadLeaderboard(){
+  var el = document.getElementById('lbRows');
   el.innerHTML = '<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">Loading...</div>';
-  try {
-    let url = SUPA_LB + '/rest/v1/leaderboard?select=nickname,return_pct,current_value,updated_at&order=return_pct.desc&limit=20';
-    if(lbFilter === 'week') {
-      const d = new Date(); d.setDate(d.getDate()-7);
-      url += '&updated_at=gte.' + d.toISOString();
-    } else if(lbFilter === 'month') {
-      const d = new Date(); d.setMonth(d.getMonth()-1);
-      url += '&updated_at=gte.' + d.toISOString();
-    }
-    const r = await fetch(url, {headers:{'apikey':SUPA_LB_KEY}});
-    const rows = await r.json();
-    if(!rows || !rows.length){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first! 🚀</div>'; return; }
-    const medals = ['🥇','🥈','🥉'];
-    el.innerHTML = rows.map((row,i)=>`
-      <div style="display:grid;grid-template-columns:50px 1fr 120px 120px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center">
-        <div style="font-size:${i<3?'20px':'14px'};font-weight:700;color:var(--dim)">${medals[i]||('#'+(i+1))}</div>
-        <div style="font-weight:600;color:var(--text);font-size:14px">${row.nickname}</div>
-        <div style="text-align:right;font-weight:700;color:${row.return_pct>=0?'#2ecc9a':'var(--red)'};font-size:14px">${row.return_pct>=0?'+':''}${Number(row.return_pct).toFixed(2)}%</div>
-        <div style="text-align:right;color:var(--dim);font-size:13px">$${Number(row.current_value).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
-      </div>
-    `).join('');
-  } catch(e){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first to join! 🚀</div>'; console.log('LB error:',e); }
+  var url = 'https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard?select=nickname,return_pct,current_value&order=return_pct.desc&limit=20';
+  if(lbFilter === 'week'){ var d=new Date(); d.setDate(d.getDate()-7); url+='&updated_at=gte.'+d.toISOString(); }
+  else if(lbFilter === 'month'){ var d=new Date(); d.setMonth(d.getMonth()-1); url+='&updated_at=gte.'+d.toISOString(); }
+  fetch(url, {headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q'}})
+  .then(function(r){ return r.json(); })
+  .then(function(rows){
+    if(!rows||!rows.length){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first! 🚀</div>'; return; }
+    var medals=['🥇','🥈','🥉'];
+    el.innerHTML=rows.map(function(row,i){
+      var col=row.return_pct>=0?'#2ecc9a':'#dc2626';
+      var sign=row.return_pct>=0?'+':'';
+      return '<div style="display:grid;grid-template-columns:50px 1fr 100px 100px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center"><div style="font-size:'+(i<3?'20px':'14px')+';font-weight:700">'+(medals[i]||('#'+(i+1)))+'</div><div style="font-weight:600;color:var(--text);font-size:14px">'+row.nickname+'</div><div style="text-align:right;font-weight:700;color:'+col+';font-size:14px">'+sign+Number(row.return_pct).toFixed(2)+'%</div><div style="text-align:right;color:var(--dim);font-size:13px">$'+Number(row.current_value).toLocaleString()+'</div></div>';
+    }).join('');
+  })
+  .catch(function(){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first! 🚀</div>'; });
 }
-
-async function joinLeaderboard(){
-  const t = getToken(); if(!t){ alert('Sign in first!'); return; }
-  const nickname = document.getElementById('lbNickname').value.trim();
+function joinLeaderboard(){
+  var t=localStorage.getItem('supabase_token');
+  if(!t){ alert('Sign in first!'); return; }
+  var nickname=document.getElementById('lbNickname').value.trim();
   if(!nickname){ document.getElementById('lbJoinMsg').textContent='Enter a nickname first!'; return; }
-  const uid = JSON.parse(atob(t.split('.')[1])).sub;
-  const returnPct = ((getTotalValue() - 100000) / 100000) * 100;
-  try {
-    const check = await fetch(SUPA_LB+'/rest/v1/leaderboard?user_id=eq.'+uid+'&select=id&limit=1',{headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t}});
-    const existing = await check.json();
-    if(existing && existing.length > 0){
-      await fetch(SUPA_LB+'/rest/v1/leaderboard?user_id=eq.'+uid,{method:'PATCH',headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({nickname,return_pct:returnPct,current_value:getTotalValue(),updated_at:new Date().toISOString()})});
-    } else {
-      await fetch(SUPA_LB+'/rest/v1/leaderboard',{method:'POST',headers:{'apikey':SUPA_LB_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({user_id:uid,nickname,return_pct:returnPct,current_value:getTotalValue(),updated_at:new Date().toISOString()})});
-    }
-    document.getElementById('lbJoinMsg').textContent = '✅ You're on the leaderboard as "'+nickname+'"!';
-    loadLeaderboard();
-  } catch(e){ document.getElementById('lbJoinMsg').textContent='Could not join. Try again.'; }
+  var uid=JSON.parse(atob(t.split('.')[1])).sub;
+  var cash=0; try{ var p=JSON.parse(localStorage.getItem('vport')||'{}'); cash=p.cash||100000; }catch(e){}
+  var val=cash; try{ var pos=JSON.parse(localStorage.getItem('vport')||'{}').pos||{}; Object.values(pos).forEach(function(p){ val+=p.qty*p.avg; }); }catch(e){}
+  var ret=((val-100000)/100000)*100;
+  fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard?user_id=eq.'+uid,{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q','Authorization':'Bearer '+t}})
+  .then(function(r){ return r.json(); })
+  .then(function(rows){
+    var method=rows&&rows.length>0?'PATCH':'POST';
+    var url='https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard'+(method==='PATCH'?'?user_id=eq.'+uid:'');
+    var body=method==='PATCH'?{nickname:nickname,return_pct:ret,current_value:val,updated_at:new Date().toISOString()}:{user_id:uid,nickname:nickname,return_pct:ret,current_value:val,updated_at:new Date().toISOString()};
+    return fetch(url,{method:method,headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q','Authorization':'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body)});
+  })
+  .then(function(){ document.getElementById('lbJoinMsg').textContent='You are on the leaderboard as "'+nickname+'"! 🎉'; loadLeaderboard(); })
+  .catch(function(){ document.getElementById('lbJoinMsg').textContent='Could not join. Try again.'; });
 }
-
-function getTotalValue(){
-  let val = port.cash;
-  Object.values(port.pos||{}).forEach(p=>{ val += (p.qty||0)*(p.avg||0); });
-  return val;
-}
-
 function copyInviteLink(){
-  const link = 'https://mystockspilot.com/trade?invite=1';
-  navigator.clipboard.writeText(link).then(()=>{
-    const btn = document.getElementById('inviteBtn');
-    btn.textContent = 'Copied! ✅';
-    setTimeout(()=>btn.textContent='Copy Invite Link 🔗',2000);
+  navigator.clipboard.writeText('https://mystockspilot.com/trade').then(function(){
+    var btn=document.getElementById('inviteBtn');
+    btn.textContent='Copied! ✅';
+    setTimeout(function(){ btn.textContent='Copy Invite Link 🔗'; },2000);
   });
 }
-
-function showLbJoinCard(){
-  const t = getToken() || localStorage.getItem("supabase_token");
-  if(t){
-    document.getElementById("lbJoinCard").style.display="block";
-    document.getElementById("lbSignInPrompt").style.display="none";
-  } else {
-    document.getElementById("lbJoinCard").style.display="none";
-    document.getElementById("lbSignInPrompt").style.display="block";
+function showLbState(){
+  var t=localStorage.getItem('supabase_token');
+  document.getElementById('lbJoinCard').style.display=t?'block':'none';
+  document.getElementById('lbSignInPrompt').style.display=t?'none':'block';
+}
+setTimeout(function(){ loadLeaderboard(); showLbState(); },800);
+</script>
+</body>
+</html><script>
+async function generateBrief(){
+  const btn=document.getElementById('generateBriefBtn');
+  const content=document.getElementById('briefContent');
+  if(!btn||!content)return;
+  btn.textContent='Loading...';btn.disabled=true;
+  content.innerHTML='<span style="color:rgba(255,255,255,0.3)">Fetching live market data...</span>';
+  try{
+    const r=await fetch('/api/market-brief');
+    const data=await r.json();
+    content.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">'+data.date+' &middot; '+data.sentiment.toUpperCase()+'</div>'+
+    data.sections.map(s=>'<p style="margin-bottom:10px;color:rgba(255,255,255,0.7);line-height:1.65">'+s.replace(/\*\*(.*?)\*\*/g,'<strong style="color:white">$1</strong>').replace(/_(.*?)_/g,'<em style="color:rgba(255,255,255,0.3);font-style:italic">$1</em>')+'</p>').join('');
+    btn.textContent='Refresh';btn.disabled=false;
+  }catch(e){
+    content.innerHTML='<span style="color:rgba(255,255,255,0.3)">Could not load. Try again.</span>';
+    btn.textContent='Generate';btn.disabled=false;
   }
 }
-
-setTimeout(()=>{ loadLeaderboard(); showLbJoinCard(); }, 500);
+document.getElementById('generateBriefBtn').addEventListener('click',generateBrief);
 </script>
-
