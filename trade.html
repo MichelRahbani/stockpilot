@@ -356,7 +356,7 @@ async function loadLeaderboard(){
       <div style="display:grid;grid-template-columns:50px 1fr 120px 120px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center">
         <div style="font-size:${i<3?'20px':'14px'};font-weight:700;color:var(--dim)">${medals[i]||('#'+(i+1))}</div>
         <div style="font-weight:600;color:var(--text);font-size:14px">${row.nickname}</div>
-        <div style="text-align:right;font-weight:700;color:${row.return_pct>=0?'#2ecc9a':'var(--red)');font-size:14px">${row.return_pct>=0?'+':''}${Number(row.return_pct).toFixed(2)}%</div>
+        <div style="text-align:right;font-weight:700;color:${row.return_pct>=0?'#2ecc9a':'var(--red)'};font-size:14px">${row.return_pct>=0?'+':''}${Number(row.return_pct).toFixed(2)}%</div>
         <div style="text-align:right;color:var(--dim);font-size:13px">$${Number(row.current_value).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
       </div>
     `).join('');
