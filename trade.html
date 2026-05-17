@@ -352,6 +352,10 @@ function signOutTrade(){
   localStorage.removeItem('supabase_email');
   localStorage.removeItem('supabase_name');
   localStorage.removeItem('sp_active_account');
+  port = {cash:START,pos:{},trades:[]};
+  renderPort();
+  renderTrades();
+  updatePortStats();
   document.getElementById('navUserBadge').style.display='none';
   document.getElementById('signInNavBtn').style.display='';
   showToast('Signed out','ok');

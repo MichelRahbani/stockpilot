@@ -2893,6 +2893,9 @@ const signOutLocalAccount = () => {
   localStorage.removeItem("sp_active_account");
   localStorage.removeItem("supabase_token");
   localStorage.removeItem("supabase_email");
+  localStorage.removeItem(VIRTUAL_MARKET_KEY);
+  virtualMarket = { cash: VIRTUAL_MARKET_STARTING_CASH, positions: {}, trades: [], watchlist: ["AAPL","MSFT","NVDA","TSLA"], prices: {}, performanceHistory: [], peakEquity: VIRTUAL_MARKET_STARTING_CASH, lastEquity: VIRTUAL_MARKET_STARTING_CASH, lastAlertKey: "", autoRefresh: false };
+  try { renderVirtualMarket(); } catch(e) {}
   renderAccountStatus();
   renderSettings();
   setAccountMessage("Signed out. Your local app data is still saved in this browser.", "neutral");
@@ -10967,6 +10970,9 @@ const restoreSupabaseSession = async () => {
     } else {
       localStorage.removeItem("supabase_token");
       localStorage.removeItem("supabase_email");
+  localStorage.removeItem(VIRTUAL_MARKET_KEY);
+  virtualMarket = { cash: VIRTUAL_MARKET_STARTING_CASH, positions: {}, trades: [], watchlist: ["AAPL","MSFT","NVDA","TSLA"], prices: {}, performanceHistory: [], peakEquity: VIRTUAL_MARKET_STARTING_CASH, lastEquity: VIRTUAL_MARKET_STARTING_CASH, lastAlertKey: "", autoRefresh: false };
+  try { renderVirtualMarket(); } catch(e) {}
       localStorage.removeItem("supabase_name");
     }
   } catch(e) {}
