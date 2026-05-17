@@ -366,7 +366,7 @@ function showNavUser(name){
 }
 async function savePortfolioToCloud(){
   const t=getToken();if(!t)return;
-  const uid=localStorage.getItem('supabase_uid');if(!uid)return;
+  const uid=localStorage.getItem('supabase_uid');if(!uid){toast("No UID - please sign out and back in","err");return;}
   try{
     const res=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{
       method:'POST',
