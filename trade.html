@@ -723,10 +723,26 @@ async function doSignin(){
     if(d.error){showSiMsg(d.error.message||'Sign in failed.',false);return;}
     localStorage.setItem('supabase_token',d.access_token);
     localStorage.setItem('supabase_email',email);
-    localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
-    showSiMsg('Signed in! Redirecting...', true);
-    const uname = localStorage.getItem('supabase_name') || email.split('@')[0];
-    setTimeout(()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);},1200);
+    showSiMsg('Signed in! Loading your portfolio...', true);
+    // Get real name from Supabase
+    try {
+      const userRes = await fetch(SUPA_URL+'/auth/v1/user',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+d.access_token}});
+      const userData = await userRes.json();
+      const realName = userData.user_metadata && userData.user_metadata.name ? userData.user_metadata.name : email.split('@')[0];
+      localStorage.setItem('supabase_name', realName);
+      // Load cloud portfolio
+      const cloudLoaded = await loadPortfolioFromCloud();
+      if(cloudLoaded){ renderPort(); renderTrades(); updatePortStats(); }
+      else { await savePortfolioToCloud(); } // upload local to cloud
+      const uname = realName;
+      closeSignin();
+      if(typeof showNavUser==='function') showNavUser(uname);
+    } catch(e) {
+      const uname = email.split('@')[0];
+      localStorage.setItem('supabase_name', uname);
+      closeSignin();
+      if(typeof showNavUser==='function') showNavUser(uname);
+    }
   }catch(e){showSiMsg('Error signing in. Try again.',false);}
 }
 async function doForgot(){
