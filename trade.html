@@ -370,7 +370,8 @@ async function savePortfolioToCloud(){
     const userRes=await fetch(SUPA_URL2+'/auth/v1/user',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
     const userData=await userRes.json();
     if(!userData.id)return;
-    await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{method:'POST',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},body:JSON.stringify({user_id:userData.id,portfolio:port,updated_at:new Date().toISOString()})});
+    const saveRes = await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{method:'POST',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'return=minimal,resolution=merge-duplicates','x-upsert':'true'},body:JSON.stringify({user_id:userData.id,portfolio:port,updated_at:new Date().toISOString()})});
+if(!saveRes.ok){const err=await saveRes.text();console.log('Save error:',err);}
   }catch(e){}
 }
 async function loadPortfolioFromCloud(){
