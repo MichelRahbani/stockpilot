@@ -765,9 +765,13 @@ async function doSignin(){
     const d=await r.json();
     if(d.error){showSiMsg(d.error.message||'Sign in failed.',false);return;}
     localStorage.setItem('supabase_token',d.access_token);
-    const uid2 = (d.user && d.user.id) ? d.user.id : (d.id || '');
-    localStorage.setItem('supabase_uid', uid2);
-    toast('UID: '+(uid2||'NOT FOUND'),'ok');
+    try {
+      const ures = await fetch(SUPA_URL+'/auth/v1/user',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+d.access_token}});
+      const udata = await ures.json();
+      const uid2 = udata.id || '';
+      localStorage.setItem('supabase_uid', uid2);
+      toast('UID: '+(uid2 ? uid2.slice(0,8) : 'NOT FOUND'),'ok');
+    } catch(ex) { toast('UID fetch error','err'); }
     localStorage.setItem('supabase_refresh_token', d.refresh_token || '');
     localStorage.setItem('supabase_email',email);
     showSiMsg('Signed in! Loading your portfolio...', true);
