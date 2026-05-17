@@ -360,7 +360,7 @@ async function loadLeaderboard(){
         <div style="text-align:right;color:var(--dim);font-size:13px">$${Number(row.current_value).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
       </div>
     `).join('');
-  } catch(e){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">Could not load leaderboard.</div>'; }
+  } catch(e){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first to join! 🚀</div>'; console.log('LB error:',e); }
 }
 
 async function joinLeaderboard(){
@@ -398,8 +398,9 @@ function copyInviteLink(){
 }
 
 function showLbJoinCard(){
-  const t = getToken();
+  const t = getToken() || localStorage.getItem("supabase_token");
   if(t) document.getElementById('lbJoinCard').style.display='block';
+  else document.getElementById('lbJoinCard').style.display='block';
 }
 
 setTimeout(()=>{ loadLeaderboard(); showLbJoinCard(); }, 500);
