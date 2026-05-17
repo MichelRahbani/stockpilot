@@ -726,7 +726,7 @@ async function doSignin(){
     localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
     showSiMsg('Signed in! Redirecting...', true);
     const uname = localStorage.getItem('supabase_name') || email.split('@')[0];
-    setTimeout(()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);},1200);
+    setTimeout(async()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);const loaded=await loadPortfolioFromCloud();if(loaded){renderPort();renderTrades();updatePortStats();}},1200);
   }catch(e){showSiMsg('Error signing in. Try again.',false);}
 }
 async function doForgot(){
