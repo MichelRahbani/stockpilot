@@ -341,7 +341,7 @@ function load(){
   try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.cash!==undefined)return s; }catch(e){}
   return {cash:START,pos:{},trades:[]};
 }
-function save(){ localStorage.setItem(KEY,JSON.stringify(port)); if(typeof savePortfolioToCloud==="function") savePortfolioToCloud(); }
+function save(){ port.savedAt = new Date().toISOString(); localStorage.setItem(KEY,JSON.stringify(port)); if(typeof savePortfolioToCloud==="function") savePortfolioToCloud(); }
 
 const SUPA_URL2='https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPA_KEY2='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
@@ -730,10 +730,24 @@ async function doSignin(){
       const userData = await userRes.json();
       const realName = userData.user_metadata && userData.user_metadata.name ? userData.user_metadata.name : email.split('@')[0];
       localStorage.setItem('supabase_name', realName);
-      // Load cloud portfolio
-      const cloudLoaded = await loadPortfolioFromCloud();
-      if(cloudLoaded){ renderPort(); renderTrades(); updatePortStats(); }
-      else { await savePortfolioToCloud(); } // upload local to cloud
+      // Compare local vs cloud timestamps, keep newer
+      const localSavedAt = port.savedAt ? new Date(port.savedAt) : new Date(0);
+      const cloudRes = await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?select=portfolio,updated_at&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+d.access_token}});
+      const cloudData = await cloudRes.json();
+      if(cloudData && cloudData[0] && cloudData[0].portfolio) {
+        const cloudSavedAt = new Date(cloudData[0].updated_at || 0);
+        if(cloudSavedAt > localSavedAt) {
+          port = cloudData[0].portfolio;
+          save();
+          renderPort(); renderTrades(); updatePortStats();
+          showSiMsg('Portfolio loaded from cloud.', true);
+        } else {
+          await savePortfolioToCloud();
+          showSiMsg('Local portfolio uploaded to cloud.', true);
+        }
+      } else {
+        await savePortfolioToCloud();
+      }
       const uname = realName;
       closeSignin();
       if(typeof showNavUser==='function') showNavUser(uname);
