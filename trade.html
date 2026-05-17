@@ -170,7 +170,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <div style="display:flex;gap:8px">
     <a href="/app" class="nav-btn">← Learning App</a>
     <div id="navAccountArea" style="display:flex;align-items:center;gap:8px">
-    <button id="navSignInBtn" onclick="openSignin()" class="nav-btn" style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);color:#2ecc9a;">Sign Up / Sign In</button>
+    
     <div id="navUserBadge" style="display:none;align-items:center;gap:8px">
       <div style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);border-radius:8px;padding:6px 12px;font-size:13px;color:#2ecc9a;font-family:DM Sans,sans-serif">
         <span id="navUserName"></span>
@@ -221,9 +221,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     <button id="generateBriefBtn" style="background:#dc2626;color:white;border:none;border-radius:8px;padding:7px 14px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;cursor:pointer">Generate →</button>
   </div>
   <div id="briefContent" style="padding:16px 20px;font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7">Click Generate to get today's live market analysis.</div>
-</div>
-<div id="saveBanner" style="display:none;background:rgba(245,158,11,0.12);border-bottom:1px solid rgba(245,158,11,0.2);padding:10px 20px;text-align:center;font-size:13px;color:#fbbf24;">
-  ⚠️ Your portfolio is saved locally. <strong style="cursor:pointer;text-decoration:underline" onclick="openSignin()">Sign in</strong> to save it permanently across devices.
 </div>
 <div class="layout">
   <!-- WATCHLIST -->
@@ -355,15 +352,13 @@ function signOutTrade(){
   localStorage.removeItem('supabase_name');
   localStorage.removeItem('sp_active_account');
   document.getElementById('navUserBadge').style.display='none';
-  var nb=document.getElementById('navSignInBtn');if(nb)nb.style.display='block';
   document.getElementById('signInNavBtn').style.display='';
   showToast('Signed out','ok');
 }
 function showNavUser(name){
   document.getElementById('signInNavBtn').style.display='none';
   document.getElementById('navUserBadge').style.display='flex';
-  var nb=document.getElementById('navSignInBtn');if(nb)nb.style.display='none';
-  document.getElementById('navUserName').textContent='Hello, '+name+' 👋';
+  document.getElementById('navUserName').textContent=name;
 }
 async function savePortfolioToCloud(){
   const t=getToken();if(!t)return;
@@ -383,12 +378,6 @@ async function loadPortfolioFromCloud(){
   }catch(e){}
   return false;
 }
-// Show save banner if not signed in
-(function() {
-  const t = localStorage.getItem('supabase_token');
-  if (!t) document.getElementById('saveBanner').style.display = 'block';
-})();
-
 (async function(){
   const loaded=await loadPortfolioFromCloud();
   if(loaded){
@@ -705,67 +694,21 @@ document.head.appendChild(st);
 <div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
   <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
     <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
-    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:16px">StockPilot Trade</div>
-    <div style="display:flex;gap:8px;margin-bottom:20px">
-      <button id="tabSignIn" onclick="switchAuthTab('in')" style="flex:1;padding:8px;border-radius:8px;border:1px solid #1a9e6e;background:#1a9e6e;color:white;font-size:13px;font-weight:600;cursor:pointer">Sign In</button>
-      <button id="tabSignUp" onclick="switchAuthTab('up')" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);font-size:13px;font-weight:600;cursor:pointer">Sign Up</button>
-    </div>
+    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:6px">Welcome back</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">Sign in to your StockPilot account</div>
     <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
     <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
     <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
-    <div id="signupNameRow" style="display:none">
-      <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Your Name</div>
-      <input id="siName" type="text" placeholder="Your name" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
-    </div>
-    <button id="authBtn" onclick="handleAuth()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
+    <button onclick="doSignin()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
+    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">Don't have an account? <a href="/app" style="color:#2ecc9a;text-decoration:none">Create one in the app</a></div>
     <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
   </div>
 </div>
 <script>
 const SUPA_URL="https://xkfxofcmrmpazfjviatq.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
-
-var authTab = 'in';
-function switchAuthTab(tab) {
-  authTab = tab;
-  document.getElementById('tabSignIn').style.background = tab === 'in' ? '#1a9e6e' : 'transparent';
-  document.getElementById('tabSignIn').style.borderColor = tab === 'in' ? '#1a9e6e' : 'rgba(255,255,255,0.15)';
-  document.getElementById('tabSignIn').style.color = tab === 'in' ? 'white' : 'rgba(255,255,255,0.5)';
-  document.getElementById('tabSignUp').style.background = tab === 'up' ? '#1a9e6e' : 'transparent';
-  document.getElementById('tabSignUp').style.borderColor = tab === 'up' ? '#1a9e6e' : 'rgba(255,255,255,0.15)';
-  document.getElementById('tabSignUp').style.color = tab === 'up' ? 'white' : 'rgba(255,255,255,0.5)';
-  document.getElementById('signupNameRow').style.display = tab === 'up' ? 'block' : 'none';
-  document.getElementById('authBtn').textContent = tab === 'up' ? 'Create Account' : 'Sign In';
-  document.getElementById('signinMsg').style.display = 'none';
-}
-
-async function handleAuth() {
-  if (authTab === 'in') { doSignin(); return; }
-  const email = document.getElementById('siEmail').value.trim();
-  const pass = document.getElementById('siPass').value;
-  const name = document.getElementById('siName').value.trim();
-  if (!email || !pass) { showSiMsg('Enter your email and password.', false); return; }
-  if (pass.length < 6) { showSiMsg('Password must be at least 6 characters.', false); return; }
-  showSiMsg('Creating account...', true);
-  try {
-    const r = await fetch(SUPA_URL + '/auth/v1/signup', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json', 'apikey': SUPA_KEY},
-      body: JSON.stringify({email, password: pass})
-    });
-    const d = await r.json();
-    if (d.error) { showSiMsg(d.error.message || 'Sign up failed.', false); return; }
-    localStorage.setItem('supabase_token', d.access_token);
-    localStorage.setItem('supabase_email', email);
-    localStorage.setItem('supabase_name', name || email.split('@')[0]);
-    showSiMsg('Account created! Welcome to StockPilot.', true);
-    const uname = name || email.split('@')[0];
-    setTimeout(() => { closeSignin(); if (typeof showNavUser === 'function') showNavUser(uname); document.getElementById('saveBanner').style.display = 'none'; }, 1200);
-  } catch(e) { showSiMsg('Error creating account. Try again.', false); }
-}
-
 function openSignin(){document.getElementById('signinModal').style.display='flex';}
 function closeSignin(){document.getElementById('signinModal').style.display='none';}
 function showSiMsg(msg,ok){const el=document.getElementById('signinMsg');el.textContent=msg;el.style.display='block';el.style.background=ok?'rgba(22,163,74,0.15)':'rgba(220,38,38,0.15)';el.style.color=ok?'#86efac':'#fca5a5';el.style.border='1px solid '+(ok?'rgba(22,163,74,0.3)':'rgba(220,38,38,0.3)');}
@@ -783,7 +726,7 @@ async function doSignin(){
     localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
     showSiMsg('Signed in! Redirecting...', true);
     const uname = localStorage.getItem('supabase_name') || email.split('@')[0];
-    setTimeout(()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);var b=document.getElementById('saveBanner');if(b)b.style.display='none';},1200);
+    setTimeout(()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);},1200);
   }catch(e){showSiMsg('Error signing in. Try again.',false);}
 }
 async function doForgot(){
@@ -801,8 +744,8 @@ document.addEventListener("DOMContentLoaded", function() {
   const _email = localStorage.getItem("supabase_email");
   const _name = localStorage.getItem("supabase_name") || localStorage.getItem("sp_active_account") && JSON.parse(localStorage.getItem("sp_active_account") || "{}").name || (_email ? _email.split("@")[0] : null);
   const _token = localStorage.getItem("supabase_token");
-  if (_token && _name && typeof showNavUser === "function") { showNavUser(_name); var b=document.getElementById('saveBanner');if(b)b.style.display='none'; var nb=document.getElementById('navSignInBtn');if(nb)nb.style.display='none'; }
-  else if (_token && _email && typeof showNavUser === "function") { showNavUser(_email.split("@")[0]); var b=document.getElementById('saveBanner');if(b)b.style.display='none'; var nb=document.getElementById('navSignInBtn');if(nb)nb.style.display='none'; }
+  if (_token && _name && typeof showNavUser === "function") showNavUser(_name);
+  else if (_token && _email && typeof showNavUser === "function") showNavUser(_email.split("@")[0]);
 });
 (async function(){
   const token = localStorage.getItem('supabase_token');
