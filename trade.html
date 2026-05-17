@@ -170,7 +170,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <div style="display:flex;gap:8px">
     <a href="/app" class="nav-btn">← Learning App</a>
     <div id="navAccountArea" style="display:flex;align-items:center;gap:8px">
-    
+    <button id="navSignInBtn" onclick="openSignin()" class="nav-btn" style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);color:#2ecc9a;">Sign Up / Sign In</button>
     <div id="navUserBadge" style="display:none;align-items:center;gap:8px">
       <div style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);border-radius:8px;padding:6px 12px;font-size:13px;color:#2ecc9a;font-family:DM Sans,sans-serif">
         <span id="navUserName"></span>
@@ -355,12 +355,14 @@ function signOutTrade(){
   localStorage.removeItem('supabase_name');
   localStorage.removeItem('sp_active_account');
   document.getElementById('navUserBadge').style.display='none';
+  var nb=document.getElementById('navSignInBtn');if(nb)nb.style.display='block';
   document.getElementById('signInNavBtn').style.display='';
   showToast('Signed out','ok');
 }
 function showNavUser(name){
   document.getElementById('signInNavBtn').style.display='none';
   document.getElementById('navUserBadge').style.display='flex';
+  var nb=document.getElementById('navSignInBtn');if(nb)nb.style.display='none';
   document.getElementById('navUserName').textContent='Hello, '+name+' 👋';
 }
 async function savePortfolioToCloud(){
