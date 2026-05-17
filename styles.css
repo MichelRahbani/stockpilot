@@ -8810,3 +8810,21 @@ body.command-mode .services-panel {
   color: #ffffff !important;
   transform: translateY(-1px) !important;
 }
+
+/* ── Investing card nav active state ── */
+.duo-subject-card.investing-tab.active,
+.duo-subject-card.investing-tab[aria-pressed="true"] {
+  border-color: #087e8b !important;
+  background: #e0f7fa !important;
+  box-shadow: 0 4px 14px rgba(8,126,139,0.18) !important;
+  transform: translateY(-2px) !important;
+}
+.duo-subject-card.investing-tab.active .duo-subject-icon,
+.duo-subject-card.investing-tab[aria-pressed="true"] .duo-subject-icon {
+  box-shadow: 0 2px 8px rgba(8,126,139,0.2) !important;
+}
+.duo-subject-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  gap: 0.75rem !important;
+}
