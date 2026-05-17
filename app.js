@@ -8118,6 +8118,7 @@ const getMarketClock = () => {
 
 const saveVirtualMarket = () => {
   localStorage.setItem(VIRTUAL_MARKET_KEY, JSON.stringify(virtualMarket));
+  pushVirtualMarketToCloud();
 };
 
 const loadVirtualMarket = () => {
@@ -10959,6 +10960,7 @@ const restoreSupabaseSession = async () => {
       const user = await res.json();
       activeAccount = { id: user.id, name: name || email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
       const pulled = await pullAppStateFromCloud(token);
+      await pullVirtualMarketFromCloud();
       if (pulled && !sessionStorage.getItem("cloudRestored")) { sessionStorage.setItem("cloudRestored", "1"); window.location.reload(); return; }
       try { renderAccountStatus(); } catch(e) {}
       try { renderSettings(); } catch(e) {}
@@ -10997,3 +10999,61 @@ document.querySelectorAll('.duo-subject-card').forEach(card => {
 
 
 
+
+// ── Supabase virtual market sync ──────────────────────────────
+const pushVirtualMarketToCloud = async () => {
+  const token = localStorage.getItem("supabase_token");
+  const userId = activeAccount && activeAccount.id;
+  if (!token || !userId) return;
+  try {
+    await fetch(SUPABASE_URL + "/rest/v1/virtual_portfolios", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + token,
+        "Prefer": "resolution=merge-duplicates"
+      },
+      body: JSON.stringify({
+        user_id: userId,
+        portfolio: virtualMarket,
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch(e) {}
+};
+
+const pullVirtualMarketFromCloud = async () => {
+  const token = localStorage.getItem("supabase_token");
+  const userId = activeAccount && activeAccount.id;
+  if (!token || !userId) return;
+  try {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/virtual_portfolios?user_id=eq." + userId + "&limit=1", {
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + token
+      }
+    });
+    if (res.ok) {
+      const rows = await res.json();
+      if (rows && rows[0] && rows[0].portfolio) {
+        const stored = rows[0].portfolio;
+        virtualMarket = {
+          ...virtualMarket,
+          ...stored,
+          cash: Number.isFinite(Number(stored.cash)) ? Number(stored.cash) : virtualMarket.cash,
+          watchlist: Array.isArray(stored.watchlist) && stored.watchlist.length ? stored.watchlist : virtualMarket.watchlist,
+          prices: stored.prices || {},
+          positions: stored.positions || {},
+          trades: Array.isArray(stored.trades) ? stored.trades : [],
+          performanceHistory: Array.isArray(stored.performanceHistory) ? stored.performanceHistory : [],
+          peakEquity: Number.isFinite(Number(stored.peakEquity)) ? Number(stored.peakEquity) : virtualMarket.peakEquity,
+          lastEquity: Number.isFinite(Number(stored.lastEquity)) ? Number(stored.lastEquity) : virtualMarket.lastEquity,
+        };
+        localStorage.setItem(VIRTUAL_MARKET_KEY, JSON.stringify(virtualMarket));
+  pushVirtualMarketToCloud();
+        renderVirtualMarket();
+      }
+    }
+  } catch(e) {}
+};
