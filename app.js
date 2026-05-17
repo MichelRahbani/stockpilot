@@ -11012,13 +11012,13 @@ const pushVirtualMarketToCloud = async () => {
   const userId = activeAccount && activeAccount.id;
   if (!token || !userId) return;
   try {
-    await fetch(SUPABASE_URL + "/rest/v1/virtual_portfolios", {
+    await fetch(SUPABASE_URL + "/rest/v1/virtual_portfolios?on_conflict=user_id", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "apikey": SUPABASE_ANON_KEY,
         "Authorization": "Bearer " + token,
-        "Prefer": "resolution=merge-duplicates"
+        "Prefer": "resolution=merge-duplicates,return=minimal"
       },
       body: JSON.stringify({
         user_id: userId,
