@@ -371,7 +371,7 @@ async function savePortfolioToCloud(){
     const userData=await userRes.json();
     if(!userData.id)return;
     const saveRes = await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{method:'POST',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'return=minimal,resolution=merge-duplicates','x-upsert':'true'},body:JSON.stringify({user_id:userData.id,portfolio:port,updated_at:new Date().toISOString()})});
-if(!saveRes.ok){const err=await saveRes.text();console.log('Save error:',err);}
+if(!saveRes.ok){const err=await saveRes.text();console.log('Save error:',err);toast('Cloud save failed: '+err.slice(0,50),'err');}else{console.log('Saved to cloud ok');}
   }catch(e){}
 }
 async function loadPortfolioFromCloud(){
