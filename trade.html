@@ -366,17 +366,19 @@ function showNavUser(name){
 }
 async function savePortfolioToCloud(){
   const t=getToken();if(!t)return;
+  const uid=localStorage.getItem('supabase_uid');if(!uid)return;
   try{
     const res=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{
       method:'POST',
       headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates'},
-      body:JSON.stringify({portfolio:port,updated_at:new Date().toISOString()})
+      body:JSON.stringify({user_id:uid,portfolio:port,updated_at:new Date().toISOString()})
     });
     if(!res.ok){const e=await res.text();toast('Save error: '+e.slice(0,60),'err');}
   }catch(e){toast('Save failed: '+e.message,'err');}
 }
 async function loadPortfolioFromCloud(){
   const t=getToken();if(!t)return false;
+  const uid=localStorage.getItem('supabase_uid');if(!uid)return false;
   try{
     const r=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?select=portfolio&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
     const data=await r.json();
@@ -735,6 +737,7 @@ async function doSignin(){
     const d=await r.json();
     if(d.error){showSiMsg(d.error.message||'Sign in failed.',false);return;}
     localStorage.setItem('supabase_token',d.access_token);
+    localStorage.setItem('supabase_uid', d.user ? d.user.id : '');
     localStorage.setItem('supabase_email',email);
     showSiMsg('Signed in! Loading your portfolio...', true);
     // Get real name from Supabase
