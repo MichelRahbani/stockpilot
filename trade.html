@@ -402,9 +402,7 @@ function showLbJoinCard(){
   if(t) document.getElementById('lbJoinCard').style.display='block';
 }
 
-loadLeaderboard();
-showLbJoinCard();
-setTimeout(showLbJoinCard, 1500);
+setTimeout(()=>{ loadLeaderboard(); showLbJoinCard(); }, 500);
 </script>
 
 <script>
