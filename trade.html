@@ -836,8 +836,8 @@ document.addEventListener("DOMContentLoaded", function() {
 })();
 </script>
 <script>
-const SUPA_LB = 'https://xkfxofcmrmpazfjviatq.supabase.co';
-const SUPA_LB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+const SUPA_LB = window.SUPA_URL2 || 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_LB_KEY = window.SUPA_KEY2 || window.SUPA_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
 let lbFilter = 'all';
 
 function setLbFilter(f){
