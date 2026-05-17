@@ -2860,8 +2860,8 @@ const signInLocalAccount = async () => {
   }
   try {
     const result = await supabaseSignIn(email, code);
-    if (result.error) {
-      alert("Sign in failed: " + (result.error.message || "Check your email and password."));
+    if (!result.access_token) {
+      alert("Sign in failed: " + (result.msg || result.error_description || "Check your email and password."));
       return;
     }
     const token = result.access_token;
