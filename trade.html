@@ -781,7 +781,7 @@ async function doSignin(){
     localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
     showSiMsg('Signed in! Redirecting...', true);
     const uname = localStorage.getItem('supabase_name') || email.split('@')[0];
-    setTimeout(()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);},1200);
+    setTimeout(()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);var b=document.getElementById('saveBanner');if(b)b.style.display='none';},1200);
   }catch(e){showSiMsg('Error signing in. Try again.',false);}
 }
 async function doForgot(){
