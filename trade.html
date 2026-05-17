@@ -293,15 +293,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     </div>
   </div>
 
-  <!-- Join leaderboard card -->
-  <div id="lbJoinCard" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:20px">
-    <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:12px">📣 Join the Leaderboard</div>
-    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-      <input id="lbNickname" placeholder="Pick a nickname..." style="flex:1;min-width:180px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:14px;outline:none"/>
-      <button onclick="joinLeaderboard()" style="padding:9px 20px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">Join 🚀</button>
-    </div>
-    <div id="lbJoinMsg" style="font-size:12px;color:var(--dim);margin-top:8px"></div>
-  </div>
+  <!-- Leaderboard layout: table + join card side by side -->
+  <div style="display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start">
 
   <!-- Leaderboard table -->
   <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden">
@@ -311,14 +304,36 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     <div id="lbRows"><div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">Loading leaderboard...</div></div>
   </div>
 
-  <!-- Invite section -->
-  <div style="margin-top:20px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
-    <div>
-      <div style="font-size:15px;font-weight:700;color:var(--text)">📨 Invite Friends</div>
-      <div style="font-size:13px;color:var(--dim);margin-top:4px">Challenge them to beat your return!</div>
+  <!-- Right side: join card + invite -->
+  <div style="display:flex;flex-direction:column;gap:16px">
+
+    <!-- Signed in: join card -->
+    <div id="lbJoinCard" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">📣 Join the Leaderboard</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:14px">Pick a nickname and compete with other traders!</div>
+      <input id="lbNickname" placeholder="Your nickname..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px;box-sizing:border-box"/>
+      <button onclick="joinLeaderboard()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">Join 🚀</button>
+      <div id="lbJoinMsg" style="font-size:12px;color:var(--dim);margin-top:8px"></div>
     </div>
-    <button onclick="copyInviteLink()" style="padding:10px 20px;border-radius:10px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer" id="inviteBtn">Copy Invite Link 🔗</button>
+
+    <!-- Signed out: sign in prompt -->
+    <div id="lbSignInPrompt" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center">
+      <div style="font-size:28px;margin-bottom:8px">🏆</div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Want to compete?</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:16px">Sign in to join the leaderboard and track your rank!</div>
+      <button onclick="openSignin()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">Sign In</button>
+      <a href="/app" style="display:block;text-align:center;font-size:12px;color:var(--dim);text-decoration:none">No account? Create one →</a>
+    </div>
+
+    <!-- Invite card -->
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">📨 Invite Friends</div>
+      <div style="font-size:12px;color:var(--dim);margin-bottom:14px">Challenge them to beat your return!</div>
+      <button onclick="copyInviteLink()" style="width:100%;padding:10px;border-radius:8px;background:transparent;color:var(--red);border:1px solid var(--red);font-size:13px;font-weight:700;cursor:pointer" id="inviteBtn">Copy Invite Link 🔗</button>
+    </div>
+
   </div>
+  </div><!-- end grid -->
 </div>
 
 <script>
@@ -399,8 +414,13 @@ function copyInviteLink(){
 
 function showLbJoinCard(){
   const t = getToken() || localStorage.getItem("supabase_token");
-  if(t) document.getElementById('lbJoinCard').style.display='block';
-  else document.getElementById('lbJoinCard').style.display='block';
+  if(t){
+    document.getElementById("lbJoinCard").style.display="block";
+    document.getElementById("lbSignInPrompt").style.display="none";
+  } else {
+    document.getElementById("lbJoinCard").style.display="none";
+    document.getElementById("lbSignInPrompt").style.display="block";
+  }
 }
 
 setTimeout(()=>{ loadLeaderboard(); showLbJoinCard(); }, 500);
