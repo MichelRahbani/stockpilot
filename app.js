@@ -10970,6 +10970,37 @@ const restoreSupabaseSession = async () => {
   } catch(e) {}
 };
 window.addEventListener("DOMContentLoaded", restoreSupabaseSession);
+window.addEventListener("DOMContentLoaded", importPortfolioFromUrl);
+
+// Read portfolio from URL parameters (from trade app export)
+const importPortfolioFromUrl = () => {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const portfolio = params.get('portfolio');
+    if (!portfolio) return;
+    const pairs = decodeURIComponent(portfolio).split(',');
+    const lines = pairs.map(p => {
+      const parts = p.trim().split('+');
+      return parts[0] + ' ' + parts[1];
+    }).join('
+');
+    if (bulkInput) {
+      bulkInput.value = lines;
+      renderAssetInputTable();
+      updateBulkStatus();
+      // Switch to investing mode
+      const investBtn = document.querySelector('[data-mode="investing"]');
+      if (investBtn) investBtn.click();
+      // Show success toast
+      setTimeout(() => {
+        if (fetchStatus) fetchStatus.textContent = 'Portfolio imported from StockPilot Trade. Hit Load Data to analyze.';
+      }, 500);
+    }
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+  } catch(e) {}
+};
+
 
 // Duolingo-style subject card click handler
 document.querySelectorAll('.duo-subject-card').forEach(card => {

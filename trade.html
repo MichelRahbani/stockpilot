@@ -151,6 +151,24 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .news-item a{font-size:13px;color:rgba(255,255,255,0.75);text-decoration:none;line-height:1.5;display:block;}
 .news-item a:hover{color:white;}
 .news-item .news-date{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;}
+
+.analyze-btn{width:100%;padding:12px;background:linear-gradient(135deg,#1a9e6e,#147a55);color:white;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin:12px 0;transition:opacity 0.15s;}
+.analyze-btn:hover{opacity:0.9;}
+.analyze-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;}
+.analyze-modal.open{display:flex;}
+.analyze-box{background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:24px;width:90%;max-width:420px;color:white;}
+.analyze-box h3{font-size:16px;font-weight:700;margin-bottom:6px;}
+.analyze-box p{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;}
+.analyze-tabs{display:flex;gap:8px;margin-bottom:16px;}
+.analyze-tab{flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.6);font-size:13px;font-weight:600;cursor:pointer;}
+.analyze-tab.active{background:#1a9e6e;border-color:#1a9e6e;color:white;}
+.analyze-pct-grid{display:grid;gap:8px;margin-bottom:16px;}
+.analyze-pct-row{display:flex;align-items:center;gap:8px;}
+.analyze-pct-row span{width:60px;font-size:13px;font-weight:600;}
+.analyze-pct-row input{flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:8px;color:white;font-size:13px;}
+.analyze-actions{display:flex;gap:8px;}
+.analyze-go{flex:1;padding:10px;background:#1a9e6e;color:white;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;}
+.analyze-cancel{padding:10px 16px;background:rgba(255,255,255,0.08);color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;}
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
@@ -272,7 +290,28 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     <div class="panel-head" style="border-top:1px solid var(--border)">Positions</div>
     <div id="positions"><div class="no-pos"><div>📭</div>No positions yet</div></div>
     <div class="panel-head" style="border-top:1px solid var(--border)">Recent Trades</div>
-    <div id="tradeHist"><div class="no-pos"><div>📋</div>No trades yet</div></div>
+    
+<button class="analyze-btn" id="analyzeBtn" onclick="openAnalyze()" style="display:none">📊 Analyze in StockPilot</button>
+
+<div class="analyze-modal" id="analyzeModal">
+  <div class="analyze-box">
+    <h3>Analyze in StockPilot</h3>
+    <p>Export your virtual positions to the portfolio builder.</p>
+    <div class="analyze-tabs">
+      <button class="analyze-tab active" id="tabShares" onclick="setAnalyzeMode('shares')">By Shares</button>
+      <button class="analyze-tab" id="tabPct" onclick="setAnalyzeMode('pct')">By % Allocation</button>
+    </div>
+    <div id="analyzeSharesInfo" style="font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px;">
+      Weights calculated from current share values automatically.
+    </div>
+    <div id="analyzePctGrid" class="analyze-pct-grid" style="display:none"></div>
+    <div class="analyze-actions">
+      <button class="analyze-go" onclick="goAnalyze()">Open in StockPilot →</button>
+      <button class="analyze-cancel" onclick="closeAnalyze()">Cancel</button>
+    </div>
+  </div>
+</div>
+<div id="tradeHist"><div class="no-pos"><div>📋</div>No trades yet</div></div>
   </div>
 </div>
 
@@ -335,6 +374,60 @@ function buildPortStory(positions, prices) {
   if(syms.length === 1) story += ' You are concentrated in one position — consider diversifying.';
   else if(syms.length >= 5) story += ' With ' + syms.length + ' positions, your risk is spread across multiple stocks.';
   return story;
+}
+
+
+var analyzeMode = 'shares';
+
+function openAnalyze() {
+  var syms = Object.keys(port.pos);
+  if (!syms.length) { toast('No positions to analyze', 'err'); return; }
+  var grid = document.getElementById('analyzePctGrid');
+  grid.innerHTML = syms.map(function(s) {
+    var p = port.pos[s];
+    var pct = Math.round((p.qty * p.avg) / (port.cash + syms.reduce(function(sum, sym) { return sum + port.pos[sym].qty * port.pos[sym].avg; }, 0)) * 100);
+    return '<div class="analyze-pct-row"><span>' + s + '</span><input type="number" min="1" max="100" value="' + pct + '" id="pct_' + s + '" /></div>';
+  }).join('');
+  document.getElementById('analyzeModal').classList.add('open');
+}
+
+function closeAnalyze() {
+  document.getElementById('analyzeModal').classList.remove('open');
+}
+
+function setAnalyzeMode(mode) {
+  analyzeMode = mode;
+  document.getElementById('tabShares').className = 'analyze-tab' + (mode === 'shares' ? ' active' : '');
+  document.getElementById('tabPct').className = 'analyze-tab' + (mode === 'pct' ? ' active' : '');
+  document.getElementById('analyzeSharesInfo').style.display = mode === 'shares' ? 'block' : 'none';
+  document.getElementById('analyzePctGrid').style.display = mode === 'pct' ? 'grid' : 'none';
+}
+
+async function goAnalyze() {
+  var syms = Object.keys(port.pos);
+  var params = '';
+  if (analyzeMode === 'shares') {
+    try {
+      var r = await fetch(API + '/api/quotes?symbols=' + syms.join(','));
+      var d = await r.json();
+      var pm = {};
+      (d.quoteResponse.result || []).forEach(function(q) { pm[q.symbol] = q.regularMarketPrice; });
+      var total = syms.reduce(function(sum, s) { return sum + port.pos[s].qty * (pm[s] || port.pos[s].avg); }, 0);
+      params = syms.map(function(s) {
+        var val = port.pos[s].qty * (pm[s] || port.pos[s].avg);
+        return s + '+' + Math.round(val / total * 100);
+      }).join(',');
+    } catch(e) {
+      params = syms.map(function(s) { return s + '+' + Math.round(100 / syms.length); }).join(',');
+    }
+  } else {
+    params = syms.map(function(s) {
+      var val = document.getElementById('pct_' + s) ? document.getElementById('pct_' + s).value : Math.round(100 / syms.length);
+      return s + '+' + val;
+    }).join(',');
+  }
+  window.open('https://mystockspilot.com/app?portfolio=' + encodeURIComponent(params), '_blank');
+  closeAnalyze();
 }
 
 function load(){
@@ -554,7 +647,7 @@ function execute(){
 async function renderPort(){
   const syms=Object.keys(port.pos);
   const el=document.getElementById('positions');
-  if(!syms.length){ el.innerHTML='<div class="no-pos"><div>📭</div>No positions yet</div>'; return; }
+  if(!syms.length){ el.innerHTML='<div class="no-pos"><div>📭</div>No positions yet</div>'; document.getElementById('analyzeBtn').style.display='none'; return; }
   el.innerHTML='<div style="padding:12px 16px;font-size:11px;color:var(--muted)">Loading prices...</div>';
   try{
     const r=await fetch(API+'/api/quotes?symbols='+syms.join(','));
@@ -564,7 +657,7 @@ async function renderPort(){
     var storyEl=document.getElementById('portStory');
     var storyText=document.getElementById('portStoryText');
     if(storyEl&&storyText){var s=buildPortStory(port.pos,pm);if(s){storyText.textContent=s;storyEl.style.display='block';}}
-    el.innerHTML=syms.map(s=>{
+    document.getElementById('analyzeBtn').style.display='block'; el.innerHTML=syms.map(s=>{
       const p=port.pos[s];
       const cp=pm[s]||p.avg;
       const val=p.qty*cp;
