@@ -715,7 +715,7 @@ async function doSignin(){
   try{
     const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email,password:pass})});
     const d=await r.json();
-    if(d.error){showSiMsg(d.error.message||'Sign in failed.',false);return;}
+    if(d.error||!d.access_token){showSiMsg((d.error&&(d.error.message||d.msg))||'Invalid email or password.',false);return;}
     localStorage.setItem('supabase_token',d.access_token);
     localStorage.setItem('supabase_email',email);
     localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
