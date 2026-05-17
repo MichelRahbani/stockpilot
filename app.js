@@ -10970,7 +10970,6 @@ const restoreSupabaseSession = async () => {
   } catch(e) {}
 };
 window.addEventListener("DOMContentLoaded", restoreSupabaseSession);
-window.addEventListener("DOMContentLoaded", importPortfolioFromUrl);
 
 // Read portfolio from URL parameters (from trade app export)
 const importPortfolioFromUrl = () => {
@@ -11000,6 +10999,7 @@ const importPortfolioFromUrl = () => {
     window.history.replaceState({}, '', window.location.pathname);
   } catch(e) {}
 };
+window.addEventListener("DOMContentLoaded", importPortfolioFromUrl);
 
 
 // Duolingo-style subject card click handler
