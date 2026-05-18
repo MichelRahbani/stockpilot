@@ -889,9 +889,8 @@ function autoUpdateLeaderboard(){
   var t=localStorage.getItem('supabase_token');
   if(!t) return;
   var uid=JSON.parse(atob(t.split('.')[1])).sub;
-  var stored=JSON.parse(localStorage.getItem('sp_trade_v2')||'{}');
-  var val=stored.cash||100000;
-  var pos=stored.pos||{};
+  var val=port.cash||100000;
+  var pos=port.pos||{};
   Object.values(pos).forEach(function(p){ val+=p.qty*p.avg; });
   var ret=((val-100000)/100000)*100;
   fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard?user_id=eq.'+uid,{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q','Authorization':'Bearer '+t}})
