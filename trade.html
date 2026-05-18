@@ -889,7 +889,7 @@ function autoUpdateLeaderboard(){
   var t=localStorage.getItem('supabase_token');
   if(!t) return;
   var uid=JSON.parse(atob(t.split('.')[1])).sub;
-  var stored=JSON.parse(localStorage.getItem('vport')||'{}');
+  var stored=JSON.parse(localStorage.getItem('sp_trade_v2')||'{}');
   var val=stored.cash||100000;
   var pos=stored.pos||{};
   Object.values(pos).forEach(function(p){ val+=p.qty*p.avg; });
