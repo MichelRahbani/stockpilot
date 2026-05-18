@@ -13,7 +13,7 @@ const supabaseSignUp = async (email, password) => {
 };
 
 const supabaseSignIn = async (email, password) => {
-  const res = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {pullAppStateFromCloud
+  const res = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=password", {
     method: "POST",
     headers: { "Content-Type": "application/json", "apikey": SUPABASE_ANON_KEY },
     body: JSON.stringify({ email, password })
@@ -2515,8 +2515,6 @@ const renderAccountStatus = () => {
   }
   updateSaveStatus(account ? `Saved locally for ${account.name}` : "Saved locally");
   renderCloudReadiness();
-  const banner = document.getElementById('saveProgressBanner');
-  if (banner) banner.style.display = account ? 'none' : '';
 };
 
 const openAccountPanel = (focusTarget = "create") => {
@@ -2895,6 +2893,9 @@ const signOutLocalAccount = () => {
   localStorage.removeItem("sp_active_account");
   localStorage.removeItem("supabase_token");
   localStorage.removeItem("supabase_email");
+  localStorage.removeItem(VIRTUAL_MARKET_KEY);
+  virtualMarket = { cash: VIRTUAL_MARKET_STARTING_CASH, positions: {}, trades: [], watchlist: ["AAPL","MSFT","NVDA","TSLA"], prices: {}, performanceHistory: [], peakEquity: VIRTUAL_MARKET_STARTING_CASH, lastEquity: VIRTUAL_MARKET_STARTING_CASH, lastAlertKey: "", autoRefresh: false };
+  try { renderVirtualMarket(); } catch(e) {}
   renderAccountStatus();
   renderSettings();
   setAccountMessage("Signed out. Your local app data is still saved in this browser.", "neutral");
@@ -8120,6 +8121,7 @@ const getMarketClock = () => {
 
 const saveVirtualMarket = () => {
   localStorage.setItem(VIRTUAL_MARKET_KEY, JSON.stringify(virtualMarket));
+  pushVirtualMarketToCloud();
 };
 
 const loadVirtualMarket = () => {
@@ -8131,7 +8133,7 @@ const loadVirtualMarket = () => {
       cash: Number.isFinite(Number(stored.cash)) ? Number(stored.cash) : VIRTUAL_MARKET_STARTING_CASH,
       watchlist: Array.isArray(stored.watchlist) && stored.watchlist.length ? stored.watchlist : virtualMarket.watchlist,
       prices: stored.prices || {},
-      positions: stored.positions || {},
+      positions: stored.positions || (stored.pos ? Object.fromEntries(Object.entries(stored.pos).map(([k,v]) => [k, {ticker:k, shares:v.qty, avgCost:v.avg, name:v.name||k}])) : {}),
       trades: Array.isArray(stored.trades) ? stored.trades : [],
       lastEquity: Number.isFinite(Number(stored.lastEquity)) ? Number(stored.lastEquity) : VIRTUAL_MARKET_STARTING_CASH,
       peakEquity: Number.isFinite(Number(stored.peakEquity)) ? Number(stored.peakEquity) : VIRTUAL_MARKET_STARTING_CASH,
@@ -10961,12 +10963,16 @@ const restoreSupabaseSession = async () => {
       const user = await res.json();
       activeAccount = { id: user.id, name: name || email.split("@")[0], email, lastLoginAt: new Date().toISOString() };
       const pulled = await pullAppStateFromCloud(token);
+      await pullVirtualMarketFromCloud();
       if (pulled && !sessionStorage.getItem("cloudRestored")) { sessionStorage.setItem("cloudRestored", "1"); window.location.reload(); return; }
       try { renderAccountStatus(); } catch(e) {}
       try { renderSettings(); } catch(e) {}
     } else {
       localStorage.removeItem("supabase_token");
       localStorage.removeItem("supabase_email");
+  localStorage.removeItem(VIRTUAL_MARKET_KEY);
+  virtualMarket = { cash: VIRTUAL_MARKET_STARTING_CASH, positions: {}, trades: [], watchlist: ["AAPL","MSFT","NVDA","TSLA"], prices: {}, performanceHistory: [], peakEquity: VIRTUAL_MARKET_STARTING_CASH, lastEquity: VIRTUAL_MARKET_STARTING_CASH, lastAlertKey: "", autoRefresh: false };
+  try { renderVirtualMarket(); } catch(e) {}
       localStorage.removeItem("supabase_name");
     }
   } catch(e) {}
@@ -10999,3 +11005,60 @@ document.querySelectorAll('.duo-subject-card').forEach(card => {
 
 
 
+
+// ── Supabase virtual market sync ──────────────────────────────
+const pushVirtualMarketToCloud = async () => {
+  const token = localStorage.getItem("supabase_token");
+  const userId = activeAccount && activeAccount.id;
+  if (!token || !userId) return;
+  try {
+    await fetch(SUPABASE_URL + "/rest/v1/virtual_portfolios?user_id=eq." + userId, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + token,
+        "Prefer": "return=minimal"
+      },
+      body: JSON.stringify({
+        portfolio: virtualMarket,
+        updated_at: new Date().toISOString()
+      })
+    });
+  } catch(e) {}
+};
+
+const pullVirtualMarketFromCloud = async () => {
+  const token = localStorage.getItem("supabase_token");
+  const userId = activeAccount && activeAccount.id;
+  if (!token || !userId) return;
+  try {
+    const res = await fetch(SUPABASE_URL + "/rest/v1/virtual_portfolios?user_id=eq." + userId + "&limit=1", {
+      headers: {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": "Bearer " + token
+      }
+    });
+    if (res.ok) {
+      const rows = await res.json();
+      if (rows && rows[0] && rows[0].portfolio) {
+        const stored = rows[0].portfolio;
+        virtualMarket = {
+          ...virtualMarket,
+          ...stored,
+          cash: Number.isFinite(Number(stored.cash)) ? Number(stored.cash) : virtualMarket.cash,
+          watchlist: Array.isArray(stored.watchlist) && stored.watchlist.length ? stored.watchlist : virtualMarket.watchlist,
+          prices: stored.prices || {},
+          positions: stored.positions || (stored.pos ? Object.fromEntries(Object.entries(stored.pos).map(([k,v]) => [k, {ticker:k, shares:v.qty, avgCost:v.avg, name:v.name||k}])) : {}),
+          trades: Array.isArray(stored.trades) ? stored.trades : [],
+          performanceHistory: Array.isArray(stored.performanceHistory) ? stored.performanceHistory : [],
+          peakEquity: Number.isFinite(Number(stored.peakEquity)) ? Number(stored.peakEquity) : virtualMarket.peakEquity,
+          lastEquity: Number.isFinite(Number(stored.lastEquity)) ? Number(stored.lastEquity) : virtualMarket.lastEquity,
+        };
+        localStorage.setItem(VIRTUAL_MARKET_KEY, JSON.stringify(virtualMarket));
+  pushVirtualMarketToCloud();
+        renderVirtualMarket();
+      }
+    }
+  } catch(e) {}
+};
