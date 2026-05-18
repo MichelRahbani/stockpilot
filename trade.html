@@ -732,10 +732,11 @@ async function doSignin(){
     localStorage.setItem('supabase_token',d.access_token);
     localStorage.setItem('supabase_email',email);
     const profile = await fetch(SUPA_URL+'/rest/v1/profiles?id=eq.'+d.user.id+'&select=full_name&limit=1',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[]);
-    const displayName = (profile&&profile[0]&&profile[0].full_name) || localStorage.getItem('supabase_name') || email.split('@')[0];
+    const lbEntry = await fetch(SUPA_URL+'/rest/v1/leaderboard?user_id=eq.'+d.user.id+'&select=nickname&limit=1',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[]);
+    const displayName = (lbEntry&&lbEntry[0]&&lbEntry[0].nickname) || (profile&&profile[0]&&profile[0].full_name) || email.split('@')[0];
     localStorage.setItem('supabase_name', displayName);
     showSiMsg('Signed in! Redirecting...', true);
-    const uname = localStorage.getItem('supabase_name') || email.split('@')[0];
+    const uname = displayName;
     setTimeout(async()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);localStorage.removeItem('vport');port={cash:START,pos:{},trades:[]};const loaded=await loadPortfolioFromCloud();if(loaded){renderPort();renderTrades();updatePortStats();}},1200);
   }catch(e){showSiMsg('Error signing in. Try again.',false);}
 }
