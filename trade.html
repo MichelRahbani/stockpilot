@@ -575,6 +575,7 @@ async function renderPort(){
     const pm={};
     (d?.quoteResponse?.result||[]).forEach(q=>pm[q.symbol]=q.regularMarketPrice);
     window.latestPrices = pm;
+    if(typeof autoUpdateLeaderboard==='function') autoUpdateLeaderboard();
     var storyEl=document.getElementById('portStory');
     var storyText=document.getElementById('portStoryText');
     if(storyEl&&storyText){var s=buildPortStory(port.pos,pm);if(s){storyText.textContent=s;storyEl.style.display='block';}}
