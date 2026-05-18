@@ -868,7 +868,7 @@ function joinLeaderboard(){
   var uid=JSON.parse(atob(t.split('.')[1])).sub;
   var cash=0; try{ var p=JSON.parse(localStorage.getItem('vport')||'{}'); cash=p.cash||100000; }catch(e){}
   var val=cash; try{ var pos=JSON.parse(localStorage.getItem('vport')||'{}').pos||{}; Object.values(pos).forEach(function(p){ val+=p.qty*p.avg; }); }catch(e){}
-  var ret=((val-100000)/100000)*100;
+  var ret=Math.round(((val-100000)/100000)*10000)/100;
   fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard?user_id=eq.'+uid,{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q','Authorization':'Bearer '+t}})
   .then(function(r){ return r.json(); })
   .then(function(rows){
@@ -894,7 +894,7 @@ function autoUpdateLeaderboard(){
   var val=port.cash||100000;
   var pos=port.pos||{};
   Object.keys(pos).forEach(function(sym){ var p=pos[sym]; var cp=(window.latestPrices&&window.latestPrices[sym])||p.avg; val+=p.qty*cp; });
-  var ret=((val-100000)/100000)*100;
+  var ret=Math.round(((val-100000)/100000)*10000)/100;
   fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard?user_id=eq.'+uid,{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q','Authorization':'Bearer '+t}})
   .then(function(r){ return r.json(); })
   .then(function(rows){
