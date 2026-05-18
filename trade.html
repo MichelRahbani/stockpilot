@@ -731,7 +731,9 @@ async function doSignin(){
     if(!d.access_token){showSiMsg(d.msg||d.error_description||'Invalid email or password.',false);return;}
     localStorage.setItem('supabase_token',d.access_token);
     localStorage.setItem('supabase_email',email);
-    localStorage.setItem('supabase_name',localStorage.getItem('supabase_name')||email.split('@')[0]);
+    const profile = await fetch(SUPA_URL+'/rest/v1/profiles?id=eq.'+d.user.id+'&select=full_name&limit=1',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[]);
+    const displayName = (profile&&profile[0]&&profile[0].full_name) || localStorage.getItem('supabase_name') || email.split('@')[0];
+    localStorage.setItem('supabase_name', displayName);
     showSiMsg('Signed in! Redirecting...', true);
     const uname = localStorage.getItem('supabase_name') || email.split('@')[0];
     setTimeout(async()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);localStorage.removeItem('vport');port={cash:START,pos:{},trades:[]};const loaded=await loadPortfolioFromCloud();if(loaded){renderPort();renderTrades();updatePortStats();}},1200);
