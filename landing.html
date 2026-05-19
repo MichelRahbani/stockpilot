@@ -301,6 +301,43 @@ footer a:hover{color:#2ecc9a}
     </div>
   </div>
 </section>
+<section style="padding:80px 40px;background:#000">
+  <div style="max-width:700px;margin:0 auto;text-align:center">
+    <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px">Live competition</p>
+    <h2 style="font-family:Fraunces,serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:12px">🏆 Top Traders This Week</h2>
+    <p style="font-size:16px;color:rgba(255,255,255,0.4);margin-bottom:40px">Real people. Virtual cash. Real competition.</p>
+    <div id="landingLb" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;margin-bottom:32px">
+      <div style="display:grid;grid-template-columns:50px 1fr 100px;padding:12px 24px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.05em">
+        <div>Rank</div><div>Trader</div><div style="text-align:right">Return</div>
+      </div>
+      <div id="landingLbRows"><div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Loading...</div></div>
+    </div>
+    <a href="/trade" style="display:inline-flex;align-items:center;gap:8px;background:#1a9e6e;color:white;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none">Join the leaderboard →</a>
+  </div>
+</section>
+<script>
+(function(){
+  fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard?select=nickname,return_pct&order=return_pct.desc&limit=3',{
+    headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q'}
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(rows){
+    var el = document.getElementById('landingLbRows');
+    if(!rows||!rows.length){ el.innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader on the leaderboard! 🚀</div>'; return; }
+    var medals=['🥇','🥈','🥉'];
+    el.innerHTML = rows.map(function(row,i){
+      var col = row.return_pct >= 0 ? '#2ecc9a' : '#dc2626';
+      var sign = row.return_pct >= 0 ? '+' : '';
+      return '<div style="display:grid;grid-template-columns:50px 1fr 100px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);align-items:center">'
+        + '<div style="font-size:22px">' + medals[i] + '</div>'
+        + '<div style="font-weight:600;color:white;font-size:15px">' + row.nickname + '</div>'
+        + '<div style="text-align:right;font-weight:700;color:' + col + ';font-size:15px">' + sign + Number(row.return_pct).toFixed(2) + '%</div>'
+        + '</div>';
+    }).join('');
+  })
+  .catch(function(){ document.getElementById('landingLbRows').innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader! 🚀</div>'; });
+})();
+</script>
 <section class="cta">
   <h2>Ready to <em>practice?</em></h2>
   <p>No account needed. No real money. No excuses.</p>
