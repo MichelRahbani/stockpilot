@@ -6411,15 +6411,12 @@ const loadDemoHoldings = async () => {
     { ticker: "BTC-USD", name: "Bitcoin", category: "Crypto", assetClass: "Crypto", allocation: 15, price: 103000, pe: NaN, ps: NaN, dividendYield: 0, beta: 2.2, roe: 0, debtEquity: 0, growth: 18 }
   ];
   holdings = demoHoldings.map(buildDemoHolding);
-  // Fetch real prices from API
+  // Fetch real prices directly from Yahoo Finance
   try {
-    const tickers = demoHoldings.map(h => h.ticker).join(",");
-    const apiBase = stockPilotApiOnline ? stockPilotApiBaseUrl : "https://mystockspilot.com";
-    const res = await fetch(`${apiBase}/api/quotes?symbols=${tickers}`);
-    const data = await res.json();
-    const quotes = data?.quoteResponse?.result || [];
-    quotes.forEach(quote => {
-      const holding = holdings.find(h => h.ticker === quote.symbol);
+    const symbols = demoHoldings.map(h => h.ticker);
+    const quoteMap = await fetchYahooQuotes(symbols);
+    Object.entries(quoteMap).forEach(([symbol, quote]) => {
+      const holding = holdings.find(h => h.ticker === symbol);
       if (holding && quote.regularMarketPrice) {
         holding.price = quote.regularMarketPrice;
         holding.dataAsOf = "Live";
