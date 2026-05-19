@@ -8887,3 +8887,26 @@ body.command-mode .services-panel {
 .sp-accordion-body.sp-accordion-open {
   display: block;
 }
+
+/* ── Savings section nav card grid ── */
+.savings-section-nav {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  margin-bottom: 1.25rem;
+}
+
+.savings-section-nav .duo-subject-card {
+  min-width: 0;
+}
+
+.savings-section-nav .duo-subject-info strong {
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.savings-section-nav .duo-subject-info span {
+  font-size: 0.75rem;
+  white-space: normal;
+  line-height: 1.3;
+}
