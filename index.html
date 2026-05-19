@@ -2330,49 +2330,73 @@ JNJ 20"></textarea>
             </article>
           </section>
 
-          <section class="savings-chart-grid savings-panel-page" data-savings-panel="plan">
-            <article class="savings-panel">
-              <div class="section-title">
-                <div>
-                  <h2>Budget Flow Graph</h2>
-                  <span class="table-note">Income compared with bills, flexible spending, debt, and savings.</span>
-                </div>
-              </div>
-              <canvas id="budgetFlowChart" width="760" height="320" aria-label="Budget flow chart"></canvas>
-              <div class="chart-summary-row" id="budgetFlowSummary"></div>
-            </article>
-            <article class="savings-panel">
-              <div class="section-title">
-                <div>
-                  <h2>Goal Mix Graph</h2>
-                  <span class="table-note">How your monthly money is split across savings, debt, and leftover cash.</span>
-                </div>
-              </div>
-              <canvas id="savingsMixChart" width="760" height="320" aria-label="Savings mix chart"></canvas>
-              <div class="chart-summary-row" id="savingsMixSummary"></div>
-            </article>
-          </section>
-
-          <section class="savings-panel savings-panel-page" data-savings-panel="plan">
-            <div class="section-title">
-              <div>
-                <h2>Budget Coach</h2>
-                <span class="table-note">Plain-English signals based on your inputs.</span>
-              </div>
+          <div class="sp-accordion savings-panel-page active" data-savings-panel="plan">
+            <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='true'?'false':'true'); this.nextElementSibling.classList.toggle('sp-accordion-open')">
+              <span class="sp-accordion-label">📊 Budget Flow &amp; Goal Mix Charts</span>
+              <span class="sp-accordion-chevron">›</span>
+            </button>
+            <div class="sp-accordion-body">
+              <section class="savings-chart-grid" style="display:grid">
+                <article class="savings-panel">
+                  <div class="section-title">
+                    <div>
+                      <h2>Budget Flow Graph</h2>
+                      <span class="table-note">Income compared with bills, flexible spending, debt, and savings.</span>
+                    </div>
+                  </div>
+                  <canvas id="budgetFlowChart" width="760" height="320" aria-label="Budget flow chart"></canvas>
+                  <div class="chart-summary-row" id="budgetFlowSummary"></div>
+                </article>
+                <article class="savings-panel">
+                  <div class="section-title">
+                    <div>
+                      <h2>Goal Mix Graph</h2>
+                      <span class="table-note">How your monthly money is split across savings, debt, and leftover cash.</span>
+                    </div>
+                  </div>
+                  <canvas id="savingsMixChart" width="760" height="320" aria-label="Savings mix chart"></canvas>
+                  <div class="chart-summary-row" id="savingsMixSummary"></div>
+                </article>
+              </section>
             </div>
-            <div class="budget-coach-grid" id="budgetCoachGrid"></div>
-          </section>
+          </div>
 
-          <section class="savings-panel savings-panel-page" data-savings-panel="plan">
-            <div class="section-title">
-              <div>
-                <h2>Budget Action Checklist</h2>
-                <span class="table-note">Turns budget signals into simple next actions you can mark off.</span>
-              </div>
-              <button class="ghost-button small-button" id="resetBudgetActionsButton" type="button">Reset</button>
+          <div class="sp-accordion savings-panel-page active" data-savings-panel="plan">
+            <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='true'?'false':'true'); this.nextElementSibling.classList.toggle('sp-accordion-open')">
+              <span class="sp-accordion-label">💡 Budget Coach</span>
+              <span class="sp-accordion-chevron">›</span>
+            </button>
+            <div class="sp-accordion-body">
+              <section class="savings-panel" style="margin-top:0">
+                <div class="section-title">
+                  <div>
+                    <h2>Budget Coach</h2>
+                    <span class="table-note">Plain-English signals based on your inputs.</span>
+                  </div>
+                </div>
+                <div class="budget-coach-grid" id="budgetCoachGrid"></div>
+              </section>
             </div>
-            <div class="budget-action-checklist" id="budgetActionChecklist"></div>
-          </section>
+          </div>
+
+          <div class="sp-accordion savings-panel-page active" data-savings-panel="plan">
+            <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='true'?'false':'true'); this.nextElementSibling.classList.toggle('sp-accordion-open')">
+              <span class="sp-accordion-label">✅ Budget Action Checklist</span>
+              <span class="sp-accordion-chevron">›</span>
+            </button>
+            <div class="sp-accordion-body">
+              <section class="savings-panel" style="margin-top:0">
+                <div class="section-title">
+                  <div>
+                    <h2>Budget Action Checklist</h2>
+                    <span class="table-note">Turns budget signals into simple next actions you can mark off.</span>
+                  </div>
+                  <button class="ghost-button small-button" id="resetBudgetActionsButton" type="button">Reset</button>
+                </div>
+                <div class="budget-action-checklist" id="budgetActionChecklist"></div>
+              </section>
+            </div>
+          </div>
 
           <section class="savings-grid savings-panel-page" data-savings-panel="protection">
             <article class="savings-panel">

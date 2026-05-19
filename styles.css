@@ -8828,3 +8828,62 @@ body.command-mode .services-panel {
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
   gap: 0.75rem !important;
 }
+
+/* ── Savings Accordion ── */
+.sp-accordion {
+  margin-top: 1rem;
+}
+
+.sp-accordion-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 0.85rem 1.1rem;
+  border: 1px solid rgba(35, 116, 198, 0.2);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: var(--subtle-shadow);
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #145ea8;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.sp-accordion-toggle:hover {
+  background: rgba(35, 116, 198, 0.06);
+}
+
+.sp-accordion-toggle[aria-expanded="true"] {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-bottom-color: transparent;
+}
+
+.sp-accordion-chevron {
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: #145ea8;
+  transition: transform 0.25s;
+  line-height: 1;
+}
+
+.sp-accordion-toggle[aria-expanded="true"] .sp-accordion-chevron {
+  transform: rotate(90deg);
+}
+
+.sp-accordion-body {
+  display: none;
+  border: 1px solid rgba(35, 116, 198, 0.2);
+  border-top: none;
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.6);
+  padding: 1rem;
+}
+
+.sp-accordion-body.sp-accordion-open {
+  display: block;
+}
