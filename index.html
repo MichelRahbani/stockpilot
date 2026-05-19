@@ -2331,7 +2331,7 @@ JNJ 20"></textarea>
           </section>
 
           <div class="sp-accordion savings-panel-page active" data-savings-panel="plan">
-            <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="this.setAttribute('aria-expanded', this.getAttribute('aria-expanded')==='true'?'false':'true'); this.nextElementSibling.classList.toggle('sp-accordion-open')">
+            <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="const open=this.getAttribute('aria-expanded')!=='true'; this.setAttribute('aria-expanded',open); this.nextElementSibling.classList.toggle('sp-accordion-open'); if(open) renderSavingsBudget();">
               <span class="sp-accordion-label">📊 Budget Flow &amp; Goal Mix Charts</span>
               <span class="sp-accordion-chevron">›</span>
             </button>
