@@ -920,7 +920,7 @@ async function generateBrief(){
   btn.textContent='Loading...';btn.disabled=true;
   content.innerHTML='<span style="color:rgba(255,255,255,0.3)">Fetching live market data...</span>';
   try{
-    const r=await fetch('/api/market-brief');
+    const r=await fetch(API+'/api/market-brief');
     const data=await r.json();
     content.innerHTML='<div style="font-size:10px;color:rgba(255,255,255,0.25);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:12px">'+data.date+' &middot; '+data.sentiment.toUpperCase()+'</div>'+
     data.sections.map(s=>'<p style="margin-bottom:10px;color:rgba(255,255,255,0.7);line-height:1.65">'+s.replace(/\*\*(.*?)\*\*/g,'<strong style="color:white">$1</strong>').replace(/_(.*?)_/g,'<em style="color:rgba(255,255,255,0.3);font-style:italic">$1</em>')+'</p>').join('');
