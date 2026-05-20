@@ -279,7 +279,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="toast" id="toast"></div>
 
 <script>
-const API = window.location.origin;
+const API = (window.location.hostname === 'mystockspilot.com' || window.location.hostname === 'michelrahbani.github.io') ? 'https://stockpilot-production-c94f.up.railway.app' : window.location.origin;
 const KEY = 'sp_trade_v2';
 const START = 100000;
 const WL = ['AAPL','MSFT','NVDA','TSLA','AMZN','GOOGL','META','SPY','BTC-USD','GLD','AMD','NFLX'];
