@@ -115,3 +115,10 @@ body.savings-mode .workspace-navigator { border-left: 3px solid var(--sp-blue) !
 body.education-mode .workspace-navigator { border-left: 3px solid var(--sp-purple) !important; }
 body.plan-mode .workspace-navigator { border-left: 3px solid var(--sp-gold) !important; }
 body.goals-mode .workspace-navigator { border-left: 3px solid #0f766e !important; }
+
+
+/* Force-show invest-nav - overrides styles.css section-picker hide rule */
+.invest-nav,
+body.investing-mode .invest-nav {
+  display: block !important;
+}
