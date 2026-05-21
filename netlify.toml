@@ -3,3 +3,18 @@
 
 [functions]
   directory = "netlify/functions"
+
+[[redirects]]
+  from = "/budget"
+  to = "/budget.html"
+  status = 200
+
+[[redirects]]
+  from = "/trade"
+  to = "/trade.html"
+  status = 200
+
+[[redirects]]
+  from = "/app"
+  to = "/app.html"
+  status = 200
