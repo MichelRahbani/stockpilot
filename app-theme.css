@@ -357,3 +357,8 @@ body.investing-mode .invest-nav {
 }
 
 .flow-steps-wrap summary::-webkit-details-marker { display: none !important; }
+
+
+/* invest-nav: only show in investing mode */
+.invest-nav { display: none !important; }
+body.investing-mode .invest-nav { display: block !important; }
