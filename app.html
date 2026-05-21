@@ -1124,12 +1124,15 @@
               <span>Use this for a fast equal-weight portfolio. For exact percentages, edit the Your Assets table below.</span>
             </div>
           </div>
-          <div class="flow-steps" aria-label="How to use the portfolio analyzer">
-            <div><strong>1</strong><span>Enter tickers</span></div>
-            <div><strong>2</strong><span>Load market data</span></div>
-            <div><strong>3</strong><span>Review holdings</span></div>
-            <div><strong>4</strong><span>Open graphs or report</span></div>
-          </div>
+          <details class="flow-steps-wrap" open>
+            <summary class="flow-steps-toggle">How to use</summary>
+            <div class="flow-steps" aria-label="How to use the portfolio analyzer">
+              <div><strong>1</strong><span>Enter tickers</span></div>
+              <div><strong>2</strong><span>Load market data</span></div>
+              <div><strong>3</strong><span>Review holdings</span></div>
+              <div><strong>4</strong><span>Open graphs or report</span></div>
+            </div>
+          </details>
           <div class="lookup-grid">
             <label class="field">
               <span>Fast tickers</span>
@@ -1313,6 +1316,8 @@
             <button class="ghost-button small-button section-clear-button" id="clearInvestingButton" type="button">Clear Investing</button>
           </div>
 
+          <div class="portfolio-zone-header"><span>Analysis</span></div>
+
           <section class="verdict-panel" id="portfolioVerdictPanel">
             <div>
               <p class="label label-with-info">Portfolio Verdict <button class="info-button" data-term="portfolioVerdict" type="button" aria-label="Explain portfolio verdict">i</button></p>
@@ -1422,6 +1427,8 @@ BTC-USD 15</textarea>
             </section>
           </div>
 
+          <div class="portfolio-zone-header"><span>Holdings</span></div>
+
           <section class="holdings-panel">
             <div class="section-title">
               <div>
@@ -1452,6 +1459,8 @@ BTC-USD 15</textarea>
               </table>
             </div>
           </section>
+
+          <div class="portfolio-zone-header"><span>Thesis &amp; Correlation</span></div>
 
           <section class="holdings-panel thesis-panel">
             <div class="section-title">
