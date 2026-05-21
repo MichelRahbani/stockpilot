@@ -10912,10 +10912,13 @@ renderVirtualMarket();
 if (virtualMarket.autoRefresh) setMarketPolling(true);
 update();
 updatePortfolio();
-setMoneyMode(restoredMode || "command");
-if (restoredMode === "savings") showSavingsPanel(restoredSavingsPanel || "plan");
-if (restoredMode === "education") showLearningPanel(restoredLearningPanel || "tips");
-if (restoredMode === "investing") switchView(sectionSelect.value || "portfolio");
+// URL param override — e.g. /app?mode=savings from budget.html
+const urlMode = new URLSearchParams(window.location.search).get("mode");
+const startMode = urlMode || restoredMode || "command";
+setMoneyMode(startMode);
+if (startMode === "savings") showSavingsPanel(restoredSavingsPanel || "plan");
+if (startMode === "education") showLearningPanel(restoredLearningPanel || "tips");
+if (startMode === "investing") switchView(sectionSelect.value || "portfolio");
 showEducationalNotice();
 showOnboardingIfNeeded();
 saveAppState();
