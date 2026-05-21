@@ -122,3 +122,238 @@ body.goals-mode .workspace-navigator { border-left: 3px solid #0f766e !important
 body.investing-mode .invest-nav {
   display: block !important;
 }
+
+/* ── Portfolio Tab Declutter ── */
+
+/* Stat grid: tighter cards, no min-height, no left border */
+.portfolio-summary-grid {
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 0.6rem !important;
+  margin-top: 0.75rem !important;
+}
+
+.compact-card {
+  min-height: 0 !important;
+  border-left: none !important;
+  border-top: 3px solid var(--sp-g50) !important;
+  padding: 0.75rem 0.9rem !important;
+  border-radius: 10px !important;
+}
+
+.compact-card p.label {
+  font-size: 10px !important;
+  letter-spacing: 0.08em !important;
+  color: var(--sp-g400) !important;
+  margin-bottom: 2px !important;
+}
+
+.compact-card strong {
+  font-size: 1.4rem !important;
+  font-family: 'DM Mono', monospace !important;
+  line-height: 1.1 !important;
+  display: block !important;
+}
+
+.compact-card span {
+  font-size: 11px !important;
+  color: var(--sp-g400) !important;
+  line-height: 1.3 !important;
+}
+
+/* Verdict panel: horizontal bar */
+.verdict-panel {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 0.85rem 1rem !important;
+  background: var(--sp-g50) !important;
+  border-radius: 10px !important;
+  border: none !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+}
+
+.verdict-panel > div:first-child {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+}
+
+.verdict-panel p.label {
+  font-size: 10px !important;
+  letter-spacing: 0.08em !important;
+  color: var(--sp-g400) !important;
+}
+
+.verdict-panel strong {
+  font-size: 1.1rem !important;
+  font-family: 'Fraunces', serif !important;
+}
+
+.verdict-panel span {
+  font-size: 12px !important;
+  color: var(--sp-g600) !important;
+}
+
+.verdict-score {
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 2px !important;
+  font-family: 'DM Mono', monospace !important;
+}
+
+.verdict-score span {
+  font-size: 2.2rem !important;
+  font-weight: 700 !important;
+  color: var(--sp-g900) !important;
+  line-height: 1 !important;
+}
+
+.verdict-score small {
+  font-size: 13px !important;
+  color: var(--sp-g400) !important;
+}
+
+/* Zone dividers */
+.portfolio-zone-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 1.5rem 0 0.75rem !important;
+  padding: 0 !important;
+}
+
+.portfolio-zone-header span {
+  font-size: 10px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.1em !important;
+  text-transform: uppercase !important;
+  color: var(--sp-g400) !important;
+  white-space: nowrap !important;
+}
+
+.portfolio-zone-header::after {
+  content: '' !important;
+  flex: 1 !important;
+  height: 1px !important;
+  background: var(--sp-g100) !important;
+}
+
+/* Quick Demo Load compact */
+.lookup-panel .flow-steps {
+  display: flex !important;
+  gap: 0.5rem !important;
+  flex-wrap: wrap !important;
+  margin-bottom: 0.75rem !important;
+  padding: 0.6rem 0.75rem !important;
+  background: var(--sp-g50) !important;
+  border-radius: 8px !important;
+}
+
+.lookup-panel .flow-steps div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  font-size: 12px !important;
+  color: var(--sp-g600) !important;
+}
+
+.lookup-panel .flow-steps strong {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  font-size: 10px !important;
+  background: var(--sp-green) !important;
+  color: white !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-weight: 700 !important;
+  font-family: 'DM Sans', sans-serif !important;
+}
+
+.lookup-panel .section-title h2 { font-size: 0.95rem !important; }
+
+/* Top Actions list */
+.check-panel ul {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.4rem !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.check-panel ul li {
+  list-style: none !important;
+  padding: 0.6rem 0.75rem !important;
+  background: var(--sp-g50) !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  color: var(--sp-g900) !important;
+  border-left: 3px solid var(--sp-green) !important;
+}
+
+/* Holdings/thesis/correlation panels */
+.holdings-panel, .thesis-panel, .correlation-panel {
+  border-top: none !important;
+  padding-top: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Thesis form 2-col */
+.thesis-form-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.65rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.thesis-action-box { display: flex !important; align-items: center !important; gap: 0.75rem !important; }
+
+.thesis-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+  gap: 0.65rem !important;
+}
+
+.bulk-panel .section-title, .check-panel .section-title,
+.holdings-panel .section-title, .thesis-panel .section-title,
+.correlation-panel .section-title {
+  margin-bottom: 0.5rem !important;
+  padding-bottom: 0.5rem !important;
+  border-bottom: 1px solid var(--sp-g100) !important;
+}
+
+@media (max-width: 600px) {
+  .portfolio-summary-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .thesis-form-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Flow steps collapsible */
+.flow-steps-wrap { margin-bottom: 0.75rem !important; }
+
+.flow-steps-wrap summary.flow-steps-toggle {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: var(--sp-g400) !important;
+  cursor: pointer !important;
+  list-style: none !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  padding: 2px 0 !important;
+  letter-spacing: 0.04em !important;
+}
+
+.flow-steps-wrap summary.flow-steps-toggle::before {
+  content: '▸' !important;
+  font-size: 10px !important;
+  transition: transform 0.15s !important;
+}
+
+.flow-steps-wrap[open] summary.flow-steps-toggle::before {
+  transform: rotate(90deg) !important;
+}
+
+.flow-steps-wrap summary::-webkit-details-marker { display: none !important; }
