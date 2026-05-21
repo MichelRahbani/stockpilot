@@ -10041,6 +10041,10 @@ const loadRealStocks = async () => {
       ? `Loaded ${successful.length} assets. ${failed.length} failed.${firstFailure}`
       : `Loaded ${successful.length} assets with ${stockPilotApiOnline ? "StockPilot API gateway" : "public browser"} price history.`;
     recordDataFreshness("portfolio", successful.length ? "success" : "failed", `Loaded ${successful.length}/${symbols.length} assets.`, stockPilotApiOnline ? "StockPilot API gateway" : "Free public data");
+    if (successful.length > 0) {
+      const flowWrap = document.querySelector(".flow-steps-wrap");
+      if (flowWrap) flowWrap.removeAttribute("open");
+    }
   } catch (error) {
     fetchStatus.textContent = `Real-asset fetch failed: ${error.message}`;
     recordDataFreshness("portfolio", "failed", error.message, stockPilotApiOnline ? "StockPilot API gateway" : "Free public data");
