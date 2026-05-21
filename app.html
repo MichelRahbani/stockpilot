@@ -1040,51 +1040,50 @@
           <a class="primary-button small-button" href="http://127.0.0.1:8787/">Open Live App</a>
         </section>
 
-        <nav class="app-tabs section-picker surface-card" aria-label="Investing subsections">
-          <div class="section-picker-heading">
-            <span>Investing Workspace</span>
-            <strong>Choose a section</strong>
-          </div>
-          <div class="duo-subject-grid" style="margin-bottom:1rem">
-            <button class="duo-subject-card investing-tab active" data-view="portfolio" type="button" aria-pressed="true">
-              <div class="duo-subject-icon" style="background:#e0f7fa">📊</div>
-              <div class="duo-subject-info"><strong>Portfolio</strong><span>Build & analyze</span></div>
-            </button>
-            <button class="duo-subject-card investing-tab" data-view="research" type="button" aria-pressed="false">
-              <div class="duo-subject-icon" style="background:#e8f5e9">🔍</div>
-              <div class="duo-subject-info"><strong>Research</strong><span>News & macro</span></div>
-            </button>
-            <button class="duo-subject-card investing-tab" data-view="insights" type="button" aria-pressed="false">
-              <div class="duo-subject-icon" style="background:#e3f2fd">📈</div>
-              <div class="duo-subject-info"><strong>Graphs</strong><span>Charts & frontier</span></div>
-            </button>
-            <button class="duo-subject-card investing-tab" data-view="rebalance" type="button" aria-pressed="false">
-              <div class="duo-subject-icon" style="background:#fff8e1">⚖️</div>
-              <div class="duo-subject-info"><strong>Rebalance</strong><span>Buy & sell moves</span></div>
-            </button>
-            <button class="duo-subject-card investing-tab" data-view="market" type="button" aria-pressed="false">
-              <div class="duo-subject-icon" style="background:#fce4ec">🎮</div>
-              <div class="duo-subject-info"><strong>Virtual Market</strong><span>Paper trading</span></div>
-            </button>
-            <button class="duo-subject-card investing-tab" data-view="calculators" type="button" aria-pressed="false">
-              <div class="duo-subject-icon" style="background:#f3e5f5">🧮</div>
-              <div class="duo-subject-info"><strong>Calculators</strong><span>TVM & intrinsic</span></div>
-            </button>
-            <button class="duo-subject-card investing-tab" data-view="records" type="button" aria-pressed="false">
-              <div class="duo-subject-icon" style="background:#fff3e0">📋</div>
-              <div class="duo-subject-info"><strong>Reports</strong><span>Saved portfolios</span></div>
-            </button>
+        <nav class="app-tabs section-picker surface-card invest-nav" aria-label="Investing subsections">
+          <div class="invest-nav-header">
+            <span class="invest-nav-label">Investing</span>
+            <div class="invest-nav-tabs" role="tablist">
+              <button class="invest-tab active" data-view="portfolio" type="button" aria-pressed="true" role="tab">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                Portfolio
+              </button>
+              <button class="invest-tab" data-view="research" type="button" aria-pressed="false" role="tab">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                Research
+              </button>
+              <button class="invest-tab" data-view="insights" type="button" aria-pressed="false" role="tab">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Graphs
+              </button>
+              <button class="invest-tab" data-view="rebalance" type="button" aria-pressed="false" role="tab">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Rebalance
+              </button>
+              <button class="invest-tab" data-view="market" type="button" aria-pressed="false" role="tab">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+                Simulate
+              </button>
+              <button class="invest-tab" data-view="calculators" type="button" aria-pressed="false" role="tab">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg>
+                Calculators
+              </button>
+              <button class="invest-tab" data-view="records" type="button" aria-pressed="false" role="tab">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Reports
+              </button>
+            </div>
           </div>
           <label class="field compact hidden-section-select">
             <span>Investing Section</span>
             <select id="sectionSelect">
               <option value="portfolio">Portfolio Builder</option>
-              <option value="research">Research, News & Macro</option>
-              <option value="insights">Graphs, Frontier & Simulator</option>
+              <option value="research">Research, News &amp; Macro</option>
+              <option value="insights">Graphs, Frontier &amp; Simulator</option>
               <option value="rebalance">Rebalance Lab</option>
               <option value="market">Virtual Market</option>
               <option value="calculators">Calculators</option>
-              <option value="records">Reports & Saved Portfolios</option>
+              <option value="records">Reports &amp; Saved Portfolios</option>
             </select>
           </label>
         </nav>
