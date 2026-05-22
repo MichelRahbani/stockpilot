@@ -4,7 +4,7 @@ var page=window.location.pathname;
 // ---- TRADE PAGE ----
 if(page==='/trade'||page==='/trade.html'||page==='/trade/'){
   var style=document.createElement('style');
-  style.textContent='#noStock{display:none!important}.quote-empty{display:flex!important;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 24px;min-height:280px}';
+  style.textContent='#noStock{display:none!important}.quote-empty{display:flex!important;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 32px}';
   document.head.appendChild(style);
 
   function injectQuickStart(){
@@ -13,21 +13,21 @@ if(page==='/trade'||page==='/trade.html'||page==='/trade/'){
     empty.dataset.injected='1';
     var tickers=[{s:'AAPL',n:'Apple'},{s:'TSLA',n:'Tesla'},{s:'NVDA',n:'Nvidia'},{s:'SPY',n:'S&P 500'},{s:'MSFT',n:'Microsoft'},{s:'BTC-USD',n:'Bitcoin'}];
     var html='';
-    html+='<div style="margin-bottom:20px">';
-    html+='<div style="font-family:Fraunces,serif;font-size:20px;font-weight:700;color:rgba(255,255,255,0.9);margin-bottom:6px">Make your first trade</div>';
-    html+='<div style="font-size:13px;color:rgba(255,255,255,0.35)">Tap a stock below or search any ticker above</div>';
+    html+='<div style="margin-bottom:24px">';
+    html+='<div style="font-family:Fraunces,serif;font-size:22px;font-weight:700;color:rgba(255,255,255,0.9);margin-bottom:8px">Make your first trade</div>';
+    html+='<div style="font-size:13px;color:rgba(255,255,255,0.35)">Tap a stock below, or search any ticker above</div>';
     html+='</div>';
-    html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;max-width:420px;margin-bottom:20px">';
+    html+='<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;width:100%;margin-bottom:24px">';
     tickers.forEach(function(t){
-      html+='<button onclick="document.getElementById(\'symInput\').value=\''+t.s+'\';document.getElementById(\'searchBtn\').click()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 8px;cursor:pointer;text-align:center;transition:all 0.15s" onmouseover="this.style.background=\'rgba(220,38,38,0.15)\';this.style.borderColor=\'rgba(220,38,38,0.4)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.06)\';this.style.borderColor=\'rgba(255,255,255,0.1)\'">';
+      html+='<button onclick="document.getElementById(\'symInput\').value=\''+t.s+'\';document.getElementById(\'searchBtn\').click()" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all 0.15s" onmouseover="this.style.background=\'rgba(220,38,38,0.15)\';this.style.borderColor=\'rgba(220,38,38,0.4)\'" onmouseout="this.style.background=\'rgba(255,255,255,0.06)\';this.style.borderColor=\'rgba(255,255,255,0.1)\'">';
       html+='<div style="font-family:DM Mono,monospace;font-size:13px;font-weight:600;color:white">'+t.s+'</div>';
-      html+='<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:3px">'+t.n+'</div>';
+      html+='<div style="font-size:10px;color:rgba(255,255,255,0.35);margin-top:4px">'+t.n+'</div>';
       html+='</button>';
     });
     html+='</div>';
     html+='<div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">';
-    html+='<a href="/learn" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;text-decoration:none;color:rgba(255,255,255,0.5);font-size:12px;font-weight:600">📖 New to investing?</a>';
-    html+='<a href="/budget" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;text-decoration:none;color:rgba(255,255,255,0.5);font-size:12px;font-weight:600">💰 Plan budget first</a>';
+    html+='<a href="/learn" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 16px;text-decoration:none;color:rgba(255,255,255,0.5);font-size:12px;font-weight:600">📖 New to investing?</a>';
+    html+='<a href="/budget" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 16px;text-decoration:none;color:rgba(255,255,255,0.5);font-size:12px;font-weight:600">💰 Plan budget first</a>';
     html+='</div>';
     empty.innerHTML=html;
   }
