@@ -4,10 +4,9 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>StockPilot — Free Investing App for Beginners | Portfolio, Budget & Learning</title>
-    <meta name="description" content="StockPilot helps beginners analyze portfolios, plan budgets, track savings goals, and learn personal finance with real market data. 100% free forever." />
-    <meta name="keywords" content="free investing app, portfolio analyzer, budget tracker, learn investing, personal finance for beginners, stock market education" />
-    <link rel="canonical" href="https://mystockspilot.com" />
-<meta name="description" content="Practice trading with $100,000 of virtual cash. Real stock prices, zero risk. Free forever."/>
+<meta name="description" content="Practice trading with $100,000 virtual cash. Plan your budget. Learn investing in plain English. 100% free, no account needed." />
+<meta name="keywords" content="free investing app, stock market simulator, portfolio analyzer, budget tracker, learn investing, personal finance for beginners" />
+<link rel="canonical" href="https://mystockspilot.com" />
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
@@ -20,43 +19,73 @@ a{text-decoration:none}
 .btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;white-space:nowrap}
 .btn-green{background:var(--green);color:white}.btn-green:hover{background:#147a55;transform:translateY(-1px)}
 .btn-outline{background:transparent;color:var(--g600);border:1px solid var(--g100)}.btn-outline:hover{background:var(--off)}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 40px;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--g100)}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--g100)}
 .logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--g900);display:flex;align-items:center;gap:10px}
 .logo img{height:28px;width:auto}
-.nav-right{display:flex;gap:10px}
-.hero{min-height:calc(100vh - 44px);display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 24px 80px;background:#000;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(26,158,110,0.12) 0%,transparent 70%)}
-.hero-content{position:relative;max-width:720px}
+.nav-links{display:flex;align-items:center;gap:6px}
+.nav-link{font-size:13px;font-weight:500;color:var(--g600);padding:6px 12px;border-radius:8px;transition:all 0.15s}
+.nav-link:hover{background:var(--off);color:var(--g900)}
+.nav-right{display:flex;gap:10px;align-items:center}
+.ticker-wrap{background:#0a0e17;overflow:hidden;padding:10px 0;margin-top:61px;display:block}
+.ticker-track{display:flex;gap:40px;animation:ticker 30s linear infinite;width:max-content}
+.ticker-track:hover{animation-play-state:paused}
+.ticker-item{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);white-space:nowrap;font-family:'DM Sans',sans-serif}
+.ticker-item strong{color:white}
+.up{color:#2ecc9a}.dn{color:#ef4444}
+@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.hero{min-height:92vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:60px 24px 80px;background:#000;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(26,158,110,0.14) 0%,transparent 70%)}
+.hero-content{position:relative;max-width:760px}
 .hero-pill{display:inline-flex;background:rgba(26,158,110,0.12);border:1px solid rgba(26,158,110,0.25);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:600;color:#2ecc9a;margin-bottom:28px}
-h1{font-family:'Fraunces',serif;font-size:clamp(40px,6vw,72px);font-weight:700;color:white;line-height:1.05;letter-spacing:-0.03em;margin-bottom:20px}
+h1{font-family:'Fraunces',serif;font-size:clamp(38px,6vw,72px);font-weight:700;color:white;line-height:1.05;letter-spacing:-0.03em;margin-bottom:20px}
 h1 em{font-style:italic;color:#2ecc9a;font-weight:300}
-.hero-sub{font-size:18px;color:rgba(255,255,255,0.5);line-height:1.65;margin-bottom:36px;max-width:500px;margin:0 auto 36px}
+.hero-sub{font-size:18px;color:rgba(255,255,255,0.5);line-height:1.65;margin-bottom:36px;max-width:520px;margin:0 auto 36px}
 .hero-cta{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
 .btn-hero{padding:16px 36px;font-size:16px;border-radius:14px}
+.btn-hero-secondary{padding:15px 28px;font-size:15px;border-radius:14px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.15)}
+.btn-hero-secondary:hover{background:rgba(255,255,255,0.14);color:white}
 .hero-note{font-size:13px;color:rgba(255,255,255,0.2);margin-top:16px}
-.stories{padding:100px 40px;background:white}
-.stories-inner{max-width:1060px;margin:0 auto}
+.proof-bar{background:#0d1117;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);padding:20px 40px}
+.proof-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
+.proof-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+.proof-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:white}
+.proof-label{font-size:12px;color:rgba(255,255,255,0.35);font-weight:500;text-align:center}
+.proof-divider{width:1px;height:36px;background:rgba(255,255,255,0.08)}
+.tools{padding:100px 40px;background:white}
+.tools-inner{max-width:1060px;margin:0 auto}
 .label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--g400);text-align:center;margin-bottom:14px}
-h2.section{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;text-align:center;color:var(--g900);letter-spacing:-0.02em;margin-bottom:56px}
+h2.section{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;text-align:center;color:var(--g900);letter-spacing:-0.02em;margin-bottom:12px}
+.section-sub{font-size:16px;color:var(--g600);text-align:center;margin-bottom:56px}
+.tools-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.tool-card{border-radius:20px;padding:36px;border:1px solid var(--g100);background:white;transition:all 0.2s;position:relative;overflow:hidden}
+.tool-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.08);border-color:rgba(26,158,110,0.2)}
+.tool-card.featured{background:var(--g900);border-color:transparent}
+.tool-card.featured:hover{box-shadow:0 12px 40px rgba(0,0,0,0.3)}
+.tool-icon{font-size:36px;margin-bottom:16px;display:block}
+.tool-name{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:10px;letter-spacing:-0.01em}
+.tool-card.featured .tool-name{color:white}
+.tool-desc{font-size:15px;line-height:1.65;color:var(--g600);margin-bottom:20px}
+.tool-card.featured .tool-desc{color:rgba(255,255,255,0.5)}
+.tool-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green);background:var(--green-l);padding:4px 10px;border-radius:20px;margin-bottom:16px}
+.tool-card.featured .tool-tag{background:rgba(46,204,154,0.1);color:#2ecc9a}
+.tool-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--green)}
+.tool-card.featured .tool-link{color:#2ecc9a}
+.tool-link:hover{gap:10px}
+.stories{padding:100px 40px;background:var(--off)}
+.stories-inner{max-width:1060px;margin:0 auto}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
 .card{border-radius:20px;padding:36px;transition:transform 0.2s}.card:hover{transform:translateY(-3px)}
 .card.dark{background:var(--g900)}
 .card.green{background:var(--green-l);border:1px solid rgba(26,158,110,0.15)}
-.card.light{background:var(--off);border:1px solid var(--g100)}
+.card.light{background:white;border:1px solid var(--g100)}
 .card.red{background:#1a0505;border:1px solid rgba(220,38,38,0.2)}
 .card-num{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px}
-.card.dark .card-num{color:rgba(255,255,255,0.3)}
-.card.green .card-num{color:var(--green)}
-.card.light .card-num{color:var(--g400)}
-.card.red .card-num{color:rgba(220,38,38,0.5)}
+.card.dark .card-num{color:rgba(255,255,255,0.3)}.card.green .card-num{color:var(--green)}.card.light .card-num{color:var(--g400)}.card.red .card-num{color:rgba(220,38,38,0.5)}
 .card-icon{font-size:36px;margin-bottom:16px;display:block}
 .card-q{font-family:'Fraunces',serif;font-size:22px;font-weight:700;line-height:1.2;margin-bottom:12px;letter-spacing:-0.02em}
-.card.dark .card-q,.card.red .card-q{color:white}
-.card.green .card-q,.card.light .card-q{color:var(--g900)}
+.card.dark .card-q,.card.red .card-q{color:white}.card.green .card-q,.card.light .card-q{color:var(--g900)}
 .card-a{font-size:15px;line-height:1.65}
-.card.dark .card-a{color:rgba(255,255,255,0.55)}
-.card.green .card-a,.card.light .card-a{color:var(--g600)}
-.card.red .card-a{color:rgba(255,255,255,0.45)}
+.card.dark .card-a{color:rgba(255,255,255,0.55)}.card.green .card-a,.card.light .card-a{color:var(--g600)}.card.red .card-a{color:rgba(255,255,255,0.45)}
 .card-link{display:inline-flex;margin-top:20px;font-size:14px;font-weight:600;color:#2ecc9a}
 .preview{padding:100px 40px;background:var(--g900);text-align:center}
 .preview-inner{max-width:860px;margin:0 auto}
@@ -71,14 +100,13 @@ h2.section{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weig
 .stat-label{font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
 .stat-val{font-family:monospace;font-size:20px;font-weight:500;color:white}
 .stat-chg{font-family:monospace;font-size:12px;margin-top:2px}
-.up{color:#2ecc9a}.dn{color:#ef4444}
 .positions{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px;grid-column:span 3}
 .pos-title{font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
 .pos{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px}
 .pos:last-child{border:none}
-.sym{font-weight:600;color:white}
-.price{font-family:monospace;color:rgba(255,255,255,0.6)}
-.chg{font-family:monospace;font-size:12px}
+.sym{font-weight:600;color:white}.price{font-family:monospace;color:rgba(255,255,255,0.6)}.chg{font-family:monospace;font-size:12px}
+.leaderboard-section{padding:80px 40px;background:#000}
+.leaderboard-inner{max-width:700px;margin:0 auto;text-align:center}
 .cta{padding:100px 40px;background:white;text-align:center}
 .cta h2{font-family:'Fraunces',serif;font-size:clamp(32px,5vw,52px);font-weight:700;color:var(--g900);letter-spacing:-0.03em;margin-bottom:14px;line-height:1.1}
 .cta h2 em{font-style:italic;color:var(--green);font-weight:300}
@@ -89,282 +117,33 @@ footer{background:var(--g900);padding:24px 40px;display:flex;align-items:center;
 .foot-links{display:flex;gap:20px}
 footer a{font-size:12px;color:rgba(255,255,255,0.3)}
 footer a:hover{color:#2ecc9a}
-@media(max-width:768px){.feat-grid{grid-template-columns:1fr 1fr!important}
-    html,body{overflow-x:hidden;max-width:100vw}
-    .ticker-wrap{display:none}
-    nav{padding:12px 20px}
-    nav .nav-right .btn-outline{display:none}
-    .hero{padding:100px 20px 60px}
-    h1{font-size:36px}
-    .hero-sub{font-size:15px}
-    .btn-hero{padding:13px 24px;font-size:14px}
-    .stories,.preview,.cta{padding:60px 20px}
-    .stories-inner,.preview-inner{padding:0}
-    .grid{grid-template-columns:1fr}
-    .card{padding:24px}
-    .browser-body{grid-template-columns:1fr 1fr}
-    .positions{grid-column:span 2}
-    .preview h2{font-size:28px}
-    .cta h2{font-size:32px}
-    footer{flex-direction:column;text-align:center;padding:20px}
-    .foot-links{justify-content:center}
-  }
-
-<style>
-
-.ticker-track{display:flex;gap:40px;animation:ticker 30s linear infinite;width:max-content}
-.ticker-track:hover{animation-play-state:paused}
-.ticker-item{display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);white-space:nowrap}
-.ticker-item strong{color:white}
-.ticker-item .up{color:#2ecc9a}
-.ticker-item .dn{color:#ef4444}
-@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-
-<style>
-
-.ticker-track{display:flex;gap:40px;animation:ticker 30s linear infinite;width:max-content}
-.ticker-track:hover{animation-play-state:paused}
-.ticker-item{display:flex;align-items:center;gap:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);white-space:nowrap}
-.ticker-item strong{color:white}
-.ticker-item .up{color:#2ecc9a}
-.ticker-item .dn{color:#ef4444}
-@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-
-.ticker-wrap{background:#0a0e17;overflow:hidden;padding:10px 0;margin-top:61px;display:block}
-.ticker-track{display:flex;gap:40px;animation:ticker 30s linear infinite;width:max-content}
-.ticker-track:hover{animation-play-state:paused}
-.ticker-item{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);white-space:nowrap;font-family:'DM Sans',sans-serif}
-.ticker-item strong{color:white}
-.ticker-item .up{color:#2ecc9a}
-.ticker-item .dn{color:#ef4444}
-@keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-</style></style></style>
+@media(max-width:768px){html,body{overflow-x:hidden;max-width:100vw}.ticker-wrap{display:none}nav{padding:12px 20px}.nav-links{display:none}nav .nav-right .btn-outline{display:none}.hero{padding:100px 20px 60px;min-height:auto}h1{font-size:36px}.hero-sub{font-size:15px}.btn-hero{padding:13px 24px;font-size:14px}.proof-bar{padding:20px}.proof-inner{gap:20px}.proof-divider{display:none}.tools,.stories,.preview,.cta,.leaderboard-section{padding:60px 20px}.tools-grid,.grid{grid-template-columns:1fr}.tool-card,.card{padding:24px}.browser-body{grid-template-columns:1fr 1fr}.positions{grid-column:span 2}.preview h2,.cta h2{font-size:28px}footer{flex-direction:column;text-align:center;padding:20px}.foot-links{justify-content:center}}
+</style>
 </head>
 <body>
-
 <nav>
   <a href="/" class="logo"><img src="/logo.jpg" alt="StockPilot"/>StockPilot</a>
+  <div class="nav-links">
+    <a href="/trade" class="nav-link">Virtual Market</a>
+    <a href="/app" class="nav-link">Portfolio</a>
+    <a href="/budget" class="nav-link">Budget</a>
+    <a href="/learn" class="nav-link">Learn</a>
+  </div>
   <div class="nav-right">
-    <a href="/budget" class="btn btn-outline">Budget Planner</a>
-    <a href="/trade" class="btn btn-green">Start Trading Free</a>
+    <a href="/trade" class="btn btn-green">Start Free →</a>
   </div>
 </nav>
-<div class="ticker-wrap">
-  <div class="ticker-track">
-    <div class="ticker-item"><strong>AAPL</strong> $294.80 <span class="up">+1.38%</span></div>
-    <div class="ticker-item"><strong>NVDA</strong> $225.83 <span class="up">+2.29%</span></div>
-    <div class="ticker-item"><strong>TSLA</strong> $445.27 <span class="up">+2.73%</span></div>
-    <div class="ticker-item"><strong>MSFT</strong> $407.77 <span class="dn">-1.19%</span></div>
-    <div class="ticker-item"><strong>AMZN</strong> $270.13 <span class="up">+1.62%</span></div>
-    <div class="ticker-item"><strong>META</strong> $616.63 <span class="up">+2.26%</span></div>
-    <div class="ticker-item"><strong>SPY</strong> $742.31 <span class="up">+0.56%</span></div>
-    <div class="ticker-item"><strong>QQQ</strong> $714.71 <span class="up">+1.06%</span></div>
-    <div class="ticker-item"><strong>GLD</strong> $430.50 <span class="dn">-0.56%</span></div>
-    <div class="ticker-item"><strong>BTC</strong> $103,200 <span class="up">+1.20%</span></div>
-    <div class="ticker-item"><strong>AAPL</strong> $294.80 <span class="up">+1.38%</span></div>
-    <div class="ticker-item"><strong>NVDA</strong> $225.83 <span class="up">+2.29%</span></div>
-    <div class="ticker-item"><strong>TSLA</strong> $445.27 <span class="up">+2.73%</span></div>
-    <div class="ticker-item"><strong>MSFT</strong> $407.77 <span class="dn">-1.19%</span></div>
-    <div class="ticker-item"><strong>AMZN</strong> $270.13 <span class="up">+1.62%</span></div>
-    <div class="ticker-item"><strong>META</strong> $616.63 <span class="up">+2.26%</span></div>
-    <div class="ticker-item"><strong>SPY</strong> $742.31 <span class="up">+0.56%</span></div>
-    <div class="ticker-item"><strong>QQQ</strong> $714.71 <span class="up">+1.06%</span></div>
-    <div class="ticker-item"><strong>GLD</strong> $430.50 <span class="dn">-0.56%</span></div>
-    <div class="ticker-item"><strong>BTC</strong> $103,200 <span class="up">+1.20%</span></div>
-  </div>
-</div>
-
-
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-content">
-    <div class="hero-pill">Free forever · No real money · Real market data</div>
-    <h1>Your first investing account<br>should not be your <em>real one.</em></h1>
-    <p class="hero-sub">Practice trading with $100,000 of virtual cash using real stock prices. Build confidence before you risk a dollar.</p>
-    <div class="hero-cta">
-      <a href="/trade" class="btn btn-green btn-hero">Get $100,000 Virtual Cash</a>
-      <a href="/learn" class="btn btn-outline btn-hero" style="color:rgba(255,255,255,0.5);border-color:rgba(255,255,255,0.15)">Explore Learning App</a>
-    </div>
-    <p class="hero-note">No account needed · Works on any device · 100% free</p>
-  </div>
-</section>
-
-<section class="stories">
-  <div class="stories-inner">
-    <p class="label">Why StockPilot</p>
-    <h2 class="section">Four things worth knowing.</h2>
-    <div class="grid">
-      <div class="card dark">
-        <div class="card-num">01 — What we are</div>
-        <span class="card-icon">🎮</span>
-        <div class="card-q">A stock market simulator that uses real prices.</div>
-        <div class="card-a">Buy and sell any stock at real market prices. Track your gains and losses. Learn what moves markets. No real money involved, ever.</div>
-        <a href="/trade" class="card-link">Try the simulator</a>
-      </div>
-      <div class="card green">
-        <div class="card-num">02 — Who it is for</div>
-        <span class="card-icon">🌱</span>
-        <div class="card-q">Anyone who keeps saying they should really learn about investing.</div>
-        <div class="card-a">Finance students, young professionals, complete beginners. If the stock market has ever felt intimidating, this is where you start safely.</div>
-      </div>
-      <div class="card light">
-        <div class="card-num">03 — Why it exists</div>
-        <span class="card-icon">💡</span>
-        <div class="card-q">Because not knowing how to invest costs you every single year.</div>
-        <div class="card-a">Inflation erodes savings. Compounding rewards early starters. The gap between people who invest and those who do not grows over time. StockPilot helps you close that gap, starting today, for free.</div>
-      </div>
-      <div class="card red">
-        <div class="card-num">04 — What it means for you</div>
-        <span class="card-icon">🚀</span>
-        <div class="card-q">When you are ready to invest real money, you will not be guessing.</div>
-        <div class="card-a">Practice here first. Learn what a P/E ratio is. Understand risk and diversification. Build a portfolio you believe in. When you open a real account, you will know exactly what you are doing.</div>
-        <a href="/trade" class="card-link" style="color:#fca5a5">Start for free</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="preview">
-  <div class="preview-inner">
-    <h2>See it in action.</h2>
-    <p class="preview-sub">Real prices. Real companies. Fake money. Real learning.</p>
-    <div class="browser">
-      <div class="browser-bar">
-        <div class="dot" style="background:#ff5f57"></div>
-        <div class="dot" style="background:#febc2e"></div>
-        <div class="dot" style="background:#28c840"></div>
-        <div class="browser-url">mystockspilot.com/trade</div>
-      </div>
-      <div class="browser-body">
-        <div class="stat">
-          <div class="stat-label">Portfolio Value</div>
-          <div class="stat-val">$112,430</div>
-          <div class="stat-chg up">+$12,430 (+12.4%)</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Cash Available</div>
-          <div class="stat-val">$34,200</div>
-          <div class="stat-chg" style="color:rgba(255,255,255,0.3)">Ready to invest</div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Starting Cash</div>
-          <div class="stat-val">$100,000</div>
-          <div class="stat-chg" style="color:rgba(255,255,255,0.3)">Virtual only</div>
-        </div>
-        <div class="positions">
-          <div class="pos-title">My Positions</div>
-          <div class="pos"><span class="sym">AAPL</span><span class="price">$294.80</span><span class="chg up">+1.38%</span></div>
-          <div class="pos"><span class="sym">NVDA</span><span class="price">$225.83</span><span class="chg up">+2.29%</span></div>
-          <div class="pos"><span class="sym">TSLA</span><span class="price">$445.27</span><span class="chg up">+2.73%</span></div>
-          <div class="pos"><span class="sym">SPY</span><span class="price">$742.31</span><span class="chg up">+0.56%</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-
-<section style="padding:100px 40px;background:var(--off)">
-  <div style="max-width:1060px;margin:0 auto">
-    <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--g400);text-align:center;margin-bottom:14px">What is inside</p>
-    <h2 style="font-family:Fraunces,serif;font-size:clamp(28px,4vw,42px);font-weight:700;text-align:center;color:var(--g900);letter-spacing:-0.02em;margin-bottom:56px">Four tools. One place.</h2>
-    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;overflow:hidden" class="feat-grid">
-
-      <div style="background:white;border-radius:16px;padding:28px;border:1px solid var(--g100)">
-        <div style="font-size:32px;margin-bottom:16px">🎮</div>
-        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px">Virtual Market</div>
-        <div style="font-size:14px;color:var(--g600);line-height:1.6">Trade real stocks with $100,000 of virtual cash. Real prices from Finnhub. Zero risk.</div>
-        <a href="/trade" style="display:inline-flex;margin-top:16px;font-size:13px;font-weight:600;color:var(--green);text-decoration:none">Try it now</a>
-      </div>
-
-      <div style="background:white;border-radius:16px;padding:28px;border:1px solid var(--g100)">
-        <div style="font-size:32px;margin-bottom:16px">📊</div>
-        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px">Portfolio Simulator</div>
-        <div style="font-size:14px;color:var(--g600);line-height:1.6">Build a virtual portfolio with any ticker. See allocation, risk, beta, volatility, and correlation explained in plain English.</div>
-        <a href="/app" style="display:inline-flex;margin-top:16px;font-size:13px;font-weight:600;color:var(--green);text-decoration:none">Explore</a>
-      </div>
-
-      <div style="background:white;border-radius:16px;padding:28px;border:1px solid var(--g100)">
-        <div style="font-size:32px;margin-bottom:16px">💰</div>
-        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px">Budget Planner</div>
-        <div style="font-size:14px;color:var(--g600);line-height:1.6">Track income, spending, savings goals, and subscriptions. Understand your cash flow before you invest a dollar.</div>
-        <a href="/budget" style="display:inline-flex;margin-top:16px;font-size:13px;font-weight:600;color:var(--green);text-decoration:none">Open Budget Planner</a>
-      </div>
-
-      <div style="background:white;border-radius:16px;padding:28px;border:1px solid var(--g100)">
-        <div style="font-size:32px;margin-bottom:16px">🎓</div>
-        <div style="font-family:Fraunces,serif;font-size:18px;font-weight:700;color:var(--g900);margin-bottom:10px">Learning Pathways</div>
-        <div style="font-size:14px;color:var(--g600);line-height:1.6">42 beginner lessons covering P/E ratios, diversification, compounding, inflation, and more. In plain English, not textbook language.</div>
-        <a href="/learn" style="display:inline-flex;margin-top:16px;font-size:13px;font-weight:600;color:var(--green);text-decoration:none">Start Learning Free</a>
-      </div>
-
-    </div>
-  </div>
-</section>
-<section style="padding:80px 40px;background:#000">
-  <div style="max-width:700px;margin:0 auto;text-align:center">
-    <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px">Live competition</p>
-    <h2 style="font-family:Fraunces,serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:12px">🏆 Top Traders This Week</h2>
-    <p style="font-size:16px;color:rgba(255,255,255,0.4);margin-bottom:40px">Real people. Virtual cash. Real competition.</p>
-    <div id="landingLb" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;margin-bottom:32px">
-      <div style="display:grid;grid-template-columns:50px 1fr 100px;padding:12px 24px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.05em">
-        <div>Rank</div><div>Trader</div><div style="text-align:right">Return</div>
-      </div>
-      <div id="landingLbRows"><div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Loading...</div></div>
-    </div>
-    <a href="/trade" style="display:inline-flex;align-items:center;gap:8px;background:#1a9e6e;color:white;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none">Join the leaderboard →</a>
-  </div>
-</section>
-<script>
-(function(){
-  fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard?select=nickname,return_pct&order=return_pct.desc&limit=3',{
-    headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q'}
-  })
-  .then(function(r){ return r.json(); })
-  .then(function(rows){
-    var el = document.getElementById('landingLbRows');
-    if(!rows||!rows.length){ el.innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader on the leaderboard! 🚀</div>'; return; }
-    var medals=['🥇','🥈','🥉'];
-    el.innerHTML = rows.map(function(row,i){
-      var col = row.return_pct >= 0 ? '#2ecc9a' : '#dc2626';
-      var sign = row.return_pct >= 0 ? '+' : '';
-      return '<div style="display:grid;grid-template-columns:50px 1fr 100px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);align-items:center">'
-        + '<div style="font-size:22px">' + medals[i] + '</div>'
-        + '<div style="font-weight:600;color:white;font-size:15px">' + row.nickname + '</div>'
-        + '<div style="text-align:right;font-weight:700;color:' + col + ';font-size:15px">' + sign + Number(row.return_pct).toFixed(2) + '%</div>'
-        + '</div>';
-    }).join('');
-  })
-  .catch(function(){ document.getElementById('landingLbRows').innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader! 🚀</div>'; });
-})();
+<div class="ticker-wrap"><div class="ticker-track"><div class="ticker-item"><strong>AAPL</strong> $294.80 <span class="up">+1.38%</span></div><div class="ticker-item"><strong>NVDA</strong> $225.83 <span class="up">+2.29%</span></div><div class="ticker-item"><strong>TSLA</strong> $445.27 <span class="up">+2.73%</span></div><div class="ticker-item"><strong>MSFT</strong> $407.77 <span class="dn">-1.19%</span></div><div class="ticker-item"><strong>AMZN</strong> $270.13 <span class="up">+1.62%</span></div><div class="ticker-item"><strong>META</strong> $616.63 <span class="up">+2.26%</span></div><div class="ticker-item"><strong>SPY</strong> $742.31 <span class="up">+0.56%</span></div><div class="ticker-item"><strong>QQQ</strong> $714.71 <span class="up">+1.06%</span></div><div class="ticker-item"><strong>GLD</strong> $430.50 <span class="dn">-0.56%</span></div><div class="ticker-item"><strong>BTC</strong> $103,200 <span class="up">+1.20%</span></div><div class="ticker-item"><strong>AAPL</strong> $294.80 <span class="up">+1.38%</span></div><div class="ticker-item"><strong>NVDA</strong> $225.83 <span class="up">+2.29%</span></div><div class="ticker-item"><strong>TSLA</strong> $445.27 <span class="up">+2.73%</span></div><div class="ticker-item"><strong>MSFT</strong> $407.77 <span class="dn">-1.19%</span></div><div class="ticker-item"><strong>AMZN</strong> $270.13 <span class="up">+1.62%</span></div><div class="ticker-item"><strong>META</strong> $616.63 <span class="up">+2.26%</span></div><div class="ticker-item"><strong>SPY</strong> $742.31 <span class="up">+0.56%</span></div><div class="ticker-item"><strong>QQQ</strong> $714.71 <span class="up">+1.06%</span></div><div class="ticker-item"><strong>GLD</strong> $430.50 <span class="dn">-0.56%</span></div><div class="ticker-item"><strong>BTC</strong> $103,200 <span class="up">+1.20%</span></div></div></div>
+<section class="hero"><div class="hero-bg"></div><div class="hero-content"><div class="hero-pill">Free forever · No real money · Real market data</div><h1>Your first investing account<br>should not be your <em>real one.</em></h1><p class="hero-sub">Practice trading with $100,000 of virtual cash. Plan your budget. Learn investing in plain English. All free, no account needed.</p><div class="hero-cta"><a href="/trade" class="btn btn-green btn-hero">Get $100,000 Virtual Cash</a><a href="/learn" class="btn btn-hero-secondary">Explore 42 Free Lessons</a></div><p class="hero-note">No account needed · Works on any device · 100% free</p></div></section>
+<div class="proof-bar"><div class="proof-inner"><div class="proof-item"><div class="proof-num">$100K</div><div class="proof-label">Virtual cash to start</div></div><div class="proof-divider"></div><div class="proof-item"><div class="proof-num">42</div><div class="proof-label">Free investing lessons</div></div><div class="proof-divider"></div><div class="proof-item"><div class="proof-num">4</div><div class="proof-num">4</div><div class="proof-label">Tools in one place</div></div><div class="proof-divider"></div><div class="proof-item"><div class="proof-num">$0</div><div class="proof-label">Forever free, always</div></div><div class="proof-divider"></div><div class="proof-item"><div class="proof-num">0</div><div class="proof-label">Signups required</div></div></div></div>
+<section class="tools"><div class="tools-inner"><p class="label">What is inside</p><h2 class="section">Four tools. One place.</h2><p class="section-sub">Everything a beginner needs to go from clueless to confident.</p><div class="tools-grid"><div class="tool-card featured"><span class="tool-tag">🔥 Most popular</span><span class="tool-icon">🎮</span><div class="tool-name">Virtual Market</div><div class="tool-desc">Trade real stocks with $100,000 of virtual cash. Real prices from Finnhub. Zero risk. Compete on the leaderboard.</div><a href="/trade" class="tool-link">Start trading free →</a></div><div class="tool-card"><span class="tool-tag">🎓 42 lessons</span><span class="tool-icon">📖</span><div class="tool-name">Investing Lessons</div><div class="tool-desc">P/E ratios, diversification, compounding, inflation — explained in plain English. No jargon, no textbooks. 5 minutes each.</div><a href="/learn" class="tool-link">Start learning free →</a></div><div class="tool-card"><span class="tool-tag">💰 Free forever</span><span class="tool-icon">📊</span><div class="tool-name">Budget Planner</div><div class="tool-desc">Track income, spending, and savings goals. Understand your cash flow before you invest a single dollar.</div><a href="/budget" class="tool-link">Open Budget Planner →</a></div><div class="tool-card"><span class="tool-tag">📈 Any ticker</span><span class="tool-icon">🗂</span><div class="tool-name">Portfolio Simulator</div><div class="tool-desc">Build a virtual portfolio with any ticker. See allocation, risk, beta, and volatility explained in plain English.</div><a href="/app" class="tool-link">Explore simulator →</a></div></div></div></section>
+<section class="stories"><div class="stories-inner"><p class="label">Why StockPilot</p><h2 class="section">Four things worth knowing.</h2><div class="grid"><div class="card dark"><div class="card-num">01 — What we are</div><span class="card-icon">🎮</span><div class="card-q">A stock market simulator that uses real prices.</div><div class="card-a">Buy and sell any stock at real market prices. Track your gains and losses. Learn what moves markets. No real money involved, ever.</div><a href="/trade" class="card-link">Try the simulator</a></div><div class="card green"><div class="card-num">02 — Who it is for</div><span class="card-icon">🌱</span><div class="card-q">Anyone who keeps saying they should really learn about investing.</div><div class="card-a">Finance students, young professionals, complete beginners. If the stock market has ever felt intimidating, this is where you start safely.</div></div><div class="card light"><div class="card-num">03 — Why it exists</div><span class="card-icon">💡</span><div class="card-q">Because not knowing how to invest costs you every single year.</div><div class="card-a">Inflation erodes savings. Compounding rewards early starters. The gap between people who invest and those who do not grows over time. StockPilot helps you close that gap, starting today, for free.</div></div><div class="card red"><div class="card-num">04 — What it means for you</div><span class="card-icon">🚀</span><div class="card-q">When you are ready to invest real money, you will not be guessing.</div><div class="card-a">Practice here first. Learn what a P/E ratio is. Understand risk and diversification. Build a portfolio you believe in. When you open a real account, you will know exactly what you are doing.</div><a href="/trade" class="card-link" style="color:#fca5a5">Start for free</a></div></div></div></section>
+<section class="preview"><div class="preview-inner"><h2>See it in action.</h2><p class="preview-sub">Real prices. Real companies. Fake money. Real learning.</p><div class="browser"><div class="browser-bar"><div class="dot" style="background:#ff5f57"></div><div class="dot" style="background:#febc2e"></div><div class="dot" style="background:#28c840"></div><div class="browser-url">mystockspilot.com/trade</div></div><div class="browser-body"><div class="stat"><div class="stat-label">Portfolio Value</div><div class="stat-val">$112,430</div><div class="stat-chg up">+$12,430 (+12.4%)</div></div><div class="stat"><div class="stat-label">Cash Available</div><div class="stat-val">$34,200</div><div class="stat-chg" style="color:rgba(255,255,255,0.3)">Ready to invest</div></div><div class="stat"><div class="stat-label">Starting Cash</div><div class="stat-val">$100,000</div><div class="stat-chg" style="color:rgba(255,255,255,0.3)">Virtual only</div></div><div class="positions"><div class="pos-title">My Positions</div><div class="pos"><span class="sym">AAPL</span><span class="price">$294.80</span><span class="chg up">+1.38%</span></div><div class="pos"><span class="sym">NVDA</span><span class="price">$225.83</span><span class="chg up">+2.29%</span></div><div class="pos"><span class="sym">TSLA</span><span class="price">$445.27</span><span class="chg up">+2.73%</span></div><div class="pos"><span class="sym">SPY</span><span class="price">$742.31</span><span class="chg up">+0.56%</span></div></div></div></div></div></section>
+<section class="leaderboard-section"><div class="leaderboard-inner"><p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px">Live competition</p><h2 style="font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:12px">🏆 Top Traders This Week</h2><p style="font-size:16px;color:rgba(255,255,255,0.4);margin-bottom:40px">Real people. Virtual cash. Real competition.</p><div id="landingLb" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;margin-bottom:32px"><div style="display:grid;grid-template-columns:50px 1fr 100px;padding:12px 24px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.05em"><div>Rank</div><div>Trader</div><div style="text-align:right">Return</div></div><div id="landingLbRows"><div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Loading...</div></div></div><a href="/trade" style="display:inline-flex;align-items:center;gap:8px;background:#1a9e6e;color:white;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none">Join the leaderboard →</a></div></section>
+<section class="cta"><h2>Ready to <em>practice?</em></h2><p>No account needed. No real money. No excuses.</p><a href="/trade" class="btn btn-green" style="padding:16px 40px;font-size:16px;border-radius:14px">Get $100,000 Virtual Cash</a><p class="cta-note">Free forever · Real prices · Zero risk</p></section>
+<section style="background:#f7f8fa;padding:48px 40px;text-align:center;border-top:1px solid #e4e7ed"><p style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#9aa3b4;text-transform:uppercase;margin-bottom:20px">Built with</p><div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:700px;margin:0 auto"><span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Yahoo Finance API</span><span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Finnhub API</span><span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">FRED Macro API</span><span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">SEC EDGAR</span><span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Supabase</span><span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Railway</span><span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">GitHub Pages</span><span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Vanilla JS</span></div></section>
+<footer><div class="foot-copy">2026 StockPilot · Educational use only · Not financial advice</div><div class="foot-links"><a href="/trade">Virtual Market</a><a href="/app">Portfolio</a><a href="/budget">Budget</a><a href="/learn">Learn</a></div></footer>
+<script>(function(){fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/leaderboard?select=nickname,return_pct&order=return_pct.desc&limit=3',{headers:{'apikey':'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q'}}).then(function(r){return r.json();}).then(function(rows){var el=document.getElementById('landingLbRows');if(!rows||!rows.length){el.innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader on the leaderboard! 🚀</div>';return;}var medals=['🥇','🥈','🥉'];el.innerHTML=rows.map(function(row,i){var col=row.return_pct>=0?'#2ecc9a':'#dc2626';var sign=row.return_pct>=0?'+':'';return '<div style="display:grid;grid-template-columns:50px 1fr 100px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);align-items:center">'+'<div style="font-size:22px">'+medals[i]+'</div>'+'<div style="font-weight:600;color:white;font-size:15px">'+row.nickname+'</div>'+'<div style="text-align:right;font-weight:700;color:'+col+';font-size:15px">'+sign+Number(row.return_pct).toFixed(2)+'%</div>'+'</div>';}).join('');}).catch(function(){document.getElementById('landingLbRows').innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader! 🚀</div>';});})();
 </script>
-<section class="cta">
-  <h2>Ready to <em>practice?</em></h2>
-  <p>No account needed. No real money. No excuses.</p>
-  <a href="/trade" class="btn btn-green" style="padding:16px 40px;font-size:16px;border-radius:14px">Get $100,000 Virtual Cash</a>
-  <p class="cta-note">Free forever · Real prices · Zero risk</p>
-</section>
-
-<section style="background:#f7f8fa;padding:48px 40px;text-align:center;border-top:1px solid #e4e7ed">
-  <p style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#9aa3b4;text-transform:uppercase;margin-bottom:20px">Built with</p>
-  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:700px;margin:0 auto">
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Yahoo Finance API</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Finnhub API</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">FRED Macro API</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">SEC EDGAR</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Supabase</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Railway</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">GitHub Pages</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Vanilla JS</span>
-  </div>
-</section>
-<footer>
-  <div class="foot-copy">2026 StockPilot · Educational use only · Not financial advice</div>
-  <div class="foot-links">
-    <a href="/trade">Virtual Market</a>
-    <a href="/app">Learning App</a>
-  </div>
-</footer>
-
 </body>
 </html>
