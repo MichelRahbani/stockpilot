@@ -910,3 +910,7 @@ body.savings-mode .savings-section-nav::before {
 .mode-button strong {
   display: none !important;
 }
+
+
+/* ── Kill the pill navigator (row 1) — redundant with mode switcher ── */
+.workspace-navigator { display: none !important; }
