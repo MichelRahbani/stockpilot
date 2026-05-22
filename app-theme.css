@@ -914,3 +914,12 @@ body.savings-mode .savings-section-nav::before {
 
 /* ── Kill the pill navigator (row 1) — redundant with mode switcher ── */
 .workspace-navigator { display: none !important; }
+
+
+/* ── Learning: hide emoji grid + dropdown, force show tab buttons ── */
+.education-hub .duo-subject-grid { display: none !important; }
+.education-hub .nav-select-field { display: none !important; }
+
+/* Override styles.css: .learning-area-tabs > button { display: none !important } */
+body .learning-area-tabs > button.learning-area-tab { display: flex !important; }
+body .learning-area-tabs { display: flex !important; flex-direction: row !important; }
