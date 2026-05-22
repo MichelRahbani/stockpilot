@@ -1,16 +1,16 @@
 (function(){
 var page=window.location.pathname;
 
-// ---- TRADE PAGE: Quick Start Panel ----
+// ---- TRADE PAGE: Quick Start Panel + hide #noStock gap ----
 if(page==='/trade'||page==='/trade.html'||page==='/trade/'){
+  // Inject CSS immediately to hide #noStock before JS runs
+  var style=document.createElement('style');
+  style.textContent='#noStock{display:none!important}';
+  document.head.appendChild(style);
+
   function injectQuickStart(){
     var empty=document.querySelector('.quote-empty');
     if(!empty)return;
-    // Also constrain the trade-area to not expand infinitely
-    var tradeArea=document.querySelector('.trade-area');
-    if(tradeArea){tradeArea.style.cssText='overflow:visible';}
-    var noStock=document.getElementById('noStock');
-    if(noStock){noStock.style.display='none';}
     empty.style.cssText='padding:20px 24px';
     var tickers=[{s:'AAPL',n:'Apple'},{s:'TSLA',n:'Tesla'},{s:'NVDA',n:'Nvidia'},{s:'SPY',n:'S&P 500'},{s:'MSFT',n:'Microsoft'},{s:'BTC-USD',n:'Bitcoin'}];
     var html='<div style="margin-bottom:14px">';
@@ -24,15 +24,15 @@ if(page==='/trade'||page==='/trade.html'||page==='/trade/'){
     });
     html+='</div>';
     html+='<div style="border-top:1px solid rgba(255,255,255,0.06);padding-top:14px;display:flex;gap:8px;flex-wrap:wrap">';
-    html+='<a href="/learn" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;text-decoration:none;color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;transition:all 0.15s" onmouseover="this.style.color=\'white\';this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.6)\';this.style.background=\'rgba(255,255,255,0.05)\'">📖 New to investing? Start here</a>';
-    html+='<a href="/budget" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;text-decoration:none;color:rgba(255,255,255,0.6);font-size:12px;font-weight:600;transition:all 0.15s" onmouseover="this.style.color=\'white\';this.style.background=\'rgba(255,255,255,0.1)\'" onmouseout="this.style.color=\'rgba(255,255,255,0.6)\';this.style.background=\'rgba(255,255,255,0.05)\'">💰 Plan your budget first</a>';
+    html+='<a href="/learn" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;text-decoration:none;color:rgba(255,255,255,0.55);font-size:12px;font-weight:600">📖 New to investing? Start here</a>';
+    html+='<a href="/budget" style="display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px 14px;text-decoration:none;color:rgba(255,255,255,0.55);font-size:12px;font-weight:600">💰 Plan your budget first</a>';
     html+='</div>';
     empty.innerHTML=html;
   }
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',injectQuickStart);}else{setTimeout(injectQuickStart,300);}
 }
 
-// ---- LEARN PAGE: CTA after content ----
+// ---- LEARN PAGE ----
 if(page==='/learn'||page==='/learn.html'||page==='/learn/'){
   function injectLearnCTA(){
     var footer=document.querySelector('footer');
@@ -45,7 +45,7 @@ if(page==='/learn'||page==='/learn.html'||page==='/learn/'){
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',injectLearnCTA);}else{setTimeout(injectLearnCTA,100);}
 }
 
-// ---- BUDGET PAGE: CTA after content ----
+// ---- BUDGET PAGE ----
 if(page==='/budget'||page==='/budget.html'||page==='/budget/'){
   function injectBudgetCTA(){
     var footer=document.querySelector('footer');
