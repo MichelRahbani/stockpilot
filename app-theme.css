@@ -846,3 +846,67 @@ body.savings-mode .savings-section-nav::before {
   min-width: max-content !important;
   flex: 0 0 auto !important;
 }
+
+/* ── FIXES: remove SVG pseudo-element approach, simpler tab styling ── */
+
+/* Remove all the ::before pseudo icon rules (they don't work reliably) */
+.duo-subject-card.savings-tab[data-savings-tab="plan"] .duo-subject-info::before,
+.duo-subject-card.savings-tab[data-savings-tab="goals"] .duo-subject-info::before,
+.duo-subject-card.savings-tab[data-savings-tab="protection"] .duo-subject-info::before,
+.duo-subject-card.savings-tab[data-savings-tab="playbook"] .duo-subject-info::before {
+  display: none !important;
+  content: none !important;
+}
+
+/* Make savings tab show just label — simple and clean */
+.duo-subject-card.savings-tab {
+  padding: 8px 16px !important;
+  min-width: max-content !important;
+  width: max-content !important;
+  flex: 0 0 auto !important;
+}
+
+.duo-subject-card.savings-tab .duo-subject-info strong {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: var(--sp-g700, #374151) !important;
+  white-space: nowrap !important;
+}
+
+.duo-subject-card.savings-tab.active .duo-subject-info strong {
+  color: white !important;
+}
+
+/* Same for learning area tabs */
+.learning-area-tab {
+  padding: 8px 16px !important;
+  min-width: max-content !important;
+  width: max-content !important;
+  flex: 0 0 auto !important;
+}
+
+/* Fix topbar: don't use grid, use flex so stat widget stays right */
+.topbar {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 20px !important;
+  grid-template-columns: unset !important;
+}
+
+.topbar > div:first-child {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+}
+
+/* Fix mode switcher — don't hide the subtitle text */
+.mode-button {
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 2px !important;
+}
+
+.mode-button strong {
+  display: none !important;
+}
