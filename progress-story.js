@@ -123,6 +123,7 @@
     const d=readData();updateCard(d);wireShare(d);
     observeUpdates();
     setInterval(()=>{const d=readData();updateCard(d);wireShare(d);},30000);
+        setTimeout(()=>{const d=readData();updateCard(d);wireShare(d);},2000);
   }
 
   function waitForStory(){
