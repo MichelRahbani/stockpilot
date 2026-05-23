@@ -118,6 +118,7 @@
   function init(){
     const storyEl=document.getElementById('portStory');if(!storyEl)return;
     injectStyles();
+        storyEl.style.display='block';
     storyEl.innerHTML='';
     storyEl.appendChild(buildCard());
     const d=readData();updateCard(d);wireShare(d);
