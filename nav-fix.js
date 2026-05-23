@@ -15,48 +15,45 @@
     {href:'/learn',  label:'Learn'}
   ];
 
-  function makeLinkHtml(){
-    return links.map(function(l){
+  function makeCenterDiv(){
+    var html = links.map(function(l){
       var active = path === l.href || path.startsWith(l.href+'/');
-      return '<a href="'+l.href+'" class="sp-nav-item" style="font-size:13px;font-weight:'+(active?'700':'500')+';color:'+(active?ac:tc)+';text-decoration:none;padding:6px 14px;border-radius:8px;background:'+(active?ab:'transparent')+';transition:all 0.15s;white-space:nowrap">'+l.label+'</a>';
+      return '<a href="'+l.href+'" style="font-size:13px;font-weight:'+(active?'700':'500')+';color:'+(active?ac:tc)+';text-decoration:none;padding:6px 14px;border-radius:8px;background:'+(active?ab:'transparent')+';transition:all 0.15s;white-space:nowrap">'+l.label+'</a>';
     }).join('');
+    var div = document.createElement('div');
+    div.id = 'sp-nav-center';
+    div.style.cssText = 'display:flex;align-items:center;gap:2px;position:absolute;left:50%;transform:translateX(-50%);top:50%;margin-top:-16px;z-index:1';
+    div.innerHTML = html;
+    return div;
   }
 
-  // ---- /app: header uses sp-site-header + sp-site-nav ----
+  // /app: uses sp-site-header + sp-site-nav
   function fixApp(){
     var header = document.querySelector('.sp-site-header');
     if(!header || header.dataset.fixed) return;
     header.dataset.fixed = '1';
-
+    // Hide existing sp-site-nav links
     var siteNav = header.querySelector('.sp-site-nav');
-    if(!siteNav) return;
-
-    // Replace links in the existing nav
-    siteNav.innerHTML = makeLinkHtml();
-    // Center the nav by using absolute positioning on the header (already position:fixed)
-    // and giving the nav auto margins
-    siteNav.style.cssText = 'display:flex!important;align-items:center!important;gap:2px!important;position:absolute!important;left:50%!important;transform:translateX(-50%)!important';
+    if(siteNav) siteNav.style.display = 'none';
+    // Make header relative for absolute centering
+    header.style.position = 'fixed';
+    header.appendChild(makeCenterDiv());
   }
 
-  // ---- trade/budget/learn: standard <nav> ----
+  // trade/budget/learn: uses <nav>
   function fixStandard(){
     var nav = document.querySelector('nav');
     if(!nav || nav.dataset.fixed) return;
     nav.dataset.fixed = '1';
-
-    var logoEl = nav.querySelector('a');
-    var logoHtml = logoEl ? logoEl.outerHTML : '';
-    var rightHtml = Array.from(nav.querySelectorAll('button')).map(function(b){ return b.outerHTML; }).join('');
-
-    nav.innerHTML =
-      '<div style="display:flex;align-items:center;flex-shrink:0">'+logoHtml+'</div>'+
-      '<div style="display:flex;align-items:center;gap:2px;position:absolute;left:50%;transform:translateX(-50%)">'+makeLinkHtml()+'</div>'+
-      '<div style="display:flex;align-items:center;gap:8px;flex-shrink:0">'+rightHtml+'</div>';
-
-    nav.style.position = 'relative';
-    nav.style.display = 'flex';
-    nav.style.alignItems = 'center';
-    nav.style.justifyContent = 'space-between';
+    // Hide all anchor links inside nav (except logo = first anchor)
+    var allLinks = Array.from(nav.querySelectorAll('a'));
+    var logo = allLinks[0];
+    allLinks.forEach(function(a){
+      if(a !== logo) a.style.display = 'none';
+    });
+    // Make nav relative for absolute centering
+    if(nav.style.position !== 'fixed') nav.style.position = 'relative';
+    nav.appendChild(makeCenterDiv());
   }
 
   function run(){ isApp ? fixApp() : fixStandard(); }
