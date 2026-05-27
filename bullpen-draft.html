@@ -256,6 +256,24 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 
 <script>
 const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+const SUPABASE_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+
+async function sbPatch(table, id, body) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?id=eq.' + id, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return res.ok;
+}
+
+async function sbGet(table, params) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?' + params, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  return res.json();
+}
 const params = new URLSearchParams(location.search);
 const leagueCode = params.get('code') || localStorage.getItem('bullpen_my_league') || 'DEMO';
 const myName = params.get('name') || localStorage.getItem('bullpen_my_name') || 'You';
@@ -470,15 +488,29 @@ function removeStock(type, idx) {
   renderRoster();
 }
 
-function submitDraft() {
+async function submitDraft() {
   if(starters.length + bench.length < 10) { showToast('Pick all 10 stocks first', 'error'); return; }
   
-  // Save to localStorage
-  const draft = { starters, bench, submittedAt: Date.now(), leagueCode };
-  localStorage.setItem('bullpen_draft_' + leagueCode, JSON.stringify(draft));
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Saving...';
   
-  showToast('Draft locked in! 🎉 Redirecting...', 'success');
-  setTimeout(() => { window.location.href = '/bullpen?drafted=1'; }, 1500);
+  const memberId = localStorage.getItem('bullpen_my_member_id') || new URLSearchParams(location.search).get('mid');
+  
+  try {
+    if(memberId) {
+      // Save to Supabase
+      const starterTickers = starters.map(s => s.ticker);
+      const benchTickers = bench.map(s => s.ticker);
+      await sbPatch('bullpen_members', memberId, { starters: starterTickers, bench: benchTickers });
+    }
+    // Also save locally as backup
+    localStorage.setItem('bullpen_draft_' + leagueCode, JSON.stringify({ starters, bench, submittedAt: Date.now() }));
+    showToast('Draft locked in! 🎉', 'success');
+    setTimeout(() => { window.location.href = '/bullpen.html?drafted=1'; }, 1500);
+  } catch(e) {
+    btn.textContent = 'Lock In Draft →';
+    showToast('Save failed - try again', 'error');
+  }
 }
 
 function showToast(msg, type='success') {
