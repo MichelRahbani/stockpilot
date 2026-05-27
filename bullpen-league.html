@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-TZLSC36Y26');
+  function trackEvent(a,c,l){if(typeof gtag!='undefined')gtag('event',a,{event_category:c,event_label:l});}
+</script>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>League Hub — Bullpen</title>
@@ -484,6 +493,7 @@ function selSwapOut(t){swapOut=t;openSwap();}
 function selSwapIn(t){swapIn=t;document.querySelectorAll('#swapBenchList .trade-slot').forEach(el=>el.classList.remove('sel'));event.currentTarget.classList.add('sel');document.getElementById('confirmSwapBtn').disabled=!(swapOut&&swapIn);}
 
 async function confirmSwap(){
+  if(typeof trackEvent!="undefined")trackEvent("swap_made","Bullpen",leagueCode);
   if(!swapOut||!swapIn||!myMember)return;
   const btn=document.getElementById('confirmSwapBtn');
   btn.textContent='Saving...';btn.disabled=true;
@@ -572,6 +582,7 @@ function selFAPickup(ticker,name){
 }
 
 async function confirmFA(){
+  if(typeof trackEvent!="undefined")trackEvent("fa_pickup","Bullpen",leagueCode);
   if(!faDropTicker||!faPickup||!myMember)return;
   const btn=document.getElementById('confirmFABtn');
   btn.textContent='Saving...';btn.disabled=true;
@@ -598,7 +609,7 @@ async function confirmFA(){
 }
 
 // ── KICK MEMBER (commissioner only) ──
-async function kickMember(memberId, name){
+async function kickMember_ga_wrapper(memberId, name){
   if(!confirm(`Kick ${name} from the league?`))return;
   try{
     const isKickingCommissioner = league && league.commissioner_name === name;
