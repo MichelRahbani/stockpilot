@@ -650,44 +650,90 @@ function genCode() {
 
 let currentCode = '';
 
-function createLeague() {
+const SUPABASE_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+
+async function sbPost(table, body) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table, {
+    method: 'POST',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+    body: JSON.stringify(body)
+  });
+  return res.json();
+}
+
+async function sbGet(table, params) {
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?' + params, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  return res.json();
+}
+
+async function createLeague() {
   const name = document.getElementById('leagueName').value.trim();
   const manager = document.getElementById('managerName').value.trim();
   if(!name) { document.getElementById('leagueName').focus(); return; }
   if(!manager) { document.getElementById('managerName').focus(); return; }
-  
+
+  const btn = document.querySelector('.btn-full-green');
+  btn.textContent = 'Creating...';
+  btn.disabled = true;
+
   currentCode = genCode();
-  
-  // Save to localStorage for now
-  const league = {
-    code: currentCode,
-    name,
-    manager,
-    format: selectedFormat,
-    maxPlayers: document.getElementById('maxPlayers').value,
-    season: 1,
-    createdAt: Date.now(),
-    members: [{ name: manager, picks: [], score: 0 }]
-  };
-  localStorage.setItem('bullpen_league_' + currentCode, JSON.stringify(league));
-  localStorage.setItem('bullpen_my_league', currentCode);
-  localStorage.setItem('bullpen_my_name', manager);
-  
-  closeCreate();
-  document.getElementById('leagueCodeDisplay').textContent = currentCode;
-  document.getElementById('successModal').classList.add('open');
+
+  try {
+    // Create league in Supabase
+    await sbPost('bullpen_leagues', { code: currentCode, name, format: selectedFormat, max_players: parseInt(document.getElementById('maxPlayers').value), season: 1 });
+    // Add creator as first member
+    const member = await sbPost('bullpen_members', { league_code: currentCode, name: manager, starters: [], bench: [], score: 0, trades_left: 2 });
+    
+    localStorage.setItem('bullpen_my_league', currentCode);
+    localStorage.setItem('bullpen_my_name', manager);
+    localStorage.setItem('bullpen_my_member_id', member[0]?.id || '');
+
+    closeCreate();
+    document.getElementById('leagueCodeDisplay').textContent = currentCode;
+    document.getElementById('successModal').classList.add('open');
+  } catch(e) {
+    btn.textContent = 'Create & Get Code →';
+    btn.disabled = false;
+    alert('Error: ' + e.message);
+  }
 }
 
-function joinLeague() {
+async function joinLeague() {
   const code = document.getElementById('joinCode').value.trim().toUpperCase();
   const name = document.getElementById('joinName').value.trim();
   if(code.length !== 6) { document.getElementById('joinCode').focus(); return; }
   if(!name) { document.getElementById('joinName').focus(); return; }
-  
-  localStorage.setItem('bullpen_my_league', code);
-  localStorage.setItem('bullpen_my_name', name);
-  closeJoin();
-  window.location.href = '/bullpen/draft?code=' + code + '&name=' + encodeURIComponent(name);
+
+  const btn = document.querySelectorAll('.btn-full-green')[1];
+  btn.textContent = 'Joining...';
+  btn.disabled = true;
+
+  try {
+    // Check league exists
+    const leagues = await sbGet('bullpen_leagues', 'code=eq.' + code);
+    if(!leagues.length) { btn.textContent = 'Join League →'; btn.disabled = false; alert('League not found. Check the code.'); return; }
+
+    // Check not already full
+    const members = await sbGet('bullpen_members', 'league_code=eq.' + code);
+    const league = leagues[0];
+    if(members.length >= league.max_players) { btn.textContent = 'Join League →'; btn.disabled = false; alert('This league is full!'); return; }
+
+    // Add member
+    const member = await sbPost('bullpen_members', { league_code: code, name, starters: [], bench: [], score: 0, trades_left: 2 });
+    localStorage.setItem('bullpen_my_league', code);
+    localStorage.setItem('bullpen_my_name', name);
+    localStorage.setItem('bullpen_my_member_id', member[0]?.id || '');
+
+    closeJoin();
+    window.location.href = '/bullpen-draft.html?code=' + code + '&name=' + encodeURIComponent(name) + '&mid=' + (member[0]?.id || '');
+  } catch(e) {
+    btn.textContent = 'Join League →';
+    btn.disabled = false;
+    alert('Error: ' + e.message);
+  }
 }
 
 function copyCode() {
