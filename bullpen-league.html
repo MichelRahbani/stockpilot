@@ -598,15 +598,59 @@ async function confirmFA(){
 }
 
 // ── KICK MEMBER (commissioner only) ──
-async function kickMember(memberId,name){
+async function kickMember(memberId, name){
   if(!confirm(`Kick ${name} from the league?`))return;
   try{
-    await sbDelete('bullpen_members',`id=eq.${memberId}`);
-    members=members.filter(m=>m.id!==memberId);
+    const isKickingCommissioner = league && league.commissioner_name === name;
+    await sbDelete('bullpen_members', `id=eq.${memberId}`);
+    members = members.filter(m => m.id !== memberId);
+
+    // If commissioner was kicked or left, transfer to next member by join order
+    if(isKickingCommissioner && members.length > 0){
+      await transferCaptaincy();
+    }
+
     renderMembers();renderLeaderboard();
-    document.getElementById('statMembers').textContent=members.length;
-    showToast(`${name} removed from league`,'ok');
+    document.getElementById('statMembers').textContent = members.length;
+    showToast(`${name} removed from league`, 'ok');
   }catch(e){showToast('Kick failed','err');}
+}
+
+// ── LEAVE LEAGUE ──
+async function leaveLeague(){
+  if(!myMember)return;
+  const isCommissioner = league && league.commissioner_name === myName;
+  const msg = isCommissioner && members.length > 1
+    ? `You're the commissioner. Leaving will transfer captaincy to the next member. Continue?`
+    : `Leave this league? This cannot be undone.`;
+  if(!confirm(msg))return;
+  try{
+    await sbDelete('bullpen_members', `id=eq.${myMember.id}`);
+    // Transfer captaincy if commissioner is leaving
+    if(isCommissioner){
+      const remaining = members.filter(m => m.id !== myMember.id);
+      if(remaining.length > 0){
+        // Next member by joined_at order gets captaincy
+        const sorted = [...remaining].sort((a,b) => new Date(a.joined_at) - new Date(b.joined_at));
+        await sbPatch('bullpen_leagues', `code=eq.${leagueCode}`, { commissioner_name: sorted[0].name });
+        showToast(`${sorted[0].name} is the new commissioner`, 'ok');
+      }
+    }
+    localStorage.removeItem('bullpen_my_league');
+    localStorage.removeItem('bullpen_my_member_id');
+    localStorage.removeItem('bullpen_my_name');
+    setTimeout(() => window.location.href = '/bullpen.html', 1200);
+  }catch(e){showToast('Could not leave league','err');}
+}
+
+// ── TRANSFER CAPTAINCY ──
+async function transferCaptaincy(){
+  if(!members.length)return;
+  const sorted = [...members].sort((a,b) => new Date(a.joined_at) - new Date(b.joined_at));
+  const next = sorted[0];
+  await sbPatch('bullpen_leagues', `code=eq.${leagueCode}`, { commissioner_name: next.name });
+  if(league) league.commissioner_name = next.name;
+  showToast(`👑 ${next.name} is the new commissioner`, 'ok');
 }
 
 // ── Preview member roster ──
@@ -627,6 +671,8 @@ function renderMemberCardFooter(){
   if(!el)return;
   if(isCommissioner){
     el.innerHTML=`<button class="btn btn-green" style="width:100%;font-size:12px" onclick="openManageLeague()">⚙️ Manage League</button>`;
+  } else if(myMember){
+    el.innerHTML=`<button class="btn btn-ghost" style="width:100%;font-size:12px;color:var(--red);border-color:rgba(255,23,68,0.2)" onclick="leaveLeague()">🚪 Leave League</button>`;
   } else {
     el.innerHTML='';
   }
