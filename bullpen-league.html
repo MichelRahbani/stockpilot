@@ -325,6 +325,16 @@ async function loadData(){
     members=await sbGet('bullpen_members',`league_code=eq.${leagueCode}&order=score.desc`);
     myMember=members.find(m=>m.id===myMemberId)||members.find(m=>m.name===myName)||null;
 
+    // If still can't find member, check supabase_name from auth
+    if(!myMember){
+      const authName = localStorage.getItem('supabase_name');
+      if(authName) myMember = members.find(m=>m.name===authName)||null;
+      if(myMember){
+        localStorage.setItem('bullpen_my_member_id', myMember.id);
+        localStorage.setItem('bullpen_my_name', myMember.name);
+      }
+    }
+
     document.getElementById('statMembers').textContent=members.length;
     const drafted=members.filter(m=>m.starters&&m.starters.length>0).length;
     document.getElementById('statDrafted').textContent=drafted+'/'+members.length;
@@ -401,13 +411,26 @@ function renderMembers(){
 function renderRoster(){
   const body=document.getElementById('rosterBody');
   if(!myMember){
-    // Only show CTA if data has loaded (league exists), otherwise keep loading state
     if(league){
-      body.innerHTML=`<div style="text-align:center;padding:32px 20px">
-        <div style="font-size:40px;margin-bottom:12px">📋</div>
-        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">You haven't drafted yet</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Pick your 7 starters and 3 bench stocks to get on the board</div>
-        <a href="/bullpen-draft.html?code=${leagueCode}&mid=${myMemberId}" style="display:inline-block;background:var(--green);color:#000;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">Draft My Team →</a>
+      // Check if they're in the league but we just can't identify them
+      const authName = localStorage.getItem('supabase_name');
+      const matchedMember = authName ? members.find(m=>m.name===authName) : null;
+      if(matchedMember){
+        myMember = matchedMember;
+        localStorage.setItem('bullpen_my_member_id', myMember.id);
+        localStorage.setItem('bullpen_my_name', myMember.name);
+        renderRoster();
+        return;
+      }
+      // Show identify prompt
+      body.innerHTML=`<div style="text-align:center;padding:28px 20px">
+        <div style="font-size:40px;margin-bottom:12px">👋</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Who are you?</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Select your name to access your roster</div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-width:260px;margin:0 auto 16px">
+          ${members.map(m=>`<button onclick="identifyAsMember('${m.id}','${m.name.replace(/'/g,'')}','${(m.starters||[]).length}')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:11px 16px;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;text-align:left;transition:all 0.15s;font-family:DM Sans,sans-serif" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">${m.name} ${m.starters&&m.starters.length?'<span style=\'font-size:11px;color:var(--green)\'>✓ drafted</span>':'<span style=\'font-size:11px;color:var(--gold)\'>⏳ pending</span>'}</button>`).join('')}
+        </div>
+        <div style="font-size:12px;color:var(--muted)">Not in this league? <a href="/bullpen.html" style="color:var(--green)">Join one →</a></div>
       </div>`;
     }
     document.getElementById('swapBtn').disabled=true;
@@ -751,6 +774,20 @@ function renderMemberCardFooter(){
   }
 }
 function showToast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),3000);}
+
+// ── Identify as member (new device) ──
+function identifyAsMember(memberId, name, starterCount){
+  localStorage.setItem('bullpen_my_member_id', memberId);
+  localStorage.setItem('bullpen_my_name', name);
+  myMember = members.find(m=>m.id===memberId)||null;
+  if(starterCount === '0'){
+    window.location.href = '/bullpen-draft.html?code='+leagueCode+'&mid='+memberId;
+  } else {
+    renderRoster();
+    renderMembers();
+    showToast('Welcome back, '+name+'!', 'ok');
+  }
+}
 
 // Close overlays on bg click
 ['swapModal','faModal'].forEach(id=>{document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});});
