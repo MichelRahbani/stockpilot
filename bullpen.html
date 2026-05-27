@@ -685,7 +685,7 @@ async function createLeague() {
 
   try {
     // Create league in Supabase
-    await sbPost('bullpen_leagues', { code: currentCode, name, format: selectedFormat, max_players: parseInt(document.getElementById('maxPlayers').value), season: 1 });
+    await sbPost('bullpen_leagues', { code: currentCode, name, format: selectedFormat, max_players: parseInt(document.getElementById('maxPlayers').value), season: 1, commissioner_name: manager });
     // Add creator as first member
     const member = await sbPost('bullpen_members', { league_code: currentCode, name: manager, starters: [], bench: [], score: 0, trades_left: 2 });
     
