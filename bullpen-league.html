@@ -401,12 +401,15 @@ function renderMembers(){
 function renderRoster(){
   const body=document.getElementById('rosterBody');
   if(!myMember){
-    body.innerHTML=`<div style="text-align:center;padding:32px 20px">
-      <div style="font-size:40px;margin-bottom:12px">📋</div>
-      <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">You haven't drafted yet</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Pick your 7 starters and 3 bench stocks to get on the board</div>
-      <a href="/bullpen-draft.html?code=${leagueCode}&mid=${myMemberId}" style="display:inline-block;background:var(--green);color:#000;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none;transition:all 0.2s">Draft My Team →</a>
-    </div>`;
+    // Only show CTA if data has loaded (league exists), otherwise keep loading state
+    if(league){
+      body.innerHTML=`<div style="text-align:center;padding:32px 20px">
+        <div style="font-size:40px;margin-bottom:12px">📋</div>
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">You haven't drafted yet</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Pick your 7 starters and 3 bench stocks to get on the board</div>
+        <a href="/bullpen-draft.html?code=${leagueCode}&mid=${myMemberId}" style="display:inline-block;background:var(--green);color:#000;padding:12px 28px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">Draft My Team →</a>
+      </div>`;
+    }
     document.getElementById('swapBtn').disabled=true;
     document.getElementById('faBtn').disabled=true;
     return;
