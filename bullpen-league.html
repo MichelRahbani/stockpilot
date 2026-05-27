@@ -222,9 +222,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
           <span id="memberCount" style="font-size:12px;color:var(--muted)"></span>
         </div>
         <div id="memberList"><div style="padding:20px;text-align:center;color:var(--muted)">Loading...</div></div>
-        <div style="padding:10px 20px 16px">
-          <button class="btn btn-ghost" style="width:100%;font-size:12px" onclick="goToDraft()">✏️ Edit My Draft</button>
-        </div>
+        <div style="padding:10px 20px 16px" id="memberCardFooter"></div>
       </div>
     </div>
   </div>
@@ -375,6 +373,7 @@ function renderLeaderboard(){
 function renderMembers(){
   const isCommissioner=league&&(league.commissioner_name===myName||(members[0]&&(members[0].id===myMemberId||members[0].name===myName)));
   const colors=['#00e676','#7c4dff','#ff6d00','#00b0ff','#ff4081','#69f0ae','#ffab40'];
+  renderMemberCardFooter();
   document.getElementById('memberList').innerHTML=members.map((m,i)=>{
     const isMe=m.id===myMemberId||m.name===myName;
     const isComm=league&&league.commissioner_name===m.name;
@@ -621,6 +620,17 @@ function previewMember(memberId){
 // ── Utils ──
 function copyCode(){navigator.clipboard.writeText(leagueCode).then(()=>showToast('Code copied!','ok'));}
 function goToDraft(){window.location.href=`/bullpen-draft.html?code=${leagueCode}&mid=${myMemberId}`;}
+
+function renderMemberCardFooter(){
+  const isCommissioner=league&&(league.commissioner_name===myName||(members.length>0&&(members[0].id===myMemberId||members[0].name===myName)));
+  const el=document.getElementById('memberCardFooter');
+  if(!el)return;
+  if(isCommissioner){
+    el.innerHTML=`<button class="btn btn-green" style="width:100%;font-size:12px" onclick="openManageLeague()">⚙️ Manage League</button>`;
+  } else {
+    el.innerHTML='';
+  }
+}
 function showToast(msg,type='ok'){const t=document.getElementById('toast');t.textContent=msg;t.className='toast show '+type;clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('show'),3000);}
 
 // Close overlays on bg click
@@ -628,6 +638,68 @@ function showToast(msg,type='ok'){const t=document.getElementById('toast');t.tex
 
 loadData();
 setInterval(updateScores,60000);
+</script>
+
+<!-- MANAGE LEAGUE MODAL -->
+<div class="overlay" id="manageModal">
+  <div class="modal">
+    <div class="mhead"><h2>⚙️ Manage League</h2><button class="mclose" onclick="document.getElementById('manageModal').classList.remove('open')">✕</button></div>
+    <div class="mbody">
+      <div class="mlabel" style="margin-bottom:8px">League Name</div>
+      <input type="text" id="editLeagueName" class="fa-input" style="width:100%;margin-bottom:16px"/>
+      <div class="mlabel" style="margin-bottom:8px">Max Players</div>
+      <select id="editMaxPlayers" class="fa-input" style="width:100%;margin-bottom:20px">
+        <option>5</option><option>8</option><option>10</option><option>12</option><option>15</option>
+      </select>
+      <div style="background:rgba(255,23,68,0.06);border:1px solid rgba(255,23,68,0.2);border-radius:10px;padding:16px;margin-top:4px">
+        <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:8px">⚠️ Commissioner Actions</div>
+        <button class="btn btn-red" style="width:100%;font-size:13px;margin-bottom:8px" onclick="resetWeeklyMoves()">🔄 Reset Weekly Moves for All</button>
+        <div style="font-size:11px;color:var(--muted)">Use this every Monday to reset everyone's move counts.</div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-full btn-full-ghost" onclick="document.getElementById('manageModal').classList.remove('open')">Cancel</button>
+      <button class="btn-full btn-full-green" onclick="saveLeagueSettings()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function openManageLeague(){
+  if(!league)return;
+  document.getElementById('editLeagueName').value=league.name;
+  document.getElementById('editMaxPlayers').value=league.max_players;
+  document.getElementById('manageModal').classList.add('open');
+}
+
+async function saveLeagueSettings(){
+  const name=document.getElementById('editLeagueName').value.trim();
+  const maxPlayers=parseInt(document.getElementById('editMaxPlayers').value);
+  if(!name){showToast('League name cannot be empty','err');return;}
+  try{
+    await sbPatch('bullpen_leagues',`code=eq.${leagueCode}`,{name,max_players:maxPlayers});
+    league.name=name;league.max_players=maxPlayers;
+    document.getElementById('leagueName').textContent='🏟️ '+name;
+    document.getElementById('memberCount').textContent=members.length+' / '+maxPlayers;
+    document.getElementById('manageModal').classList.remove('open');
+    showToast('League updated!','ok');
+  }catch(e){showToast('Save failed','err');}
+}
+
+async function resetWeeklyMoves(){
+  if(!confirm('Reset weekly moves for all members?'))return;
+  try{
+    for(const m of members){
+      await sbPatch('bullpen_members',`id=eq.${m.id}`,{trades_left:2,fa_moves:2});
+      m.trades_left=2;m.fa_moves=2;
+    }
+    if(myMember){myMember.trades_left=2;myMember.fa_moves=2;}
+    renderRoster();
+    showToast('Weekly moves reset for everyone!','ok');
+  }catch(e){showToast('Reset failed','err');}
+}
+
+document.getElementById('manageModal').addEventListener('click',function(e){if(e.target===this)this.classList.remove('open');});
 </script>
 </body>
 </html>
