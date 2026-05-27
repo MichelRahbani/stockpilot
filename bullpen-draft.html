@@ -506,7 +506,7 @@ async function submitDraft() {
     // Also save locally as backup
     localStorage.setItem('bullpen_draft_' + leagueCode, JSON.stringify({ starters, bench, submittedAt: Date.now() }));
     showToast('Draft locked in! 🎉', 'success');
-    setTimeout(() => { window.location.href = '/bullpen.html?drafted=1'; }, 1500);
+    setTimeout(() => { window.location.href = '/bullpen-league.html?code=' + leagueCode + '&mid=' + (memberId || ''); }, 1500);
   } catch(e) {
     btn.textContent = 'Lock In Draft →';
     showToast('Save failed - try again', 'error');
