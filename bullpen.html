@@ -1,6 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-TZLSC36Y26');
+  gtag('event', 'page_view', {page_title: 'Bullpen Landing', page_location: window.location.href});
+  function trackEvent(action, category, label){
+    if(typeof gtag !== 'undefined') gtag('event', action, {event_category: category, event_label: label});
+  }
+</script>
+
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Bullpen — Fantasy Stocks by StockPilot</title>
@@ -692,6 +706,8 @@ async function createLeague() {
     localStorage.setItem('bullpen_my_league', currentCode);
     localStorage.setItem('bullpen_my_name', manager);
     localStorage.setItem('bullpen_my_member_id', member[0]?.id || '');
+    trackEvent('league_joined', 'Bullpen', code);
+    trackEvent('league_created', 'Bullpen', selectedFormat);
 
     closeCreate();
     document.getElementById('leagueCodeDisplay').textContent = currentCode;
@@ -728,6 +744,7 @@ async function joinLeague() {
     localStorage.setItem('bullpen_my_league', code);
     localStorage.setItem('bullpen_my_name', name);
     localStorage.setItem('bullpen_my_member_id', member[0]?.id || '');
+    trackEvent('league_created', 'Bullpen', selectedFormat);
 
     closeJoin();
     window.location.href = '/bullpen-draft.html?code=' + code + '&name=' + encodeURIComponent(name) + '&mid=' + (member[0]?.id || '');
