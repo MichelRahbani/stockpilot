@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Bullpen — Fantasy Stocks by StockPilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --green:#00e676;
+  --green-d:#00c853;
+  --red:#ff1744;
+  --gold:#ffd600;
+  --bg:#080c10;
+  --bg2:#0d1117;
+  --bg3:#161b22;
+  --border:rgba(255,255,255,0.08);
+  --text:#e6edf3;
+  --muted:#7d8590;
+  --card:rgba(255,255,255,0.04);
+}
+
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+
+/* ── NAV ── */
+.bp-nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 32px;
+  background:rgba(8,12,16,0.85);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+}
+.bp-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.bp-logo-mark{
+  width:36px;height:36px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green),#00bfa5);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:20px;color:#000;
+}
+.bp-logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text)}
+.bp-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.bp-nav-right{display:flex;align-items:center;gap:12px}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-ghost:hover{border-color:var(--green);color:var(--green)}
+.btn-primary{background:var(--green);border:none;color:#000;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-primary:hover{background:var(--green-d);transform:translateY(-1px)}
+.sp-link{font-size:12px;color:var(--muted);text-decoration:none}
+.sp-link:hover{color:var(--text)}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:120px 24px 80px;
+  position:relative;overflow:hidden;
+}
+.hero-bg{
+  position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%,rgba(0,230,118,0.12) 0%,transparent 70%),
+    radial-gradient(ellipse 40% 30% at 20% 60%,rgba(0,230,118,0.05) 0%,transparent 60%);
+}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);
+  background-size:60px 60px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 0%,black 30%,transparent 80%);
+}
+.season-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);
+  border-radius:100px;padding:6px 16px;font-size:12px;color:var(--green);
+  font-weight:500;letter-spacing:0.5px;margin-bottom:32px;
+  animation:fadeUp 0.6s ease both;
+}
+.season-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(72px,14vw,160px);
+  line-height:0.9;letter-spacing:4px;
+  color:#fff;
+  animation:fadeUp 0.6s ease 0.1s both;
+}
+.hero h1 span{color:var(--green)}
+.hero-sub{
+  font-size:clamp(16px,2.5vw,20px);color:var(--muted);
+  max-width:520px;line-height:1.6;margin:24px auto 0;
+  animation:fadeUp 0.6s ease 0.2s both;
+}
+.hero-ctas{
+  display:flex;gap:12px;margin-top:40px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp 0.6s ease 0.3s both;
+}
+.btn-big{
+  padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;border:none;
+}
+.btn-big-green{background:var(--green);color:#000}
+.btn-big-green:hover{background:var(--green-d);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,230,118,0.3)}
+.btn-big-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-big-outline:hover{border-color:rgba(255,255,255,0.3);transform:translateY(-2px)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── STATS STRIP ── */
+.stats-strip{
+  display:flex;justify-content:center;gap:0;
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  background:var(--bg2);
+}
+.stat-item{
+  padding:24px 48px;text-align:center;
+  border-right:1px solid var(--border);flex:1;max-width:200px;
+}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)}
+.stat-label{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:0.5px}
+
+/* ── HOW IT WORKS ── */
+.section{padding:100px 24px;max-width:1100px;margin:0 auto}
+.section-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--green);font-weight:600;margin-bottom:16px}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);line-height:1;color:#fff;margin-bottom:48px}
+
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
+.step{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:32px;position:relative;transition:border-color 0.2s;
+}
+.step:hover{border-color:rgba(0,230,118,0.3)}
+.step-num{
+  font-family:'Bebas Neue',sans-serif;font-size:64px;color:rgba(0,230,118,0.1);
+  line-height:1;position:absolute;top:16px;right:20px;
+}
+.step-icon{font-size:28px;margin-bottom:16px}
+.step h3{font-size:16px;font-weight:600;margin-bottom:8px}
+.step p{font-size:14px;color:var(--muted);line-height:1.6}
+
+/* ── DRAFT PREVIEW ── */
+.draft-preview{
+  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  padding:32px;max-width:700px;margin:0 auto;
+}
+.draft-header{
+  display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;
+  padding-bottom:16px;border-bottom:1px solid var(--border);
+}
+.draft-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px}
+.pick-badge{background:rgba(0,230,118,0.15);color:var(--green);padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600}
+.roster-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.roster-section h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
+.roster-slots{display:flex;flex-direction:column;gap:6px}
+.slot{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.03);border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;
+}
+.slot.filled{border-color:rgba(0,230,118,0.2);background:rgba(0,230,118,0.04)}
+.slot.bench-filled{border-color:rgba(255,214,0,0.2);background:rgba(255,214,0,0.04)}
+.slot-ticker{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#fff;width:52px}
+.slot-name{font-size:12px;color:var(--muted);flex:1}
+.slot-return{font-family:'DM Mono',monospace;font-size:12px}
+.slot-return.up{color:var(--green)}
+.slot-return.down{color:var(--red)}
+.slot-empty{color:rgba(255,255,255,0.2);font-size:12px;flex:1}
+
+/* ── SEASONS ── */
+.seasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.season-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:20px;transition:all 0.2s;cursor:pointer;
+}
+.season-card.active{border-color:var(--green);background:rgba(0,230,118,0.06)}
+.season-card:hover:not(.active){border-color:rgba(255,255,255,0.2)}
+.season-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:4px}
+.season-dates{font-size:12px;color:var(--muted)}
+.season-status{display:inline-block;margin-top:10px;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
+.season-status.live{background:rgba(0,230,118,0.15);color:var(--green)}
+.season-status.upcoming{background:rgba(255,214,0,0.1);color:var(--gold)}
+.season-status.ended{background:rgba(255,255,255,0.05);color:var(--muted)}
+
+/* ── LEADERBOARD PREVIEW ── */
+.lb-preview{
+  background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;
+}
+.lb-header{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.lb-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px}
+.lb-tabs{display:flex;gap:4px}
+.lb-tab{padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.lb-tab.active{background:var(--green);color:#000;font-weight:600}
+.lb-tab:not(.active){background:transparent;color:var(--muted)}
+.lb-tab:not(.active):hover{color:var(--text)}
+.lb-row{
+  display:grid;grid-template-columns:40px 1fr 100px 100px;
+  align-items:center;gap:12px;padding:14px 24px;
+  border-bottom:1px solid var(--border);transition:background 0.15s;
+}
+.lb-row:hover{background:rgba(255,255,255,0.02)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--muted)}
+.lb-rank.gold{color:var(--gold)}
+.lb-rank.silver{color:#b0bec5}
+.lb-rank.bronze{color:#bf8a30}
+.lb-name{font-weight:500;font-size:14px}
+.lb-uni{font-size:11px;color:var(--muted)}
+.lb-picks{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+.lb-return{font-family:'Bebas Neue',sans-serif;font-size:20px;text-align:right}
+.lb-return.up{color:var(--green)}
+.lb-return.down{color:var(--red)}
+
+/* ── CTA SECTION ── */
+.cta-section{
+  text-align:center;padding:100px 24px;
+  background:linear-gradient(180deg,transparent,rgba(0,230,118,0.05) 50%,transparent);
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+}
+.cta-section h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,96px);line-height:1;color:#fff;margin-bottom:16px}
+.cta-section p{font-size:16px;color:var(--muted);margin-bottom:40px}
+
+/* ── FOOTER ── */
+footer{padding:32px;text-align:center;font-size:13px;color:var(--muted);border-top:1px solid var(--border)}
+footer a{color:var(--muted);text-decoration:none}
+footer a:hover{color:var(--text)}
+
+/* ── MODAL ── */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:24px;opacity:0;pointer-events:none;transition:opacity 0.2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
+  transform:translateY(16px);transition:transform 0.2s;
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-header{
+  padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center;
+}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px}
+.modal-close{
+  width:32px;height:32px;border-radius:8px;background:var(--card);
+  border:1px solid var(--border);color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  transition:all 0.15s;
+}
+.modal-close:hover{color:var(--text);border-color:rgba(255,255,255,0.2)}
+.modal-body{padding:24px 28px 28px}
+.form-group{margin-bottom:20px}
+.form-label{display:block;font-size:13px;font-weight:500;margin-bottom:8px;color:var(--text)}
+.form-input{
+  width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;
+  font-family:'DM Sans',sans-serif;transition:border-color 0.15s;outline:none;
+}
+.form-input:focus{border-color:rgba(0,230,118,0.5)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.format-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.format-opt{
+  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  padding:14px;cursor:pointer;transition:all 0.15s;text-align:center;
+}
+.format-opt.selected{border-color:var(--green);background:rgba(0,230,118,0.08)}
+.format-opt:hover:not(.selected){border-color:rgba(255,255,255,0.2)}
+.format-opt-title{font-weight:600;font-size:14px;margin-bottom:4px}
+.format-opt-desc{font-size:11px;color:var(--muted)}
+.modal-footer{padding:0 28px 28px;display:flex;gap:10px}
+.btn-full{width:100%;padding:14px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.2s}
+.btn-full-green{background:var(--green);color:#000}
+.btn-full-green:hover{background:var(--green-d)}
+.btn-full-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+
+/* ── JOIN MODAL ── */
+.join-code-input{
+  text-align:center;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:8px;
+}
+
+/* ── SCROLLED REVEAL ── */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+@media(max-width:640px){
+  .bp-nav{padding:12px 16px}
+  .stats-strip{flex-wrap:wrap}
+  .stat-item{flex:0 0 50%;border-right:none;border-bottom:1px solid var(--border)}
+  .roster-grid{grid-template-columns:1fr}
+  .lb-row{grid-template-columns:32px 1fr 80px}
+  .lb-picks{display:none}
+  .form-row{grid-template-columns:1fr}
+  .modal-body,.modal-header{padding:16px 20px 0}
+  .modal-footer{padding:0 20px 20px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="bp-nav">
+  <a href="#" class="bp-logo">
+    <div class="bp-logo-mark">B</div>
+    <div>
+      <div class="bp-logo-text">Bullpen</div>
+      <div class="bp-logo-sub">by StockPilot</div>
+    </div>
+  </a>
+  <div class="bp-nav-right">
+    <a href="/trade" class="sp-link">← Back to StockPilot</a>
+    <button class="btn-ghost" onclick="openJoin()">Join League</button>
+    <button class="btn-primary" onclick="openCreate()">Create League</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div style="position:relative;z-index:1">
+    <div class="season-badge">
+      <span class="season-dot"></span>
+      Season 1 · Memorial Day → 4th of July
+    </div>
+    <h1>FANTASY<br/><span>STOCKS</span></h1>
+    <p class="hero-sub">Draft 7 stocks, bench 3. Compete with your friends all season. Real prices, fake money, real bragging rights.</p>
+    <div class="hero-ctas">
+      <button class="btn-big btn-big-green" onclick="openCreate()">Create a League</button>
+      <button class="btn-big btn-big-outline" onclick="openJoin()">Join with Code</button>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-strip">
+  <div class="stat-item"><div class="stat-num">7+3</div><div class="stat-label">Starters + Bench</div></div>
+  <div class="stat-item"><div class="stat-num">15</div><div class="stat-label">Max League Size</div></div>
+  <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">Free Trades/Week</div></div>
+  <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Always Free</div></div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="section">
+  <div class="reveal">
+    <div class="section-label">How It Works</div>
+    <div class="section-title">FOUR MOVES.<br/>ALL SEASON.</div>
+  </div>
+  <div class="steps reveal">
+    <div class="step">
+      <div class="step-num">01</div>
+      <div class="step-icon">🏟️</div>
+      <h3>Create or Join</h3>
+      <p>Start a private league with your crew or join with a code. Choose FPL style (same stocks allowed) or NFL snake draft.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">02</div>
+      <div class="step-icon">📋</div>
+      <h3>Draft Day</h3>
+      <p>Pick your 7 starters and 3 bench stocks. Every pick is live — watch your friends swipe the stocks you wanted.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">03</div>
+      <div class="step-icon">📈</div>
+      <h3>Live Scoring</h3>
+      <p>Your score = your starters' total return %. Prices update in real time. Watch the leaderboard flip every market day.</p>
+    </div>
+    <div class="step">
+      <div class="step-num">04</div>
+      <div class="step-icon">🔄</div>
+      <h3>Manage & Trade</h3>
+      <p>2 free transfers per week. Swap bench for starters anytime. Extra trades cost -5% off your score — choose wisely.</p>
+    </div>
+  </div>
+</div>
+
+<!-- DRAFT PREVIEW -->
+<div class="section" style="padding-top:0">
+  <div class="reveal">
+    <div class="section-label">Your Roster</div>
+    <div class="section-title">BUILD YOUR<br/>LINEUP.</div>
+  </div>
+  <div class="draft-preview reveal">
+    <div class="draft-header">
+      <div class="draft-title">🏟️ Michel's Squad</div>
+      <div class="pick-badge">+12.4% this season</div>
+    </div>
+    <div class="roster-grid">
+      <div>
+        <h4>⚡ Starters</h4>
+        <div class="roster-slots">
+          <div class="slot filled"><span class="slot-ticker">NVDA</span><span class="slot-name">Nvidia</span><span class="slot-return up">+31.2%</span></div>
+          <div class="slot filled"><span class="slot-ticker">AAPL</span><span class="slot-name">Apple</span><span class="slot-return up">+8.4%</span></div>
+          <div class="slot filled"><span class="slot-ticker">TSLA</span><span class="slot-name">Tesla</span><span class="slot-return down">-5.1%</span></div>
+          <div class="slot filled"><span class="slot-ticker">SPY</span><span class="slot-name">S&P 500 ETF</span><span class="slot-return up">+4.2%</span></div>
+          <div class="slot filled"><span class="slot-ticker">META</span><span class="slot-name">Meta</span><span class="slot-return up">+18.7%</span></div>
+          <div class="slot filled"><span class="slot-ticker">AMZN</span><span class="slot-name">Amazon</span><span class="slot-return up">+6.1%</span></div>
+          <div class="slot filled"><span class="slot-ticker">MSFT</span><span class="slot-name">Microsoft</span><span class="slot-return up">+3.8%</span></div>
+        </div>
+      </div>
+      <div>
+        <h4>🪑 Bench</h4>
+        <div class="roster-slots">
+          <div class="slot bench-filled"><span class="slot-ticker">GOOGL</span><span class="slot-name">Alphabet</span><span class="slot-return up">+2.1%</span></div>
+          <div class="slot bench-filled"><span class="slot-ticker">AMD</span><span class="slot-name">AMD</span><span class="slot-return down">-3.4%</span></div>
+          <div class="slot bench-filled"><span class="slot-ticker">BRK.B</span><span class="slot-name">Berkshire</span><span class="slot-return up">+1.9%</span></div>
+        </div>
+        <div style="margin-top:20px;padding:14px;background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.15);border-radius:10px">
+          <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:4px">WEEKLY TRADES</div>
+          <div style="font-size:22px;font-family:'Bebas Neue',sans-serif">2 / 2 remaining</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">Resets Monday</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SEASONS -->
+<div class="section">
+  <div class="reveal">
+    <div class="section-label">Seasons</div>
+    <div class="section-title">NEW SEASON,<br/>NEW CHANCE.</div>
+  </div>
+  <div class="seasons reveal">
+    <div class="season-card active">
+      <div class="season-name">Season 1</div>
+      <div class="season-dates">May 26 → July 4, 2026</div>
+      <div class="season-status live">🟢 Live Now</div>
+    </div>
+    <div class="season-card">
+      <div class="season-name">Season 2</div>
+      <div class="season-dates">July 4 → Labor Day 2026</div>
+      <div class="season-status upcoming">⏳ Upcoming</div>
+    </div>
+    <div class="season-card">
+      <div class="season-name">Season 3</div>
+      <div class="season-dates">Labor Day → Thanksgiving 2026</div>
+      <div class="season-status upcoming">⏳ Upcoming</div>
+    </div>
+    <div class="season-card">
+      <div class="season-name">Season 4</div>
+      <div class="season-dates">Thanksgiving → New Year 2027</div>
+      <div class="season-status upcoming">⏳ Upcoming</div>
+    </div>
+  </div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="section" style="padding-top:0">
+  <div class="reveal">
+    <div class="section-label">Global Leaderboard</div>
+    <div class="section-title">WHO'S<br/>WINNING.</div>
+  </div>
+  <div class="lb-preview reveal">
+    <div class="lb-header">
+      <div class="lb-title">🏆 Season 1 Standings</div>
+      <div class="lb-tabs">
+        <button class="lb-tab active">All Time</button>
+        <button class="lb-tab">This Week</button>
+      </div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank gold">1</div>
+      <div><div class="lb-name">Kaylah R.</div><div class="lb-uni">Penn State</div></div>
+      <div class="lb-picks">NVDA · TSLA · META</div>
+      <div class="lb-return up">+31.4%</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank silver">2</div>
+      <div><div class="lb-name">Sevag M.</div><div class="lb-uni">Temple</div></div>
+      <div class="lb-picks">AAPL · AMZN · MSFT</div>
+      <div class="lb-return up">+24.7%</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank bronze">3</div>
+      <div><div class="lb-name">Ahmad K.</div><div class="lb-uni">Drexel</div></div>
+      <div class="lb-picks">SPY · GOOGL · AMD</div>
+      <div class="lb-return up">+18.2%</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank">4</div>
+      <div><div class="lb-name">Jordan T.</div><div class="lb-uni">Penn State</div></div>
+      <div class="lb-picks">NVDA · META · COIN</div>
+      <div class="lb-return up">+14.1%</div>
+    </div>
+    <div class="lb-row">
+      <div class="lb-rank">5</div>
+      <div><div class="lb-name">Sofia L.</div><div class="lb-uni">Rutgers</div></div>
+      <div class="lb-picks">TSLA · PLTR · ARM</div>
+      <div class="lb-return down">-2.3%</div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+  <h2>YOUR MOVE,<br/>ROOKIE.</h2>
+  <p>Season 1 is live. Draft opens now.</p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <button class="btn-big btn-big-green" onclick="openCreate()">Start a League</button>
+    <button class="btn-big btn-big-outline" onclick="openJoin()">Join with Code</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Bullpen is part of <a href="/">StockPilot</a> · Educational use only · Not financial advice · <a href="/trade">Virtual Market</a> · <a href="/learn">Learn</a></p>
+</footer>
+
+<!-- CREATE LEAGUE MODAL -->
+<div class="modal-overlay" id="createModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Create League</div>
+      <button class="modal-close" onclick="closeCreate()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">League Name</label>
+        <input type="text" class="form-input" placeholder="e.g. Econ 101 Degenerates" id="leagueName"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Draft Format</label>
+        <div class="format-picker">
+          <div class="format-opt selected" id="fplOpt" onclick="selectFormat('fpl')">
+            <div class="format-opt-title">⚽ FPL Style</div>
+            <div class="format-opt-desc">Same stock can be picked by multiple managers</div>
+          </div>
+          <div class="format-opt" id="nflOpt" onclick="selectFormat('nfl')">
+            <div class="format-opt-title">🏈 NFL Style</div>
+            <div class="format-opt-desc">Snake draft — once picked, a stock is gone</div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Max Players</label>
+          <select class="form-input" id="maxPlayers">
+            <option>5</option><option>8</option><option selected>10</option><option>12</option><option>15</option>
+          </select>
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Season</label>
+          <select class="form-input">
+            <option>Season 1 (Live Now)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input type="text" class="form-input" placeholder="How you'll appear on the leaderboard" id="managerName"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-full btn-full-ghost" onclick="closeCreate()">Cancel</button>
+      <button class="btn-full btn-full-green" onclick="createLeague()">Create & Get Code →</button>
+    </div>
+  </div>
+</div>
+
+<!-- JOIN MODAL -->
+<div class="modal-overlay" id="joinModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Join League</div>
+      <button class="modal-close" onclick="closeJoin()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label" style="text-align:center;display:block;margin-bottom:16px">Enter the 6-digit league code your friend sent you</label>
+        <input type="text" class="form-input join-code-input" placeholder="ABC123" maxlength="6" id="joinCode" oninput="this.value=this.value.toUpperCase()"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Your Name</label>
+        <input type="text" class="form-input" placeholder="How you'll appear on the leaderboard" id="joinName"/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-full btn-full-ghost" onclick="closeJoin()">Cancel</button>
+      <button class="btn-full btn-full-green" onclick="joinLeague()">Join League →</button>
+    </div>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="modal-overlay" id="successModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">League Created! 🎉</div>
+      <button class="modal-close" onclick="closeSuccess()">✕</button>
+    </div>
+    <div class="modal-body" style="text-align:center;padding-top:32px;padding-bottom:32px">
+      <div style="font-size:48px;margin-bottom:16px">🏟️</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Your league code</div>
+      <div id="leagueCodeDisplay" style="font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:12px;color:var(--green);margin-bottom:8px">ABC123</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:32px">Share this with your friends to invite them</div>
+      <button class="btn-full btn-full-green" onclick="copyCode()" id="copyBtn" style="max-width:280px;margin:0 auto 12px">Copy Code</button>
+      <br/>
+      <button class="btn-full btn-full-ghost" onclick="goToDraft()" style="max-width:280px;margin:0 auto">Go to Draft Room →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Scroll reveal ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// ── Leaderboard tabs ──
+document.querySelectorAll('.lb-tab').forEach(tab => {
+  tab.addEventListener('click', function() {
+    document.querySelectorAll('.lb-tab').forEach(t => t.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// ── Format picker ──
+let selectedFormat = 'fpl';
+function selectFormat(fmt) {
+  selectedFormat = fmt;
+  document.getElementById('fplOpt').classList.toggle('selected', fmt === 'fpl');
+  document.getElementById('nflOpt').classList.toggle('selected', fmt === 'nfl');
+}
+
+// ── Modals ──
+function openCreate() { document.getElementById('createModal').classList.add('open'); }
+function closeCreate() { document.getElementById('createModal').classList.remove('open'); }
+function openJoin() { document.getElementById('joinModal').classList.add('open'); }
+function closeJoin() { document.getElementById('joinModal').classList.remove('open'); }
+function closeSuccess() { document.getElementById('successModal').classList.remove('open'); }
+
+// Close on overlay click
+['createModal','joinModal','successModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', function(e) {
+    if(e.target === this) this.classList.remove('open');
+  });
+});
+
+// ── Generate league code ──
+function genCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from({length:6}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
+}
+
+let currentCode = '';
+
+function createLeague() {
+  const name = document.getElementById('leagueName').value.trim();
+  const manager = document.getElementById('managerName').value.trim();
+  if(!name) { document.getElementById('leagueName').focus(); return; }
+  if(!manager) { document.getElementById('managerName').focus(); return; }
+  
+  currentCode = genCode();
+  
+  // Save to localStorage for now
+  const league = {
+    code: currentCode,
+    name,
+    manager,
+    format: selectedFormat,
+    maxPlayers: document.getElementById('maxPlayers').value,
+    season: 1,
+    createdAt: Date.now(),
+    members: [{ name: manager, picks: [], score: 0 }]
+  };
+  localStorage.setItem('bullpen_league_' + currentCode, JSON.stringify(league));
+  localStorage.setItem('bullpen_my_league', currentCode);
+  localStorage.setItem('bullpen_my_name', manager);
+  
+  closeCreate();
+  document.getElementById('leagueCodeDisplay').textContent = currentCode;
+  document.getElementById('successModal').classList.add('open');
+}
+
+function joinLeague() {
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  const name = document.getElementById('joinName').value.trim();
+  if(code.length !== 6) { document.getElementById('joinCode').focus(); return; }
+  if(!name) { document.getElementById('joinName').focus(); return; }
+  
+  localStorage.setItem('bullpen_my_league', code);
+  localStorage.setItem('bullpen_my_name', name);
+  closeJoin();
+  window.location.href = '/bullpen/draft?code=' + code + '&name=' + encodeURIComponent(name);
+}
+
+function copyCode() {
+  navigator.clipboard.writeText(currentCode).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied! ✓';
+    btn.style.background = 'var(--green-d)';
+    setTimeout(() => { btn.textContent = 'Copy Code'; btn.style.background = ''; }, 2000);
+  });
+}
+
+function goToDraft() {
+  closeSuccess();
+  window.location.href = '/bullpen/draft?code=' + currentCode + '&name=' + encodeURIComponent(localStorage.getItem('bullpen_my_name'));
+}
+</script>
+</body>
+</html>
