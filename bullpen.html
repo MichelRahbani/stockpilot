@@ -752,5 +752,46 @@ function goToDraft() {
   window.location.href = '/bullpen-draft.html?code=' + currentCode + '&name=' + encodeURIComponent(localStorage.getItem('bullpen_my_name'));
 }
 </script>
+
+<!-- CONTINUE BANNER -->
+<div id="continueBanner" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;background:#0d1117;border:1px solid rgba(0,230,118,0.4);border-radius:12px;padding:14px 20px;display:flex;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:320px">
+  <div style="flex:1">
+    <div style="font-size:11px;color:#00e676;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">Your League</div>
+    <div id="continueLeagueName" style="font-weight:600;font-size:14px;margin-top:2px">Loading...</div>
+    <div id="continueCode" style="font-size:11px;color:#7d8590;font-family:monospace"></div>
+  </div>
+  <button onclick="goToMyLeague()" style="background:#00e676;color:#000;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:DM Sans,sans-serif">Continue →</button>
+  <button onclick="document.getElementById('continueBanner').style.display='none'" style="background:transparent;border:none;color:#7d8590;cursor:pointer;font-size:18px;padding:4px">✕</button>
+</div>
+
+<script>
+(function(){
+  const code = localStorage.getItem('bullpen_my_league');
+  const name = localStorage.getItem('bullpen_my_name');
+  const mid = localStorage.getItem('bullpen_my_member_id');
+  if(!code || !name) return;
+
+  // Try to get league name from supabase
+  fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/bullpen_leagues?code=eq.' + code, {
+    headers: {
+      'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q',
+      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q'
+    }
+  }).then(r=>r.json()).then(leagues=>{
+    const league = leagues[0];
+    if(!league) return;
+    const banner = document.getElementById('continueBanner');
+    document.getElementById('continueLeagueName').textContent = '🏟️ ' + league.name;
+    document.getElementById('continueCode').textContent = 'Code: ' + code + ' · ' + name;
+    banner.style.display = 'flex';
+  }).catch(()=>{});
+})();
+
+function goToMyLeague() {
+  const code = localStorage.getItem('bullpen_my_league');
+  const mid = localStorage.getItem('bullpen_my_member_id');
+  window.location.href = '/bullpen-league.html?code=' + code + (mid ? '&mid=' + mid : '');
+}
+</script>
 </body>
 </html>
