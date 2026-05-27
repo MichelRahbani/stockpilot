@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>League Hub — Bullpen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00e676;--green-d:#00c853;--red:#ff1744;--gold:#ffd600;
+  --bg:#080c10;--bg2:#0d1117;--bg3:#161b22;
+  --border:rgba(255,255,255,0.08);--text:#e6edf3;--muted:#7d8590;--card:rgba(255,255,255,0.04);
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+/* NAV */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;background:var(--bg2);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;
+}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo img{height:28px;width:28px;border-radius:6px;object-fit:cover}
+.nav-logo-text{font-weight:600;font-size:15px}
+.nav-logo-badge{background:rgba(0,230,118,0.15);color:var(--green);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-code{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer}
+.nav-code:hover{border-color:var(--green);color:var(--green)}
+.btn-sm{padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.15s}
+.btn-green{background:var(--green);color:#000}
+.btn-green:hover{background:var(--green-d)}
+.btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.2);color:var(--text)}
+
+/* LAYOUT */
+.page{max-width:1100px;margin:0 auto;padding:32px 20px}
+
+/* SEASON HEADER */
+.season-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--bg2);border:1px solid var(--border);border-radius:14px;
+  padding:20px 24px;margin-bottom:24px;flex-wrap:wrap;gap:16px;
+}
+.season-bar-left h1{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px}
+.season-bar-left p{font-size:13px;color:var(--muted);margin-top:2px}
+.season-stats{display:flex;gap:24px;flex-wrap:wrap}
+.season-stat{text-align:center}
+.season-stat-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--green)}
+.season-stat-label{font-size:11px;color:var(--muted);margin-top:1px}
+.countdown{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);
+  border-radius:8px;padding:8px 16px;
+}
+.countdown-num{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--green);min-width:32px;text-align:center}
+.countdown-label{font-size:10px;color:var(--muted);text-align:center}
+.countdown-sep{font-size:20px;color:var(--green);opacity:0.5;align-self:flex-start;margin-top:2px}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:1fr 340px;gap:20px}
+.grid-left{display:flex;flex-direction:column;gap:20px}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px}
+.card-body{padding:20px}
+
+/* LEADERBOARD */
+.lb-row{
+  display:grid;grid-template-columns:36px 1fr auto;
+  align-items:center;gap:12px;
+  padding:12px 20px;border-bottom:1px solid var(--border);
+  transition:background 0.15s;cursor:pointer;
+}
+.lb-row:last-child{border-bottom:none}
+.lb-row:hover{background:rgba(255,255,255,0.02)}
+.lb-row.me{background:rgba(0,230,118,0.04);border-left:2px solid var(--green)}
+.lb-rank{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--muted);text-align:center}
+.lb-rank.r1{color:var(--gold)}
+.lb-rank.r2{color:#b0bec5}
+.lb-rank.r3{color:#bf8a30}
+.lb-info{}
+.lb-name{font-size:14px;font-weight:600}
+.lb-picks{font-size:11px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.lb-score{font-family:'Bebas Neue',sans-serif;font-size:24px;text-align:right}
+.lb-score.up{color:var(--green)}
+.lb-score.down{color:var(--red)}
+.lb-score.zero{color:var(--muted)}
+
+/* MY ROSTER */
+.roster-tabs{display:flex;gap:4px;padding:16px 20px 0}
+.rtab{padding:8px 16px;border-radius:8px 8px 0 0;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;background:transparent;color:var(--muted)}
+.rtab.active{background:var(--bg3);color:var(--text)}
+.roster-body{padding:16px 20px}
+.roster-slot{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 14px;border-radius:9px;margin-bottom:6px;
+  border:1px solid var(--border);background:var(--card);
+  transition:all 0.15s;
+}
+.roster-slot.starter{border-color:rgba(0,230,118,0.2);background:rgba(0,230,118,0.04)}
+.roster-slot.bench-s{border-color:rgba(255,214,0,0.15);background:rgba(255,214,0,0.03)}
+.rs-num{font-size:10px;color:var(--muted);width:18px;text-align:right}
+.rs-ticker{font-family:'DM Mono',monospace;font-size:14px;font-weight:600;width:56px}
+.rs-name{font-size:12px;color:var(--muted);flex:1}
+.rs-return{font-family:'DM Mono',monospace;font-size:13px;font-weight:600}
+.rs-return.up{color:var(--green)}
+.rs-return.down{color:var(--red)}
+.rs-swap-btn{
+  background:rgba(255,255,255,0.05);border:1px solid var(--border);
+  color:var(--muted);padding:4px 10px;border-radius:5px;font-size:11px;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;font-weight:600;
+}
+.rs-swap-btn:hover{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.08)}
+.empty-slot{
+  padding:11px 14px;border-radius:9px;margin-bottom:6px;
+  border:1px dashed rgba(255,255,255,0.1);
+  font-size:12px;color:rgba(255,255,255,0.2);text-align:center;
+}
+
+/* TRADES BOX */
+.trades-box{
+  margin:0 20px 20px;padding:14px 16px;
+  background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.15);border-radius:10px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.trades-info{}
+.trades-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--green);font-weight:700}
+.trades-count{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1}
+.trades-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.make-trade-btn{
+  background:var(--green);color:#000;border:none;padding:10px 18px;
+  border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all 0.15s;
+}
+.make-trade-btn:hover{background:var(--green-d)}
+.make-trade-btn:disabled{opacity:0.4;cursor:default}
+
+/* RIGHT SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:20px}
+
+/* INVITE */
+.invite-card{
+  background:linear-gradient(135deg,rgba(0,230,118,0.08),rgba(0,191,165,0.05));
+  border:1px solid rgba(0,230,118,0.2);border-radius:14px;padding:20px;
+}
+.invite-title{font-family:'Bebas Neue',sans-serif;font-size:20px;margin-bottom:4px}
+.invite-code{
+  font-family:'Bebas Neue',sans-serif;font-size:48px;letter-spacing:10px;
+  color:var(--green);text-align:center;padding:16px 0 8px;
+}
+.invite-sub{font-size:12px;color:var(--muted);text-align:center;margin-bottom:16px}
+.copy-btn{
+  width:100%;padding:11px;border-radius:8px;background:var(--green);
+  color:#000;border:none;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;transition:all 0.15s;
+}
+.copy-btn:hover{background:var(--green-d)}
+
+/* MEMBER LIST */
+.member-item{
+  display:flex;align-items:center;gap:10px;
+  padding:11px 20px;border-bottom:1px solid var(--border);
+}
+.member-item:last-child{border-bottom:none}
+.member-avatar{
+  width:30px;height:30px;border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:12px;font-weight:700;color:#000;flex-shrink:0;
+}
+.member-name{font-size:13px;font-weight:500;flex:1}
+.member-name span{font-size:11px;color:var(--green);margin-left:4px}
+.member-status{font-size:11px}
+.member-status.drafted{color:var(--green)}
+.member-status.pending{color:var(--gold)}
+
+/* TRADE MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.85);
+  display:flex;align-items:center;justify-content:center;
+  z-index:1000;padding:24px;opacity:0;pointer-events:none;transition:opacity 0.2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  width:100%;max-width:480px;max-height:85vh;overflow-y:auto;
+  transform:translateY(12px);transition:transform 0.2s;
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-head{
+  padding:20px 24px;border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-head h2{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px}
+.modal-close{width:28px;height:28px;border-radius:6px;background:var(--card);border:1px solid var(--border);color:var(--muted);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center}
+.modal-body{padding:20px 24px}
+.trade-section-label{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600;margin-bottom:10px}
+.trade-slot{
+  display:flex;align-items:center;gap:10px;padding:10px 12px;
+  border-radius:8px;border:1px solid var(--border);background:var(--card);
+  margin-bottom:6px;cursor:pointer;transition:all 0.15s;
+}
+.trade-slot:hover{border-color:rgba(0,230,118,0.3)}
+.trade-slot.selected{border-color:var(--green);background:rgba(0,230,118,0.08)}
+.trade-ticker{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;width:52px}
+.trade-name{font-size:12px;color:var(--muted);flex:1}
+.trade-return{font-family:'DM Mono',monospace;font-size:12px}
+.modal-footer{padding:0 24px 24px;display:flex;gap:10px}
+.btn-full{width:100%;padding:13px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.2s}
+.btn-full-green{background:var(--green);color:#000}
+.btn-full-green:hover{background:var(--green-d)}
+.btn-full-green:disabled{opacity:0.4;cursor:default}
+.btn-full-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
+.trade-arrow{text-align:center;padding:8px 0;font-size:20px;color:var(--green)}
+.trade-warning{background:rgba(255,214,0,0.08);border:1px solid rgba(255,214,0,0.2);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--gold);margin-bottom:12px}
+
+/* LOADING */
+.skeleton{background:linear-gradient(90deg,var(--card) 25%,rgba(255,255,255,0.06) 50%,var(--card) 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:14px;z-index:9999;transition:transform 0.3s;white-space:nowrap}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.ok{border-color:rgba(0,230,118,0.4);color:var(--green)}
+.toast.err{border-color:rgba(255,23,68,0.4);color:var(--red)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty-state-icon{font-size:40px;margin-bottom:12px}
+.empty-state p{font-size:14px;line-height:1.6}
+
+@media(max-width:768px){
+  .grid{grid-template-columns:1fr}
+  .sidebar{order:-1}
+  .season-stats{display:none}
+  .countdown{display:none}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/bullpen.html" class="nav-logo">
+    <img src="/logo.jpg" alt="StockPilot"/>
+    <div>
+      <div class="nav-logo-text">StockPilot</div>
+    </div>
+    <span class="nav-logo-badge">BULLPEN</span>
+  </a>
+  <div class="nav-right">
+    <div class="nav-code" id="navCode" onclick="copyCode()" title="Click to copy">CODE: ——</div>
+    <button class="btn-sm btn-ghost" onclick="window.location.href='/bullpen.html'">All Leagues</button>
+  </div>
+</nav>
+
+<div class="page">
+
+  <!-- SEASON BAR -->
+  <div class="season-bar">
+    <div class="season-bar-left">
+      <h1 id="leagueName">Loading...</h1>
+      <p id="leagueFormat">Season 1 · Memorial Day → July 4</p>
+    </div>
+    <div class="season-stats">
+      <div class="season-stat"><div class="season-stat-val" id="statMembers">—</div><div class="season-stat-label">Players</div></div>
+      <div class="season-stat"><div class="season-stat-val" id="statDrafted">—</div><div class="season-stat-label">Drafted</div></div>
+      <div class="season-stat"><div class="season-stat-val" id="statLeader">—</div><div class="season-stat-label">Top Score</div></div>
+    </div>
+    <div class="countdown" id="countdownBox">
+      <div><div class="countdown-num" id="cdDays">—</div><div class="countdown-label">DAYS</div></div>
+      <div class="countdown-sep">:</div>
+      <div><div class="countdown-num" id="cdHours">—</div><div class="countdown-label">HRS</div></div>
+      <div class="countdown-sep">:</div>
+      <div><div class="countdown-num" id="cdMins">—</div><div class="countdown-label">MIN</div></div>
+    </div>
+  </div>
+
+  <div class="grid">
+
+    <!-- LEFT -->
+    <div class="grid-left">
+
+      <!-- LEADERBOARD -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🏆 Leaderboard</div>
+          <button class="btn-sm btn-ghost" onclick="loadData()">↻ Refresh</button>
+        </div>
+        <div id="leaderboard">
+          <div style="padding:32px;text-align:center;color:var(--muted)">Loading...</div>
+        </div>
+      </div>
+
+      <!-- MY ROSTER -->
+      <div class="card" id="myRosterCard">
+        <div class="roster-tabs">
+          <button class="rtab active" onclick="switchTab('starters')">⚡ Starters</button>
+          <button class="rtab" onclick="switchTab('bench')">🪑 Bench</button>
+        </div>
+        <div class="roster-body" id="rosterBody">
+          <div style="color:var(--muted);text-align:center;padding:20px">Loading your picks...</div>
+        </div>
+        <div class="trades-box">
+          <div class="trades-info">
+            <div class="trades-label">Weekly Trades</div>
+            <div class="trades-count" id="tradesCount">— / 2</div>
+            <div class="trades-sub">Resets Monday · Extra trades = -5% penalty</div>
+          </div>
+          <button class="make-trade-btn" id="tradeBtn" onclick="openTrade()">Make Trade</button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- INVITE -->
+      <div class="invite-card">
+        <div class="invite-title">🏟️ Invite Friends</div>
+        <div class="invite-code" id="inviteCode">——</div>
+        <div class="invite-sub">Share this code to invite players</div>
+        <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+      </div>
+
+      <!-- MEMBERS -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">👥 Members</div>
+          <span id="memberCount" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <div id="memberList">
+          <div style="padding:20px;text-align:center;color:var(--muted)">Loading...</div>
+        </div>
+        <div style="padding:12px 20px 16px">
+          <button class="btn-sm btn-ghost" style="width:100%" onclick="window.location.href='/bullpen-draft.html?code='+leagueCode+'&mid='+myMemberId">
+            ✏️ Edit My Draft
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- TRADE MODAL -->
+<div class="modal-overlay" id="tradeModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Make a Trade</h2>
+      <button class="modal-close" onclick="closeTrade()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="tradeWarning" class="trade-warning" style="display:none"></div>
+      <div class="trade-section-label">Remove from Starters</div>
+      <div id="tradeStarterList"></div>
+      <div class="trade-arrow">↕</div>
+      <div class="trade-section-label">Bring in from Bench</div>
+      <div id="tradeBenchList"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-full btn-full-ghost" onclick="closeTrade()">Cancel</button>
+      <button class="btn-full btn-full-green" id="confirmTradeBtn" onclick="confirmTrade()" disabled>Confirm Trade</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const SUPABASE_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+
+const params = new URLSearchParams(location.search);
+const leagueCode = params.get('code') || localStorage.getItem('bullpen_my_league') || '';
+const myMemberId = params.get('mid') || localStorage.getItem('bullpen_my_member_id') || '';
+const myName = localStorage.getItem('bullpen_my_name') || '';
+
+let league = null;
+let members = [];
+let myMember = null;
+let activeTab = 'starters';
+let tradeOut = null;
+let tradeIn = null;
+
+// ── Supabase helpers ──
+async function sbGet(table, qs) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${qs}`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  return r.json();
+}
+async function sbPatch(table, qs, body) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${qs}`, {
+    method: 'PATCH',
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return r.ok;
+}
+
+// ── Countdown to July 4 ──
+function updateCountdown() {
+  const end = new Date('2026-07-04T00:00:00');
+  const now = new Date();
+  const diff = end - now;
+  if(diff <= 0) { document.getElementById('countdownBox').innerHTML = '<span style="color:var(--green);font-weight:600">Season ended!</span>'; return; }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  document.getElementById('cdDays').textContent = d;
+  document.getElementById('cdHours').textContent = String(h).padStart(2,'0');
+  document.getElementById('cdMins').textContent = String(m).padStart(2,'0');
+}
+updateCountdown();
+setInterval(updateCountdown, 30000);
+
+// ── Load all data ──
+async function loadData() {
+  if(!leagueCode) { showToast('No league code found', 'err'); return; }
+
+  // Nav code
+  document.getElementById('navCode').textContent = 'CODE: ' + leagueCode;
+  document.getElementById('inviteCode').textContent = leagueCode;
+
+  try {
+    // Load league
+    const leagues = await sbGet('bullpen_leagues', `code=eq.${leagueCode}`);
+    league = leagues[0];
+    if(!league) { showToast('League not found', 'err'); return; }
+    document.getElementById('leagueName').textContent = '🏟️ ' + league.name;
+    document.getElementById('leagueFormat').textContent = `Season ${league.season} · ${league.format === 'fpl' ? 'FPL Style' : 'NFL Draft'} · Up to ${league.max_players} players`;
+
+    // Load members
+    members = await sbGet('bullpen_members', `league_code=eq.${leagueCode}&order=score.desc`);
+    myMember = members.find(m => m.id === myMemberId) || members.find(m => m.name === myName) || null;
+
+    // Stats
+    document.getElementById('statMembers').textContent = members.length;
+    const drafted = members.filter(m => m.starters && m.starters.length > 0).length;
+    document.getElementById('statDrafted').textContent = drafted + '/' + members.length;
+    const topScore = members[0]?.score || 0;
+    document.getElementById('statLeader').textContent = (topScore >= 0 ? '+' : '') + topScore.toFixed(1) + '%';
+    document.getElementById('memberCount').textContent = members.length + ' / ' + league.max_players;
+
+    renderLeaderboard();
+    renderMembers();
+    renderRoster();
+    await updateScores();
+  } catch(e) {
+    showToast('Load failed: ' + e.message, 'err');
+  }
+}
+
+// ── Scores from real prices ──
+async function updateScores() {
+  // Collect all unique tickers
+  const allTickers = new Set();
+  members.forEach(m => {
+    (m.starters || []).forEach(t => allTickers.add(t));
+    (m.bench || []).forEach(t => allTickers.add(t));
+  });
+  if(!allTickers.size) return;
+
+  try {
+    const res = await fetch(`${BACKEND}/api/quotes?symbols=${[...allTickers].join(',')}`);
+    const data = await res.json();
+    const quotes = data?.quoteResponse?.result || [];
+    const priceMap = {};
+    quotes.forEach(q => priceMap[q.symbol] = q.regularMarketChangePercent || 0);
+
+    // Calculate score per member (sum of starter % changes)
+    for(const m of members) {
+      if(!m.starters || !m.starters.length) continue;
+      const score = m.starters.reduce((sum, t) => sum + (priceMap[t] || 0), 0);
+      m.score = parseFloat(score.toFixed(2));
+      m._priceMap = priceMap;
+      // Update in Supabase
+      sbPatch('bullpen_members', `id=eq.${m.id}`, { score: m.score });
+    }
+
+    // Re-sort by score
+    members.sort((a, b) => b.score - a.score);
+    const top = members[0]?.score || 0;
+    document.getElementById('statLeader').textContent = (top >= 0 ? '+' : '') + top.toFixed(1) + '%';
+
+    renderLeaderboard();
+    renderRoster();
+  } catch(e) {
+    console.log('Price update failed:', e);
+  }
+}
+
+// ── Render leaderboard ──
+function renderLeaderboard() {
+  const el = document.getElementById('leaderboard');
+  if(!members.length) {
+    el.innerHTML = '<div class="empty-state"><div class="empty-state-icon">👥</div><p>No members yet.<br/>Share the code to invite friends!</p></div>';
+    return;
+  }
+  el.innerHTML = members.map((m, i) => {
+    const isMe = m.id === myMemberId || m.name === myName;
+    const rankClass = i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : '';
+    const rankIcon = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i+1);
+    const scoreClass = m.score > 0 ? 'up' : m.score < 0 ? 'down' : 'zero';
+    const scoreStr = (m.score >= 0 ? '+' : '') + m.score.toFixed(2) + '%';
+    const picks = [...(m.starters||[])].slice(0,3).join(' · ') || 'No picks yet';
+    return `<div class="lb-row${isMe?' me':''}" onclick="showMemberRoster('${m.id}')">
+      <div class="lb-rank ${rankClass}">${rankIcon}</div>
+      <div class="lb-info">
+        <div class="lb-name">${m.name}${isMe ? ' <span style="font-size:10px;color:var(--green)">(you)</span>' : ''}</div>
+        <div class="lb-picks">${picks}</div>
+      </div>
+      <div class="lb-score ${scoreClass}">${scoreStr}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Render members sidebar ──
+function renderMembers() {
+  const el = document.getElementById('memberList');
+  const colors = ['#00e676','#7c4dff','#ff6d00','#00b0ff','#ff4081','#69f0ae'];
+  el.innerHTML = members.map((m, i) => {
+    const isMe = m.id === myMemberId || m.name === myName;
+    const hasDraft = m.starters && m.starters.length > 0;
+    return `<div class="member-item">
+      <div class="member-avatar" style="background:${colors[i%colors.length]}">${m.name.charAt(0).toUpperCase()}</div>
+      <div class="member-name">${m.name}${isMe?'<span>(you)</span>':''}</div>
+      <div class="member-status ${hasDraft?'drafted':'pending'}">${hasDraft?'✓ Drafted':'Pending'}</div>
+    </div>`;
+  }).join('') || '<div style="padding:20px;text-align:center;color:var(--muted)">No members yet</div>';
+}
+
+// ── Render my roster ──
+function renderRoster() {
+  const body = document.getElementById('rosterBody');
+  if(!myMember) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>You haven\'t drafted yet.<br/><a href="/bullpen-draft.html?code='+leagueCode+'" style="color:var(--green)">Go to Draft Room →</a></p></div>';
+    document.getElementById('tradeBtn').disabled = true;
+    return;
+  }
+
+  const list = activeTab === 'starters' ? (myMember.starters || []) : (myMember.bench || []);
+  const max = activeTab === 'starters' ? 7 : 3;
+  const priceMap = myMember._priceMap || {};
+  const slotClass = activeTab === 'starters' ? 'starter' : 'bench-s';
+
+  let html = '';
+  for(let i = 0; i < max; i++) {
+    const t = list[i];
+    if(t) {
+      const chg = priceMap[t] || 0;
+      const up = chg >= 0;
+      html += `<div class="roster-slot ${slotClass}">
+        <span class="rs-num">${activeTab==='starters'?(i+1):'B'+(i+1)}</span>
+        <span class="rs-ticker">${t}</span>
+        <span class="rs-name"></span>
+        <span class="rs-return ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}%</span>
+        <button class="rs-swap-btn" onclick="quickSwap('${t}')">⇄ Swap</button>
+      </div>`;
+    } else {
+      html += `<div class="empty-slot">Empty slot</div>`;
+    }
+  }
+  body.innerHTML = html;
+
+  const tradesLeft = myMember.trades_left ?? 2;
+  document.getElementById('tradesCount').textContent = tradesLeft + ' / 2';
+  document.getElementById('tradeBtn').disabled = tradesLeft === 0;
+}
+
+// ── Tab switch ──
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.rtab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='starters')||(i===1&&tab==='bench')));
+  renderRoster();
+}
+
+// ── Quick swap (open trade modal pre-selecting this stock) ──
+function quickSwap(ticker) {
+  tradeOut = ticker;
+  openTrade();
+}
+
+// ── Trade modal ──
+function openTrade() {
+  if(!myMember) return;
+  const tradesLeft = myMember.trades_left ?? 2;
+
+  // Warning if 0 trades
+  const warn = document.getElementById('tradeWarning');
+  if(tradesLeft === 0) {
+    warn.style.display = 'block';
+    warn.textContent = '⚠️ No free trades left this week. Confirming will cost -5% from your score.';
+  } else {
+    warn.style.display = 'none';
+  }
+
+  // Render starter list
+  const starters = myMember.starters || [];
+  const bench = myMember.bench || [];
+  const priceMap = myMember._priceMap || {};
+
+  document.getElementById('tradeStarterList').innerHTML = starters.map(t => {
+    const chg = priceMap[t] || 0;
+    const up = chg >= 0;
+    return `<div class="trade-slot${tradeOut===t?' selected':''}" onclick="selectTradeOut('${t}')">
+      <span class="trade-ticker">${t}</span>
+      <span class="trade-name">Starter</span>
+      <span class="trade-return ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}%</span>
+    </div>`;
+  }).join('') || '<div style="color:var(--muted);font-size:13px">No starters drafted</div>';
+
+  document.getElementById('tradeBenchList').innerHTML = bench.map(t => {
+    const chg = priceMap[t] || 0;
+    const up = chg >= 0;
+    return `<div class="trade-slot${tradeIn===t?' selected':''}" onclick="selectTradeIn('${t}')">
+      <span class="trade-ticker">${t}</span>
+      <span class="trade-name">Bench</span>
+      <span class="trade-return ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}%</span>
+    </div>`;
+  }).join('') || '<div style="color:var(--muted);font-size:13px">No bench stocks</div>';
+
+  document.getElementById('confirmTradeBtn').disabled = !(tradeOut && tradeIn);
+  document.getElementById('tradeModal').classList.add('open');
+}
+
+function closeTrade() {
+  document.getElementById('tradeModal').classList.remove('open');
+  tradeOut = null; tradeIn = null;
+}
+
+function selectTradeOut(t) {
+  tradeOut = t;
+  openTrade();
+}
+function selectTradeIn(t) {
+  tradeIn = t;
+  document.querySelectorAll('#tradeBenchList .trade-slot').forEach(el => el.classList.remove('selected'));
+  event.currentTarget.classList.add('selected');
+  document.getElementById('confirmTradeBtn').disabled = !(tradeOut && tradeIn);
+}
+
+async function confirmTrade() {
+  if(!tradeOut || !tradeIn || !myMember) return;
+  const btn = document.getElementById('confirmTradeBtn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+
+  const starters = [...(myMember.starters || [])];
+  const bench = [...(myMember.bench || [])];
+  const outIdx = starters.indexOf(tradeOut);
+  const inIdx = bench.indexOf(tradeIn);
+  if(outIdx === -1 || inIdx === -1) { showToast('Trade error', 'err'); return; }
+
+  starters[outIdx] = tradeIn;
+  bench[inIdx] = tradeOut;
+
+  const tradesLeft = myMember.trades_left ?? 2;
+  const newTrades = Math.max(0, tradesLeft - 1);
+  let newScore = myMember.score;
+  if(tradesLeft === 0) newScore = parseFloat((newScore - 5).toFixed(2));
+
+  try {
+    await sbPatch('bullpen_members', `id=eq.${myMember.id}`, {
+      starters, bench, trades_left: newTrades, score: newScore
+    });
+    myMember.starters = starters;
+    myMember.bench = bench;
+    myMember.trades_left = newTrades;
+    myMember.score = newScore;
+
+    closeTrade();
+    renderRoster();
+    renderLeaderboard();
+    showToast(`✅ ${tradeOut} ⇄ ${tradeIn} — trade confirmed!`, 'ok');
+  } catch(e) {
+    showToast('Trade failed: ' + e.message, 'err');
+    btn.textContent = 'Confirm Trade'; btn.disabled = false;
+  }
+}
+
+// ── Show another member's roster (click leaderboard row) ──
+function showMemberRoster(memberId) {
+  const m = members.find(x => x.id === memberId);
+  if(!m) return;
+  const starters = (m.starters || []).join(', ') || 'No picks yet';
+  const bench = (m.bench || []).join(', ') || '—';
+  showToast(`${m.name}: ${starters}`, 'ok');
+}
+
+// ── Copy code ──
+function copyCode() {
+  navigator.clipboard.writeText(leagueCode).then(() => showToast('Code copied!', 'ok'));
+}
+
+// ── Toast ──
+function showToast(msg, type='ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  clearTimeout(window._tt);
+  window._tt = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Close modal on overlay click ──
+document.getElementById('tradeModal').addEventListener('click', function(e) {
+  if(e.target === this) closeTrade();
+});
+
+// ── Init ──
+loadData();
+// Auto-refresh scores every 60s
+setInterval(updateScores, 60000);
+</script>
+</body>
+</html>
