@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Draft Room — Bullpen</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00e676;--green-d:#00c853;--red:#ff1744;--gold:#ffd600;
+  --bg:#080c10;--bg2:#0d1117;--bg3:#161b22;
+  --border:rgba(255,255,255,0.08);--text:#e6edf3;--muted:#7d8590;--card:rgba(255,255,255,0.04);
+}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column}
+
+/* NAV */
+.nav{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 24px;background:var(--bg2);border-bottom:1px solid var(--border);
+  flex-shrink:0;
+}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px}
+.nav-logo span{color:var(--green)}
+.league-info{text-align:center}
+.league-name{font-weight:600;font-size:14px}
+.league-code{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)}
+.pick-timer{
+  display:flex;align-items:center;gap:8px;
+  background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.2);
+  border-radius:8px;padding:8px 16px;
+}
+.timer-num{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--green);min-width:28px;text-align:center}
+.timer-label{font-size:11px;color:var(--muted)}
+
+/* MAIN LAYOUT */
+.draft-layout{
+  display:grid;grid-template-columns:280px 1fr 260px;
+  flex:1;overflow:hidden;
+}
+
+/* LEFT — MY ROSTER */
+.roster-panel{
+  background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.panel-header{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:1px;flex-shrink:0;
+}
+.roster-section{padding:16px 20px;border-bottom:1px solid var(--border)}
+.roster-section-label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:var(--muted);margin-bottom:10px;font-weight:600}
+.roster-slot{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px;border-radius:8px;margin-bottom:6px;
+  border:1px solid var(--border);background:var(--card);
+  transition:all 0.15s;
+}
+.roster-slot.filled{border-color:rgba(0,230,118,0.25);background:rgba(0,230,118,0.05)}
+.roster-slot.bench-filled{border-color:rgba(255,214,0,0.2);background:rgba(255,214,0,0.04)}
+.slot-num{font-size:10px;color:var(--muted);width:16px}
+.slot-ticker{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;width:50px}
+.slot-name{font-size:12px;color:var(--muted);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot-rm{
+  width:20px;height:20px;border-radius:4px;background:rgba(255,23,68,0.1);
+  border:none;color:var(--red);cursor:pointer;font-size:12px;
+  display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.15s;
+}
+.roster-slot.filled:hover .slot-rm{opacity:1}
+.empty-label{font-size:12px;color:rgba(255,255,255,0.2);flex:1}
+.trades-box{
+  margin:16px 20px;padding:14px;
+  background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.15);border-radius:10px;
+}
+.trades-title{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--green);margin-bottom:4px;font-weight:600}
+.trades-count{font-family:'Bebas Neue',sans-serif;font-size:28px}
+.trades-sub{font-size:11px;color:var(--muted)}
+.submit-btn{
+  margin:0 20px 20px;padding:14px;border-radius:10px;
+  background:var(--green);color:#000;border:none;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;
+  opacity:0.4;pointer-events:none;
+}
+.submit-btn.ready{opacity:1;pointer-events:all}
+.submit-btn.ready:hover{background:var(--green-d);transform:translateY(-1px)}
+
+/* CENTER — SEARCH + PICKS */
+.center-panel{display:flex;flex-direction:column;overflow:hidden}
+.search-bar{
+  padding:16px 20px;background:var(--bg2);border-bottom:1px solid var(--border);
+  display:flex;gap:10px;flex-shrink:0;
+}
+.search-input{
+  flex:1;background:rgba(255,255,255,0.04);border:1px solid var(--border);
+  border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;
+  font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;
+}
+.search-input:focus{border-color:rgba(0,230,118,0.4)}
+.search-btn{
+  background:var(--green);color:#000;border:none;border-radius:10px;
+  padding:0 20px;font-size:13px;font-weight:700;cursor:pointer;
+  font-family:'DM Sans',sans-serif;white-space:nowrap;
+}
+
+.stocks-grid{flex:1;overflow-y:auto;padding:20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;align-content:start}
+
+.stock-card{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:16px;cursor:pointer;transition:all 0.15s;position:relative;
+}
+.stock-card:hover{border-color:rgba(0,230,118,0.4);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,230,118,0.1)}
+.stock-card.picked{opacity:0.4;cursor:default;pointer-events:none}
+.stock-card.picked::after{
+  content:'PICKED';position:absolute;top:8px;right:8px;
+  font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1px;
+}
+.stock-card.mine{border-color:rgba(0,230,118,0.5);background:rgba(0,230,118,0.06)}
+.stock-card.mine::after{content:'✓ DRAFTED';color:var(--green)}
+.card-ticker{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;margin-bottom:2px}
+.card-name{font-size:12px;color:var(--muted);margin-bottom:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-price{font-family:'DM Mono',monospace;font-size:14px;font-weight:500}
+.card-change{font-family:'DM Mono',monospace;font-size:12px;margin-top:2px}
+.card-change.up{color:var(--green)}
+.card-change.down{color:var(--red)}
+.card-pick-btn{
+  width:100%;margin-top:10px;padding:8px;border-radius:6px;
+  background:rgba(0,230,118,0.15);color:var(--green);
+  border:1px solid rgba(0,230,118,0.3);font-size:12px;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;
+}
+.card-pick-btn:hover{background:var(--green);color:#000}
+
+/* RIGHT — LEAGUE */
+.league-panel{
+  background:var(--bg2);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.member-row{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;
+  border-bottom:1px solid var(--border);
+}
+.member-row.me{background:rgba(0,230,118,0.04)}
+.member-avatar{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,var(--green),#00bfa5);
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:700;color:#000;flex-shrink:0;
+}
+.member-avatar.other{background:linear-gradient(135deg,#7c4dff,#651fff)}
+.member-avatar.other2{background:linear-gradient(135deg,#ff6d00,#ff3d00)}
+.member-name{font-size:13px;font-weight:500;flex:1}
+.member-picks{font-size:11px;color:var(--muted)}
+.member-status{font-size:10px;padding:2px 6px;border-radius:4px;font-weight:600}
+.member-status.drafting{background:rgba(0,230,118,0.15);color:var(--green)}
+.member-status.done{background:rgba(255,255,255,0.05);color:var(--muted)}
+.member-status.waiting{background:rgba(255,214,0,0.1);color:var(--gold)}
+
+/* Loading state */
+.loading{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:200px;gap:12px;color:var(--muted);
+}
+.spinner{
+  width:32px;height:32px;border:2px solid var(--border);
+  border-top-color:var(--green);border-radius:50%;animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
+  background:var(--bg3);border:1px solid var(--border);border-radius:10px;
+  padding:12px 20px;font-size:14px;z-index:999;transition:transform 0.3s;
+  white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(0,230,118,0.4);color:var(--green)}
+.toast.error{border-color:rgba(255,23,68,0.4);color:var(--red)}
+
+@media(max-width:768px){
+  .draft-layout{grid-template-columns:1fr;grid-template-rows:auto 1fr auto}
+  .roster-panel,.league-panel{max-height:200px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">BULL<span>PEN</span></div>
+  <div class="league-info">
+    <div class="league-name" id="navLeagueName">Loading...</div>
+    <div class="league-code" id="navLeagueCode"></div>
+  </div>
+  <div class="pick-timer">
+    <div>
+      <div class="timer-label">Draft open</div>
+      <div style="font-size:11px;color:var(--green)">Pick anytime</div>
+    </div>
+  </div>
+</nav>
+
+<div class="draft-layout">
+
+  <!-- LEFT: MY ROSTER -->
+  <div class="roster-panel">
+    <div class="panel-header">⚡ My Roster</div>
+    
+    <div class="roster-section">
+      <div class="roster-section-label">Starters (7)</div>
+      <div id="starterSlots"></div>
+    </div>
+    
+    <div class="roster-section">
+      <div class="roster-section-label">Bench (3)</div>
+      <div id="benchSlots"></div>
+    </div>
+
+    <div class="trades-box">
+      <div class="trades-title">Weekly Trades</div>
+      <div class="trades-count">2 / 2</div>
+      <div class="trades-sub">Resets every Monday</div>
+    </div>
+
+    <div style="flex:1"></div>
+    <button class="submit-btn" id="submitBtn" onclick="submitDraft()">
+      Lock In Draft →
+    </button>
+  </div>
+
+  <!-- CENTER: STOCK BROWSER -->
+  <div class="center-panel">
+    <div class="search-bar">
+      <input type="text" class="search-input" placeholder="Search any stock — AAPL, TSLA, NVDA..." id="searchInput" onkeydown="if(event.key==='Enter')doSearch()"/>
+      <button class="search-btn" onclick="doSearch()">Search</button>
+    </div>
+    <div class="stocks-grid" id="stocksGrid">
+      <div class="loading" style="grid-column:1/-1">
+        <div class="spinner"></div>
+        <div>Loading popular stocks...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: LEAGUE -->
+  <div class="league-panel">
+    <div class="panel-header">🏟️ League</div>
+    <div id="memberList"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+const params = new URLSearchParams(location.search);
+const leagueCode = params.get('code') || localStorage.getItem('bullpen_my_league') || 'DEMO';
+const myName = params.get('name') || localStorage.getItem('bullpen_my_name') || 'You';
+
+// State
+let starters = []; // max 7
+let bench = []; // max 3
+let allPicked = new Set(); // tickers picked globally
+
+// Popular stocks to show by default
+const POPULAR = ['AAPL','NVDA','TSLA','MSFT','META','AMZN','GOOGL','SPY','AMD','COIN','PLTR','ARM','BRK-B','JPM','V'];
+
+// Init
+document.getElementById('navLeagueName').textContent = 
+  JSON.parse(localStorage.getItem('bullpen_league_' + leagueCode) || '{}').name || 'Bullpen League';
+document.getElementById('navLeagueCode').textContent = 'Code: ' + leagueCode;
+
+renderRoster();
+renderMembers();
+loadPopularStocks();
+
+function renderRoster() {
+  // Starters
+  const ss = document.getElementById('starterSlots');
+  ss.innerHTML = '';
+  for(let i = 0; i < 7; i++) {
+    const stock = starters[i];
+    const div = document.createElement('div');
+    div.className = 'roster-slot' + (stock ? ' filled' : '');
+    if(stock) {
+      div.innerHTML = `<span class="slot-num">${i+1}</span><span class="slot-ticker">${stock.ticker}</span><span class="slot-name">${stock.name}</span><button class="slot-rm" onclick="removeStock('starter',${i})">✕</button>`;
+    } else {
+      div.innerHTML = `<span class="slot-num">${i+1}</span><span class="empty-label">Empty slot</span>`;
+    }
+    ss.appendChild(div);
+  }
+  // Bench
+  const bs = document.getElementById('benchSlots');
+  bs.innerHTML = '';
+  for(let i = 0; i < 3; i++) {
+    const stock = bench[i];
+    const div = document.createElement('div');
+    div.className = 'roster-slot' + (stock ? ' bench-filled' : '');
+    if(stock) {
+      div.innerHTML = `<span class="slot-num">B${i+1}</span><span class="slot-ticker">${stock.ticker}</span><span class="slot-name">${stock.name}</span><button class="slot-rm" onclick="removeStock('bench',${i})">✕</button>`;
+    } else {
+      div.innerHTML = `<span class="slot-num">B${i+1}</span><span class="empty-label">Empty slot</span>`;
+    }
+    bs.appendChild(div);
+  }
+  // Submit btn
+  const total = starters.length + bench.length;
+  const btn = document.getElementById('submitBtn');
+  btn.classList.toggle('ready', total === 10);
+  btn.textContent = total === 10 ? 'Lock In Draft →' : `Lock In Draft (${total}/10 picked)`;
+}
+
+function renderMembers() {
+  const list = document.getElementById('memberList');
+  const league = JSON.parse(localStorage.getItem('bullpen_league_' + leagueCode) || '{}');
+  const members = league.members || [{ name: myName, picks: [], score: 0 }];
+  
+  list.innerHTML = members.map((m, i) => `
+    <div class="member-row ${m.name === myName ? 'me' : ''}">
+      <div class="member-avatar ${i === 1 ? 'other' : i === 2 ? 'other2' : ''}">${m.name.charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="member-name">${m.name}${m.name === myName ? ' (you)' : ''}</div>
+        <div class="member-picks">${m.picks?.length || 0}/10 picked</div>
+      </div>
+      <div class="member-status ${m.name === myName ? 'drafting' : 'waiting'}">${m.name === myName ? 'Drafting' : 'Waiting'}</div>
+    </div>
+  `).join('');
+}
+
+async function loadPopularStocks() {
+  const grid = document.getElementById('stocksGrid');
+  try {
+    const tickers = POPULAR.join(',');
+    const res = await fetch(`${BACKEND}/api/quotes?symbols=${tickers}`);
+    const data = await res.json();
+    const quotes = data?.quoteResponse?.result || [];
+    
+    if(quotes.length === 0) { renderFallbackStocks(); return; }
+    
+    grid.innerHTML = '';
+    quotes.forEach(q => {
+      const change = q.regularMarketChangePercent || 0;
+      const up = change >= 0;
+      const card = document.createElement('div');
+      const isMine = starters.some(s=>s.ticker===q.symbol) || bench.some(s=>s.ticker===q.symbol);
+      card.className = 'stock-card' + (isMine ? ' mine' : '');
+      card.id = 'card_' + q.symbol;
+      card.innerHTML = `
+        <div class="card-ticker">${q.symbol}</div>
+        <div class="card-name">${q.shortName || q.longName || q.symbol}</div>
+        <div class="card-price">$${(q.regularMarketPrice||0).toFixed(2)}</div>
+        <div class="card-change ${up?'up':'down'}">${up?'+':''}${change.toFixed(2)}% today</div>
+        ${!isMine ? `<button class="card-pick-btn" onclick="pickStock('${q.symbol}','${(q.shortName||q.symbol).replace(/'/g,'').substring(0,20)}')">+ Draft</button>` : ''}
+      `;
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    renderFallbackStocks();
+  }
+}
+
+function renderFallbackStocks() {
+  const grid = document.getElementById('stocksGrid');
+  const fallback = [
+    {t:'AAPL',n:'Apple',p:211.45,c:1.23},{t:'NVDA',n:'Nvidia',p:924.79,c:3.41},
+    {t:'TSLA',n:'Tesla',p:177.48,c:-2.14},{t:'MSFT',n:'Microsoft',p:415.32,c:0.87},
+    {t:'META',n:'Meta',p:512.77,c:1.95},{t:'AMZN',n:'Amazon',p:182.30,c:0.62},
+    {t:'GOOGL',n:'Alphabet',p:174.20,c:-0.31},{t:'SPY',n:'S&P 500 ETF',p:528.44,c:0.54},
+    {t:'AMD',n:'AMD',p:157.80,c:-1.22},{t:'COIN',n:'Coinbase',p:224.55,c:4.12},
+  ];
+  grid.innerHTML = '';
+  fallback.forEach(s => {
+    const up = s.c >= 0;
+    const isMine = starters.some(x=>x.ticker===s.t) || bench.some(x=>x.ticker===s.t);
+    const card = document.createElement('div');
+    card.className = 'stock-card' + (isMine ? ' mine' : '');
+    card.id = 'card_' + s.t;
+    card.innerHTML = `
+      <div class="card-ticker">${s.t}</div>
+      <div class="card-name">${s.n}</div>
+      <div class="card-price">$${s.p.toFixed(2)}</div>
+      <div class="card-change ${up?'up':'down'}">${up?'+':''}${s.c.toFixed(2)}% today</div>
+      ${!isMine ? `<button class="card-pick-btn" onclick="pickStock('${s.t}','${s.n}')">+ Draft</button>` : ''}
+    `;
+    grid.appendChild(card);
+  });
+}
+
+async function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if(!q) return;
+  const grid = document.getElementById('stocksGrid');
+  grid.innerHTML = '<div class="loading" style="grid-column:1/-1"><div class="spinner"></div><div>Searching...</div></div>';
+  try {
+    const res = await fetch(`${BACKEND}/api/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    const results = (data?.quotes || []).filter(r => r.quoteType === 'EQUITY' || r.quoteType === 'ETF').slice(0,12);
+    if(results.length === 0) { grid.innerHTML = '<div class="loading" style="grid-column:1/-1">No results found</div>'; return; }
+    
+    // Get prices
+    const tickers = results.map(r=>r.symbol).join(',');
+    const qRes = await fetch(`${BACKEND}/api/quotes?symbols=${tickers}`);
+    const qData = await qRes.json();
+    const quotes = (qData?.quoteResponse?.result || []);
+    const priceMap = {};
+    quotes.forEach(q => priceMap[q.symbol] = q);
+    
+    grid.innerHTML = '';
+    results.forEach(r => {
+      const q = priceMap[r.symbol] || {};
+      const change = q.regularMarketChangePercent || 0;
+      const up = change >= 0;
+      const isMine = starters.some(s=>s.ticker===r.symbol) || bench.some(s=>s.ticker===r.symbol);
+      const card = document.createElement('div');
+      card.className = 'stock-card' + (isMine ? ' mine' : '');
+      card.id = 'card_' + r.symbol;
+      card.innerHTML = `
+        <div class="card-ticker">${r.symbol}</div>
+        <div class="card-name">${r.shortname || r.longname || r.symbol}</div>
+        <div class="card-price">${q.regularMarketPrice ? '$'+q.regularMarketPrice.toFixed(2) : '—'}</div>
+        <div class="card-change ${up?'up':'down'}">${q.regularMarketPrice?(up?'+':'')+change.toFixed(2)+'% today':'Live price'}</div>
+        ${!isMine ? `<button class="card-pick-btn" onclick="pickStock('${r.symbol}','${(r.shortname||r.symbol).replace(/'/g,'').substring(0,20)}')">+ Draft</button>` : ''}
+      `;
+      grid.appendChild(card);
+    });
+  } catch(e) {
+    grid.innerHTML = '<div class="loading" style="grid-column:1/-1">Search failed — check connection</div>';
+  }
+}
+
+function pickStock(ticker, name) {
+  if(starters.some(s=>s.ticker===ticker) || bench.some(s=>s.ticker===ticker)) {
+    showToast('Already in your roster', 'error'); return;
+  }
+  if(starters.length < 7) {
+    starters.push({ticker, name});
+    showToast(`${ticker} added to starters ⚡`, 'success');
+  } else if(bench.length < 3) {
+    bench.push({ticker, name});
+    showToast(`${ticker} added to bench 🪑`, 'success');
+  } else {
+    showToast('Roster full! Remove a stock first', 'error'); return;
+  }
+  // Update card
+  const card = document.getElementById('card_' + ticker);
+  if(card) { card.className = 'stock-card mine'; card.querySelector('.card-pick-btn')?.remove(); }
+  renderRoster();
+}
+
+function removeStock(type, idx) {
+  let ticker;
+  if(type === 'starter') { ticker = starters[idx]?.ticker; starters.splice(idx,1); }
+  else { ticker = bench[idx]?.ticker; bench.splice(idx,1); }
+  if(ticker) {
+    const card = document.getElementById('card_' + ticker);
+    if(card) {
+      card.className = 'stock-card';
+      if(!card.querySelector('.card-pick-btn')) {
+        const btn = document.createElement('button');
+        btn.className = 'card-pick-btn';
+        btn.textContent = '+ Draft';
+        btn.onclick = () => pickStock(ticker, card.querySelector('.card-name').textContent);
+        card.appendChild(btn);
+      }
+    }
+  }
+  renderRoster();
+}
+
+function submitDraft() {
+  if(starters.length + bench.length < 10) { showToast('Pick all 10 stocks first', 'error'); return; }
+  
+  // Save to localStorage
+  const draft = { starters, bench, submittedAt: Date.now(), leagueCode };
+  localStorage.setItem('bullpen_draft_' + leagueCode, JSON.stringify(draft));
+  
+  showToast('Draft locked in! 🎉 Redirecting...', 'success');
+  setTimeout(() => { window.location.href = '/bullpen?drafted=1'; }, 1500);
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + type;
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
