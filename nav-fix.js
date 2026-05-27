@@ -12,7 +12,8 @@
    {href:'/trade', label:'Virtual Market'},
    {href:'/app',   label:'Portfolio'},
    {href:'/budget', label:'Budget'},
-   {href:'/learn',  label:'Learn'}
+   {href:'/learn',  label:'Learn'},
+  {href:'/bullpen', label:'🏟️ Bullpen'}
    ];
 
  // Inject mobile CSS once
