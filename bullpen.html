@@ -315,8 +315,8 @@ footer a:hover{color:var(--text)}
   </a>
   <div class="bp-nav-right">
     <a href="/trade" class="sp-link">← Back to StockPilot</a>
-    <button class="btn-ghost" onclick="openJoin()">Join League</button>
-    <button class="btn-primary" onclick="openCreate()">Create League</button>
+    <button class="btn-ghost" onclick="requireAuth(openJoin)">Join League</button>
+    <button class="btn-primary" onclick="requireAuth(openCreate)">Create League</button>
   </div>
 </nav>
 
@@ -332,8 +332,8 @@ footer a:hover{color:var(--text)}
     <h1>FANTASY<br/><span>STOCKS</span></h1>
     <p class="hero-sub">Draft 7 stocks, bench 3. Compete with your friends all season. Real prices, fake money, real bragging rights.</p>
     <div class="hero-ctas">
-      <button class="btn-big btn-big-green" onclick="openCreate()">Create a League</button>
-      <button class="btn-big btn-big-outline" onclick="openJoin()">Join with Code</button>
+      <button class="btn-big btn-big-green" onclick="requireAuth(openCreate)">Create a League</button>
+      <button class="btn-big btn-big-outline" onclick="requireAuth(openJoin)">Join with Code</button>
     </div>
   </div>
 </section>
@@ -503,8 +503,8 @@ footer a:hover{color:var(--text)}
   <h2>YOUR MOVE,<br/>ROOKIE.</h2>
   <p>Season 1 is live. Draft opens now.</p>
   <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-    <button class="btn-big btn-big-green" onclick="openCreate()">Start a League</button>
-    <button class="btn-big btn-big-outline" onclick="openJoin()">Join with Code</button>
+    <button class="btn-big btn-big-green" onclick="requireAuth(openCreate)">Start a League</button>
+    <button class="btn-big btn-big-outline" onclick="requireAuth(openJoin)">Join with Code</button>
   </div>
 </div>
 
@@ -792,6 +792,75 @@ function goToMyLeague() {
   const mid = localStorage.getItem('bullpen_my_member_id');
   window.location.href = '/bullpen-league.html?code=' + code + (mid ? '&mid=' + mid : '');
 }
+</script>
+
+<!-- SIGNIN MODAL -->
+<div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
+    <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">x</button>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:white;margin-bottom:4px">Sign In to Play</div>
+    <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">You need a StockPilot account to create or join a Bullpen league.</div>
+    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
+    <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
+    <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
+    <button onclick="doSignin()" style="width:100%;padding:12px;background:#00e676;color:#000;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">Sign In to Bullpen</button>
+    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">No account? <a href="/app" style="color:#00e676;text-decoration:none">Create one free</a></div>
+    <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
+  </div>
+</div>
+<script>
+const SUPA_URL="https://xkfxofcmrmpazfjviatq.supabase.co";
+const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
+let _pendingAction=null;
+function isLoggedIn(){return !!localStorage.getItem('supabase_token');}
+function requireAuth(action){if(isLoggedIn()){action();return;}_pendingAction=action;document.getElementById('signinModal').style.display='flex';}
+function openSignin(){document.getElementById('signinModal').style.display='flex';}
+function closeSignin(){document.getElementById('signinModal').style.display='none';_pendingAction=null;}
+function showSiMsg(msg,ok){const el=document.getElementById('signinMsg');el.textContent=msg;el.style.display='block';el.style.background=ok?'rgba(22,163,74,0.15)':'rgba(220,38,38,0.15)';el.style.color=ok?'#86efac':'#fca5a5';el.style.border='1px solid '+(ok?'rgba(22,163,74,0.3)':'rgba(220,38,38,0.3)');}
+async function doSignin(){
+  const email=document.getElementById('siEmail').value.trim();
+  const pass=document.getElementById('siPass').value;
+  if(!email||!pass){showSiMsg('Enter your email and password.',false);return;}
+  showSiMsg('Signing in...',true);
+  try{
+    const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email,password:pass})});
+    const d=await r.json();
+    if(!d.access_token){showSiMsg(d.msg||d.error_description||'Invalid email or password.',false);return;}
+    localStorage.setItem('supabase_token',d.access_token);
+    localStorage.setItem('supabase_email',email);
+    const profile=await fetch(SUPA_URL+'/rest/v1/profiles?id=eq.'+d.user.id+'&select=full_name&limit=1',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[]);
+    const lbEntry=await fetch(SUPA_URL+'/rest/v1/leaderboard?user_id=eq.'+d.user.id+'&select=nickname&limit=1',{headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[]);
+    const displayName=(lbEntry&&lbEntry[0]&&lbEntry[0].nickname)||(profile&&profile[0]&&profile[0].full_name)||email.split('@')[0];
+    localStorage.setItem('supabase_name',displayName);
+    ['managerName','joinName'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=displayName;});
+    showSiMsg('Signed in as '+displayName+'!',true);
+    setTimeout(()=>{closeSignin();updateNavAuth();if(_pendingAction){const fn=_pendingAction;_pendingAction=null;fn();}},800);
+  }catch(e){showSiMsg('Error signing in. Try again.',false);}
+}
+async function doForgot(){
+  const email=document.getElementById('siEmail').value.trim();
+  if(!email){showSiMsg('Enter your email first.',false);return;}
+  await fetch(SUPA_URL+'/auth/v1/recover',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email})});
+  showSiMsg('Password reset email sent!',true);
+}
+function updateNavAuth(){
+  const name=localStorage.getItem('supabase_name');
+  const navRight=document.querySelector('.bp-nav-right');
+  if(!navRight||!name)return;
+  if(navRight.querySelector('.user-pill'))return;
+  const el=document.createElement('span');
+  el.className='user-pill';
+  el.style.cssText='font-size:13px;color:rgba(255,255,255,0.7);padding:6px 12px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.08)';
+  el.textContent='You: '+name;
+  navRight.insertBefore(el,navRight.firstChild);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
+(function(){
+  const name=localStorage.getItem('supabase_name');
+  if(name){updateNavAuth();['managerName','joinName'].forEach(id=>{const el=document.getElementById(id);if(el&&!el.value)el.value=name;});}
+})();
 </script>
 </body>
 </html>
