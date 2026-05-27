@@ -390,7 +390,7 @@ function renderLeaderboard(){
 
 // ── Render members ──
 function renderMembers(){
-  const isCommissioner=league&&(league.commissioner_name===myName||(members[0]&&(members[0].id===myMemberId||members[0].name===myName)));
+  const isCommissioner=league&&league.commissioner_name===myName;
   const colors=['#00e676','#7c4dff','#ff6d00','#00b0ff','#ff4081','#69f0ae','#ffab40'];
   renderMemberCardFooter();
   document.getElementById('memberList').innerHTML=members.map((m,i)=>{
@@ -762,7 +762,7 @@ function copyCode(){navigator.clipboard.writeText(leagueCode).then(()=>showToast
 function goToDraft(){window.location.href=`/bullpen-draft.html?code=${leagueCode}&mid=${myMemberId}`;}
 
 function renderMemberCardFooter(){
-  const isCommissioner=league&&(league.commissioner_name===myName||(members.length>0&&(members[0].id===myMemberId||members[0].name===myName)));
+  const isCommissioner=league&&league.commissioner_name===myName;
   const el=document.getElementById('memberCardFooter');
   if(!el)return;
   if(isCommissioner){
