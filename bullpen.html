@@ -815,13 +815,12 @@ function goToDraft() {
 </div>
 
 <script>
-(function(){
+function checkContinueBanner(){
   const code = localStorage.getItem('bullpen_my_league');
-  const name = localStorage.getItem('bullpen_my_name');
+  const name = localStorage.getItem('bullpen_my_name') || localStorage.getItem('supabase_name');
   const mid = localStorage.getItem('bullpen_my_member_id');
-  if(!code || !name) return;
+  if(!code) return;
 
-  // Try to get league name from supabase
   fetch('https://xkfxofcmrmpazfjviatq.supabase.co/rest/v1/bullpen_leagues?code=eq.' + code, {
     headers: {
       'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q',
@@ -831,17 +830,21 @@ function goToDraft() {
     const league = leagues[0];
     if(!league) return;
     const banner = document.getElementById('continueBanner');
+    const displayName = name || 'You';
     document.getElementById('continueLeagueName').textContent = '🏟️ ' + league.name;
-    document.getElementById('continueCode').textContent = 'Code: ' + code + ' · ' + name;
+    document.getElementById('continueCode').textContent = 'Code: ' + code + (displayName ? ' · ' + displayName : '');
     banner.style.display = 'flex';
   }).catch(()=>{});
-})();
+}
 
 function goToMyLeague() {
   const code = localStorage.getItem('bullpen_my_league');
   const mid = localStorage.getItem('bullpen_my_member_id');
   window.location.href = '/bullpen-league.html?code=' + code + (mid ? '&mid=' + mid : '');
 }
+
+// Run on load
+checkContinueBanner();
 </script>
 
 <!-- SIGNIN MODAL -->
@@ -901,6 +904,7 @@ async function doSignin(){
       closeSignin();
       updateNavAuth();
       updateMobileAuth();
+      checkContinueBanner();
       if(_pendingAction){const fn=_pendingAction;_pendingAction=null;fn();}
     },600);
   }catch(e){showSiMsg('Error signing in. Try again.',false);}
