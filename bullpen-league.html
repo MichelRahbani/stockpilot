@@ -1132,15 +1132,20 @@ async function doSignin(){
     if(!d.access_token){ showSiMsg(d.msg||d.error_description||'Invalid credentials.', false); return; }
     localStorage.setItem('supabase_token', d.access_token);
     localStorage.setItem('supabase_email', email);
-    // Get display name
-    const lbEntry = await fetch(HUB_SUPA_URL+'/rest/v1/leaderboard?user_id=eq.'+d.user.id+'&select=nickname&limit=1',{headers:{'apikey':HUB_SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[]);
-    const profile  = await fetch(HUB_SUPA_URL+'/rest/v1/profiles?id=eq.'+d.user.id+'&select=full_name&limit=1',{headers:{'apikey':HUB_SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[]);
-    const displayName = (lbEntry&&lbEntry[0]?.nickname)||(profile&&profile[0]?.full_name)||email.split('@')[0];
-    localStorage.setItem('supabase_name', displayName);
-    showSiMsg('Welcome, '+displayName+'!', true);
+    const fallbackName = email.split('@')[0];
+    localStorage.setItem('supabase_name', fallbackName);
+    showSiMsg('Welcome, '+fallbackName+'!', true);
+    // Profile lookups in background
+    Promise.all([
+      fetch(HUB_SUPA_URL+'/rest/v1/leaderboard?user_id=eq.'+d.user.id+'&select=nickname&limit=1',{headers:{'apikey':HUB_SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[]),
+      fetch(HUB_SUPA_URL+'/rest/v1/profiles?id=eq.'+d.user.id+'&select=full_name&limit=1',{headers:{'apikey':HUB_SUPA_KEY,'Authorization':'Bearer '+d.access_token}}).then(r=>r.json()).catch(()=>[])
+    ]).then(([lbEntry,profile])=>{
+      const betterName=(lbEntry&&lbEntry[0]?.nickname)||(profile&&profile[0]?.full_name)||null;
+      if(betterName){ localStorage.setItem('supabase_name',betterName); updateNavAuth(); }
+    }).catch(()=>{});
     setTimeout(()=>{
       closeSignin();
-      // Re-identify member with new name
+      const displayName = localStorage.getItem('supabase_name')||fallbackName;
       if(!myMember && members.length){
         myMember = members.find(m=>m.name===displayName)||null;
         if(myMember) localStorage.setItem('bullpen_my_member_id', myMember.id);
@@ -1150,7 +1155,7 @@ async function doSignin(){
       renderRoster();
       renderMemberCardFooter();
       if(window._pendingHubAction){ const fn=window._pendingHubAction; window._pendingHubAction=null; fn(); }
-    }, 800);
+    }, 600);
   }catch(e){ showSiMsg('Error signing in. Try again.', false); }
 }
 
