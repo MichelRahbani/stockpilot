@@ -171,7 +171,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="season-stats">
       <div><div class="sstat-val" id="statMembers">—</div><div class="sstat-label">Players</div></div>
       <div><div class="sstat-val" id="statDrafted">—</div><div class="sstat-label">Drafted</div></div>
-      <div><div class="sstat-val" id="statLeader">—</div><div class="sstat-label">Top Score</div></div>
+      <div><div class="sstat-val" id="statLeader">—</div><div class="sstat-label">Top This Week</div></div>
+      <div><div class="sstat-val" id="statWeek">W1</div><div class="sstat-label">Current Week</div></div>
     </div>
     <div class="countdown">
       <div><div class="cd-num" id="cdD">—</div><div class="cd-label">DAYS</div></div>
@@ -206,7 +207,18 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
   <!-- SEASON STANDINGS TAB -->
   <div id="seasonStandingsBar" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px">
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:12px">🏅 Season Points</div>
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px">🏅 Season Points</div>
+      <div style="position:relative;display:inline-block" id="ptsInfoWrap">
+        <div style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);cursor:pointer;font-weight:700" onmouseenter="document.getElementById('ptsTooltip').style.display='block'" onmouseleave="document.getElementById('ptsTooltip').style.display='none'" onclick="document.getElementById('ptsTooltip').style.display=document.getElementById('ptsTooltip').style.display==='none'?'block':'none'">?</div>
+        <div id="ptsTooltip" style="display:none;position:absolute;left:24px;top:-8px;background:#1a1f2e;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:220px;z-index:100;font-size:12px;color:var(--text);line-height:1.6">
+          <div style="font-weight:700;margin-bottom:6px;color:var(--gold)">How points work</div>
+          <div>Every Monday, points are awarded based on your weekly rank:</div>
+          <div style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="ptsBreakdown"></div>
+          <div style="margin-top:8px;color:var(--muted)">Season winner = most points by July 4th 🏆</div>
+        </div>
+      </div>
+    </div>
     <div id="seasonStandingsList" style="display:flex;gap:8px;flex-wrap:wrap"></div>
   </div>
 
@@ -349,6 +361,7 @@ async function loadData(){
     if(!league){showToast('League not found','err');return;}
     document.getElementById('leagueName').textContent='🏟️ '+league.name;
     document.getElementById('leagueInfo').textContent=`Season ${league.season} · ${league.format==='fpl'?'FPL Style':'NFL Draft'} · Up to ${league.max_players} players`;
+    document.getElementById('statWeek').textContent='W'+(league.current_week||1);
 
     members=await sbGet('bullpen_members',`league_code=eq.${leagueCode}&order=score.desc`);
     myMember=members.find(m=>m.id===myMemberId)||members.find(m=>m.name===myName)||null;
@@ -444,12 +457,12 @@ async function doWeeklyReset(){
   // Sort by weekly score to determine winners
   const sorted = [...members].sort((a,b)=>(b.weekly_score||0)-(a.weekly_score||0));
 
-  // Award season points: 1st=3pts, 2nd=2pts, 3rd=1pt
-  const pointsMap = {0:3, 1:2, 2:1};
+  // Award season points: 1st = league size pts, last = 1pt, everyone in between
+  const totalMembers = sorted.length;
 
   for(let i=0; i<sorted.length; i++){
     const m = sorted[i];
-    const pts = pointsMap[i] || 0;
+    const pts = totalMembers - i; // 1st gets totalMembers, last gets 1
     const newSeasonPts = (m.season_points||0) + pts;
 
     // Save weekly score to history
@@ -543,6 +556,12 @@ function renderSeasonStandings(){
   const hasPoints = sorted.some(m=>(m.season_points||0)>0);
   if(!hasPoints){bar.style.display='none';return;}
   bar.style.display='block';
+  // Update points breakdown tooltip
+  const breakdown = document.getElementById('ptsBreakdown');
+  if(breakdown){
+    const n = members.length;
+    breakdown.innerHTML = sorted.map((_,i)=>`<div>${i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1)} place → ${n-i} pt${n-i!==1?'s':''}</div>`).join('');
+  }
   const colors=['#00e676','#7c4dff','#ff6d00','#00b0ff','#ff4081'];
   list.innerHTML=sorted.map((m,i)=>{
     const isMe=m.id===myMemberId||m.name===myName;
