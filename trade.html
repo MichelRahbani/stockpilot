@@ -171,19 +171,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     <a href="/" class="logo"><img src="/logo-dark.jpg" style="height:28px;width:auto;object-fit:contain;" alt="StockPilot"/>StockPilot</a>
     <span class="badge">TRADE</span>
   </div>
-  <div style="display:flex;gap:8px">
-    <a href="/app" class="nav-btn">← Learning App</a>
+  <div style="display:flex;gap:8px;align-items:center">
     <div id="navAccountArea" style="display:flex;align-items:center;gap:8px">
-    
-    <button id="signInNavBtn" class="nav-btn red" onclick="openSignin()">Sign In</button>
-    <div id="navUserBadge" style="display:none;align-items:center;gap:8px">
-      <div style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);border-radius:8px;padding:6px 12px;font-size:13px;color:#2ecc9a;font-family:DM Sans,sans-serif">
-        <span id="navUserName"></span>
+      <button id="signInNavBtn" class="nav-btn red" onclick="openSignin()">Sign In</button>
+      <div id="navUserBadge" style="display:none;align-items:center;gap:8px">
+        <div style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);border-radius:8px;padding:6px 12px;font-size:13px;color:#2ecc9a;font-family:DM Sans,sans-serif">
+          <span id="navUserName"></span>
+        </div>
+        <button onclick="signOutTrade()" class="nav-btn" style="font-size:12px">Sign Out</button>
       </div>
-      <button onclick="signOutTrade()" class="nav-btn" style="font-size:12px">Sign Out</button>
     </div>
-  </div>
-    <button class="nav-btn red" id="resetBtn">Reset Portfolio</button>
+    <button class="nav-btn" id="resetBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);font-size:12px">Reset</button>
   </div>
 </nav>
 
