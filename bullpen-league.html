@@ -23,21 +23,24 @@
   --border:rgba(255,255,255,0.08);--text:#e6edf3;--muted:#7d8590;--card:rgba(255,255,255,0.04);
 }
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
-.nav{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-logo img{height:28px;width:28px;border-radius:6px;object-fit:cover}
-.nav-logo-text{font-weight:600;font-size:15px}
-.nav-badge{background:rgba(0,230,118,0.15);color:var(--green);padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;letter-spacing:1px}
-.nav-right{display:flex;align-items:center;gap:10px}
-.nav-code{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:6px 12px;border-radius:6px;cursor:pointer;transition:all 0.15s}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none}
+.nav-logo img{height:26px;width:26px;border-radius:6px;object-fit:cover}
+.nav-logo-text{font-weight:600;font-size:14px}
+.nav-badge{background:rgba(0,230,118,0.15);color:var(--green);padding:2px 7px;border-radius:4px;font-size:9px;font-weight:700;letter-spacing:1px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-code{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);background:var(--card);border:1px solid var(--border);padding:5px 10px;border-radius:6px;cursor:pointer;transition:all 0.15s}
 .nav-code:hover{border-color:var(--green);color:var(--green)}
-.btn{padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.15s}
+.btn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.15s}
 .btn-green{background:var(--green);color:#000}.btn-green:hover{background:var(--green-d)}
 .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}.btn-ghost:hover{border-color:rgba(255,255,255,0.2);color:var(--text)}
 .btn-red{background:rgba(255,23,68,0.12);color:var(--red);border:1px solid rgba(255,23,68,0.25)}.btn-red:hover{background:rgba(255,23,68,0.2)}
+@media(max-width:480px){
+  .nav-code{display:none}
+}
 .page{max-width:1100px;margin:0 auto;padding:28px 20px}
 .season-bar{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:24px;flex-wrap:wrap;gap:16px}
-.season-bar-left h1{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px}
+.season-bar-left h1{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
 .season-bar-left p{font-size:13px;color:var(--muted);margin-top:2px}
 .season-stats{display:flex;gap:24px}
 .sstat-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--green)}
@@ -87,6 +90,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .moves-info .moves-count{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1}
 .moves-info .moves-sub{font-size:11px;color:var(--muted);margin-top:1px}
 .moves-btns{display:flex;gap:8px;flex-wrap:wrap}
+@media(max-width:500px){
+  .moves-box{flex-direction:column;gap:10px}
+  .moves-btns{width:100%;justify-content:stretch}
+  .moves-btns .btn{flex:1;text-align:center}
+}
 
 /* INVITE */
 .invite-card{background:linear-gradient(135deg,rgba(0,230,118,0.08),rgba(0,191,165,0.04));border:1px solid rgba(0,230,118,0.2);border-radius:14px;padding:20px}
@@ -145,7 +153,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .toast.ok{border-color:rgba(0,230,118,0.4);color:var(--green)}
 .toast.err{border-color:rgba(255,23,68,0.4);color:var(--red)}
 
-@media(max-width:768px){.grid{grid-template-columns:1fr}.season-stats,.countdown{display:none}}
+@media(max-width:768px){.grid{grid-template-columns:1fr;gap:12px}.season-stats,.countdown{display:none}.page{padding:16px 12px}.season-bar{padding:14px 16px;border-radius:10px}.lb-row{padding:10px 14px;gap:8px}.lb-picks{display:none}.lb-score{font-size:18px}.lb-rank{font-size:18px}.card-head{padding:12px 14px}.card-title{font-size:15px}.roster-tabs{padding:10px 14px 0}.roster-body{padding:12px 14px}.rslot{padding:8px 10px}.mhead{padding:14px 16px}.mbody{padding:14px 16px}.mfoot{padding:0 16px 16px}}
 </style>
 </head>
 <body>
