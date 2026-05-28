@@ -182,6 +182,34 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     </div>
   </div>
 
+  <!-- WEEKLY RECAP BANNER -->
+  <div id="weeklyRecapBanner" style="display:none;background:linear-gradient(135deg,rgba(255,214,0,0.1),rgba(0,230,118,0.08));border:1px solid rgba(255,214,0,0.3);border-radius:14px;padding:20px 24px;margin-bottom:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+      <div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gold);font-weight:700;margin-bottom:4px">📅 Week <span id="recapWeekNum">1</span> Recap</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px">🏆 <span id="recapWinner">—</span> won the week</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:2px">with <span id="recapWinnerScore" style="color:var(--green);font-weight:600">—</span> · your score: <span id="recapMyScore" style="font-weight:600">—</span></div>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="text-align:center;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px 16px">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--green)" id="recapBestStock">—</div>
+          <div style="font-size:11px;color:var(--muted)">Best stock</div>
+        </div>
+        <div style="text-align:center;background:rgba(255,255,255,0.04);border:1px solid var(--border);border-radius:10px;padding:12px 16px">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--red)" id="recapWorstStock">—</div>
+          <div style="font-size:11px;color:var(--muted)">Worst stock</div>
+        </div>
+      </div>
+      <button onclick="document.getElementById('weeklyRecapBanner').style.display='none'" style="background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:18px;align-self:flex-start">✕</button>
+    </div>
+  </div>
+
+  <!-- SEASON STANDINGS TAB -->
+  <div id="seasonStandingsBar" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 20px;margin-bottom:20px">
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:1px;margin-bottom:12px">🏅 Season Points</div>
+    <div id="seasonStandingsList" style="display:flex;gap:8px;flex-wrap:wrap"></div>
+  </div>
+
   <div class="grid">
     <div class="col">
       <!-- LEADERBOARD -->
@@ -360,13 +388,170 @@ async function updateScores(){
       m.score=parseFloat(m.starters.reduce((s,t)=>s+(priceMap[t]||0),0).toFixed(2));
       sbPatch('bullpen_members',`id=eq.${m.id}`,{score:m.score});
     }
-    members.sort((a,b)=>b.score-a.score);
-    const top=members[0]?.score||0;
+    // Calculate weekly scores from baseline
+    const weekStart = league?.week_start_date ? new Date(league.week_start_date) : new Date();
+    for(const m of members){
+      if(!m.starters||!m.starters.length) continue;
+      const baseline = m.week_baseline || {};
+      let weekScore = 0;
+      m.starters.forEach(t => {
+        const currentPrice = priceMap[t] || 0;
+        const basePrice = baseline[t];
+        if(basePrice && basePrice > 0){
+          weekScore += ((currentPrice - basePrice) / basePrice) * 100;
+        } else {
+          // No baseline yet — use today's change as proxy
+          weekScore += priceMap[t] || 0;
+        }
+      });
+      m.weekly_score = parseFloat(weekScore.toFixed(2));
+      sbPatch('bullpen_members', `id=eq.${m.id}`, {weekly_score: m.weekly_score});
+    }
+
+    members.sort((a,b)=>(b.weekly_score||0)-(a.weekly_score||0));
+    const top=members[0]?.weekly_score||0;
     document.getElementById('statLeader').textContent=(top>=0?'+':'')+top.toFixed(1)+'%';
     if(myMember)myMember=members.find(m=>m.id===myMemberId||m.name===myName);
+
+    checkWeeklyReset();
+    renderSeasonStandings();
     renderLeaderboard();
     renderRoster();
   }catch(e){console.log('Price update failed',e);}
+}
+
+// ── Check if it's Monday and we need to reset the week ──
+async function checkWeeklyReset(){
+  if(!league) return;
+  const now = new Date();
+  const weekStart = new Date(league.week_start_date);
+  const daysSinceStart = Math.floor((now - weekStart) / 86400000);
+  const isMonday = now.getDay() === 1;
+  const newWeek = daysSinceStart >= 7;
+
+  if(newWeek && isMonday){
+    await doWeeklyReset();
+  } else {
+    // Show recap if it's Monday (just reset happened)
+    if(isMonday && daysSinceStart < 1) showWeeklyRecap();
+  }
+}
+
+async function doWeeklyReset(){
+  if(!league||!members.length) return;
+  const weekNum = league.current_week || 1;
+
+  // Sort by weekly score to determine winners
+  const sorted = [...members].sort((a,b)=>(b.weekly_score||0)-(a.weekly_score||0));
+
+  // Award season points: 1st=3pts, 2nd=2pts, 3rd=1pt
+  const pointsMap = {0:3, 1:2, 2:1};
+
+  for(let i=0; i<sorted.length; i++){
+    const m = sorted[i];
+    const pts = pointsMap[i] || 0;
+    const newSeasonPts = (m.season_points||0) + pts;
+
+    // Save weekly score to history
+    await sbPost('bullpen_weekly_scores', {
+      league_code: leagueCode,
+      member_id: m.id,
+      member_name: m.name,
+      week_number: weekNum,
+      week_start: league.week_start_date,
+      week_end: new Date().toISOString().split('T')[0],
+      score: m.weekly_score||0,
+      season_points: pts
+    });
+
+    // Update member — reset weekly score, add season points, set new baseline
+    const newBaseline = {};
+    if(m.starters) m.starters.forEach(t => { if(priceMap[t]) newBaseline[t] = priceMap[t]; });
+
+    await sbPatch('bullpen_members', `id=eq.${m.id}`, {
+      weekly_score: 0,
+      season_points: newSeasonPts,
+      week_baseline: newBaseline,
+      trades_left: 2,
+      fa_moves: 2
+    });
+    m.season_points = newSeasonPts;
+    m.weekly_score = 0;
+    m.week_baseline = newBaseline;
+  }
+
+  // Update league — increment week, set new start date
+  const newWeekStart = new Date().toISOString().split('T')[0];
+  await sbPatch('bullpen_leagues', `code=eq.${leagueCode}`, {
+    current_week: weekNum + 1,
+    week_start_date: newWeekStart
+  });
+  league.current_week = weekNum + 1;
+  league.week_start_date = newWeekStart;
+
+  // Store recap in localStorage for banner
+  localStorage.setItem('bullpen_recap_'+leagueCode, JSON.stringify({
+    week: weekNum,
+    winner: sorted[0]?.name || '—',
+    winnerScore: sorted[0]?.weekly_score || 0,
+    myScore: myMember?.weekly_score || 0,
+    shown: false
+  }));
+
+  showWeeklyRecap();
+}
+
+async function sbPost(table, body){
+  await fetch(SUPABASE_URL+'/rest/v1/'+table, {
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'},
+    body:JSON.stringify(body)
+  });
+}
+
+function showWeeklyRecap(){
+  const recap = JSON.parse(localStorage.getItem('bullpen_recap_'+leagueCode)||'null');
+  if(!recap||recap.shown) return;
+  document.getElementById('recapWeekNum').textContent = recap.week;
+  document.getElementById('recapWinner').textContent = recap.winner;
+  document.getElementById('recapWinnerScore').textContent = (recap.winnerScore>=0?'+':'')+parseFloat(recap.winnerScore).toFixed(2)+'%';
+  const myScore = recap.myScore||0;
+  document.getElementById('recapMyScore').textContent = (myScore>=0?'+':'')+myScore.toFixed(2)+'%';
+
+  // Best/worst stock across all members this week
+  let best={t:'—',v:-999}, worst={t:'—',v:999};
+  members.forEach(m=>{
+    (m.starters||[]).forEach(t=>{
+      const v=priceMap[t]||0;
+      if(v>best.v){best={t,v};}
+      if(v<worst.v){worst={t,v};}
+    });
+  });
+  document.getElementById('recapBestStock').textContent = best.t+(best.v!=-999?' +'+best.v.toFixed(1)+'%':'');
+  document.getElementById('recapWorstStock').textContent = worst.t+(worst.v!=999?' '+worst.v.toFixed(1)+'%':'');
+
+  document.getElementById('weeklyRecapBanner').style.display='block';
+  // Mark as shown
+  recap.shown=true;
+  localStorage.setItem('bullpen_recap_'+leagueCode, JSON.stringify(recap));
+}
+
+function renderSeasonStandings(){
+  const bar = document.getElementById('seasonStandingsBar');
+  const list = document.getElementById('seasonStandingsList');
+  const sorted = [...members].sort((a,b)=>(b.season_points||0)-(a.season_points||0));
+  const hasPoints = sorted.some(m=>(m.season_points||0)>0);
+  if(!hasPoints){bar.style.display='none';return;}
+  bar.style.display='block';
+  const colors=['#00e676','#7c4dff','#ff6d00','#00b0ff','#ff4081'];
+  list.innerHTML=sorted.map((m,i)=>{
+    const isMe=m.id===myMemberId||m.name===myName;
+    return `<div style="display:flex;align-items:center;gap:6px;background:${isMe?'rgba(0,230,118,0.08)':'rgba(255,255,255,0.03)'};border:1px solid ${isMe?'rgba(0,230,118,0.2)':'var(--border)'};border-radius:8px;padding:8px 12px">
+      <div style="width:22px;height:22px;border-radius:5px;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000">${m.name.charAt(0)}</div>
+      <div style="font-size:13px;font-weight:500">${m.name}</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);margin-left:4px">${m.season_points||0}pts</div>
+    </div>`;
+  }).join('');
 }
 
 // ── Render leaderboard ──
@@ -377,13 +562,15 @@ function renderLeaderboard(){
     const isMe=m.id===myMemberId||m.name===myName;
     const rankIcon=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
     const rankClass=i===0?'r1':i===1?'r2':i===2?'r3':'';
-    const sc=m.score>0?'score-up':m.score<0?'score-down':'score-zero';
-    const ss=(m.score>=0?'+':'')+m.score.toFixed(2)+'%';
+    const weekScore = m.weekly_score||0;
+    const sc=weekScore>0?'score-up':weekScore<0?'score-down':'score-zero';
+    const ss=(weekScore>=0?'+':'')+weekScore.toFixed(2)+'% this week';
+    const seasonPts = m.season_points||0;
     const picks=[...(m.starters||[])].slice(0,3).join(' · ')||'No picks yet';
     return `<div class="lb-row${isMe?' me':''}" onclick="previewMember('${m.id}')">
       <div class="lb-rank ${rankClass}">${rankIcon}</div>
       <div><div class="lb-name">${m.name}${isMe?' <span style="font-size:10px;color:var(--green)">(you)</span>':''}</div><div class="lb-picks">${picks}</div></div>
-      <div class="lb-score ${sc}">${ss}</div>
+      <div style="text-align:right"><div class="lb-score ${sc}">${ss}</div><div style="font-size:10px;color:var(--gold);font-family:'DM Mono',monospace">${seasonPts}pts</div></div>
     </div>`;
   }).join('');
 }
