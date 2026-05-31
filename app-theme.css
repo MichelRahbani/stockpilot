@@ -923,3 +923,82 @@ body.savings-mode .savings-section-nav::before {
 /* Override styles.css: .learning-area-tabs > button { display: none !important } */
 body .learning-area-tabs > button.learning-area-tab { display: flex !important; }
 body .learning-area-tabs { display: flex !important; flex-direction: row !important; }
+
+/* ── MOBILE COMPACT MODE ── */
+@media (max-width: 600px) {
+
+  /* Tighter topbar/card padding */
+  .topbar { padding: 14px 14px 12px !important; border-radius: 12px !important; }
+  .topbar + .topbar { margin-top: 10px !important; }
+
+  /* Section gaps */
+  .app-shell, .tab-content, .section-body { gap: 10px !important; }
+
+  /* All cards/panels */
+  [class*="card"], [class*="panel"], [class*="widget"] {
+    padding: 14px !important;
+    border-radius: 12px !important;
+    margin-bottom: 10px !important;
+  }
+
+  /* Summary grids — 2 column */
+  .portfolio-summary-grid, .summary-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px !important; }
+
+  /* Tab nav — scrollable, smaller */
+  .sp-site-header .sp-app-tabs, [class*="tab-nav"], [class*="tabs"] {
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  /* Command center stat cards */
+  [class*="stat"], [class*="metric"], [class*="kpi"] {
+    padding: 12px !important;
+  }
+
+  /* Reduce h2/h3 sizes */
+  h2 { font-size: 20px !important; }
+  h3 { font-size: 16px !important; }
+
+  /* Action items — more compact */
+  [class*="action-item"], [class*="task-item"], [class*="next-action"] {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  /* Inline paddings — override common large inline styles */
+  .command-center-content > div,
+  .investing-content > div,
+  .savings-content > div {
+    padding: 14px !important;
+  }
+
+  /* Progress bars section */
+  [class*="progress"] { margin-bottom: 8px !important; }
+
+  /* Holdings list items */
+  [class*="holding"], [class*="position"] {
+    padding: 10px 12px !important;
+  }
+
+  /* Watchlist */
+  [class*="watchlist"] { padding: 10px 12px !important; }
+
+  /* Section headers */
+  [class*="section-header"] { padding: 10px 14px !important; font-size: 13px !important; }
+
+  /* Reduce spacing between sections */
+  [class*="section"], [class*="module"] { margin-bottom: 10px !important; }
+
+  /* Generic large padding override for inline styles */
+  [style*="padding: 32px"], [style*="padding:32px"] { padding: 16px !important; }
+  [style*="padding: 40px"], [style*="padding:40px"] { padding: 14px !important; }
+  [style*="padding: 24px 28px"], [style*="padding:24px 28px"] { padding: 14px !important; }
+
+  /* Tab content areas */
+  #tab-command-center, #tab-investing, #tab-savings,
+  #tab-goals, #tab-my-plan {
+    padding: 10px !important;
+    gap: 10px !important;
+  }
+}
