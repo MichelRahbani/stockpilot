@@ -254,41 +254,22 @@
             </div>
           </div>
 
-          <section class="empire-panel command-account-panel" aria-label="Create user and account tools">
-            <div class="section-title">
-              <div>
-                <h2>User Profile</h2>
-                <span class="table-note">Create a demo user so plans, portfolio notes, goals, and backups feel personal.</span>
+          <section class="empire-panel command-account-panel" aria-label="Account" style="padding:10px 16px!important">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:8px">
+                <span id="commandAccountStatus" style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;opacity:0.5">Guest Mode</span>
+                <strong id="commandAccountName" style="font-size:13px"></strong>
               </div>
-              <span class="pricing-badge" id="commandAccountBadge">Guest</span>
-            </div>
-            <div class="command-account-layout">
-              <article>
-                <span id="commandAccountStatus">Guest Mode</span>
-                <strong id="commandAccountName">No user yet</strong>
-                <p id="commandAccountDetail">Create a user before presenting saved plans, goals, and portfolios.</p>
-              </article>
-              <div class="command-account-actions">
-                <button class="primary-button small-button" id="commandCreateUserButton" type="button">Create User</button>
-                <button class="ghost-button small-button" id="commandSignInButton" type="button">Sign In</button>
-                <button class="ghost-button small-button" id="commandSettingsButton" type="button">Settings</button>
+              <div style="display:flex;gap:6px" class="command-account-actions">
+                <button class="primary-button small-button" id="commandCreateUserButton" type="button" style="font-size:12px;padding:5px 12px">Create User</button>
+                <button class="ghost-button small-button" id="commandSignInButton" type="button" style="font-size:12px;padding:5px 12px">Sign In</button>
+                <button class="ghost-button small-button" id="commandSettingsButton" type="button" style="font-size:12px;padding:5px 10px">⚙️</button>
               </div>
             </div>
+            <p id="commandAccountDetail" style="font-size:12px;opacity:0.5;margin-top:4px;display:none"></p>
           </section>
 
-          <section class="empire-panel command-search-panel" aria-label="Find a StockPilot tool">
-            <div class="section-title">
-              <div>
-                <h2>Find a Tool</h2>
-                <span class="table-note">Search once from Command Center, then jump to the right workspace.</span>
-              </div>
-            </div>
-            <div class="tool-finder command-tool-finder" role="search">
-              <label for="toolSearchInput">Tool Search</label>
-              <input id="toolSearchInput" type="search" placeholder="Try portfolio, research, news, budget, TVM, goals, crypto, quiz..." autocomplete="off" />
-              <div class="tool-search-results" id="toolSearchResults" hidden></div>
-            </div>
-          </section>
+
 
           <section class="command-grid">
             <article class="command-card">
@@ -313,47 +294,32 @@
             </article>
           </section>
 
-          <section class="empire-panel api-command-panel" aria-label="Real data status">
-            <div class="section-title">
-              <div>
-                <h2>Real Data Status</h2>
-                <span class="table-note">Provider check, live refresh, and demo-ready data sources in one place.</span>
+          <section class="empire-panel api-command-panel" aria-label="Real data status" style="padding:12px 16px!important">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;opacity:0.5">Data Status</span>
+                <div class="api-status-grid" id="apiStatusGrid" style="display:flex;gap:6px;flex-wrap:wrap"></div>
               </div>
-              <div class="button-row">
-                <button class="primary-button small-button" id="apiRefreshButton" type="button">Refresh Real Data</button>
-              </div>
+              <button class="ghost-button small-button" id="apiRefreshButton" type="button" style="font-size:12px;padding:4px 10px">Refresh</button>
             </div>
-            <div class="api-status-grid" id="apiStatusGrid"></div>
-            <div class="data-source-explainer-grid" id="commandDataSourceGrid"></div>
-            <p class="helper-text" id="apiStatusNote">Start the StockPilot API gateway, then refresh this panel to show live provider status.</p>
+            <div class="data-source-explainer-grid" id="commandDataSourceGrid" style="display:none"></div>
+            <p class="helper-text" id="apiStatusNote" style="display:none"></p>
           </section>
 
 
-          <section class="empire-panel setup-panel" aria-label="StockPilot start checklist">
-            <div class="section-title">
-              <div>
-                <h2>Start Here</h2>
-                <span class="table-note">A guided checklist so the app becomes more useful step by step.</span>
+          <section class="empire-panel setup-panel" aria-label="StockPilot start checklist" style="padding:0!important">
+            <details style="padding:0">
+              <summary style="padding:12px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;list-style:none;user-select:none">
+                <div style="display:flex;align-items:center;gap:10px">
+                  <span style="font-size:13px;font-weight:600">Setup Progress</span>
+                  <div class="setup-checklist-progress" id="setupChecklistProgress" style="font-size:12px;opacity:0.5"></div>
+                </div>
+                <span style="font-size:11px;opacity:0.4">▼ Show steps</span>
+              </summary>
+              <div style="padding:0 16px 14px">
+                <div class="setup-checklist-grid" id="setupChecklistGrid"></div>
               </div>
-            </div>
-            <div class="setup-checklist-grid" id="setupChecklistGrid"></div>
-            <div class="trust-strip" aria-label="Product trust notes">
-              <article>
-                <span>Data</span>
-                <strong>Best effort</strong>
-                <p>Free public market data can be delayed or incomplete, so important figures should be verified.</p>
-              </article>
-              <article>
-                <span>Privacy</span>
-                <strong>Local demo</strong>
-                <p>Your demo profile and inputs are saved in this browser unless you export a backup.</p>
-              </article>
-              <article>
-                <span>Purpose</span>
-                <strong>Education</strong>
-                <p>StockPilot explains signals and tradeoffs. It does not make financial decisions for you.</p>
-              </article>
-            </div>
+            </details>
           </section>
 
           <section class="empire-panel ask-pilot-panel" aria-label="Ask StockPilot assistant">
