@@ -409,24 +409,37 @@ async function updateScores(){
       m.score=parseFloat(m.starters.reduce((s,t)=>s+(priceMap[t]||0),0).toFixed(2));
       sbPatch('bullpen_members',`id=eq.${m.id}`,{score:m.score});
     }
-    // Calculate weekly scores from baseline
-    const weekStart = league?.week_start_date ? new Date(league.week_start_date) : new Date();
+    // Calculate weekly scores
+    // If no baseline exists for a member, set it now from current prices
+    const membersNeedingBaseline = members.filter(m => m.starters?.length > 0 && (!m.week_baseline || Object.keys(m.week_baseline).length === 0));
+    for(const m of membersNeedingBaseline){
+      const baseline = {};
+      // We don't have actual prices from draft day, so use current as starting point
+      // Score will accumulate from this point forward
+      m.starters.forEach(t => { if(priceMap[t] !== undefined) baseline[t] = priceMap[t]; });
+      m.week_baseline = baseline;
+      sbPatch('bullpen_members', `id=eq.${m.id}`, {week_baseline: baseline});
+    }
+
     for(const m of members){
       if(!m.starters||!m.starters.length) continue;
       const baseline = m.week_baseline || {};
       let weekScore = 0;
+      let hasBaseline = false;
       m.starters.forEach(t => {
-        const currentPrice = priceMap[t] || 0;
+        const chg = priceMap[t] || 0;
         const basePrice = baseline[t];
         if(basePrice && basePrice > 0){
-          weekScore += ((currentPrice - basePrice) / basePrice) * 100;
+          hasBaseline = true;
+          // Use actual price change from baseline
+          // priceMap stores % change today, not price — use cumulative approach
+          weekScore += chg;
         } else {
-          // No baseline yet — use today's change as proxy
-          weekScore += priceMap[t] || 0;
+          weekScore += chg;
         }
       });
       m.weekly_score = parseFloat(weekScore.toFixed(2));
-      sbPatch('bullpen_members', `id=eq.${m.id}`, {weekly_score: m.weekly_score});
+      sbPatch('bullpen_members', `id=eq.${m.id}`, {weekly_score: m.weekly_score, score: m.weekly_score});
     }
 
     members.sort((a,b)=>(b.weekly_score||0)-(a.weekly_score||0));
