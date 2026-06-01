@@ -441,86 +441,55 @@ async function updateScores(){
   }catch(e){console.log('Price update failed',e);}
 }
 
-// ── Check if it's Monday and we need to reset the week ──
+// ── Check weekly reset via server ──
 async function checkWeeklyReset(){
   if(!league) return;
   const now = new Date();
   const weekStart = new Date(league.week_start_date);
-  const daysSinceStart = Math.floor((now - weekStart) / 86400000);
-  const isMonday = now.getDay() === 1;
-  const newWeek = daysSinceStart >= 7;
+  const daysSince = Math.floor((now - weekStart) / 86400000);
 
-  if(newWeek && isMonday){
-    await doWeeklyReset();
+  // Trigger server reset if 7+ days have passed
+  if(daysSince >= 7){
+    try{
+      const res = await fetch(BACKEND+'/api/bullpen-weekly');
+      const data = await res.json();
+      if(data.success){
+        // Reload league data after reset
+        await loadData();
+        // Show recap
+        const result = data.results?.find(r=>r.league===leagueCode);
+        if(result){
+          localStorage.setItem('bullpen_recap_'+leagueCode, JSON.stringify({
+            week: result.week,
+            winner: result.winner||'—',
+            winnerScore: result.winnerScore||0,
+            myScore: myMember?._weekScore||0,
+            shown: false
+          }));
+          showWeeklyRecap();
+        }
+      }
+    }catch(e){ console.log('Weekly reset failed:', e); }
   } else {
-    // Show recap if it's Monday (just reset happened)
-    if(isMonday && daysSinceStart < 1) showWeeklyRecap();
+    // Show last recap if it hasn't been seen yet
+    if(league.last_recap && typeof league.last_recap === 'object' && league.last_recap.week){
+      const recapKey = 'bullpen_recap_seen_w'+league.last_recap.week+'_'+leagueCode;
+      if(!localStorage.getItem(recapKey)){
+        localStorage.setItem('bullpen_recap_'+leagueCode, JSON.stringify({
+          week: league.last_recap.week,
+          winner: league.last_recap.winner||'—',
+          winnerScore: league.last_recap.winnerScore||0,
+          myScore: myMember?.weekly_score||0,
+          shown: false
+        }));
+        showWeeklyRecap();
+        localStorage.setItem(recapKey, '1');
+      }
+    }
   }
 }
 
-async function doWeeklyReset(){
-  if(!league||!members.length) return;
-  const weekNum = league.current_week || 1;
-
-  // Sort by weekly score to determine winners
-  const sorted = [...members].sort((a,b)=>(b.weekly_score||0)-(a.weekly_score||0));
-
-  // Award season points: 1st = league size pts, last = 1pt, everyone in between
-  const totalMembers = sorted.length;
-
-  for(let i=0; i<sorted.length; i++){
-    const m = sorted[i];
-    const pts = totalMembers - i; // 1st gets totalMembers, last gets 1
-    const newSeasonPts = (m.season_points||0) + pts;
-
-    // Save weekly score to history
-    await sbPost('bullpen_weekly_scores', {
-      league_code: leagueCode,
-      member_id: m.id,
-      member_name: m.name,
-      week_number: weekNum,
-      week_start: league.week_start_date,
-      week_end: new Date().toISOString().split('T')[0],
-      score: m.weekly_score||0,
-      season_points: pts
-    });
-
-    // Update member — reset weekly score, add season points, set new baseline
-    const newBaseline = {};
-    if(m.starters) m.starters.forEach(t => { if(priceMap[t]) newBaseline[t] = priceMap[t]; });
-
-    await sbPatch('bullpen_members', `id=eq.${m.id}`, {
-      weekly_score: 0,
-      season_points: newSeasonPts,
-      week_baseline: newBaseline,
-      trades_left: 2,
-      fa_moves: 2
-    });
-    m.season_points = newSeasonPts;
-    m.weekly_score = 0;
-    m.week_baseline = newBaseline;
-  }
-
-  // Update league — increment week, set new start date
-  const newWeekStart = new Date().toISOString().split('T')[0];
-  await sbPatch('bullpen_leagues', `code=eq.${leagueCode}`, {
-    current_week: weekNum + 1,
-    week_start_date: newWeekStart
-  });
-  league.current_week = weekNum + 1;
-  league.week_start_date = newWeekStart;
-
-  // Store recap in localStorage for banner
-  localStorage.setItem('bullpen_recap_'+leagueCode, JSON.stringify({
-    week: weekNum,
-    winner: sorted[0]?.name || '—',
-    winnerScore: sorted[0]?.weekly_score || 0,
-    myScore: myMember?.weekly_score || 0,
-    shown: false
-  }));
-
-  showWeeklyRecap();
-}
+async function doWeeklyReset(){ /* handled server-side via /api/bullpen-weekly */ }
 
 async function sbPost(table, body){
   await fetch(SUPABASE_URL+'/rest/v1/'+table, {
