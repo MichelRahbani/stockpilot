@@ -1002,3 +1002,7 @@ body .learning-area-tabs { display: flex !important; flex-direction: row !import
     gap: 10px !important;
   }
 }
+/* Fix: term-card info popup must show when triggered */
+.term-card:not([hidden]) {
+  display: block !important;
+}
