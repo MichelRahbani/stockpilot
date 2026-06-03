@@ -297,6 +297,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     </div>
   </div>
 
+  <!-- PRICE CHART — outside quoteArea so it persists -->
+  <div class="chart-wrap" id="priceChartWrap" style="display:none;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.07)">
+    <div style="padding:12px 14px 0;display:flex;gap:4px">
+      <button class="chart-range-btn active" onclick="loadChart(window._lastSymbol,'5d','15m',this)">1W</button>
+      <button class="chart-range-btn" onclick="loadChart(window._lastSymbol,'1mo','1d',this)">1M</button>
+      <button class="chart-range-btn" onclick="loadChart(window._lastSymbol,'3mo','1d',this)">3M</button>
+      <button class="chart-range-btn" onclick="loadChart(window._lastSymbol,'1y','1wk',this)">1Y</button>
+    </div>
+    <div class="chart-canvas-wrap" style="padding:6px 14px 14px"><canvas id="priceChart"></canvas></div>
+  </div>
+
   <!-- PORTFOLIO -->
   <div class="portfolio-panel"><div id="portStory" class="port-story" style="display:none"><h4>Portfolio Story</h4><p id="portStoryText"></p></div>
     <div class="port-head">
