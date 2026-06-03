@@ -985,7 +985,7 @@ async function loadChart(symbol, range, interval, btnEl) {
   var pts, times;
   try {
     if(!_chartCache[cacheKey]) {
-      var res = await fetch(BACKEND + '/api/history?symbol=' + symbol + '&range=' + range + '&interval=' + interval);
+      var res = await fetch(API + '/api/history?symbol=' + symbol + '&range=' + range + '&interval=' + interval);
       var data = await res.json();
       var result = data && data.chart && data.chart.result && data.chart.result[0];
       if(!result) throw new Error('No data');
