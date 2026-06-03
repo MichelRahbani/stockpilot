@@ -471,6 +471,7 @@ async function search(){
     current=q;
     showQuote(q);
     document.getElementById('tradeForm').style.display='block';
+  setTimeout(function(){ document.getElementById('tradeForm').scrollIntoView({behavior:'smooth',block:'nearest'}); }, 150);
   // Auto-load 1W chart
   setTimeout(function(){ loadChart(_lastSymbol,'5d','15m',document.querySelector('.chart-range-btn')); },150);
     document.getElementById('noStock').style.display='none';
