@@ -294,6 +294,18 @@
             </article>
           </section>
 
+          <!-- MACRO PULSE STRIP -->
+          <section class="empire-panel macro-pulse-panel" aria-label="Live economic conditions" id="macroPulsePanel" style="padding:12px 16px!important">
+            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+              <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;opacity:0.45">Live Economics</span>
+              <div id="macroPulseStrip" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+                <span style="font-size:12px;opacity:0.4">Loading macro data...</span>
+              </div>
+              <button type="button" onclick="loadMacroPulse()" style="font-size:11px;background:none;border:1px solid var(--sp-g100);border-radius:6px;padding:3px 8px;cursor:pointer;color:var(--sp-g500);font-family:inherit">Refresh</button>
+            </div>
+            <div id="macroPulseInsight" style="margin-top:8px;font-size:12px;color:var(--sp-g500);line-height:1.5;display:none;padding:8px 10px;background:rgba(26,158,110,0.06);border-radius:8px;border-left:3px solid #1a9e6e"></div>
+          </section>
+
           <section class="empire-panel api-command-panel" aria-label="Real data status" style="padding:12px 16px!important">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
               <div style="display:flex;align-items:center;gap:10px">
@@ -2241,6 +2253,23 @@ JNJ 20"></textarea>
                 <span id="budgetPlanResultDetail">Income minus bills, flexible spending, debt, and savings.</span>
               </div>
             </article>
+          </section>
+
+          <!-- ECONOMICS IN CONTEXT -->
+          <section class="savings-panel savings-panel-page active" data-savings-panel="plan" id="econContextPanel">
+            <div class="section-title">
+              <div>
+                <h2>📈 Economics in Context</h2>
+                <span class="table-note">How current macro conditions affect your budget — powered by live FRED data.</span>
+              </div>
+              <button type="button" onclick="loadEconContext()" class="ghost-button small-button">Refresh</button>
+            </div>
+            <div id="econContextGrid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-top:4px">
+              <div style="padding:20px;text-align:center;opacity:0.4;grid-column:1/-1">
+                <div style="font-size:28px;margin-bottom:8px">📊</div>
+                <div style="font-size:13px">Click Refresh to load live economic context</div>
+              </div>
+            </div>
           </section>
 
           <section class="savings-panel savings-panel-page" data-savings-panel="plan">
