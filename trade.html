@@ -964,6 +964,142 @@ setTimeout(function(){ loadLeaderboard(); showLbState(); },800);
             <script src="/progress-story.js"></script>
             <script src="/post-trade-signup.js"></script>
                 <script src="/ux-fixes.js"></script>
+
+<script>
+// ── PRICE CHART ──
+var _chartCache = {};
+
+async function loadChart(symbol, range, interval, btnEl) {
+  if(!symbol) return;
+  if(btnEl) {
+    document.querySelectorAll('.chart-range-btn').forEach(function(b){ b.classList.remove('active'); });
+    btnEl.classList.add('active');
+  }
+  var wrap = document.getElementById('priceChartWrap');
+  if(!wrap) return;
+  var canvasWrap = wrap.querySelector('.chart-canvas-wrap');
+  if(!canvasWrap) return;
+  canvasWrap.innerHTML = '<div class="chart-loading">Loading...</div>';
+
+  var cacheKey = symbol + '_' + range;
+  var pts, times;
+  try {
+    if(!_chartCache[cacheKey]) {
+      var res = await fetch(BACKEND + '/api/history?symbol=' + symbol + '&range=' + range + '&interval=' + interval);
+      var data = await res.json();
+      var result = data && data.chart && data.chart.result && data.chart.result[0];
+      if(!result) throw new Error('No data');
+      var closes = result.indicators.quote[0].close;
+      var timestamps = result.timestamp;
+      var valid = timestamps.map(function(t,i){ return {t:t, p:closes[i]}; }).filter(function(x){ return x.p != null; });
+      _chartCache[cacheKey] = valid;
+    }
+    var valid = _chartCache[cacheKey];
+    pts = valid.map(function(x){ return x.p; });
+    times = valid.map(function(x){ return x.t; });
+  } catch(e) {
+    canvasWrap.innerHTML = '<div class="chart-loading">Chart unavailable</div>';
+    return;
+  }
+
+  if(!pts.length) { canvasWrap.innerHTML = '<div class="chart-loading">No data</div>'; return; }
+
+  var isUp = pts[pts.length-1] >= pts[0];
+  var lineColor = isUp ? '#86efac' : '#fca5a5';
+  var gradColor = isUp ? 'rgba(134,239,172,' : 'rgba(252,165,165,';
+
+  // Build canvas
+  var canvas = document.createElement('canvas');
+  canvas.id = 'priceChart';
+  canvasWrap.innerHTML = '';
+  canvasWrap.appendChild(canvas);
+
+  var dpr = window.devicePixelRatio || 1;
+  var W = canvasWrap.offsetWidth || 400;
+  var H = 140;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  var pad = {top:10, right:10, bottom:26, left:54};
+  var cw = W - pad.left - pad.right;
+  var ch = H - pad.top - pad.bottom;
+
+  var minP = Math.min.apply(null, pts) * 0.999;
+  var maxP = Math.max.apply(null, pts) * 1.001;
+
+  function toX(i){ return pad.left + (i/(pts.length-1))*cw; }
+  function toY(p){ return pad.top + ch - ((p-minP)/(maxP-minP))*ch; }
+
+  // Grid
+  ctx.strokeStyle = 'rgba(255,255,255,0.05)';
+  ctx.lineWidth = 1;
+  for(var i=0;i<=3;i++){
+    var gy = pad.top + (ch/3)*i;
+    ctx.beginPath(); ctx.moveTo(pad.left,gy); ctx.lineTo(pad.left+cw,gy); ctx.stroke();
+  }
+
+  // Gradient fill
+  var grad = ctx.createLinearGradient(0,pad.top,0,pad.top+ch);
+  grad.addColorStop(0, gradColor+'0.2)');
+  grad.addColorStop(1, gradColor+'0)');
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(pts[0]));
+  for(var j=1;j<pts.length;j++) ctx.lineTo(toX(j), toY(pts[j]));
+  ctx.lineTo(toX(pts.length-1), H-pad.bottom+2);
+  ctx.lineTo(toX(0), H-pad.bottom+2);
+  ctx.closePath();
+  ctx.fillStyle = grad;
+  ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  ctx.moveTo(toX(0), toY(pts[0]));
+  for(var k=1;k<pts.length;k++) ctx.lineTo(toX(k), toY(pts[k]));
+  ctx.strokeStyle = lineColor;
+  ctx.lineWidth = 2;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Y labels
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  ctx.font = '10px "DM Mono", monospace';
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  [0, 0.5, 1].forEach(function(f){
+    var p = minP + (maxP-minP)*(1-f);
+    var label = p > 100 ? '$'+Math.round(p) : '$'+p.toFixed(2);
+    ctx.fillText(label, pad.left-4, pad.top + ch*f);
+  });
+
+  // X labels
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'alphabetic';
+  [0, 0.5, 1].forEach(function(f){
+    var idx = Math.floor(f*(times.length-1));
+    var dt = new Date(times[idx]*1000);
+    var label = range==='5d'
+      ? dt.toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'})
+      : dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '10px "DM Sans", sans-serif';
+    ctx.fillText(label, toX(idx), H-4);
+  });
+
+  // End dot
+  ctx.beginPath();
+  ctx.arc(toX(pts.length-1), toY(pts[pts.length-1]), 3, 0, Math.PI*2);
+  ctx.fillStyle = lineColor;
+  ctx.fill();
+}
+
+window.loadChart = loadChart;
+</script>
+
 </body>
 </html><script>
         
