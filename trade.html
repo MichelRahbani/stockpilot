@@ -177,6 +177,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   [style*="margin: 40px"]{margin:12px auto!important}
   [style*="padding:0 20px 60px"]{padding:0 12px 20px!important}
 }
+
+/* ── PRICE CHART ── */
+.chart-wrap{margin:14px 0 4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 16px 10px}
+.chart-ranges{display:flex;gap:4px;margin-bottom:10px}
+.chart-range-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;background:transparent;color:rgba(255,255,255,0.35);transition:all 0.15s}
+.chart-range-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7)}
+.chart-range-btn.active{background:rgba(255,255,255,0.1);color:#fff}
+.chart-canvas-wrap{position:relative;width:100%;height:140px}
+.chart-canvas-wrap canvas{width:100%!important;height:140px!important}
+.chart-loading{display:flex;align-items:center;justify-content:center;height:140px;color:rgba(255,255,255,0.2);font-size:13px}
+@media(max-width:600px){.chart-canvas-wrap{height:110px}.chart-canvas-wrap canvas{height:110px!important}}
+
 </style>
 <!-- Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
@@ -459,6 +471,8 @@ async function search(){
     current=q;
     showQuote(q);
     document.getElementById('tradeForm').style.display='block';
+  // Auto-load 1W chart
+  setTimeout(function(){ loadChart(_lastSymbol,'5d','15m',document.querySelector('.chart-range-btn')); },150);
     document.getElementById('noStock').style.display='none';
     document.getElementById('sharesInp').value='';
     updateSummary();
@@ -489,7 +503,7 @@ function explainMove(sym, chg, pct, beta, pe) {
   return sym + ' is ' + dir + ' ' + absPct + '% today. ' + why + betaNote + peNote + ' Educational context only — not financial advice.';
 }
 
-function showQuote(q){
+function showQuote(q){ window._lastSymbol=q.symbol;
   const chg=q.regularMarketChange||0, pct=q.regularMarketChangePercent||0;
   const col=chg>=0?'#86efac':'#fca5a5';
   document.getElementById('quoteArea').innerHTML=`
@@ -502,6 +516,15 @@ function showQuote(q){
         <div class="q-price">${f(q.regularMarketPrice)}</div>
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
       </div>
+    </div>
+    <div class="chart-wrap" id="priceChartWrap">
+      <div class="chart-ranges">
+        <button class="chart-range-btn active" onclick="loadChart('${q.symbol}','5d','15m',this)">1W</button>
+        <button class="chart-range-btn" onclick="loadChart('${q.symbol}','1mo','1d',this)">1M</button>
+        <button class="chart-range-btn" onclick="loadChart('${q.symbol}','3mo','1d',this)">3M</button>
+        <button class="chart-range-btn" onclick="loadChart('${q.symbol}','1y','1wk',this)">1Y</button>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="priceChart"></canvas></div>
     </div>
     <div id="newsCard" class="news-card" style="display:none"><h4>Recent News</h4><div id="newsList"></div></div>
     <div id="explainCard" class="explain-card"><h4>Why is this moving?</h4><p style="color:rgba(255,255,255,0.3);font-size:13px;">Analyzing...</p></div>
