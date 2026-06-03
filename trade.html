@@ -39,7 +39,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .up{color:#86efac}.dn{color:#fca5a5}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
 
-.layout{display:grid;grid-template-columns:300px 1fr 280px;gap:0;height:calc(100vh - 93px);overflow:visible;max-width:100vw}
+.layout{display:grid;grid-template-columns:300px 1fr 280px;gap:0;height:calc(100vh - 93px);overflow:hidden;max-width:100vw}
 
 /* LEFT — Watchlist */
 .watchlist-panel{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
@@ -125,7 +125,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     .logo{font-size:16px}
     .badge{display:none}
     .ticker{margin-top:49px}
-    .layout{grid-template-columns:1fr;height:auto;overflow:visible}
+    .layout{grid-template-columns:1fr;height:auto;overflow:hidden}
     .watchlist-panel{display:none}.portfolio-panel{display:flex;border-left:none;border-top:1px solid var(--border)}
     .trade-panel{height:auto;overflow:visible}
     .quote-area{padding:14px}
@@ -295,17 +295,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         Search for a stock above to start trading with your virtual $100,000
       </div>
     </div>
-  </div>
-
-  <!-- PRICE CHART — outside quoteArea so it persists -->
-  <div class="chart-wrap" id="priceChartWrap" style="display:none;background:rgba(255,255,255,0.02);border-top:1px solid rgba(255,255,255,0.07)">
-    <div style="padding:12px 14px 0;display:flex;gap:4px">
-      <button class="chart-range-btn active" onclick="loadChart(window._lastSymbol,'5d','15m',this)">1W</button>
-      <button class="chart-range-btn" onclick="loadChart(window._lastSymbol,'1mo','1d',this)">1M</button>
-      <button class="chart-range-btn" onclick="loadChart(window._lastSymbol,'3mo','1d',this)">3M</button>
-      <button class="chart-range-btn" onclick="loadChart(window._lastSymbol,'1y','1wk',this)">1Y</button>
-    </div>
-    <div class="chart-canvas-wrap" style="padding:6px 14px 14px"><canvas id="priceChart"></canvas></div>
   </div>
 
   <!-- PORTFOLIO -->
@@ -482,10 +471,8 @@ async function search(){
     current=q;
     showQuote(q);
     document.getElementById('tradeForm').style.display='block';
-  var cw=document.getElementById('priceChartWrap'); if(cw) cw.style.display='block';
+  setTimeout(function(){ loadChart(q.symbol,'5d','15m',document.querySelector('.chart-range-btn')); },150);
   setTimeout(function(){ loadChart(window._lastSymbol,'5d','15m',document.querySelector('.chart-range-btn')); }, 200);
-  // Auto-load 1W chart
-  setTimeout(function(){ loadChart(_lastSymbol,'5d','15m',document.querySelector('.chart-range-btn')); },150);
     document.getElementById('noStock').style.display='none';
     document.getElementById('sharesInp').value='';
     updateSummary();
@@ -529,6 +516,15 @@ function showQuote(q){ window._lastSymbol=q.symbol;
         <div class="q-price">${f(q.regularMarketPrice)}</div>
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
       </div>
+    </div>
+    <div class="chart-wrap" id="priceChartWrap">
+      <div class="chart-ranges">
+        <button class="chart-range-btn active" onclick="loadChart('${q.symbol}','5d','15m',this)">1W</button>
+        <button class="chart-range-btn" onclick="loadChart('${q.symbol}','1mo','1d',this)">1M</button>
+        <button class="chart-range-btn" onclick="loadChart('${q.symbol}','3mo','1d',this)">3M</button>
+        <button class="chart-range-btn" onclick="loadChart('${q.symbol}','1y','1wk',this)">1Y</button>
+      </div>
+      <div class="chart-canvas-wrap"><canvas id="priceChart"></canvas></div>
     </div>
     <div id="newsCard" class="news-card" style="display:none"><h4>Recent News</h4><div id="newsList"></div></div>
     <div id="explainCard" class="explain-card"><h4>Why is this moving?</h4><p style="color:rgba(255,255,255,0.3);font-size:13px;">Analyzing...</p></div>
