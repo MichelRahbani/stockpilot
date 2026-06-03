@@ -53,7 +53,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .wl-chg{font-family:'DM Mono',monospace;font-size:10px;text-align:right;margin-top:2px}
 
 /* MIDDLE — Trade Area */
-.trade-panel{display:flex;flex-direction:column;overflow-y:auto}
+.trade-panel{display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
+.trade-panel::-webkit-scrollbar{width:4px}
+.trade-panel::-webkit-scrollbar-track{background:transparent}
+.trade-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px}
 .search-bar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
 .search-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color 0.2s}
 .search-inp:focus{border-color:var(--red)}
@@ -1098,6 +1101,23 @@ async function loadChart(symbol, range, interval, btnEl) {
 }
 
 window.loadChart = loadChart;
+</script>
+
+
+<script>
+// Make center panel scroll on wheel even when cursor is over child elements
+(function(){
+  function hookTradePanel(){
+    var tp = document.querySelector('.trade-panel');
+    if(!tp || tp._scrollHooked) return;
+    tp._scrollHooked = true;
+    tp.addEventListener('wheel', function(e){
+      e.stopPropagation();
+    }, {passive:true});
+  }
+  document.addEventListener('DOMContentLoaded', hookTradePanel);
+  setTimeout(hookTradePanel, 500);
+})();
 </script>
 
 </body>
