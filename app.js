@@ -4415,6 +4415,9 @@ const renderSavingsBudget = () => {
 };
 
 const setMoneyMode = (mode) => {
+  // Always show sidebar when a mode is set
+  const sidebarEl = document.querySelector('.sidebar');
+  if(sidebarEl) sidebarEl.style.display = 'flex';
   const isCommand = mode === "command";
   const isPlan = mode === "plan";
   const isGoals = mode === "goals";
