@@ -10854,6 +10854,61 @@ window.addEventListener("resize", () => {
     renderMyPlan();
   }, 120);
 });
+
+// ── PIE CHART ──
+function renderSpendingPieChart() {
+  var canvas = document.getElementById('spendingPieChart');
+  var legend = document.getElementById('spendingPieLegend');
+  if (!canvas) return;
+  var income   = parseFloat(document.getElementById('monthlyIncome')?.value) || 0;
+  var fixed    = parseFloat(document.getElementById('fixedBills')?.value) || 0;
+  var flex     = parseFloat(document.getElementById('flexSpending')?.value) || 0;
+  var savings  = parseFloat(document.getElementById('monthlySavings')?.value) || 0;
+  var debt     = parseFloat(document.getElementById('debtPayments')?.value) || 0;
+  var leftover = Math.max(0, income - fixed - flex - savings - debt);
+  var slices = [
+    { label: 'Fixed Bills',       value: fixed,    color: '#3b82f6' },
+    { label: 'Flexible Spending', value: flex,     color: '#f59e0b' },
+    { label: 'Savings',           value: savings,  color: '#10b981' },
+    { label: 'Debt Payments',     value: debt,     color: '#ef4444' },
+    { label: 'Leftover',          value: leftover, color: '#8b5cf6' },
+  ].filter(function(s){ return s.value > 0; });
+  var total = slices.reduce(function(a,s){ return a+s.value; }, 0);
+  if (!total) { canvas.style.display='none'; return; }
+  canvas.style.display = 'block';
+  var dpr = window.devicePixelRatio || 1;
+  var W = Math.min(400, canvas.parentElement.offsetWidth || 400);
+  var H = 260;
+  canvas.width = W * dpr; canvas.height = H * dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  var ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  var cx = W*0.38, cy = H/2, r = Math.min(cx, cy)*0.85;
+  var angle = -Math.PI/2;
+  slices.forEach(function(s) {
+    var sweep = (s.value/total)*Math.PI*2;
+    ctx.beginPath(); ctx.moveTo(cx,cy);
+    ctx.arc(cx,cy,r,angle,angle+sweep); ctx.closePath();
+    ctx.fillStyle = s.color; ctx.fill();
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+    var pct = Math.round((s.value/total)*100);
+    if (pct >= 5) {
+      var mid = angle + sweep/2;
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 12px DM Sans,sans-serif';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(pct+'%', cx+r*0.65*Math.cos(mid), cy+r*0.65*Math.sin(mid));
+    }
+    angle += sweep;
+  });
+  if (legend) {
+    legend.innerHTML = slices.map(function(s){
+      return '<div style="display:flex;align-items:center;gap:5px;font-size:12px"><div style="width:10px;height:10px;border-radius:2px;background:'+s.color+'"></div>'+s.label+': <strong>$'+s.value.toLocaleString()+'</strong></div>';
+    }).join('');
+  }
+}
+window.renderSpendingPieChart = renderSpendingPieChart;
+
 window.addEventListener("beforeunload", saveAppState);
 
 strategyButtons.forEach((button) => {
