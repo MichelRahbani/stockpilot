@@ -45,7 +45,7 @@
     style.id = 'sp-nav-css';
     style.textContent = `
       #sp-universal-nav {
-        position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+        position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
         display: flex; align-items: center; justify-content: space-between;
         padding: 0 24px; height: 56px;
         background: ${bg}; border-bottom: 1px solid ${border};
@@ -126,6 +126,7 @@
       /* Hide original navs */
       nav:not(#sp-universal-nav) { display: none !important; }
       .sp-site-header .sp-site-nav { display: none !important; }
+      .sp-site-header { display: none !important; }
       /* Responsive */
       @media (max-width: 768px) {
         #sp-nav-center { display: none !important; }
