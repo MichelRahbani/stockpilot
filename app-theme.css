@@ -1006,13 +1006,3 @@ body .learning-area-tabs { display: flex !important; flex-direction: row !import
 .term-card:not([hidden]) {
   display: block !important;
 }
-
-/* ── SIDEBAR VISIBILITY — show when any mode is active ── */
-body.command-mode .sidebar,
-body.plan-mode .sidebar,
-body.goals-mode .sidebar,
-body.investing-mode .sidebar,
-body.savings-mode .sidebar,
-body.education-mode .sidebar {
-  display: flex !important;
-}
