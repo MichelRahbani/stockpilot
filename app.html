@@ -55,6 +55,23 @@
     </header>
 
     <main class="app-shell">
+
+    <!-- WELCOME BANNER — shown once to new users -->
+    <div id="spWelcomeBanner" style="display:none;background:linear-gradient(135deg,#f0fdf4,#eff6ff);border:1px solid #bbf7d0;border-radius:14px;padding:18px 22px;margin:16px 16px 0;position:relative;grid-column:1/-1">
+      <button onclick="dismissWelcome()" style="position:absolute;top:12px;right:14px;background:none;border:none;cursor:pointer;font-size:18px;color:#9ca3af;line-height:1">✕</button>
+      <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:4px">👋 Welcome to StockPilot</div>
+      <div style="font-size:13px;color:#4b5563;margin-bottom:14px">Everything is free. Pick where you want to start — you can always switch using the sidebar.</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <a href="/trade" style="display:inline-flex;align-items:center;gap:6px;background:#111;color:white;text-decoration:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600">📈 Practice Trading</a>
+        <a href="#" onclick="dismissWelcome();document.querySelector('[data-mode=savings]')?.click()" style="display:inline-flex;align-items:center;gap:6px;background:#1a9e6e;color:white;text-decoration:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600">💰 Plan My Budget</a>
+        <a href="#" onclick="dismissWelcome();document.querySelector('[data-mode=education]')?.click()" style="display:inline-flex;align-items:center;gap:6px;background:#7c3aed;color:white;text-decoration:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600">📚 Learn Investing</a>
+        <a href="/bullpen.html" style="display:inline-flex;align-items:center;gap:6px;background:#065f46;color:white;text-decoration:none;padding:9px 16px;border-radius:9px;font-size:13px;font-weight:600">🏟️ Play Bullpen</a>
+      </div>
+    </div>
+    <script>
+      function dismissWelcome(){ document.getElementById('spWelcomeBanner').style.display='none'; localStorage.setItem('sp_welcomed','1'); }
+      if(!localStorage.getItem('sp_welcomed')){ document.getElementById('spWelcomeBanner').style.display='block'; }
+    </script>
       <aside class="sidebar" aria-label="Analysis controls">
         <div class="brand">
           <div class="brand-mark" aria-hidden="true">SP</div>
@@ -205,27 +222,27 @@
 
         <nav class="mode-switcher surface-card" aria-label="Finance workspace">
           <button class="mode-button command-mode-button active" data-mode="command" type="button" aria-pressed="true">
-            <span>Command Center</span>
-            <strong>Your financial control room</strong>
+            <span>🏠 Home</span>
+            <strong>Your overview dashboard</strong>
           </button>
           <button class="mode-button plan-mode-button" data-mode="plan" type="button" aria-pressed="false">
-            <span>My Plan</span>
-            <strong>Actions and decisions</strong>
+            <span>📋 My Plan</span>
+            <strong>What to do next</strong>
           </button>
           <button class="mode-button goals-mode-button" data-mode="goals" type="button" aria-pressed="false">
-            <span>Goals</span>
-            <strong>Track what matters</strong>
+            <span>🎯 Goals</span>
+            <strong>Save toward something</strong>
           </button>
           <button class="mode-button" data-mode="investing" type="button" aria-pressed="false">
-            <span>Investing</span>
-            <strong>Stocks, portfolios, markets</strong>
+            <span>📊 Portfolio</span>
+            <strong>Analyze your stocks</strong>
           </button>
           <button class="mode-button savings-mode-button" data-mode="savings" type="button" aria-pressed="false">
-            <span>Savings & Budgeting</span>
+            <span>💰 Budget</span>
             <strong>Cash flow, goals, debt</strong>
           </button>
           <button class="mode-button education-mode-button" data-mode="education" type="button" aria-pressed="false">
-            <span>Learning</span>
+            <span>📚 Learn</span>
             <strong>Tips, concepts, history</strong>
           </button>
         </nav>
