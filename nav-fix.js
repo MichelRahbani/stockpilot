@@ -123,9 +123,7 @@
       }
       /* Push page content below fixed nav */
       body { padding-top: 56px; }
-      /* Hide original navs */
-      nav:not(#sp-universal-nav) { display: none !important; }
-      .sp-site-header .sp-site-nav { display: none !important; }
+      /* Hide original site header nav only */
       .sp-site-header { display: none !important; }
       /* Responsive */
       @media (max-width: 768px) {
