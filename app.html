@@ -2201,11 +2201,11 @@ JNJ 20"></textarea>
                   <input id="monthlyIncome" type="number" min="0" step="50" value="4500" />
                 </label>
                 <label class="field">
-                  <span>Fixed Bills</span>
+                  <span>Fixed Bills <small style="font-weight:400;opacity:0.5;font-size:11px">rent, phone, insurance, subscriptions</small></span>
                   <input id="fixedBills" type="number" min="0" step="50" value="2100" />
                 </label>
                 <label class="field">
-                  <span>Flexible Spending</span>
+                  <span>Flexible Spending <small style="font-weight:400;opacity:0.5;font-size:11px">food, transport, shopping, fun</small></span>
                   <input id="flexSpending" type="number" min="0" step="50" value="950" />
                 </label>
                 <label class="field">
@@ -2243,7 +2243,7 @@ JNJ 20"></textarea>
                     <th>Category</th>
                     <th>Planned $</th>
                     <th>Actual $</th>
-                    <th>Type</th>
+                    <th>Type <span title="Need = essential (rent, groceries). Want = optional (dining, shopping). Goal = saving toward something specific like a vacation or laptop." style="cursor:help;opacity:0.45;font-size:11px">ⓘ</span></th>
                     <th>Notes</th>
                     <th></th>
                   </tr>
@@ -2336,6 +2336,19 @@ JNJ 20"></textarea>
           </section>
 
           <div class="sp-accordion savings-panel-page active" data-savings-panel="plan">
+            <div class="sp-accordion">
+              <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="const open=this.getAttribute('aria-expanded')!=='true';this.setAttribute('aria-expanded',open);this.nextElementSibling.classList.toggle('sp-accordion-open');if(open)renderSpendingPieChart();">
+                <span class="sp-accordion-label">🥧 Spending Breakdown</span>
+                <span class="sp-accordion-chevron">›</span>
+              </button>
+              <div class="sp-accordion-body">
+                <section class="savings-panel" style="margin-top:0">
+                  <p style="font-size:13px;opacity:0.6;margin-bottom:12px">Visual breakdown of your monthly budget.</p>
+                  <canvas id="spendingPieChart" width="400" height="260" style="max-width:100%;display:block;margin:0 auto"></canvas>
+                  <div id="spendingPieLegend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center"></div>
+                </section>
+              </div>
+            </div>
             <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="const open=this.getAttribute('aria-expanded')!=='true'; this.setAttribute('aria-expanded',open); this.nextElementSibling.classList.toggle('sp-accordion-open'); if(open) renderSavingsBudget();">
               <span class="sp-accordion-label">📊 Budget Flow &amp; Goal Mix Charts</span>
               <span class="sp-accordion-chevron">›</span>
