@@ -923,3 +923,6 @@ body.savings-mode .savings-section-nav::before {
 /* Override styles.css: .learning-area-tabs > button { display: none !important } */
 body .learning-area-tabs > button.learning-area-tab { display: flex !important; }
 body .learning-area-tabs { display: flex !important; flex-direction: row !important; }
+
+/* Fix info buttons */
+.term-card:not([hidden]) { display: block !important; }
