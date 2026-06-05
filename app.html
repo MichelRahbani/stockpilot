@@ -29,10 +29,6 @@
 .investing-tab:hover{background:rgba(15,127,135,.12)!important;transform:translateY(-1px)!important}
 .investing-tab.active{background:#087e8b!important;color:#fff!important;box-shadow:0 4px 12px rgba(8,126,139,.3)!important;transform:translateY(-1px)!important}
 </style>
-<style>
-/* FORCE SIDEBAR VISIBLE */
-.sidebar { display: flex !important; }
-</style>
 </head>
   <body class="command-mode beginner-mode">
   <div id="welcomePopup" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;align-items:center;justify-content:center;">
@@ -2205,25 +2201,11 @@ JNJ 20"></textarea>
                   <input id="monthlyIncome" type="number" min="0" step="50" value="4500" />
                 </label>
                 <label class="field">
-                  <span>Fixed Bills <span style="font-size:11px;opacity:0.5;font-weight:400">rent, phone, insurance, subscriptions</span></span>
+                  <span>Fixed Bills</span>
                   <input id="fixedBills" type="number" min="0" step="50" value="2100" />
                 </label>
-                <details style="margin:-8px 0 8px;grid-column:1/-1">
-                  <summary style="font-size:12px;color:#1a9e6e;cursor:pointer;padding:4px 0;list-style:none;user-select:none">+ Break down fixed bills by item (optional)</summary>
-                  <div id="fixedBillsItems" style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
-                    <div class="bill-item-row" style="display:grid;grid-template-columns:1fr 100px 28px;gap:6px;align-items:center">
-                      <input class="field-input bill-item-name" placeholder="e.g. Rent" style="padding:6px 10px;border:1px solid var(--sp-g100);border-radius:8px;font-family:inherit;font-size:13px;background:var(--sp-white)" />
-                      <input class="field-input bill-item-amount" type="number" placeholder="$0" min="0" step="10" style="padding:6px 10px;border:1px solid var(--sp-g100);border-radius:8px;font-family:inherit;font-size:13px;background:var(--sp-white)" />
-                      <button type="button" onclick="this.closest('.bill-item-row').remove();updateBillTotal()" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:16px;padding:0">✕</button>
-                    </div>
-                  </div>
-                  <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px">
-                    <button type="button" onclick="addBillItem()" style="font-size:12px;color:#1a9e6e;background:none;border:1px solid #1a9e6e;border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit">+ Add item</button>
-                    <span id="billItemsTotal" style="font-size:12px;font-weight:600;color:#1a9e6e"></span>
-                  </div>
-                </details>
                 <label class="field">
-                  <span>Flexible Spending <span style="font-size:11px;opacity:0.5;font-weight:400">food, transport, shopping, fun</span></span>
+                  <span>Flexible Spending</span>
                   <input id="flexSpending" type="number" min="0" step="50" value="950" />
                 </label>
                 <label class="field">
@@ -2261,7 +2243,7 @@ JNJ 20"></textarea>
                     <th>Category</th>
                     <th>Planned $</th>
                     <th>Actual $</th>
-                    <th>Type <span title="Need = essential (rent, groceries). Want = optional (dining, shopping). Goal = saving toward something specific (vacation, laptop)." style="cursor:help;opacity:0.5;font-size:11px">ⓘ</span></th>
+                    <th>Type</th>
                     <th>Notes</th>
                     <th></th>
                   </tr>
@@ -2352,20 +2334,6 @@ JNJ 20"></textarea>
               <span id="debtPressureNote">Debt payments divided by income.</span>
             </article>
           </section>
-
-          <div class="sp-accordion savings-panel-page active" data-savings-panel="plan">
-            <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="const open=this.getAttribute('aria-expanded')!=='true'; this.setAttribute('aria-expanded',open); this.nextElementSibling.classList.toggle('sp-accordion-open'); if(open) renderSpendingPieChart();">
-              <span class="sp-accordion-label">🥧 Spending Breakdown (Pie Chart)</span>
-              <span class="sp-accordion-chevron">›</span>
-            </button>
-            <div class="sp-accordion-body">
-              <section class="savings-panel" style="margin-top:0">
-                <div class="section-title"><div><h2>Where Your Money Goes</h2><span class="table-note">Visual breakdown of your budget across bills, spending, savings, and debt.</span></div></div>
-                <canvas id="spendingPieChart" width="500" height="320" aria-label="Spending pie chart"></canvas>
-                <div id="spendingPieLegend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center"></div>
-              </section>
-            </div>
-          </div>
 
           <div class="sp-accordion savings-panel-page active" data-savings-panel="plan">
             <button class="sp-accordion-toggle" type="button" aria-expanded="false" onclick="const open=this.getAttribute('aria-expanded')!=='true'; this.setAttribute('aria-expanded',open); this.nextElementSibling.classList.toggle('sp-accordion-open'); if(open) renderSavingsBudget();">
