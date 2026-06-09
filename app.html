@@ -206,19 +206,19 @@
         <nav class="mode-switcher surface-card" aria-label="Finance workspace">
           <button class="mode-button command-mode-button active" data-mode="command" type="button" aria-pressed="true">
             <span>Command Center</span>
-            <strong>Your financial control room</strong>
+            <strong>See everything at once</strong>
           </button>
           <button class="mode-button plan-mode-button" data-mode="plan" type="button" aria-pressed="false">
             <span>My Plan</span>
-            <strong>Actions and decisions</strong>
+            <strong>What to do next</strong>
           </button>
           <button class="mode-button goals-mode-button" data-mode="goals" type="button" aria-pressed="false">
             <span>Goals</span>
-            <strong>Track what matters</strong>
+            <strong>Save toward something</strong>
           </button>
           <button class="mode-button" data-mode="investing" type="button" aria-pressed="false">
             <span>Investing</span>
-            <strong>Stocks, portfolios, markets</strong>
+            <strong>Analyze your stocks</strong>
           </button>
           <button class="mode-button savings-mode-button" data-mode="savings" type="button" aria-pressed="false">
             <span>Savings & Budgeting</span>
@@ -238,10 +238,10 @@
               <p>StockPilot brings investing, savings, education, and simulation into one operating system. This home screen shows what needs attention first.</p>
             </div>
             <div class="experience-toggle" aria-label="Experience level">
-              <span>Experience Mode</span>
+              <span>I am...</span>
               <div class="segmented compact-segmented">
-                <button class="segment active" data-experience="beginner" type="button" aria-pressed="true">Beginner</button>
-                <button class="segment" data-experience="pro" type="button" aria-pressed="false">Pro</button>
+                <button class="segment active" data-experience="beginner" type="button" aria-pressed="true">New to investing</button>
+                <button class="segment" data-experience="pro" type="button" aria-pressed="false">I know the basics</button>
               </div>
               <p class="beginner-copy">Beginner mode favors plain English and next steps.</p>
               <p class="pro-copy">Pro mode emphasizes risk, allocation, and scenario signals.</p>
@@ -273,24 +273,24 @@
 
           <section class="command-grid">
             <article class="command-card">
-              <span>Portfolio Health <button class="info-button mini-info" data-term="portfolioHealth" type="button" aria-label="Explain portfolio health">i</button></span>
+              <span>How your investments look <button class="info-button mini-info" data-term="portfolioHealth" type="button" aria-label="Explain portfolio health">i</button></span>
               <strong id="commandPortfolioScore">0</strong>
-              <p id="commandPortfolioNote">Load assets to score your portfolio.</p>
+              <p id="commandPortfolioNote">Enter your stocks to see how they're doing</p>
             </article>
             <article class="command-card blue-command">
-              <span>Budget Health <button class="info-button mini-info" data-term="budgetHealth" type="button" aria-label="Explain budget health">i</button></span>
+              <span>How your budget looks <button class="info-button mini-info" data-term="budgetHealth" type="button" aria-label="Explain budget health">i</button></span>
               <strong id="commandBudgetScore">0</strong>
-              <p id="commandBudgetNote">Enter your monthly budget first.</p>
+              <p id="commandBudgetNote">Fill in your income and bills to get started</p>
             </article>
             <article class="command-card violet-command">
-              <span>Learning Progress <button class="info-button mini-info" data-term="learningProgress" type="button" aria-label="Explain learning progress">i</button></span>
+              <span>What you've learned <button class="info-button mini-info" data-term="learningProgress" type="button" aria-label="Explain learning progress">i</button></span>
               <strong id="commandLearningCount">0</strong>
-              <p id="commandLearningNote">Short lessons available.</p>
+              <p id="commandLearningNote">Free lessons waiting for you</p>
             </article>
             <article class="command-card gold-command">
-              <span>Market Mood <button class="info-button mini-info" data-term="marketMood" type="button" aria-label="Explain market mood">i</button></span>
+              <span>Market right now <button class="info-button mini-info" data-term="marketMood" type="button" aria-label="Explain market mood">i</button></span>
               <strong id="commandMarketMood">Watch</strong>
-              <p id="commandMarketNote">Based on loaded assets and risk signals.</p>
+              <p id="commandMarketNote">What the stock market is doing today</p>
             </article>
           </section>
 
@@ -2202,11 +2202,11 @@ JNJ 20"></textarea>
                 </label>
                 <label class="field">
                   <span>Fixed Bills <small style="font-weight:400;opacity:0.5;font-size:11px">rent, phone, insurance, subscriptions</small></span>
-                  <input id="fixedBills" type="number" min="0" step="50" value="2100" />
+                  <input id="fixedBills" type="number" min="0" step="50" value="2100" placeholder="e.g. rent + phone + insurance" />
                 </label>
                 <label class="field">
                   <span>Flexible Spending <small style="font-weight:400;opacity:0.5;font-size:11px">food, transport, shopping, fun</small></span>
-                  <input id="flexSpending" type="number" min="0" step="50" value="950" />
+                  <input id="flexSpending" type="number" min="0" step="50" value="950" placeholder="e.g. groceries + eating out + gas" />
                 </label>
                 <label class="field">
                   <span>Monthly Savings</span>
