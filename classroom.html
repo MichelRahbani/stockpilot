@@ -508,50 +508,105 @@ async function openDashboard(classId){
   loadDashboard();
 }
 
-// ── Load dashboard data ──
+// ── Load dashboard data with LIVE prices ──
 async function loadDashboard(){
   if(!currentClass) return;
+
+  // Show loading state
+  document.getElementById('leaderboardBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">⏳ Loading live data...</td></tr>';
+  document.getElementById('dashStats').innerHTML = '';
+
   // Get class members
   const members = await sbGet('class_members','class_id=eq.'+currentClass.id);
-  // Get all trades for this class's members
   const uids = members.map(m=>m.user_id);
+  const memberMap = {};
+  members.forEach(m=>memberMap[m.user_id]=m.nickname||'Student');
 
+  // Get trades for history tab
   let trades = [];
   if(uids.length){
-    // Get trades for all members
-    const tradesData = await sbGet('trades','user_id=in.('+uids.join(',')+')&order=created_at.desc&limit=500');
+    const tradesData = await sbGet('trades','user_id=in.('+uids.join(',')+')&order=created_at.desc&limit=1000');
     trades = Array.isArray(tradesData) ? tradesData : [];
   }
   allTrades = trades;
 
-  // Build leaderboard
-  const studentMap = {};
+  // Get each student's portfolio from virtual_portfolios (has positions + cash)
+  const studentStats = {};
   members.forEach(m=>{
-    studentMap[m.user_id] = {
-      name: m.nickname || 'Student',
-      trades: 0,
-      lastTrade: null,
-      portfolioValue: 100000,
+    studentStats[m.user_id] = {
+      name: memberMap[m.user_id],
       cash: 100000,
-      buys: 0,
-      sells: 0
+      positions: {},
+      portfolioValue: 100000,
+      trades: 0,
+      lastTrade: null
     };
   });
 
+  // Fetch portfolios for all students
+  const SUPA_KEY_LOCAL = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+  if(uids.length){
+    try {
+      const portfoliosRes = await fetch(SUPA_URL+'/rest/v1/virtual_portfolios?user_id=in.('+uids.join(',')+')',{
+        headers:{'apikey':SUPA_KEY_LOCAL,'Authorization':'Bearer '+SUPA_KEY_LOCAL}
+      });
+      const portfolios = await portfoliosRes.json();
+      if(Array.isArray(portfolios)){
+        portfolios.forEach(p=>{
+          if(studentStats[p.user_id] && p.portfolio){
+            studentStats[p.user_id].cash = p.portfolio.cash || 100000;
+            studentStats[p.user_id].positions = p.portfolio.pos || {};
+          }
+        });
+      }
+    } catch(e){ console.log('Portfolio fetch error:', e); }
+  }
+
+  // Count trades per student
   trades.forEach(t=>{
-    if(!studentMap[t.user_id]) return;
-    const s = studentMap[t.user_id];
-    s.trades++;
-    if(!s.lastTrade || t.created_at > s.lastTrade) s.lastTrade = t.created_at;
-    if(t.portfolio_value) s.portfolioValue = t.portfolio_value;
-    if(t.action==='buy') s.buys++;
-    if(t.action==='sell') s.sells++;
+    if(!studentStats[t.user_id]) return;
+    studentStats[t.user_id].trades++;
+    if(!studentStats[t.user_id].lastTrade || t.created_at > studentStats[t.user_id].lastTrade){
+      studentStats[t.user_id].lastTrade = t.created_at;
+    }
   });
 
-  const students = Object.values(studentMap);
-  const avgReturn = students.length ? students.reduce((a,s)=>a+((s.portfolioValue-100000)/100000*100),0)/students.length : 0;
+  // Collect all unique tickers across all students
+  const allTickers = new Set();
+  Object.values(studentStats).forEach(s=>{
+    Object.keys(s.positions).forEach(t=>allTickers.add(t));
+  });
 
-  // Stats row
+  // Fetch live prices for all tickers at once
+  let priceMap = {};
+  if(allTickers.size > 0){
+    try {
+      const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+      const r = await fetch(BACKEND+'/api/quotes?symbols='+[...allTickers].join(','));
+      const data = await r.json();
+      (data?.quoteResponse?.result||[]).forEach(q=>{
+        priceMap[q.symbol] = q.regularMarketPrice || 0;
+      });
+    } catch(e){ console.log('Price fetch error:', e); }
+  }
+
+  // Calculate real portfolio value using live prices
+  Object.values(studentStats).forEach(s=>{
+    let holdingsValue = 0;
+    Object.entries(s.positions).forEach(([ticker, pos])=>{
+      const livePrice = priceMap[ticker] || pos.avg || 0;
+      holdingsValue += (pos.qty || 0) * livePrice;
+    });
+    s.portfolioValue = s.cash + holdingsValue;
+  });
+
+  // Sort by portfolio value
+  const students = Object.values(studentStats).sort((a,b)=>b.portfolioValue-a.portfolioValue);
+  const avgReturn = students.length
+    ? students.reduce((a,s)=>a+((s.portfolioValue-100000)/100000*100),0)/students.length
+    : 0;
+
+  // Stats
   document.getElementById('dashStats').innerHTML = `
     <div class="stat-card"><div class="val">${members.length}</div><div class="lbl">Students</div></div>
     <div class="stat-card"><div class="val">${trades.length}</div><div class="lbl">Total Trades</div></div>
@@ -560,12 +615,13 @@ async function loadDashboard(){
   `;
 
   // Leaderboard
-  const ranked = students.sort((a,b)=>b.portfolioValue-a.portfolioValue);
   const medals = ['🥇','🥈','🥉'];
-  document.getElementById('leaderboardBody').innerHTML = ranked.length ? ranked.map((s,i)=>{
+  document.getElementById('leaderboardBody').innerHTML = students.length ? students.map((s,i)=>{
     const ret = ((s.portfolioValue-100000)/100000*100);
     const retStr = (ret>=0?'+':'')+ret.toFixed(2)+'%';
-    const lastTradeStr = s.lastTrade ? new Date(s.lastTrade).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'No trades';
+    const lastTradeStr = s.lastTrade
+      ? new Date(s.lastTrade).toLocaleDateString('en-US',{month:'short',day:'numeric'})
+      : 'No trades';
     return `<tr>
       <td class="${i<3?'rank-'+(i+1):''}">${medals[i]||'#'+(i+1)}</td>
       <td><strong>${s.name}</strong></td>
@@ -577,7 +633,7 @@ async function loadDashboard(){
     </tr>`;
   }).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No students yet — share your class code!</td></tr>';
 
-  // Trade history
+  // Trade history tab
   renderTradesTable(trades, members);
 }
 
@@ -704,6 +760,7 @@ async function openStudentDashboard(classId){
   // My stats
   const myStats = studentStats[uid] || {value:100000, trades:0};
   const myReturn = ((myStats.value-100000)/100000*100);
+  // Note: value from last trade — live recalc available on instructor dashboard
   document.getElementById('sdMyValue').textContent = '$'+myStats.value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('sdMyReturn').textContent = (myReturn>=0?'+':'')+myReturn.toFixed(2)+'%';
   document.getElementById('sdMyReturn').style.color = myReturn>=0?'var(--green)':'var(--red)';
