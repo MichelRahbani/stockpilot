@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>StockPilot Classroom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TZLSC36Y26');</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#16a34a;--green-l:#f0fdf4;--green-b:#bbf7d0;
+  --blue:#2563eb;--blue-l:#eff6ff;--blue-b:#bfdbfe;
+  --red:#dc2626;--red-l:#fef2f2;
+  --gray:#6b7280;--border:#e5e7eb;--bg:#f9fafb;--white:#fff;
+  --text:#111827;--muted:#6b7280;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:16px;color:var(--text)}
+.nav-logo img{height:28px;width:28px;border-radius:6px}
+.nav-badge{background:#dcfce7;color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.05em}
+.nav-right{display:flex;align-items:center;gap:10px}
+.btn{padding:8px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.15s}
+.btn-primary{background:var(--green);color:white}.btn-primary:hover{background:#15803d}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.btn-sm{padding:6px 14px;font-size:13px}
+.btn-danger{background:var(--red-l);color:var(--red);border:1px solid #fecaca}.btn-danger:hover{background:#fee2e2}
+
+/* Layout */
+.page{max-width:1100px;margin:0 auto;padding:32px 20px}
+.hero{text-align:center;padding:48px 20px 32px}
+.hero h1{font-size:36px;font-weight:700;margin-bottom:10px}
+.hero p{font-size:16px;color:var(--muted);max-width:500px;margin:0 auto 28px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* Cards */
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:24px}
+.card h2{font-size:18px;font-weight:700;margin-bottom:4px}
+.card .subtitle{font-size:13px;color:var(--muted);margin-bottom:20px}
+.section-title{font-size:22px;font-weight:700;margin-bottom:16px}
+
+/* Forms */
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:13px;font-weight:600;color:var(--text)}
+.field small{font-size:11px;color:var(--muted)}
+.field input,.field select{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;background:var(--white)}
+.field input:focus,.field select:focus{border-color:var(--green)}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Class list */
+.class-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between}
+.class-card:hover{border-color:var(--green);box-shadow:0 2px 8px rgba(22,163,74,0.1)}
+.class-card-left h3{font-size:15px;font-weight:600;margin-bottom:2px}
+.class-card-left p{font-size:12px;color:var(--muted)}
+.class-code{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;background:var(--green-l);color:var(--green);padding:4px 10px;border-radius:6px}
+
+/* Dashboard */
+.stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-card .val{font-size:26px;font-weight:700;color:var(--green)}
+.stat-card .lbl{font-size:12px;color:var(--muted);margin-top:2px}
+
+/* Table */
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{background:#f8fafc;padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);border-bottom:1px solid var(--border)}
+td{padding:12px 14px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.rank-1{color:#f59e0b;font-weight:700}
+.rank-2{color:var(--muted);font-weight:600}
+.rank-3{color:#92400e;font-weight:600}
+.up{color:var(--green)}.down{color:var(--red)}
+.tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.tag-green{background:var(--green-l);color:var(--green)}
+.tag-blue{background:var(--blue-l);color:var(--blue)}
+
+/* Tab bar */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 16px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600}
+
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:16px;padding:28px;width:90%;max-width:460px;position:relative}
+.modal h2{font-size:20px;font-weight:700;margin-bottom:4px}
+.modal .subtitle{font-size:13px;color:var(--muted);margin-bottom:20px}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
+.msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}
+.msg.error{background:var(--red-l);color:var(--red);border:1px solid #fecaca}
+.msg.success{background:var(--green-l);color:var(--green);border:1px solid var(--green-b)}
+
+/* Empty state */
+.empty{text-align:center;padding:48px 20px;color:var(--muted)}
+.empty .icon{font-size:40px;margin-bottom:12px}
+.empty p{font-size:14px}
+
+/* Freeze badge */
+.freeze-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:20px;background:#eff6ff;color:var(--blue);font-weight:600}
+
+@media(max-width:600px){.hero h1{font-size:26px}.field-row{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">
+    <img src="/logo.jpg" alt="StockPilot"/>
+    StockPilot
+    <span class="nav-badge">CLASSROOM</span>
+  </a>
+  <div class="nav-right">
+    <span id="navUser" style="font-size:13px;color:var(--muted);display:none"></span>
+    <a href="/trade" class="btn btn-ghost btn-sm">Virtual Market</a>
+    <button class="btn btn-ghost btn-sm" id="navSignInBtn" onclick="openSigninModal()">Sign In</button>
+    <button class="btn btn-ghost btn-sm" id="navSignOutBtn" style="display:none" onclick="signOut()">Sign Out</button>
+  </div>
+</nav>
+
+<!-- SIGN IN MODAL -->
+<div class="modal-bg" id="signinModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('signinModal')">✕</button>
+    <h2>Sign in to continue</h2>
+    <p class="subtitle">You need a StockPilot account to create or join a class.</p>
+    <div class="msg" id="siMsg"></div>
+    <div class="field"><label>Email</label><input type="email" id="siEmail" placeholder="your@email.com"/></div>
+    <div class="field"><label>Password</label><input type="password" id="siPass" placeholder="Your password"/></div>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="doSignin()">Sign In</button>
+    <p style="text-align:center;font-size:13px;color:var(--muted)">No account? <a href="/app" style="color:var(--green)">Create one free</a></p>
+  </div>
+</div>
+
+<!-- CREATE CLASS MODAL -->
+<div class="modal-bg" id="createModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('createModal')">✕</button>
+    <h2>Create a Class</h2>
+    <p class="subtitle">Students join with a code you share. You can track everyone's trades and performance.</p>
+    <div class="msg" id="createMsg"></div>
+    <div class="field"><label>Class Name</label><input type="text" id="className" placeholder="e.g. FIN 301 Spring 2026"/></div>
+    <div class="field-row">
+      <div class="field"><label>Course Code <small>(optional)</small></label><input type="text" id="courseCode" placeholder="e.g. FIN 301"/></div>
+      <div class="field"><label>Freeze Date <small>(optional)</small></label><input type="date" id="freezeDate"/></div>
+    </div>
+    <button class="btn btn-primary" style="width:100%" onclick="doCreateClass()">Create Class →</button>
+  </div>
+</div>
+
+<!-- JOIN CLASS MODAL -->
+<div class="modal-bg" id="joinModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('joinModal')">✕</button>
+    <h2>Join a Class</h2>
+    <p class="subtitle">Enter the 6-character code your instructor shared with you.</p>
+    <div class="msg" id="joinMsg"></div>
+    <div class="field"><label>Class Code</label><input type="text" id="joinCode" placeholder="ABC123" maxlength="6" oninput="this.value=this.value.toUpperCase()"/></div>
+    <div class="field"><label>Your Name (shown to instructor)</label><input type="text" id="joinNickname" placeholder="First Last"/></div>
+    <button class="btn btn-primary" style="width:100%" onclick="doJoinClass()">Join Class →</button>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
+
+  <!-- LANDING (not signed in) -->
+  <div id="landingView">
+    <div class="hero">
+      <h1>StockPilot Classroom</h1>
+      <p>Run a virtual stock market in your class. Students trade with $100,000 of virtual cash — you track everything.</p>
+      <div class="hero-btns">
+        <button class="btn btn-primary" onclick="requireAuth(()=>showView('instructorView'))">I'm an Instructor</button>
+        <button class="btn btn-ghost" onclick="requireAuth(()=>showView('studentView'))">I'm a Student</button>
+      </div>
+    </div>
+    <div class="page" style="padding-top:0">
+      <div class="card-grid">
+        <div class="card">
+          <div style="font-size:28px;margin-bottom:10px">📊</div>
+          <h2>Live Leaderboard</h2>
+          <p style="font-size:13px;color:var(--muted);margin-top:6px">See every student's portfolio value and return % in real time. Updated every time they trade.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:28px;margin-bottom:10px">📋</div>
+          <h2>Full Trade History</h2>
+          <p style="font-size:13px;color:var(--muted);margin-top:6px">Every buy and sell is logged with timestamp, price, shares, and P&L. Export to CSV anytime.</p>
+        </div>
+        <div class="card">
+          <div style="font-size:28px;margin-bottom:10px">🔒</div>
+          <h2>Freeze Portfolios</h2>
+          <p style="font-size:13px;color:var(--muted);margin-top:6px">Set an end date and portfolios lock automatically — perfect for semester-end evaluation.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- INSTRUCTOR VIEW -->
+  <div id="instructorView" style="display:none">
+    <div class="page">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="section-title" style="margin-bottom:2px">My Classes</div>
+          <p style="font-size:13px;color:var(--muted)">Create a class and share the code with your students.</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="showView('landingView')">← Back</button>
+          <button class="btn btn-primary" onclick="openModal('createModal')">+ New Class</button>
+        </div>
+      </div>
+      <div id="classList">
+        <div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLASS DASHBOARD -->
+  <div id="dashboardView" style="display:none">
+    <div class="page">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:4px;cursor:pointer" onclick="showView('instructorView')">← My Classes</div>
+          <div class="section-title" id="dashClassName" style="margin-bottom:4px"></div>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span id="dashCourseCode" style="font-size:13px;color:var(--muted)"></span>
+            <span id="dashFreeze" class="freeze-badge" style="display:none">🔒 Freezes <span id="dashFreezeDate"></span></span>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+          <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:8px;padding:8px 14px;text-align:center">
+            <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Class Code</div>
+            <div id="dashCode" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--green);cursor:pointer" onclick="copyCode()" title="Click to copy"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="btn btn-primary btn-sm" onclick="loadDashboard()">↻ Refresh</button>
+        </div>
+      </div>
+
+      <div class="stats-row" id="dashStats"></div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
+        <button class="tab" onclick="switchTab('trades',this)">📋 Trade History</button>
+      </div>
+
+      <div id="tabLeaderboard">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Student</th><th>Portfolio Value</th><th>Return</th><th>Cash Left</th><th>Trades</th><th>Last Trade</th>
+            </tr></thead>
+            <tbody id="leaderboardBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tabTrades" style="display:none">
+        <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+          <input type="text" id="tradeFilter" placeholder="Filter by student name or ticker..." style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none" oninput="filterTrades()"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date</th><th>Student</th><th>Action</th><th>Ticker</th><th>Shares</th><th>Price</th><th>Total</th>
+            </tr></thead>
+            <tbody id="tradesBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDENT VIEW -->
+  <div id="studentView" style="display:none">
+    <div class="page">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
+        <div>
+          <div class="section-title" style="margin-bottom:2px">My Classes</div>
+          <p style="font-size:13px;color:var(--muted)">Join your instructor's class with the code they gave you.</p>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="showView('landingView')">← Back</button>
+          <button class="btn btn-primary" onclick="openModal('joinModal')">+ Join Class</button>
+        </div>
+      </div>
+      <div id="studentClassList">
+        <div class="empty"><div class="icon">🎓</div><p>You haven't joined any classes yet. Ask your instructor for a code.</p></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+
+let currentUser = null;
+let currentClass = null;
+let allTrades = [];
+
+// ── Auth ──
+function getToken(){ return localStorage.getItem('supabase_token'); }
+function getUid(){ const t=getToken(); return t ? JSON.parse(atob(t.split('.')[1])).sub : null; }
+function getName(){ return localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || ''; }
+
+function updateNavAuth(){
+  const name = getName();
+  const token = getToken();
+  if(token && name){
+    document.getElementById('navUser').textContent = '👤 ' + name;
+    document.getElementById('navUser').style.display = 'inline';
+    document.getElementById('navSignInBtn').style.display = 'none';
+    document.getElementById('navSignOutBtn').style.display = 'inline-block';
+  } else {
+    document.getElementById('navUser').style.display = 'none';
+    document.getElementById('navSignInBtn').style.display = 'inline-block';
+    document.getElementById('navSignOutBtn').style.display = 'none';
+  }
+}
+
+function signOut(){
+  localStorage.removeItem('supabase_token');
+  localStorage.removeItem('supabase_name');
+  localStorage.removeItem('supabase_email');
+  updateNavAuth();
+  showView('landingView');
+}
+
+function requireAuth(fn){
+  if(getToken()){ fn(); return; }
+  window._pendingFn = fn;
+  openModal('signinModal');
+}
+
+async function doSignin(){
+  const email = document.getElementById('siEmail').value.trim();
+  const pass = document.getElementById('siPass').value;
+  showMsg('siMsg','Signing in...','success');
+  try {
+    const r = await fetch(SUPA_URL+'/auth/v1/token?grant_type=password',{
+      method:'POST', headers:{'Content-Type':'application/json','apikey':SUPA_KEY},
+      body: JSON.stringify({email, password:pass})
+    });
+    const d = await r.json();
+    if(!d.access_token){ showMsg('siMsg', d.msg || 'Invalid credentials','error'); return; }
+    localStorage.setItem('supabase_token', d.access_token);
+    localStorage.setItem('supabase_email', email);
+    const name = email.split('@')[0];
+    localStorage.setItem('supabase_name', name);
+    updateNavAuth();
+    closeModal('signinModal');
+    if(window._pendingFn){ const f=window._pendingFn; window._pendingFn=null; f(); }
+  } catch(e){ showMsg('siMsg','Error signing in. Try again.','error'); }
+}
+
+// ── Supabase helpers ──
+async function sbGet(table, qs=''){
+  const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+  });
+  return r.json();
+}
+async function sbPost(table, body){
+  const r = await fetch(SUPA_URL+'/rest/v1/'+table,{
+    method:'POST',
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+    body: JSON.stringify(body)
+  });
+  return r.json();
+}
+
+// ── Generate code ──
+function genCode(){ return Math.random().toString(36).substring(2,8).toUpperCase(); }
+
+// ── Views ──
+function showView(id){
+  ['landingView','instructorView','studentView','dashboardView'].forEach(v=>{
+    document.getElementById(v).style.display = v===id ? 'block' : 'none';
+  });
+  if(id==='instructorView') loadMyClasses();
+  if(id==='studentView') loadStudentClasses();
+}
+
+// ── Modals ──
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function showMsg(id, text, type){
+  const el = document.getElementById(id);
+  el.textContent = text; el.className = 'msg '+type; el.style.display = 'block';
+}
+
+// ── Create class ──
+async function doCreateClass(){
+  const name = document.getElementById('className').value.trim();
+  if(!name){ showMsg('createMsg','Please enter a class name.','error'); return; }
+  const courseCode = document.getElementById('courseCode').value.trim();
+  const freezeDate = document.getElementById('freezeDate').value;
+  const uid = getUid();
+  const instructorName = getName();
+  showMsg('createMsg','Creating class...','success');
+  try {
+    const code = genCode();
+    const result = await sbPost('classes',{
+      instructor_id: uid,
+      instructor_name: instructorName,
+      name, course_code: courseCode || null,
+      join_code: code,
+      freeze_date: freezeDate || null
+    });
+    if(result && result[0]){
+      closeModal('createModal');
+      document.getElementById('className').value='';
+      document.getElementById('courseCode').value='';
+      document.getElementById('freezeDate').value='';
+      loadMyClasses();
+    } else {
+      showMsg('createMsg','Error creating class. Try again.','error');
+    }
+  } catch(e){ showMsg('createMsg','Error: '+e.message,'error'); }
+}
+
+// ── Load instructor classes ──
+async function loadMyClasses(){
+  const uid = getUid();
+  const classes = await sbGet('classes','instructor_id=eq.'+uid+'&order=created_at.desc');
+  const el = document.getElementById('classList');
+  if(!classes.length){
+    el.innerHTML = '<div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>';
+    return;
+  }
+  el.innerHTML = classes.map(c=>`
+    <div class="class-card" onclick="openDashboard('${c.id}')">
+      <div class="class-card-left">
+        <h3>${c.name}</h3>
+        <p>${c.course_code||'No course code'} ${c.freeze_date ? '· Freezes '+c.freeze_date : ''}</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="class-code">${c.join_code}</span>
+        <span style="color:var(--muted);font-size:18px">›</span>
+      </div>
+    </div>
+  `).join('<div style="height:8px"></div>');
+}
+
+// ── Open dashboard ──
+async function openDashboard(classId){
+  const classes = await sbGet('classes','id=eq.'+classId);
+  if(!classes.length) return;
+  currentClass = classes[0];
+  document.getElementById('dashClassName').textContent = currentClass.name;
+  document.getElementById('dashCourseCode').textContent = currentClass.course_code || '';
+  document.getElementById('dashCode').textContent = currentClass.join_code;
+  if(currentClass.freeze_date){
+    document.getElementById('dashFreeze').style.display = 'inline-flex';
+    document.getElementById('dashFreezeDate').textContent = currentClass.freeze_date;
+  }
+  showView('dashboardView');
+  loadDashboard();
+}
+
+// ── Load dashboard data ──
+async function loadDashboard(){
+  if(!currentClass) return;
+  // Get class members
+  const members = await sbGet('class_members','class_id=eq.'+currentClass.id);
+  // Get all trades for this class's members
+  const uids = members.map(m=>m.user_id);
+
+  let trades = [];
+  if(uids.length){
+    // Get trades for all members
+    const tradesData = await sbGet('trades','user_id=in.('+uids.join(',')+')&order=created_at.desc&limit=500');
+    trades = Array.isArray(tradesData) ? tradesData : [];
+  }
+  allTrades = trades;
+
+  // Build leaderboard
+  const studentMap = {};
+  members.forEach(m=>{
+    studentMap[m.user_id] = {
+      name: m.nickname || 'Student',
+      trades: 0,
+      lastTrade: null,
+      portfolioValue: 100000,
+      cash: 100000,
+      buys: 0,
+      sells: 0
+    };
+  });
+
+  trades.forEach(t=>{
+    if(!studentMap[t.user_id]) return;
+    const s = studentMap[t.user_id];
+    s.trades++;
+    if(!s.lastTrade || t.created_at > s.lastTrade) s.lastTrade = t.created_at;
+    if(t.portfolio_value) s.portfolioValue = t.portfolio_value;
+    if(t.action==='buy') s.buys++;
+    if(t.action==='sell') s.sells++;
+  });
+
+  const students = Object.values(studentMap);
+  const avgReturn = students.length ? students.reduce((a,s)=>a+((s.portfolioValue-100000)/100000*100),0)/students.length : 0;
+
+  // Stats row
+  document.getElementById('dashStats').innerHTML = `
+    <div class="stat-card"><div class="val">${members.length}</div><div class="lbl">Students</div></div>
+    <div class="stat-card"><div class="val">${trades.length}</div><div class="lbl">Total Trades</div></div>
+    <div class="stat-card"><div class="val" style="color:${avgReturn>=0?'var(--green)':'var(--red)'}">${avgReturn>=0?'+':''}${avgReturn.toFixed(1)}%</div><div class="lbl">Avg Return</div></div>
+    <div class="stat-card"><div class="val">${students.filter(s=>s.trades>0).length}</div><div class="lbl">Active Traders</div></div>
+  `;
+
+  // Leaderboard
+  const ranked = students.sort((a,b)=>b.portfolioValue-a.portfolioValue);
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboardBody').innerHTML = ranked.length ? ranked.map((s,i)=>{
+    const ret = ((s.portfolioValue-100000)/100000*100);
+    const retStr = (ret>=0?'+':'')+ret.toFixed(2)+'%';
+    const lastTradeStr = s.lastTrade ? new Date(s.lastTrade).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : 'No trades';
+    return `<tr>
+      <td class="${i<3?'rank-'+(i+1):''}">${medals[i]||'#'+(i+1)}</td>
+      <td><strong>${s.name}</strong></td>
+      <td><strong>$${s.portfolioValue.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></td>
+      <td class="${ret>=0?'up':'down'}">${retStr}</td>
+      <td>$${s.cash.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
+      <td>${s.trades}</td>
+      <td style="color:var(--muted)">${lastTradeStr}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No students yet — share your class code!</td></tr>';
+
+  // Trade history
+  renderTradesTable(trades, members);
+}
+
+function renderTradesTable(trades, members){
+  const memberMap = {};
+  if(members) members.forEach(m=>memberMap[m.user_id]=m.nickname||'Student');
+  document.getElementById('tradesBody').innerHTML = trades.length ? trades.map(t=>{
+    const name = memberMap[t.user_id] || t.nickname || 'Unknown';
+    const date = new Date(t.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td style="color:var(--muted);font-size:12px">${date}</td>
+      <td>${name}</td>
+      <td><span class="tag ${t.action==='buy'?'tag-green':'tag-blue'}">${t.action.toUpperCase()}</span></td>
+      <td><strong>${t.ticker}</strong></td>
+      <td>${t.shares}</td>
+      <td>$${parseFloat(t.price).toFixed(2)}</td>
+      <td>$${parseFloat(t.total).toFixed(2)}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No trades yet</td></tr>';
+}
+
+function filterTrades(){
+  const q = document.getElementById('tradeFilter').value.toLowerCase();
+  if(!q){ renderTradesTable(allTrades); return; }
+  const filtered = allTrades.filter(t=>(t.nickname||'').toLowerCase().includes(q) || t.ticker.toLowerCase().includes(q));
+  renderTradesTable(filtered);
+}
+
+// ── Tab switching ──
+function switchTab(tab, btn){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabLeaderboard').style.display = tab==='leaderboard'?'block':'none';
+  document.getElementById('tabTrades').style.display = tab==='trades'?'block':'none';
+}
+
+// ── Join class ──
+async function doJoinClass(){
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  const nickname = document.getElementById('joinNickname').value.trim();
+  if(code.length!==6){ showMsg('joinMsg','Enter a 6-character class code.','error'); return; }
+  if(!nickname){ showMsg('joinMsg','Please enter your name.','error'); return; }
+  showMsg('joinMsg','Joining...','success');
+  try {
+    const classes = await sbGet('classes','join_code=eq.'+code);
+    if(!classes.length){ showMsg('joinMsg','Class not found. Check the code.','error'); return; }
+    const cls = classes[0];
+    const uid = getUid();
+    // Check if already joined
+    const existing = await sbGet('class_members','class_id=eq.'+cls.id+'&user_id=eq.'+uid);
+    if(existing.length){ showMsg('joinMsg','You already joined this class.','error'); return; }
+    await sbPost('class_members',{ class_id: cls.id, user_id: uid, nickname });
+    closeModal('joinModal');
+    loadStudentClasses();
+  } catch(e){ showMsg('joinMsg','Error joining class.','error'); }
+}
+
+// ── Student classes ──
+async function loadStudentClasses(){
+  const uid = getUid();
+  const memberships = await sbGet('class_members','user_id=eq.'+uid);
+  const el = document.getElementById('studentClassList');
+  if(!memberships.length){
+    el.innerHTML = '<div class="empty"><div class="icon">🎓</div><p>You haven\'t joined any classes yet. Ask your instructor for a code.</p></div>';
+    return;
+  }
+  const classIds = memberships.map(m=>m.class_id);
+  const classes = await sbGet('classes','id=in.('+classIds.join(',')+')');
+  el.innerHTML = classes.map(c=>`
+    <div class="class-card">
+      <div class="class-card-left">
+        <h3>${c.name}</h3>
+        <p>${c.instructor_name||'Instructor'} · ${c.course_code||''} ${c.freeze_date?'· Freezes '+c.freeze_date:''}</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="class-code">${c.join_code}</span>
+        <a href="/trade" class="btn btn-primary btn-sm">Trade →</a>
+      </div>
+    </div>
+  `).join('<div style="height:8px"></div>');
+}
+
+// ── Copy code ──
+function copyCode(){
+  navigator.clipboard.writeText(currentClass?.join_code||'');
+  const el = document.getElementById('dashCode');
+  el.textContent = 'Copied!';
+  setTimeout(()=>el.textContent=currentClass?.join_code||'', 1500);
+}
+
+// ── Export CSV ──
+function exportCSV(){
+  if(!allTrades.length){ alert('No trades to export yet.'); return; }
+  const headers = ['Date','Student','Action','Ticker','Shares','Price','Total','Portfolio Value'];
+  const rows = allTrades.map(t=>[
+    new Date(t.created_at).toLocaleString(),
+    t.nickname||'',
+    t.action,
+    t.ticker,
+    t.shares,
+    parseFloat(t.price).toFixed(2),
+    parseFloat(t.total).toFixed(2),
+    parseFloat(t.portfolio_value||0).toFixed(2)
+  ]);
+  const csv = [headers, ...rows].map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=(currentClass?.name||'class')+'_trades.csv'; a.click();
+}
+
+// ── Init ──
+updateNavAuth();
+if(getToken()) showView('landingView');
+</script>
+</body>
+</html>
