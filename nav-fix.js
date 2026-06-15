@@ -13,7 +13,8 @@
     {href:'/app',          label:'Portfolio'},
     {href:'/budget',       label:'Budget'},
     {href:'/learn',        label:'Learn'},
-    {href:'/bullpen.html', label:'🏟️ Bullpen'}
+    {href:'/bullpen.html', label:'🏟️ Bullpen'},
+    {href:'/classroom.html', label:'🏫 Classroom'}
   ];
 
   function injectMobileCSS(){
