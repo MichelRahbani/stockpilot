@@ -290,6 +290,51 @@ tr:hover td{background:#fafafa}
       <div id="studentClassList">
         <div class="empty"><div class="icon">🎓</div><p>You haven't joined any classes yet. Ask your instructor for a code.</p></div>
       </div>
+
+      <!-- Student class dashboard (shown when viewing a class) -->
+      <div id="studentDashboard" style="display:none;margin-top:8px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
+          <button onclick="document.getElementById('studentDashboard').style.display='none';document.getElementById('studentClassList').style.display='block'" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted)">← Back</button>
+          <div>
+            <div style="font-size:20px;font-weight:700" id="sdClassName"></div>
+            <div style="font-size:13px;color:var(--muted)" id="sdInstructor"></div>
+          </div>
+        </div>
+
+        <!-- My stats -->
+        <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:12px;padding:20px;margin-bottom:20px">
+          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--green);margin-bottom:12px">My Portfolio</div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">
+            <div><div style="font-size:24px;font-weight:700" id="sdMyValue">$100,000</div><div style="font-size:12px;color:var(--muted)">Portfolio Value</div></div>
+            <div><div style="font-size:24px;font-weight:700" id="sdMyReturn">+0.00%</div><div style="font-size:12px;color:var(--muted)">My Return</div></div>
+            <div><div style="font-size:24px;font-weight:700" id="sdMyRank">#-</div><div style="font-size:12px;color:var(--muted)">My Rank</div></div>
+            <div><div style="font-size:24px;font-weight:700" id="sdMyTrades">0</div><div style="font-size:12px;color:var(--muted)">My Trades</div></div>
+          </div>
+          <a href="/trade" class="btn btn-primary btn-sm" style="display:inline-block;margin-top:14px;text-decoration:none">📈 Go Trade →</a>
+        </div>
+
+        <!-- Class leaderboard (names only, no private details) -->
+        <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏆 Class Standings</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>Student</th><th>Return</th><th>Portfolio Value</th>
+            </tr></thead>
+            <tbody id="sdLeaderboard"></tbody>
+          </table>
+        </div>
+
+        <!-- My trade history -->
+        <div style="font-size:16px;font-weight:700;margin:20px 0 12px">📋 My Trade History</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Date</th><th>Action</th><th>Ticker</th><th>Shares</th><th>Price</th><th>Total</th>
+            </tr></thead>
+            <tbody id="sdMyTrades_table"></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -602,17 +647,96 @@ async function loadStudentClasses(){
   const classIds = memberships.map(m=>m.class_id);
   const classes = await sbGet('classes','id=in.('+classIds.join(',')+')');
   el.innerHTML = classes.map(c=>`
-    <div class="class-card">
+    <div class="class-card" onclick="openStudentDashboard('${c.id}')">
       <div class="class-card-left">
         <h3>${c.name}</h3>
         <p>${c.instructor_name||'Instructor'} · ${c.course_code||''} ${c.freeze_date?'· Freezes '+c.freeze_date:''}</p>
       </div>
       <div style="display:flex;align-items:center;gap:10px">
         <span class="class-code">${c.join_code}</span>
-        <a href="/trade" class="btn btn-primary btn-sm">Trade →</a>
+        <span style="color:var(--muted);font-size:18px">›</span>
       </div>
     </div>
   `).join('<div style="height:8px"></div>');
+}
+
+// ── Student dashboard ──
+async function openStudentDashboard(classId){
+  const classes = await sbGet('classes','id=eq.'+classId);
+  if(!classes.length) return;
+  const cls = classes[0];
+  const uid = getUid();
+  const myName = getName();
+
+  document.getElementById('sdClassName').textContent = cls.name;
+  document.getElementById('sdInstructor').textContent = 'Instructor: ' + (cls.instructor_name||'');
+  document.getElementById('studentClassList').style.display = 'none';
+  document.getElementById('studentDashboard').style.display = 'block';
+
+  // Get all members
+  const members = await sbGet('class_members','class_id=eq.'+classId);
+  const uids = members.map(m=>m.user_id);
+  const memberMap = {};
+  members.forEach(m=>memberMap[m.user_id]=m.nickname||'Student');
+
+  // Get trades for all members
+  let trades = [];
+  if(uids.length){
+    const t = await sbGet('trades','user_id=in.('+uids.join(',')+')&order=created_at.desc&limit=1000');
+    trades = Array.isArray(t) ? t : [];
+  }
+
+  // My trades only
+  const myTrades = trades.filter(t=>t.user_id===uid);
+
+  // Build student stats
+  const studentStats = {};
+  members.forEach(m=>{
+    studentStats[m.user_id] = {name:memberMap[m.user_id], value:100000, trades:0, lastValue:100000};
+  });
+  trades.forEach(t=>{
+    if(studentStats[t.user_id] && t.portfolio_value){
+      studentStats[t.user_id].value = t.portfolio_value;
+      studentStats[t.user_id].trades++;
+    }
+  });
+
+  // My stats
+  const myStats = studentStats[uid] || {value:100000, trades:0};
+  const myReturn = ((myStats.value-100000)/100000*100);
+  document.getElementById('sdMyValue').textContent = '$'+myStats.value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('sdMyReturn').textContent = (myReturn>=0?'+':'')+myReturn.toFixed(2)+'%';
+  document.getElementById('sdMyReturn').style.color = myReturn>=0?'var(--green)':'var(--red)';
+  document.getElementById('sdMyTrades').textContent = myTrades.length;
+
+  // Leaderboard — all students ranked
+  const ranked = Object.values(studentStats).sort((a,b)=>b.value-a.value);
+  const myRank = ranked.findIndex(s=>s.name===myName)+1 || '-';
+  document.getElementById('sdMyRank').textContent = '#'+myRank;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('sdLeaderboard').innerHTML = ranked.map((s,i)=>{
+    const ret = ((s.value-100000)/100000*100);
+    const isMe = s.name===myName;
+    return `<tr style="${isMe?'background:var(--green-l);font-weight:600':''}">
+      <td>${medals[i]||'#'+(i+1)}</td>
+      <td>${s.name}${isMe?' <span style="font-size:11px;color:var(--green)">(you)</span>':''}</td>
+      <td style="color:${ret>=0?'var(--green)':'var(--red)'}">${(ret>=0?'+':'')+ret.toFixed(2)}%</td>
+      <td>$${s.value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
+    </tr>`;
+  }).join('');
+
+  // My trade history
+  document.getElementById('sdMyTrades_table').innerHTML = myTrades.length ? myTrades.map(t=>{
+    const date = new Date(t.created_at).toLocaleDateString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return `<tr>
+      <td style="font-size:12px;color:var(--muted)">${date}</td>
+      <td><span class="tag ${t.action==='buy'?'tag-green':'tag-blue'}">${t.action.toUpperCase()}</span></td>
+      <td><strong>${t.ticker}</strong></td>
+      <td>${t.shares}</td>
+      <td>$${parseFloat(t.price).toFixed(2)}</td>
+      <td>$${parseFloat(t.total).toFixed(2)}</td>
+    </tr>`;
+  }).join('') : '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">No trades yet. <a href="/trade" style="color:var(--green)">Start trading →</a></td></tr>';
 }
 
 // ── Copy code ──
