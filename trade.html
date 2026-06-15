@@ -606,11 +606,43 @@ function execute(){
     toast('✅ Sold '+shares+' '+sym+' @ '+f(price));
   }
   save();
+  // Save trade to Supabase for class tracking
+  saveTradeToCloud(sym, side, shares, price, total);
   document.getElementById('sharesInp').value='';
   updateSummary();
   renderPort();
   renderTrades();
   updatePortStats();
+}
+
+async function saveTradeToCloud(ticker, action, shares, price, total){
+  const t = getToken();
+  if(!t) return; // only save if signed in
+  try {
+    const nickname = localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || 'Anonymous';
+    const uid = JSON.parse(atob(t.split('.')[1])).sub;
+    // Calculate current portfolio value
+    const portfolioValue = port.cash + Object.values(port.pos).reduce((sum, p) => sum + (p.qty * p.avg), 0);
+    await fetch(SUPA_URL2 + '/rest/v1/trades', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY2,
+        'Authorization': 'Bearer ' + t,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal'
+      },
+      body: JSON.stringify({
+        user_id: uid,
+        nickname: nickname,
+        ticker: ticker,
+        action: action,
+        shares: shares,
+        price: price,
+        total: total,
+        portfolio_value: portfolioValue
+      })
+    });
+  } catch(e) { /* silent fail — never block the trade */ }
 }
 
 async function renderPort(){
