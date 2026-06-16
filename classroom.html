@@ -165,6 +165,20 @@ tr:hover td{background:#fafafa}
   </div>
 </div>
 
+<!-- SHARE MODAL -->
+<div class="modal-bg" id="shareModal">
+  <div class="modal" style="max-width:540px">
+    <button class="modal-close" onclick="closeModal('shareModal')">✕</button>
+    <h2>Share Class Code</h2>
+    <p class="subtitle">This message has been copied to your clipboard and your email app should be opening. You can also copy it manually below.</p>
+    <textarea id="shareText" readonly style="width:100%;height:180px;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;color:var(--text);background:#f9fafb;line-height:1.6"></textarea>
+    <div style="display:flex;gap:8px;margin-top:12px">
+      <button class="btn btn-primary" style="flex:1" onclick="navigator.clipboard.writeText(document.getElementById('shareText').value);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy to Clipboard',2000)">Copy to Clipboard</button>
+      <button class="btn btn-ghost" onclick="closeModal('shareModal')">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- MAIN CONTENT -->
 <div id="mainContent">
 
@@ -234,8 +248,10 @@ tr:hover td{background:#fafafa}
           <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:8px;padding:8px 14px;text-align:center">
             <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Class Code</div>
             <div id="dashCode" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--green);cursor:pointer" onclick="copyCode()" title="Click to copy"></div>
+            <div style="font-size:11px;color:var(--green);margin-top:2px;cursor:pointer" onclick="copyCode()">click to copy</div>
           </div>
-          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Export CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="shareCode()" title="Get a pre-written message to share with students">📤 Share</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
           <button class="btn btn-primary btn-sm" onclick="loadDashboard()">↻ Refresh</button>
         </div>
       </div>
@@ -394,8 +410,9 @@ async function doSignin(){
     const d = await r.json();
     if(!d.access_token){ showMsg('siMsg', d.msg || 'Invalid credentials','error'); return; }
     localStorage.setItem('supabase_token', d.access_token);
+    if(d.refresh_token) localStorage.setItem('supabase_refresh_token', d.refresh_token);
     localStorage.setItem('supabase_email', email);
-    const name = email.split('@')[0];
+    const name = d.user?.user_metadata?.full_name || email.split('@')[0];
     localStorage.setItem('supabase_name', name);
     updateNavAuth();
     closeModal('signinModal');
@@ -404,10 +421,9 @@ async function doSignin(){
 }
 
 // ── Supabase helpers ──
-async function sbGet(table, qs='', useUserToken=false){
-  const token = useUserToken && getToken() ? getToken() : SUPA_KEY;
+async function sbGet(table, qs=''){
   const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
   });
   return r.json();
 }
@@ -473,7 +489,7 @@ async function doCreateClass(){
 // ── Load instructor classes ──
 async function loadMyClasses(){
   const uid = getUid();
-  const classes = await sbGet('classes','instructor_id=eq.'+uid+'&order=created_at.desc', true);
+  const classes = await sbGet('classes','instructor_id=eq.'+uid+'&order=created_at.desc');
   const el = document.getElementById('classList');
   if(!classes.length){
     el.innerHTML = '<div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>';
@@ -495,7 +511,7 @@ async function loadMyClasses(){
 
 // ── Open dashboard ──
 async function openDashboard(classId){
-  const classes = await sbGet('classes','id=eq.'+classId, true);
+  const classes = await sbGet('classes','id=eq.'+classId);
   if(!classes.length) return;
   currentClass = classes[0];
   document.getElementById('dashClassName').textContent = currentClass.name;
@@ -799,10 +815,42 @@ async function openStudentDashboard(classId){
 
 // ── Copy code ──
 function copyCode(){
-  navigator.clipboard.writeText(currentClass?.join_code||'');
-  const el = document.getElementById('dashCode');
-  el.textContent = 'Copied!';
-  setTimeout(()=>el.textContent=currentClass?.join_code||'', 1500);
+  navigator.clipboard.writeText(currentClass?.join_code||'').then(()=>{
+    const el = document.getElementById('dashCode');
+    const orig = el.textContent;
+    el.textContent = 'Copied!';
+    setTimeout(()=>el.textContent=orig, 1500);
+  });
+}
+
+// ── Share code — pre-written email ──
+function shareCode(){
+  if(!currentClass) return;
+  const code = currentClass.join_code;
+  const name = currentClass.name;
+  const msg = `Hi everyone,
+
+I have set up a virtual stock market for our class: ${name}.
+
+Here is how to join:
+1. Go to https://mystockspilot.com/trade and create a free account (no credit card needed)
+2. Then go to https://mystockspilot.com/classroom.html
+3. Click "I'm a Student" and enter class code: ${code}
+4. Start trading with your virtual $100,000
+
+Your trades will be tracked on the class leaderboard. Good luck!`;
+
+  // Try to open email client
+  const subject = encodeURIComponent('Join our StockPilot Class: ' + name);
+  const body = encodeURIComponent(msg);
+  window.open('mailto:?subject='+subject+'&body='+body);
+
+  // Also copy to clipboard as fallback
+  navigator.clipboard.writeText(msg).catch(()=>{});
+
+  // Show modal with the message
+  document.getElementById('shareModal').classList.add('open');
+  document.getElementById('shareText').value = msg;
 }
 
 // ── Export CSV ──
@@ -826,24 +874,32 @@ function exportCSV(){
   a.href=url; a.download=(currentClass?.name||'class')+'_trades.csv'; a.click();
 }
 
+// ── Token refresh — keep session alive ──
+async function refreshToken(){
+  const t = getToken();
+  if(!t) return;
+  try {
+    const r = await fetch(SUPA_URL+'/auth/v1/token?grant_type=refresh_token',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','apikey':SUPA_KEY},
+      body: JSON.stringify({refresh_token: localStorage.getItem('supabase_refresh_token')||''})
+    });
+    const d = await r.json();
+    if(d.access_token){
+      localStorage.setItem('supabase_token', d.access_token);
+      if(d.refresh_token) localStorage.setItem('supabase_refresh_token', d.refresh_token);
+    }
+  } catch(e){ console.log('Token refresh failed silently'); }
+}
+// Refresh token every 45 minutes
+setInterval(refreshToken, 45 * 60 * 1000);
+
+// Also store refresh token on signin
+const _origDoSignin = doSignin;
+
 // ── Init ──
 updateNavAuth();
-// Auto-route if signed in — check if they have classes or memberships
-async function autoRoute(){
-  if(!getToken()){ showView('landingView'); return; }
-  const uid = getUid();
-  // Check for classes (instructor) and memberships (student) in parallel
-  const [classes, memberships] = await Promise.all([
-    sbGet('classes','instructor_id=eq.'+uid+'&limit=1'),
-    sbGet('class_members','user_id=eq.'+uid+'&limit=1')
-  ]);
-  const hasClasses = Array.isArray(classes) && classes.length > 0;
-  const hasMemberships = Array.isArray(memberships) && memberships.length > 0;
-  if(hasClasses) showView('instructorView');
-  else if(hasMemberships) showView('studentView');
-  else showView('landingView');
-}
-autoRoute();
+if(getToken()) showView('landingView');
 </script>
 </body>
 </html>
