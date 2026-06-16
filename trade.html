@@ -271,7 +271,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <!-- TRADE -->
   <div class="trade-panel">
     <div class="search-bar">
-      <input class="search-inp" id="symInput" placeholder="Search any ticker — AAPL, TSLA, BTC-USD, SPY..." autocomplete="off" autocapitalize="characters"/>
+      <input class="search-inp" id="symInput" placeholder="Search any ticker — AAPL, TSLA, BTC-USD, SPY..." autocomplete="new-password" name="ticker-search" autocapitalize="characters"/>
       <button class="search-btn" id="searchBtn">Search</button>
     </div>
     <div class="quote-area" id="quoteArea">
@@ -750,6 +750,8 @@ function reset(){
 // Event listeners
 document.getElementById('searchBtn').addEventListener('click', search);
 document.getElementById('symInput').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+// Prevent browser autofill from putting email in search box
+setTimeout(()=>{ const el=document.getElementById('symInput'); if(el && el.value && el.value.includes('@')) el.value=''; }, 100);
 document.getElementById('tabBuy').addEventListener('click', ()=>setSide('buy'));
 document.getElementById('tabSell').addEventListener('click', ()=>setSide('sell'));
 document.getElementById('sharesInp').addEventListener('input', updateSummary);
