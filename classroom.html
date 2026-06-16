@@ -421,10 +421,9 @@ async function doSignin(){
 }
 
 // ── Supabase helpers ──
-async function sbGet(table, qs='', useUserToken=false){
-  const token = useUserToken && getToken() ? getToken() : SUPA_KEY;
+async function sbGet(table, qs=''){
   const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
   });
   return r.json();
 }
@@ -490,7 +489,7 @@ async function doCreateClass(){
 // ── Load instructor classes ──
 async function loadMyClasses(){
   const uid = getUid();
-  const classes = await sbGet('classes','instructor_id=eq.'+uid+'&order=created_at.desc', true);
+  const classes = await sbGet('classes','instructor_id=eq.'+uid+'&order=created_at.desc');
   const el = document.getElementById('classList');
   if(!classes.length){
     el.innerHTML = '<div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>';
@@ -512,7 +511,7 @@ async function loadMyClasses(){
 
 // ── Open dashboard ──
 async function openDashboard(classId){
-  const classes = await sbGet('classes','id=eq.'+classId, true);
+  const classes = await sbGet('classes','id=eq.'+classId);
   if(!classes.length) return;
   currentClass = classes[0];
   document.getElementById('dashClassName').textContent = currentClass.name;
