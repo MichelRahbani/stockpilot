@@ -826,9 +826,8 @@ async function updatePortStats(){
   let posVal=0;
   if(syms.length){
     try{
-      const r=await fetch(API+'/api/quotes?symbols='+syms.join(','));
-      const d=await r.json();
-      (d?.quoteResponse?.result||[]).forEach(q=>{
+      const qs=await fetchQuotes(syms);
+      qs.forEach(q=>{
         const p=port.pos[q.symbol];
         if(p) posVal+=p.qty*(q.regularMarketPrice||p.avg);
       });
@@ -898,6 +897,10 @@ function reset(){
   const wh = document.getElementById('watchlistHead');
   if (wh) wh.textContent = mkt.flag + ' ' + mkt.name;
   rebuildTicker(activeMarket);
+  // Render portfolio immediately so it shows correct currency/value
+  renderPort();
+  renderTrades();
+  updatePortStats();
 })();
 
 // Event listeners
