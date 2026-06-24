@@ -565,13 +565,9 @@ const server = http.createServer(async (req, res) => {
         const allSyms = new Set();
         Object.values(portMap).forEach(p => { if (p && p.pos) Object.keys(p.pos).forEach(s => allSyms.add(s)); });
 
-        // 4. Fetch prices for all tickers
+        // 4. Fetch prices for all tickers using internal getQuotePayload
         const priceMap = {};
         if (allSyms.size) {
-          try {
-            const qRes = await fetch(`${SUPABASE_URL.replace('supabase.co', '')}` || `https://stockpilot-production-c94f.up.railway.app/api/quotes?symbols=${[...allSyms].join(',')}`);
-          } catch(e) {}
-          // Use getQuotePayload directly
           const quotes = await getQuotePayload([...allSyms]).catch(() => ({ quoteResponse: { result: [] } }));
           (quotes?.quoteResponse?.result || []).forEach(q => {
             if (q.regularMarketPrice) priceMap[q.symbol] = q.regularMarketPrice;
@@ -589,7 +585,7 @@ const server = http.createServer(async (req, res) => {
           });
           const ret = Math.round(((val - 100000) / 100000) * 10000) / 100;
           // Only patch if value changed meaningfully
-          if (Math.abs(ret - (row.return_pct || 0)) > 0.01) {
+          if (true) { // always refresh
             await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?user_id=eq.${row.user_id}`, {
               method: "PATCH",
               headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
