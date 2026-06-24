@@ -50,10 +50,10 @@ const getTwelveDataQuote = async (yahooSymbol) => {
   const parts = yahooSymbol.split(".");
   const base = parts[0];
   const suffix = parts[parts.length - 1];
-  const exchange = YAHOO_SUFFIX_TO_TD_EXCHANGE[suffix];
-  if (!exchange) return null;
+  const mic = YAHOO_SUFFIX_TO_TD_MIC[suffix];
+  if (!mic) return null;
   try {
-    const url = `${TWELVE_DATA_BASE}/quote?symbol=${encodeURIComponent(base)}&exchange=${exchange}&apikey=${TWELVE_DATA_API_KEY}`;
+    const url = `${TWELVE_DATA_BASE}/quote?symbol=${encodeURIComponent(base)}&mic_code=${mic}&apikey=${TWELVE_DATA_API_KEY}`;
     const data = await cachedFetch(url, "json");
     if (!data || data.status === "error" || !data.close) return null;
     const price = parseFloat(data.close);
