@@ -901,7 +901,10 @@ function reset(){
   const wh = document.getElementById('watchlistHead');
   if (wh) wh.textContent = mkt.flag + ' ' + mkt.name;
   rebuildTicker(activeMarket);
-  // Render portfolio immediately so it shows correct currency/value
+  // Set portfolio value synchronously right now
+  document.getElementById('portValue').textContent = f(port.cash);
+  document.getElementById('portCash').textContent = 'Cash: ' + f(port.cash);
+  document.getElementById('portPnl').textContent = '+' + f(0) + ' (+0.00%)';
   renderPort();
   renderTrades();
   updatePortStats();
