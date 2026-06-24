@@ -280,12 +280,12 @@ const getQuotePayload = async (symbols) => {
 
   const providerErrors = [];
   const quoteMap = {};
+  let payload = { quoteResponse: { result: [] } };
 
   // Fetch US symbols via Yahoo + Finnhub as before
   if (domesticSymbols.length) {
     const url = new URL(YAHOO_QUOTE_URL);
     url.searchParams.set("symbols", domesticSymbols.join(","));
-    let payload = { quoteResponse: { result: [] } };
     try {
       payload = await cachedFetch(url.toString(), "json");
     } catch (error) {
