@@ -554,6 +554,18 @@ const server = http.createServer(async (req, res) => {
       });
     }
 
+    if (req.method === "GET" && reqUrl.pathname === "/api/debug-td") {
+      const sym = reqUrl.searchParams.get("symbol") || "SHEL";
+      const exchange = reqUrl.searchParams.get("exchange") || "LSE";
+      const key = TWELVE_DATA_API_KEY;
+      const url = `https://api.twelvedata.com/quote?symbol=${sym}&exchange=${exchange}&apikey=${key}`;
+      try {
+        const data = await cachedFetch(url, "json");
+        return send(res, 200, { key_set: Boolean(key), url_used: url.replace(key, "***"), raw: data });
+      } catch(e) {
+        return send(res, 200, { error: e.message, key_set: Boolean(key) });
+      }
+    }
     if (req.method === "GET" && reqUrl.pathname === "/") {
       return sendStaticFile(res, "landing.html");
     }
