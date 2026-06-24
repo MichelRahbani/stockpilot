@@ -32,7 +32,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .nav-btn.red{background:var(--red);color:white;border-color:var(--red)}
 .nav-btn.red:hover{background:var(--red-d)}
 
-.ticker{background:var(--red);padding:8px 0;overflow:hidden;margin-top:53px}
+.ticker{background:var(--red);padding:8px 0;overflow:hidden;margin-top:0}
 .ticker-inner{display:flex;gap:28px;animation:scroll 20s linear infinite;width:max-content}
 .ti{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.75);white-space:nowrap;display:flex;gap:6px}
 .ti strong{color:white}
@@ -159,6 +159,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .news-item a:hover{color:white;}
 .news-item .news-date{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px;}
 
+
+/* ── MARKET SWITCHER ── */
+.market-switcher{display:flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:53px;z-index:90;margin-top:53px}
+.market-switcher::-webkit-scrollbar{display:none}
+.mkt-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0}
+.mkt-btn:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.mkt-btn.active{background:rgba(220,38,38,0.12);border-color:rgba(220,38,38,0.4);color:white}
+.mkt-btn.active .mkt-sub{color:rgba(255,255,255,0.4)}
+.mkt-flag{font-size:15px;line-height:1}
+.mkt-info{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2}
+.mkt-name{font-size:12px;font-weight:700}
+.mkt-sub{font-size:10px;color:var(--muted);font-weight:400}
+.mkt-hint{padding:7px 20px;font-size:11px;color:rgba(255,255,255,0.3);background:rgba(220,38,38,0.04);border-bottom:1px solid rgba(220,38,38,0.08);display:flex;justify-content:space-between}
+
 @media(max-width:480px){
   .quote-empty{padding:20px 16px!important}
   .trade-area{padding:10px!important}
@@ -222,6 +236,18 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
 </nav>
 
+<!-- MARKET SWITCHER -->
+<div class="market-switcher" id="marketSwitcher">
+  <div class="mkt-btn active" id="mktBtn_us" onclick="switchMarket('us')"><span class="mkt-flag">🇺🇸</span><div class="mkt-info"><span class="mkt-name">US Market</span><span class="mkt-sub">USD · NYSE/NASDAQ</span></div></div>
+  <div class="mkt-btn" id="mktBtn_sa" onclick="switchMarket('sa')"><span class="mkt-flag">🇸🇦</span><div class="mkt-info"><span class="mkt-name">Saudi Tadawul</span><span class="mkt-sub">SAR · Tadawul</span></div></div>
+  <div class="mkt-btn" id="mktBtn_uk" onclick="switchMarket('uk')"><span class="mkt-flag">🇬🇧</span><div class="mkt-info"><span class="mkt-name">London LSE</span><span class="mkt-sub">GBP · LSE</span></div></div>
+  <div class="mkt-btn" id="mktBtn_de" onclick="switchMarket('de')"><span class="mkt-flag">🇩🇪</span><div class="mkt-info"><span class="mkt-name">Germany XETRA</span><span class="mkt-sub">EUR · XETRA</span></div></div>
+  <div class="mkt-btn" id="mktBtn_jp" onclick="switchMarket('jp')"><span class="mkt-flag">🇯🇵</span><div class="mkt-info"><span class="mkt-name">Tokyo TSE</span><span class="mkt-sub">JPY · TSE</span></div></div>
+</div>
+<div class="mkt-hint" id="mktHint">
+  <span id="mktHintText">🇺🇸 NYSE / NASDAQ · $100,000 virtual USD</span>
+  <span>Each market has its own separate portfolio</span>
+</div>
 <div class="ticker">
   <div class="ticker-inner" id="tickerInner">
     <div class="ti"><strong>AAPL</strong><span id="tick-AAPL">loading...</span></div>
@@ -263,7 +289,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 <div class="layout">
   <!-- WATCHLIST -->
   <div class="watchlist-panel">
-    <div class="panel-head">Watchlist</div>
+    <div class="panel-head" id="watchlistHead">🇺🇸 US Market</div>
     <div id="watchlistItems"><div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Loading...</div></div>
     <div class="disc">Prices may be delayed · Not financial advice</div>
   </div>
@@ -318,11 +344,124 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 <script>
 const API = (window.location.hostname === 'mystockspilot.com' || window.location.hostname === 'michelrahbani.github.io') ? 'https://stockpilot-production-c94f.up.railway.app' : window.location.origin;
-const KEY = 'sp_trade_v2';
-const START = 100000;
-const WL = ['AAPL','MSFT','NVDA','TSLA','AMZN','GOOGL','META','SPY','BTC-USD','GLD','AMD','NFLX'];
+// ── MULTI-MARKET CONFIG ──
+const MARKETS = {
+  us: { id:'us', name:'US Market', flag:'🇺🇸', currency:'USD', symbol:'$', start:100000,
+    key:'sp_trade_v2', cloudField:'portfolio', hint:'🇺🇸 NYSE / NASDAQ · $100,000 virtual USD',
+    searchHint:'Search any ticker — AAPL, TSLA, BTC-USD, SPY...',
+    watchlist:['AAPL','MSFT','NVDA','TSLA','AMZN','GOOGL','META','SPY','BTC-USD','GLD','AMD','NFLX'],
+    useProxy: true },
+  sa: { id:'sa', name:'Saudi Tadawul', flag:'🇸🇦', currency:'SAR', symbol:'SAR ', start:375000,
+    key:'sp_trade_sa_v1', cloudField:'portfolio_sa', hint:'🇸🇦 Tadawul · 375,000 SAR virtual (≈$100K)',
+    searchHint:'Search Saudi ticker — 2222.SR (Aramco), 1180.SR...',
+    watchlist:['2222.SR','1180.SR','2010.SR','2380.SR','1120.SR','2350.SR','4190.SR','1010.SR','2330.SR','4030.SR'],
+    useProxy: false },
+  uk: { id:'uk', name:'London LSE', flag:'🇬🇧', currency:'GBP', symbol:'£', start:80000,
+    key:'sp_trade_uk_v1', cloudField:'portfolio_uk', hint:'🇬🇧 London Stock Exchange · £80,000 virtual GBP',
+    searchHint:'Search LSE ticker — SHEL.L, AZN.L, HSBA.L...',
+    watchlist:['SHEL.L','HSBA.L','AZN.L','ULVR.L','BP.L','GSK.L','RIO.L','BARC.L','LLOY.L','VOD.L'],
+    useProxy: false },
+  de: { id:'de', name:'Germany XETRA', flag:'🇩🇪', currency:'EUR', symbol:'€', start:92000,
+    key:'sp_trade_de_v1', cloudField:'portfolio_de', hint:'🇩🇪 XETRA · €92,000 virtual EUR',
+    searchHint:'Search XETRA ticker — SAP.DE, SIE.DE, BMW.DE...',
+    watchlist:['SAP.DE','SIE.DE','ALV.DE','MBG.DE','BMW.DE','BAYN.DE','ADS.DE','DTE.DE','BAS.DE','VOW3.DE'],
+    useProxy: false },
+  jp: { id:'jp', name:'Tokyo TSE', flag:'🇯🇵', currency:'JPY', symbol:'¥', start:14000000,
+    key:'sp_trade_jp_v1', cloudField:'portfolio_jp', hint:'🇯🇵 Tokyo Stock Exchange · ¥14,000,000 virtual JPY',
+    searchHint:'Search TSE ticker — 7203.T (Toyota), 6758.T (Sony)...',
+    watchlist:['7203.T','6758.T','9984.T','8306.T','6861.T','9432.T','4063.T','6902.T','7267.T','9433.T'],
+    useProxy: false }
+};
 
-let port = load();
+let activeMarket = localStorage.getItem('sp_active_market') || 'us';
+let mkt = MARKETS[activeMarket] || MARKETS.us;
+
+// Currency formatter — respects active market
+function fmtMkt(n) {
+  if (n == null || isNaN(n)) return '—';
+  if (mkt.currency === 'JPY') return mkt.symbol + Math.round(n).toLocaleString('en-US');
+  if (mkt.currency === 'SAR') return 'SAR ' + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+  return mkt.symbol + Number(n).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// Fetch quote — use backend proxy for US, direct Yahoo for international
+async function fetchQuote(sym) {
+  if (mkt.useProxy) {
+    const r = await fetch(API + '/api/quotes?symbols=' + sym);
+    const d = await r.json();
+    return d?.quoteResponse?.result?.[0] || null;
+  } else {
+    // Direct Yahoo Finance call from browser (avoids server IP blocking)
+    const r = await fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(sym) + '&fields=symbol,shortName,regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketVolume,marketCap,trailingPE,fiftyTwoWeekHigh,fiftyTwoWeekLow,regularMarketOpen,regularMarketDayHigh,regularMarketDayLow,currency', {headers:{'Accept':'application/json'}});
+    const d = await r.json();
+    return d?.quoteResponse?.result?.[0] || null;
+  }
+}
+
+async function fetchQuotes(syms) {
+  if (mkt.useProxy) {
+    const r = await fetch(API + '/api/quotes?symbols=' + syms.join(','));
+    const d = await r.json();
+    return d?.quoteResponse?.result || [];
+  } else {
+    const r = await fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + syms.map(encodeURIComponent).join(',') + '&fields=symbol,shortName,regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketVolume,currency', {headers:{'Accept':'application/json'}});
+    const d = await r.json();
+    return d?.quoteResponse?.result || [];
+  }
+}
+
+function loadForMarket(id) {
+  const k = MARKETS[id].key;
+  const s = MARKETS[id].start;
+  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) return d; } catch(e) {}
+  return {cash: s, pos: {}, trades: []};
+}
+
+function switchMarket(id) {
+  if (id === activeMarket) return;
+  activeMarket = id;
+  mkt = MARKETS[id];
+  localStorage.setItem('sp_active_market', id);
+  // Update buttons
+  document.querySelectorAll('.mkt-btn').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('mktBtn_' + id);
+  if (btn) btn.classList.add('active');
+  // Update hint
+  const hint = document.getElementById('mktHintText');
+  if (hint) hint.textContent = mkt.hint;
+  // Update search placeholder
+  const si = document.getElementById('symInput');
+  if (si) si.placeholder = mkt.searchHint;
+  // Update watchlist header
+  const wh = document.getElementById('watchlistHead');
+  if (wh) wh.textContent = mkt.flag + ' ' + mkt.name;
+  // Reset quote area
+  current = null;
+  document.getElementById('quoteArea').innerHTML = '<div class="quote-empty"><div>🔍</div>Search for a stock to start trading</div>';
+  document.getElementById('tradeForm').style.display = 'none';
+  document.getElementById('noStock').style.display = '';
+  // Load market portfolio
+  port = loadForMarket(id);
+  renderPort(); renderTrades(); updatePortStats();
+  // Reload watchlist + ticker
+  loadWatchlist();
+  rebuildTicker(id);
+  showToast(mkt.flag + ' Switched to ' + mkt.name, 'ok');
+}
+
+function rebuildTicker(id) {
+  const tickers = MARKETS[id].watchlist.slice(0, 8);
+  const inner = document.getElementById('tickerInner');
+  if (!inner) return;
+  const html = tickers.map(sym => {
+    const safeId = sym.replace(/[^A-Z0-9]/gi, '_');
+    const disp = sym.replace(/\.[A-Z]+$/, '');
+    return '<div class="ti"><strong>' + disp + '</strong><span id="tick-' + safeId + '">...</span></div>';
+  });
+  inner.innerHTML = html.join('') + html.join('');
+}
+
+let port = loadForMarket(activeMarket);
 let current = null;
 let side = 'buy';
 
@@ -376,10 +515,10 @@ function buildPortStory(positions, prices) {
 }
 
 function load(){
-  try{ const s=JSON.parse(localStorage.getItem(KEY)); if(s&&s.cash!==undefined)return s; }catch(e){}
-  return {cash:START,pos:{},trades:[]};
+  try{ const s=JSON.parse(localStorage.getItem(mkt.key)); if(s&&s.cash!==undefined)return s; }catch(e){}
+  return {cash:mkt.start,pos:{},trades:[]};
 }
-function save(){ localStorage.setItem(KEY,JSON.stringify(port)); if(typeof savePortfolioToCloud==="function") savePortfolioToCloud(); if(typeof autoUpdateLeaderboard==="function") autoUpdateLeaderboard(); }
+function save(){ localStorage.setItem(mkt.key,JSON.stringify(port)); if(typeof savePortfolioToCloud==="function") savePortfolioToCloud(); if(typeof autoUpdateLeaderboard==="function") autoUpdateLeaderboard(); }
 
 const SUPA_URL2='https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPA_KEY2='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
@@ -409,7 +548,7 @@ async function savePortfolioToCloud(){
     const check=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?user_id=eq.'+uid+'&select=id&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
     const rows=await check.json();
     if(rows&&rows.length>0){
-      await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?user_id=eq.'+uid,{method:'PATCH',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({portfolio:port,updated_at:new Date().toISOString()})});
+      await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?user_id=eq.'+uid,{method:'PATCH',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({[mkt.cloudField]:port,updated_at:new Date().toISOString()})});
     } else {
       await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios',{method:'POST',headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'return=minimal'},body:JSON.stringify({user_id:uid,portfolio:port,updated_at:new Date().toISOString()})});
     }
@@ -420,7 +559,7 @@ async function loadPortfolioFromCloud(){
   try{
     const r=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?select=portfolio&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
     const data=await r.json();
-    if(data&&data[0]&&data[0].portfolio){port=data[0].portfolio;save();return true;}
+    if(data&&data[0]&&data[0][mkt.cloudField]){port=data[0][mkt.cloudField];save();return true;}
   }catch(e){}
   return false;
 }
@@ -439,6 +578,7 @@ async function loadPortfolioFromCloud(){
 
 function f(n){
   if(n==null||isNaN(n))return '—';
+  if(typeof fmtMkt==='function') return fmtMkt(n);
   return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
 function fs(n){
@@ -456,9 +596,7 @@ function toast(msg,type='ok'){
 }
 
 async function getQuote(sym){
-  const r=await fetch(API+'/api/quotes?symbols='+sym);
-  const d=await r.json();
-  return d?.quoteResponse?.result?.[0]||null;
+  return await fetchQuote(sym);
 }
 
 async function search(){
@@ -714,38 +852,59 @@ async function updatePortStats(){
 
 async function loadWatchlist(){
   try{
-    const r=await fetch(API+'/api/quotes?symbols='+WL.join(','));
-    const d=await r.json();
-    const qs=d?.quoteResponse?.result||[];
-    document.getElementById('watchlistItems').innerHTML=qs.map(q=>{
-      const chg=q.regularMarketChangePercent||0;
-      const col=chg>=0?'#86efac':'#fca5a5';
-      return `<div class="wl-item" onclick="document.getElementById('symInput').value='${q.symbol}';search()">
-        <div><div class="wl-sym">${q.symbol}</div><div class="wl-name">${q.shortName||''}</div></div>
-        <div><div class="wl-price">${f(q.regularMarketPrice)}</div><div class="wl-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)}%</div></div>
-      </div>`;
+    const qs_raw=await fetchQuotes(mkt.watchlist);
+    const qMap = {};
+    qs_raw.forEach(q => { qMap[q.symbol] = q; });
+    const items = mkt.watchlist.map(sym => qMap[sym] || {symbol:sym,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null});
+    document.getElementById('watchlistItems').innerHTML = items.map(function(q) {
+      const chg = q.regularMarketChangePercent || 0;
+      const price = q.regularMarketPrice;
+      const col = chg >= 0 ? '#86efac' : '#fca5a5';
+      const priceStr = price != null ? f(price) : '—';
+      const chgStr = price != null ? ((chg >= 0 ? '+' : '') + chg.toFixed(2) + '%') : '';
+      const disp = q.symbol.replace(/\.[A-Z]+$/, '');
+      const sym = q.symbol;
+      return '<div class="wl-item" onclick="document.getElementById(\'symInput\').value=\'' + sym + '\';search()" title="' + (q.shortName||sym) + '">'
+        + '<div><div class="wl-sym">' + disp + '</div><div class="wl-name">' + (q.shortName||sym) + '</div></div>'
+        + '<div><div class="wl-price">' + priceStr + '</div><div class="wl-chg" style="color:' + col + '">' + chgStr + '</div></div>'
+        + '</div>';
     }).join('');
-    // Update ticker
-    qs.forEach(q=>{
-      const el=document.getElementById('tick-'+q.symbol);
-      if(el){
-        const chg=q.regularMarketChangePercent||0;
-        el.textContent=f(q.regularMarketPrice)+' '+(chg>=0?'+':'')+chg.toFixed(2)+'%';
-        el.className=chg>=0?'up':'dn';
+    // Update ticker band
+    qs_raw.forEach(function(q) {
+      if (!q.regularMarketPrice) return;
+      const safeId = q.symbol.replace(/[^A-Z0-9]/gi, '_');
+      const el = document.getElementById('tick-' + safeId);
+      if (el) {
+        const chg = q.regularMarketChangePercent || 0;
+        el.textContent = f(q.regularMarketPrice) + ' ' + (chg >= 0 ? '+' : '') + chg.toFixed(2) + '%';
+        el.className = chg >= 0 ? 'up' : 'dn';
       }
     });
   }catch(e){ document.getElementById('watchlistItems').innerHTML='<div style="padding:20px;text-align:center;color:var(--muted);font-size:13px">Could not load prices</div>'; }
 }
 
 function reset(){
-  if(!confirm('Reset portfolio to $100,000? All trades cleared.'))return;
-  port={cash:START,pos:{},trades:[]};
+  if(!confirm('Reset ' + mkt.name + ' portfolio? All trades cleared.'))return;
+  port={cash:mkt.start,pos:{},trades:[]};
   save();
   renderPort();
   renderTrades();
   updatePortStats();
   toast('Portfolio reset to $100,000');
 }
+
+// Init market state on load
+(function(){
+  const btn = document.getElementById('mktBtn_' + activeMarket);
+  if (btn) { document.querySelectorAll('.mkt-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); }
+  const si = document.getElementById('symInput');
+  if (si) si.placeholder = mkt.searchHint;
+  const hint = document.getElementById('mktHintText');
+  if (hint) hint.textContent = mkt.hint;
+  const wh = document.getElementById('watchlistHead');
+  if (wh) wh.textContent = mkt.flag + ' ' + mkt.name;
+  rebuildTicker(activeMarket);
+})();
 
 // Event listeners
 document.getElementById('searchBtn').addEventListener('click', search);
@@ -824,7 +983,7 @@ async function doSignin(){
     localStorage.setItem('supabase_name', displayName);
     showSiMsg('Signed in! Redirecting...', true);
     const uname = displayName;
-    setTimeout(async()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);localStorage.removeItem('vport');port={cash:START,pos:{},trades:[]};const loaded=await loadPortfolioFromCloud();if(loaded){renderPort();renderTrades();updatePortStats();}},1200);
+    setTimeout(async()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(uname);localStorage.removeItem('vport');port={cash:mkt.start,pos:{},trades:[]};const loaded=await loadPortfolioFromCloud();if(loaded){renderPort();renderTrades();updatePortStats();}},1200);
   }catch(e){showSiMsg('Error signing in. Try again.',false);}
 }
 async function doForgot(){
@@ -947,7 +1106,7 @@ function joinLeaderboard(){
   var nickname=document.getElementById('lbNickname').value.trim();
   if(!nickname){ document.getElementById('lbJoinMsg').textContent='Enter a nickname first!'; return; }
   var uid=JSON.parse(atob(t.split('.')[1])).sub;
-  var val=port.cash||100000;
+  var val=port.cash||mkt.start;
   var pos=port.pos||{};
   Object.keys(pos).forEach(function(sym){ var p=pos[sym]; var cp=(window.latestPrices&&window.latestPrices[sym])||p.avg; val+=p.qty*cp; });
   var ret=Math.round(((val-100000)/100000)*10000)/100;
@@ -973,7 +1132,7 @@ function autoUpdateLeaderboard(){
   var t=localStorage.getItem('supabase_token');
   if(!t) return;
   var uid=JSON.parse(atob(t.split('.')[1])).sub;
-  var val=port.cash||100000;
+  var val=port.cash||mkt.start;
   var pos=port.pos||{};
   Object.keys(pos).forEach(function(sym){ var p=pos[sym]; var cp=(window.latestPrices&&window.latestPrices[sym])||p.avg; val+=p.qty*cp; });
   var ret=Math.round(((val-100000)/100000)*10000)/100;
