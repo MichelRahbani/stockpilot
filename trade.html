@@ -1155,10 +1155,14 @@ function showLbState(){
   document.getElementById('lbSignInPrompt').style.display=t?'none':'block';
 }
 setTimeout(function(){
-  loadLeaderboard();
+  // Refresh all users' scores from live prices, then load leaderboard
+  fetch(API + '/api/refresh-leaderboard')
+    .catch(function(){})
+    .finally(function(){
+      loadLeaderboard();
+    });
   showLbState();
-  // Auto-update leaderboard score on page load for signed-in users
-  // Fetch latest prices first so val is accurate
+  // Also update current user's score
   var t=localStorage.getItem('supabase_token');
   if(t){
     var syms=Object.keys(port.pos||{});
