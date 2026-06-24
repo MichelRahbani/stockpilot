@@ -28,6 +28,9 @@ const SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json";
 const SEC_COMPANY_FACTS_BASE_URL = "https://data.sec.gov/api/xbrl/companyfacts/";
 const CACHE_TTL_MS = Number(process.env.CACHE_TTL_MS || 60_000);
 const FINNHUB_API_KEY = (process.env.FINNHUB_API_KEY || "").replace(/^["']|["']$/g, "");
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://xkfxofcmrmpazfjviatq.supabase.co";
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY || "";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
 const SEC_USER_AGENT = process.env.SEC_USER_AGENT || "StockPilot educational app contact@example.com";
 
 const cache = new Map();
@@ -539,6 +542,66 @@ const server = http.createServer(async (req, res) => {
         if (quote) results.push(quote);
       }
       return send(res, 200, { quoteResponse: { result: results } });
+    }
+    if (req.method === "GET" && reqUrl.pathname === "/api/refresh-leaderboard") {
+      try {
+        const supaKey = SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
+        // 1. Get all leaderboard entries with user_ids
+        const lbRes = await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?select=user_id,nickname,return_pct,current_value`, {
+          headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}` }
+        });
+        const lbRows = await lbRes.json();
+        if (!lbRows || !lbRows.length) return send(res, 200, { updated: 0 });
+
+        // 2. Get all portfolios
+        const portRes = await fetch(`${SUPABASE_URL}/rest/v1/virtual_portfolios?select=user_id,portfolio`, {
+          headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}` }
+        });
+        const portRows = await portRes.json();
+        const portMap = {};
+        (portRows || []).forEach(p => { portMap[p.user_id] = p.portfolio; });
+
+        // 3. Collect all unique tickers across all portfolios
+        const allSyms = new Set();
+        Object.values(portMap).forEach(p => { if (p && p.pos) Object.keys(p.pos).forEach(s => allSyms.add(s)); });
+
+        // 4. Fetch prices for all tickers
+        const priceMap = {};
+        if (allSyms.size) {
+          try {
+            const qRes = await fetch(`${SUPABASE_URL.replace('supabase.co', '')}` || `https://stockpilot-production-c94f.up.railway.app/api/quotes?symbols=${[...allSyms].join(',')}`);
+          } catch(e) {}
+          // Use getQuotePayload directly
+          const quotes = await getQuotePayload([...allSyms]).catch(() => ({ quoteResponse: { result: [] } }));
+          (quotes?.quoteResponse?.result || []).forEach(q => {
+            if (q.regularMarketPrice) priceMap[q.symbol] = q.regularMarketPrice;
+          });
+        }
+
+        // 5. Recalculate and patch each user
+        let updated = 0;
+        for (const row of lbRows) {
+          const p = portMap[row.user_id];
+          if (!p) continue;
+          let val = p.cash || 100000;
+          Object.entries(p.pos || {}).forEach(([sym, pos]) => {
+            val += pos.qty * (priceMap[sym] || pos.avg);
+          });
+          const ret = Math.round(((val - 100000) / 100000) * 10000) / 100;
+          // Only patch if value changed meaningfully
+          if (Math.abs(ret - (row.return_pct || 0)) > 0.01) {
+            await fetch(`${SUPABASE_URL}/rest/v1/leaderboard?user_id=eq.${row.user_id}`, {
+              method: "PATCH",
+              headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+              body: JSON.stringify({ return_pct: ret, current_value: Math.round(val), updated_at: new Date().toISOString() })
+            });
+            updated++;
+          }
+        }
+        return send(res, 200, { updated, total: lbRows.length });
+      } catch(e) {
+        return send(res, 500, { error: e.message });
+      }
     }
     if (req.method === "GET" && reqUrl.pathname === "/") {
       return sendStaticFile(res, "landing.html");
