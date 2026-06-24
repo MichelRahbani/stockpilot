@@ -882,28 +882,34 @@ async function loadWatchlist(){
     const r=await fetch(API+'/api/quotes?symbols='+mkt.watchlist.join(','));
     const d=await r.json();
     const qs=d?.quoteResponse?.result||[];
-    // If Yahoo returned nothing, show stubs so the panel isn't blank
-    const items = qs.length ? qs : mkt.watchlist.map(sym=>({symbol:sym,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null}));
-    document.getElementById('watchlistItems').innerHTML=items.map(q=>{
+    // Build a map by symbol for lookup
+    const qMap={};
+    qs.forEach(function(q){ qMap[q.symbol]=q; });
+    // For each watchlist ticker, use result or stub
+    const items=mkt.watchlist.map(function(sym){
+      return qMap[sym]||{symbol:sym,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null};
+    });
+    document.getElementById('watchlistItems').innerHTML=items.map(function(q){
       const chg=q.regularMarketChangePercent||0;
       const price=q.regularMarketPrice;
       const col=chg>=0?'#86efac':'#fca5a5';
       const priceStr=price!=null?f(price):'—';
       const chgStr=price!=null?((chg>=0?'+':'')+chg.toFixed(2)+'%'):'';
-      // Show clean symbol without exchange suffix in display
-      const dispSym=q.symbol.replace(/\..*$/,'');
-      return `<div class="wl-item" onclick="document.getElementById('symInput').value='${q.symbol}';search()" title="${q.longName||q.shortName||q.symbol}">
-        <div><div class="wl-sym">${dispSym}</div><div class="wl-name">${q.shortName||q.symbol}</div></div>
-        <div><div class="wl-price">${priceStr}</div><div class="wl-chg" style="color:${col}">${chgStr}</div></div>
-      </div>`;
+      // Display symbol: strip exchange suffix for readability
+      const dispSym=q.symbol.replace(/\.[A-Z]+$/,'');
+      const sym=q.symbol;
+      return '<div class="wl-item" onclick="document.getElementById('symInput').value=''+sym+'';search()" title="'+(q.longName||q.shortName||sym)+'">'
+        +'<div><div class="wl-sym">'+dispSym+'</div><div class="wl-name">'+(q.shortName||sym)+'</div></div>'
+        +'<div><div class="wl-price">'+priceStr+'</div><div class="wl-chg" style="color:'+col+'">'+chgStr+'</div></div>'
+        +'</div>';
     }).join('');
     // Update ticker band
-    items.forEach(q=>{
+    qs.forEach(function(q){
       if(!q.regularMarketPrice) return;
-      const safeId = q.symbol.replace(/[^A-Z0-9]/gi,'_');
-      const el=document.getElementById('tick-'+safeId);
+      var safeId = q.symbol.replace(/[^A-Z0-9]/gi,'_');
+      var el=document.getElementById('tick-'+safeId);
       if(el){
-        const chg=q.regularMarketChangePercent||0;
+        var chg=q.regularMarketChangePercent||0;
         el.textContent=f(q.regularMarketPrice)+' '+(chg>=0?'+':'')+chg.toFixed(2)+'%';
         el.className=chg>=0?'up':'dn';
       }
