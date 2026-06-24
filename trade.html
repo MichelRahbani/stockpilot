@@ -917,7 +917,6 @@ function reset(){
   if (hint) hint.textContent = mkt.hint;
   const wh = document.getElementById('watchlistHead');
   if (wh) wh.textContent = mkt.flag + ' ' + mkt.name;
-  rebuildTicker(activeMarket);
   // Apply market color theme on load
   document.body.className = document.body.className.replace(/\bmkt-\w+/g, '').trim();
   if (activeMarket !== 'us') document.body.classList.add('mkt-' + activeMarket);
