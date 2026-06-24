@@ -478,7 +478,9 @@ function rebuildTicker(id){
   var inner = document.getElementById('tickerInner');
   if(!inner) return;
   var html = tickers.map(function(sym){
-    return '<div class="ti"><strong>'+sym+'</strong><span id="tick-'+sym.replace(/\./g,'_')+'">...</span></div>';
+    var safeId = sym.replace(/[^A-Z0-9]/gi,'_');
+    var dispSym = sym.replace(/\..*$/,'');
+    return '<div class="ti"><strong>'+dispSym+'</strong><span id="tick-'+safeId+'">...</span></div>';
   });
   // duplicate for seamless scroll
   inner.innerHTML = html.join('') + html.join('');
