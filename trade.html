@@ -880,17 +880,25 @@ async function loadWatchlist(){
     const r=await fetch(API+'/api/quotes?symbols='+mkt.watchlist.join(','));
     const d=await r.json();
     const qs=d?.quoteResponse?.result||[];
-    document.getElementById('watchlistItems').innerHTML=qs.map(q=>{
+    // If Yahoo returned nothing, show stubs so the panel isn't blank
+    const items = qs.length ? qs : mkt.watchlist.map(sym=>({symbol:sym,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null}));
+    document.getElementById('watchlistItems').innerHTML=items.map(q=>{
       const chg=q.regularMarketChangePercent||0;
+      const price=q.regularMarketPrice;
       const col=chg>=0?'#86efac':'#fca5a5';
-      return `<div class="wl-item" onclick="document.getElementById('symInput').value='${q.symbol}';search()" title="${q.shortName||q.symbol}">
-        <div><div class="wl-sym">${q.symbol}</div><div class="wl-name">${q.shortName||''}</div></div>
-        <div><div class="wl-price">${f(q.regularMarketPrice)}</div><div class="wl-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)}%</div></div>
+      const priceStr=price!=null?f(price):'—';
+      const chgStr=price!=null?((chg>=0?'+':'')+chg.toFixed(2)+'%'):'';
+      // Show clean symbol without exchange suffix in display
+      const dispSym=q.symbol.replace(/\..*$/,'');
+      return `<div class="wl-item" onclick="document.getElementById('symInput').value='${q.symbol}';search()" title="${q.longName||q.shortName||q.symbol}">
+        <div><div class="wl-sym">${dispSym}</div><div class="wl-name">${q.shortName||q.symbol}</div></div>
+        <div><div class="wl-price">${priceStr}</div><div class="wl-chg" style="color:${col}">${chgStr}</div></div>
       </div>`;
     }).join('');
-    // Update ticker
-    qs.forEach(q=>{
-      const safeId = q.symbol.replace(/\./g,'_');
+    // Update ticker band
+    items.forEach(q=>{
+      if(!q.regularMarketPrice) return;
+      const safeId = q.symbol.replace(/[^A-Z0-9]/gi,'_');
       const el=document.getElementById('tick-'+safeId);
       if(el){
         const chg=q.regularMarketChangePercent||0;
