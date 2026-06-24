@@ -223,10 +223,19 @@ const getFinnhubHistoryPayload = async (symbol, range = "1y") => {
 const getQuotePayload = async (symbols) => {
   const cleanSymbols = [...new Set(symbols.map(cleanSymbol).filter(Boolean))].slice(0, 80);
   if (!cleanSymbols.length) return { quoteResponse: { result: [] }, stockPilotMeta: { source: "Yahoo Finance public quote endpoint", symbols: [] } };
-  const url = new URL(YAHOO_QUOTE_URL);
-  url.searchParams.set("symbols", cleanSymbols.join(","));
   const providerErrors = [];
   let payload = { quoteResponse: { result: [] } };
+
+  // Detect if any symbol is international (has a dot suffix like .L .SR .DE .T)
+  const hasInternational = cleanSymbols.some((s) => /\.[A-Z]+$/.test(s));
+
+  // Build URL — for international tickers add fields param to ensure Yahoo returns them
+  const url = new URL(YAHOO_QUOTE_URL);
+  url.searchParams.set("symbols", cleanSymbols.join(","));
+  if (hasInternational) {
+    url.searchParams.set("fields", "symbol,shortName,longName,regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketVolume,marketCap,trailingPE,fiftyTwoWeekHigh,fiftyTwoWeekLow,regularMarketOpen,regularMarketDayHigh,regularMarketDayLow,currency");
+  }
+
   try {
     payload = await cachedFetch(url.toString(), "json");
   } catch (error) {
@@ -243,7 +252,10 @@ const getQuotePayload = async (symbols) => {
   cleanSymbols.forEach((symbol) => {
     quoteMap[symbol] = { ...(quoteMap[symbol] || { symbol }), ...(finnhubMap[symbol] || {}) };
   });
-  const result = cleanSymbols.map((symbol) => quoteMap[symbol]).filter((quote) => quote && Object.keys(quote).length > 1);
+  // Keep any quote that has a real price — don't drop international tickers just because Finnhub has no data
+  const result = cleanSymbols
+    .map((symbol) => quoteMap[symbol])
+    .filter((quote) => quote && (quote.regularMarketPrice != null || Object.keys(quote).length > 1));
   if (!result.length && providerErrors.length) throw new Error(providerErrors.join("; "));
   return {
     ...payload,
