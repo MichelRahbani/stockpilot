@@ -33,13 +33,13 @@ const TWELVE_DATA_BASE = "https://api.twelvedata.com";
 
 // Yahoo suffix -> Twelve Data exchange code
 const YAHOO_SUFFIX_TO_TD_EXCHANGE = {
-  "L":  "LSE",
-  "SR": "TADAWUL",
+  "L":  "London Stock Exchange",
+  "SR": "Saudi Stock Exchange",
   "DE": "XETRA",
-  "T":  "TSE",
+  "T":  "Tokyo Stock Exchange",
   "HK": "HKEX",
-  "PA": "EURONEXT",
-  "AS": "EURONEXT",
+  "PA": "Euronext Paris",
+  "AS": "Euronext Amsterdam",
 };
 
 const isTwelveDataSymbol = (sym) => /\.[A-Z]+$/.test(sym);
