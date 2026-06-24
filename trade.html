@@ -877,32 +877,69 @@ async function updatePortStats(){
   document.getElementById('portCash').textContent='Cash: '+f(port.cash);
 }
 
+function renderWatchlistItems(items){
+  document.getElementById('watchlistItems').innerHTML=items.map(function(q){
+    const chg=q.regularMarketChangePercent||0;
+    const price=q.regularMarketPrice;
+    const col=chg>=0?'#86efac':'#fca5a5';
+    const priceStr=price!=null?f(price):'—';
+    const chgStr=price!=null?((chg>=0?'+':'')+chg.toFixed(2)+'%'):'';
+    const dispSym=q.symbol.replace(/\.[A-Z]+$/,'');
+    const sym=q.symbol;
+    return '<div class="wl-item" onclick="document.getElementById('symInput').value=''+sym+'';search()" title="'+(q.longName||q.shortName||sym)+'">'
+      +'<div><div class="wl-sym">'+dispSym+'</div><div class="wl-name">'+(q.shortName||sym)+'</div></div>'
+      +'<div><div class="wl-price">'+priceStr+'</div><div class="wl-chg" style="color:'+col+'">'+chgStr+'</div></div>'
+      +'</div>';
+  }).join('');
+}
+
 async function loadWatchlist(){
+  // Show stubs immediately so panel isn't blank
+  const stubs=mkt.watchlist.map(function(sym){ return {symbol:sym,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null}; });
+  renderWatchlistItems(stubs);
   try{
+    // Try batch first
     const r=await fetch(API+'/api/quotes?symbols='+mkt.watchlist.join(','));
     const d=await r.json();
     const qs=d?.quoteResponse?.result||[];
-    // Build a map by symbol for lookup
     const qMap={};
     qs.forEach(function(q){ qMap[q.symbol]=q; });
-    // For each watchlist ticker, use result or stub
-    const items=mkt.watchlist.map(function(sym){
-      return qMap[sym]||{symbol:sym,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null};
-    });
-    document.getElementById('watchlistItems').innerHTML=items.map(function(q){
-      const chg=q.regularMarketChangePercent||0;
-      const price=q.regularMarketPrice;
-      const col=chg>=0?'#86efac':'#fca5a5';
-      const priceStr=price!=null?f(price):'—';
-      const chgStr=price!=null?((chg>=0?'+':'')+chg.toFixed(2)+'%'):'';
-      // Display symbol: strip exchange suffix for readability
-      const dispSym=q.symbol.replace(/\.[A-Z]+$/,'');
-      const sym=q.symbol;
-      return '<div class="wl-item" onclick="document.getElementById('symInput').value=''+sym+'';search()" title="'+(q.longName||q.shortName||sym)+'">'
-        +'<div><div class="wl-sym">'+dispSym+'</div><div class="wl-name">'+(q.shortName||sym)+'</div></div>'
-        +'<div><div class="wl-price">'+priceStr+'</div><div class="wl-chg" style="color:'+col+'">'+chgStr+'</div></div>'
-        +'</div>';
-    }).join('');
+    // Check how many came back with real prices
+    const hits=mkt.watchlist.filter(function(sym){ return qMap[sym]&&qMap[sym].regularMarketPrice; }).length;
+    if(hits>0){
+      // Batch worked — render what we have
+      const items=mkt.watchlist.map(function(sym){ return qMap[sym]||{symbol:sym,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null}; });
+      renderWatchlistItems(items);
+      // Update ticker band
+      qs.forEach(function(q){
+        if(!q.regularMarketPrice) return;
+        var safeId=q.symbol.replace(/[^A-Z0-9]/gi,'_');
+        var el=document.getElementById('tick-'+safeId);
+        if(el){ var chg=q.regularMarketChangePercent||0; el.textContent=f(q.regularMarketPrice)+' '+(chg>=0?'+':'')+chg.toFixed(2)+'%'; el.className=chg>=0?'up':'dn'; }
+      });
+    } else {
+      // Batch returned nothing — fetch individually (international markets)
+      const results=[];
+      for(var i=0;i<mkt.watchlist.length;i++){
+        try{
+          const sym=mkt.watchlist[i];
+          const ir=await fetch(API+'/api/quotes?symbols='+sym);
+          const id=await ir.json();
+          const iq=id?.quoteResponse?.result?.[0];
+          results.push(iq||{symbol:sym,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null});
+          // Render progressively as each comes in
+          renderWatchlistItems(results.concat(mkt.watchlist.slice(i+1).map(function(s){ return {symbol:s,shortName:'',regularMarketPrice:null,regularMarketChangePercent:null}; })));
+        }catch(e){ results.push({symbol:mkt.watchlist[i],shortName:'',regularMarketPrice:null,regularMarketChangePercent:null}); }
+      }
+      renderWatchlistItems(results);
+      // Update ticker band from individual results
+      results.forEach(function(q){
+        if(!q.regularMarketPrice) return;
+        var safeId=q.symbol.replace(/[^A-Z0-9]/gi,'_');
+        var el=document.getElementById('tick-'+safeId);
+        if(el){ var chg=q.regularMarketChangePercent||0; el.textContent=f(q.regularMarketPrice)+' '+(chg>=0?'+':'')+chg.toFixed(2)+'%'; el.className=chg>=0?'up':'dn'; }
+      });
+    }
     // Update ticker band
     qs.forEach(function(q){
       if(!q.regularMarketPrice) return;
