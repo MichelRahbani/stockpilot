@@ -32,14 +32,15 @@ const TWELVE_DATA_API_KEY = (process.env.TWELVE_DATA_API_KEY || "").replace(/^["
 const TWELVE_DATA_BASE = "https://api.twelvedata.com";
 
 // Yahoo suffix -> Twelve Data exchange code
-const YAHOO_SUFFIX_TO_TD_EXCHANGE = {
-  "L":  "London Stock Exchange",
-  "SR": "Saudi Stock Exchange",
-  "DE": "XETRA",
-  "T":  "Tokyo Stock Exchange",
-  "HK": "HKEX",
-  "PA": "Euronext Paris",
-  "AS": "Euronext Amsterdam",
+// Twelve Data uses MIC codes: https://twelvedata.com/docs#reference-data
+const YAHOO_SUFFIX_TO_TD_MIC = {
+  "L":  "XLON",
+  "SR": "XSAU",
+  "DE": "XETR",
+  "T":  "XTKS",
+  "HK": "XHKG",
+  "PA": "XPAR",
+  "AS": "XAMS",
 };
 
 const isTwelveDataSymbol = (sym) => /\.[A-Z]+$/.test(sym);
@@ -560,13 +561,13 @@ const server = http.createServer(async (req, res) => {
       const parts = yahooSym.split(".");
       const base = parts[0];
       const suffix = parts[parts.length - 1];
-      const exchange = YAHOO_SUFFIX_TO_TD_EXCHANGE[suffix] || suffix;
-      const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(base)}&exchange=${encodeURIComponent(exchange)}&apikey=${key}`;
+      const mic = YAHOO_SUFFIX_TO_TD_MIC[suffix] || suffix;
+      const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(base)}&mic_code=${mic}&apikey=${key}`;
       try {
         // Bypass cache for debug
         const rawResp = await fetch(url);
         const data = await rawResp.json();
-        return send(res, 200, { key_set: Boolean(key), yahoo_sym: yahooSym, td_symbol: base, td_exchange: exchange, url_used: url.replace(key, "***"), http_status: rawResp.status, raw: data });
+        return send(res, 200, { key_set: Boolean(key), yahoo_sym: yahooSym, td_symbol: base, mic_code: mic, url_used: url.replace(key, "***"), http_status: rawResp.status, raw: data });
       } catch(e) {
         return send(res, 200, { error: e.message, key_set: Boolean(key) });
       }
