@@ -315,7 +315,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
           <div class="sum-row"><span>Price per share</span><strong id="sumPrice">—</strong></div>
           <div class="sum-row"><span>Shares</span><strong id="sumShares">0</strong></div>
           <div class="sum-row"><span>Total</span><strong id="sumTotal">$0.00</strong></div>
-          <div class="sum-row"><span>Cash available</span><strong id="sumCash">$100,000</strong></div>
+          <div class="sum-row"><span>Cash available</span><strong id="sumCash">—</strong></div>
         </div>
         <button class="exec-btn buy" id="execBtn">Select shares to trade</button>
       </div>
@@ -329,9 +329,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <!-- PORTFOLIO -->
   <div class="portfolio-panel"><div id="portStory" class="port-story" style="display:none"><h4>Portfolio Story</h4><p id="portStoryText"></p></div>
     <div class="port-head">
-      <div class="port-value" id="portValue">$100,000.00</div>
+      <div class="port-value" id="portValue">Loading...</div>
       <div class="port-pnl" id="portPnl" style="color:#86efac">+$0.00 (0.00%)</div>
-      <div class="port-cash" id="portCash">Cash: $100,000.00</div>
+      <div class="port-cash" id="portCash">Loading...</div>
     </div>
     <div class="panel-head" style="border-top:1px solid var(--border)">Positions</div>
     <div id="positions"><div class="no-pos"><div>📭</div>No positions yet</div></div>
@@ -385,29 +385,45 @@ function fmtMkt(n) {
 }
 
 // Fetch quote — use backend proxy for US, direct Yahoo for international
+// All quotes go through backend — works for US always, international when Yahoo cooperates
+// Falls back to corsproxy.io if backend returns nothing for international tickers
 async function fetchQuote(sym) {
-  if (mkt.useProxy) {
-    const r = await fetch(API + '/api/quotes?symbols=' + sym);
+  try {
+    const r = await fetch(API + '/api/quotes?symbols=' + encodeURIComponent(sym));
     const d = await r.json();
-    return d?.quoteResponse?.result?.[0] || null;
-  } else {
-    // Direct Yahoo Finance call from browser (avoids server IP blocking)
-    const r = await fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(sym) + '&fields=symbol,shortName,regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketVolume,marketCap,trailingPE,fiftyTwoWeekHigh,fiftyTwoWeekLow,regularMarketOpen,regularMarketDayHigh,regularMarketDayLow,currency', {headers:{'Accept':'application/json'}});
-    const d = await r.json();
-    return d?.quoteResponse?.result?.[0] || null;
+    const q = d?.quoteResponse?.result?.[0];
+    if (q && q.regularMarketPrice) return q;
+  } catch(e) {}
+  // Fallback: corsproxy for international
+  if (!mkt.useProxy) {
+    try {
+      const url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(sym);
+      const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
+      const d = await r.json();
+      return d?.quoteResponse?.result?.[0] || null;
+    } catch(e) {}
   }
+  return null;
 }
 
 async function fetchQuotes(syms) {
-  if (mkt.useProxy) {
-    const r = await fetch(API + '/api/quotes?symbols=' + syms.join(','));
+  try {
+    const r = await fetch(API + '/api/quotes?symbols=' + syms.map(encodeURIComponent).join(','));
     const d = await r.json();
-    return d?.quoteResponse?.result || [];
-  } else {
-    const r = await fetch('https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + syms.map(encodeURIComponent).join(',') + '&fields=symbol,shortName,regularMarketPrice,regularMarketChange,regularMarketChangePercent,regularMarketVolume,currency', {headers:{'Accept':'application/json'}});
-    const d = await r.json();
-    return d?.quoteResponse?.result || [];
+    const results = d?.quoteResponse?.result || [];
+    const withPrices = results.filter(q => q.regularMarketPrice);
+    if (withPrices.length > 0) return results;
+  } catch(e) {}
+  // Fallback: corsproxy for international
+  if (!mkt.useProxy) {
+    try {
+      const url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + syms.map(encodeURIComponent).join(',');
+      const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
+      const d = await r.json();
+      return d?.quoteResponse?.result || [];
+    } catch(e) {}
   }
+  return [];
 }
 
 function loadForMarket(id) {
