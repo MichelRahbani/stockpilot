@@ -824,6 +824,10 @@ function renderTrades(){
 async function updatePortStats(){
   const syms=Object.keys(port.pos);
   let posVal=0;
+  // Show cash immediately before async price fetch
+  const startVal = mkt.start;
+  document.getElementById('portValue').textContent=f(port.cash);
+  document.getElementById('portCash').textContent='Cash: '+f(port.cash);
   if(syms.length){
     try{
       const qs=await fetchQuotes(syms);
@@ -834,8 +838,8 @@ async function updatePortStats(){
     }catch(e){ syms.forEach(s=>{ posVal+=port.pos[s].qty*port.pos[s].avg; }); }
   }
   const total=port.cash+posVal;
-  const pnl=total-START;
-  const pct=(pnl/START)*100;
+  const pnl=total-startVal;
+  const pct=(pnl/startVal)*100;
   const col=pnl>=0?'#86efac':'#fca5a5';
   document.getElementById('portValue').textContent=f(total);
   document.getElementById('portPnl').textContent=(pnl>=0?'+':'')+f(pnl)+' ('+(pct>=0?'+':'')+pct.toFixed(2)+'%)';
