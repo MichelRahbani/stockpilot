@@ -563,8 +563,10 @@ const server = http.createServer(async (req, res) => {
       const exchange = YAHOO_SUFFIX_TO_TD_EXCHANGE[suffix] || suffix;
       const url = `https://api.twelvedata.com/quote?symbol=${encodeURIComponent(base)}&exchange=${encodeURIComponent(exchange)}&apikey=${key}`;
       try {
-        const data = await cachedFetch(url, "json");
-        return send(res, 200, { key_set: Boolean(key), yahoo_sym: yahooSym, td_symbol: base, td_exchange: exchange, url_used: url.replace(key, "***"), raw: data });
+        // Bypass cache for debug
+        const rawResp = await fetch(url);
+        const data = await rawResp.json();
+        return send(res, 200, { key_set: Boolean(key), yahoo_sym: yahooSym, td_symbol: base, td_exchange: exchange, url_used: url.replace(key, "***"), http_status: rawResp.status, raw: data });
       } catch(e) {
         return send(res, 200, { error: e.message, key_set: Boolean(key) });
       }
