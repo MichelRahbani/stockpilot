@@ -281,6 +281,7 @@ const getQuotePayload = async (symbols) => {
   const providerErrors = [];
   const quoteMap = {};
   let payload = { quoteResponse: { result: [] } };
+  let finnhubMap = {};
 
   // Fetch US symbols via Yahoo + Finnhub as before
   if (domesticSymbols.length) {
@@ -294,7 +295,7 @@ const getQuotePayload = async (symbols) => {
     (payload?.quoteResponse?.result || []).forEach((quote) => {
       quoteMap[cleanSymbol(quote.symbol)] = quote;
     });
-    const finnhubMap = await getFinnhubQuoteMap(domesticSymbols).catch((error) => {
+    finnhubMap = await getFinnhubQuoteMap(domesticSymbols).catch((error) => {
       providerErrors.push(`Finnhub: ${error.message}`);
       return {};
     });
