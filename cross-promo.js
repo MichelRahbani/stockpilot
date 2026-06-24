@@ -11,7 +11,15 @@ if(page==='/trade'||page==='/trade.html'||page==='/trade/'){
     var empty=document.querySelector('.quote-empty');
     if(!empty||empty.dataset.injected)return;
     empty.dataset.injected='1';
-    var tickers=[{s:'AAPL',n:'Apple'},{s:'TSLA',n:'Tesla'},{s:'NVDA',n:'Nvidia'},{s:'SPY',n:'S&P 500'},{s:'MSFT',n:'Microsoft'},{s:'BTC-USD',n:'Bitcoin'}];
+    var mktId = (typeof activeMarket !== 'undefined' ? activeMarket : null) || localStorage.getItem('sp_active_market') || 'us';
+    var tickerMap = {
+      us: [{s:'AAPL',n:'Apple'},{s:'TSLA',n:'Tesla'},{s:'NVDA',n:'Nvidia'},{s:'SPY',n:'S&P 500'},{s:'MSFT',n:'Microsoft'},{s:'BTC-USD',n:'Bitcoin'}],
+      sa: [{s:'2222.SR',n:'Aramco'},{s:'1180.SR',n:'Al Rajhi'},{s:'2010.SR',n:'SABIC'},{s:'2380.SR',n:'Petro Rabigh'},{s:'1120.SR',n:'Al Jazira'},{s:'2350.SR',n:'Saudi Kayan'}],
+      uk: [{s:'SHEL.L',n:'Shell'},{s:'HSBA.L',n:'HSBC'},{s:'AZN.L',n:'AstraZeneca'},{s:'ULVR.L',n:'Unilever'},{s:'BP.L',n:'BP'},{s:'GSK.L',n:'GSK'}],
+      de: [{s:'SAP.DE',n:'SAP'},{s:'SIE.DE',n:'Siemens'},{s:'BMW.DE',n:'BMW'},{s:'ALV.DE',n:'Allianz'},{s:'MBG.DE',n:'Mercedes'},{s:'BAYN.DE',n:'Bayer'}],
+      jp: [{s:'7203.T',n:'Toyota'},{s:'6758.T',n:'Sony'},{s:'9984.T',n:'SoftBank'},{s:'8306.T',n:'MUFG'},{s:'6861.T',n:'Keyence'},{s:'9432.T',n:'NTT'}]
+    };
+    var tickers = tickerMap[mktId] || tickerMap.us;
     var html='';
     html+='<div style="margin-bottom:24px">';
     html+='<div style="font-family:Fraunces,serif;font-size:22px;font-weight:700;color:rgba(255,255,255,0.9);margin-bottom:8px">Make your first trade</div>';
