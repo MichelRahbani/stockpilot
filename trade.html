@@ -385,45 +385,23 @@ function fmtMkt(n) {
 }
 
 // Fetch quote — use backend proxy for US, direct Yahoo for international
-// All quotes go through backend — works for US always, international when Yahoo cooperates
-// Falls back to corsproxy.io if backend returns nothing for international tickers
+// US: use /api/quotes (Yahoo + Finnhub). International: use /api/intl-quotes (browser-spoofed headers)
 async function fetchQuote(sym) {
+  const endpoint = mkt.useProxy ? '/api/quotes?symbols=' : '/api/intl-quotes?symbols=';
   try {
-    const r = await fetch(API + '/api/quotes?symbols=' + encodeURIComponent(sym));
+    const r = await fetch(API + endpoint + encodeURIComponent(sym));
     const d = await r.json();
-    const q = d?.quoteResponse?.result?.[0];
-    if (q && q.regularMarketPrice) return q;
-  } catch(e) {}
-  // Fallback: corsproxy for international
-  if (!mkt.useProxy) {
-    try {
-      const url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + encodeURIComponent(sym);
-      const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
-      const d = await r.json();
-      return d?.quoteResponse?.result?.[0] || null;
-    } catch(e) {}
-  }
-  return null;
+    return d?.quoteResponse?.result?.[0] || null;
+  } catch(e) { return null; }
 }
 
 async function fetchQuotes(syms) {
+  const endpoint = mkt.useProxy ? '/api/quotes?symbols=' : '/api/intl-quotes?symbols=';
   try {
-    const r = await fetch(API + '/api/quotes?symbols=' + syms.map(encodeURIComponent).join(','));
+    const r = await fetch(API + endpoint + syms.map(encodeURIComponent).join(','));
     const d = await r.json();
-    const results = d?.quoteResponse?.result || [];
-    const withPrices = results.filter(q => q.regularMarketPrice);
-    if (withPrices.length > 0) return results;
-  } catch(e) {}
-  // Fallback: corsproxy for international
-  if (!mkt.useProxy) {
-    try {
-      const url = 'https://query1.finance.yahoo.com/v7/finance/quote?symbols=' + syms.map(encodeURIComponent).join(',');
-      const r = await fetch('https://corsproxy.io/?' + encodeURIComponent(url));
-      const d = await r.json();
-      return d?.quoteResponse?.result || [];
-    } catch(e) {}
-  }
-  return [];
+    return d?.quoteResponse?.result || [];
+  } catch(e) { return []; }
 }
 
 function loadForMarket(id) {
@@ -622,7 +600,7 @@ async function search(){
   try{
     const q=await getQuote(sym);
     if(!q||!q.regularMarketPrice){
-      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>❌</div>Could not find '+sym+'. Try AAPL, TSLA, or NVDA.</div>';
+      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>❌</div>Could not find '+sym+'. Try a valid '+mkt.name+' ticker.</div>';
       return;
     }
     current=q;
