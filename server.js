@@ -28,6 +28,56 @@ const SEC_TICKERS_URL = "https://www.sec.gov/files/company_tickers.json";
 const SEC_COMPANY_FACTS_BASE_URL = "https://data.sec.gov/api/xbrl/companyfacts/";
 const CACHE_TTL_MS = Number(process.env.CACHE_TTL_MS || 60_000);
 const FINNHUB_API_KEY = (process.env.FINNHUB_API_KEY || "").replace(/^["']|["']$/g, "");
+const TWELVE_DATA_API_KEY = (process.env.TWELVE_DATA_API_KEY || "").replace(/^["']|["']$/g, "");
+const TWELVE_DATA_BASE = "https://api.twelvedata.com";
+
+// Yahoo suffix -> Twelve Data exchange code
+const YAHOO_SUFFIX_TO_TD_EXCHANGE = {
+  "L":  "LSE",
+  "SR": "TADAWUL",
+  "DE": "XETRA",
+  "T":  "TSE",
+  "HK": "HKEX",
+  "PA": "EURONEXT",
+  "AS": "EURONEXT",
+};
+
+const isTwelveDataSymbol = (sym) => /\.[A-Z]+$/.test(sym);
+
+const getTwelveDataQuote = async (yahooSymbol) => {
+  if (!TWELVE_DATA_API_KEY) return null;
+  const parts = yahooSymbol.split(".");
+  const base = parts[0];
+  const suffix = parts[parts.length - 1];
+  const exchange = YAHOO_SUFFIX_TO_TD_EXCHANGE[suffix];
+  if (!exchange) return null;
+  try {
+    const url = \`\${TWELVE_DATA_BASE}/quote?symbol=\${encodeURIComponent(base)}&exchange=\${exchange}&apikey=\${TWELVE_DATA_API_KEY}\`;
+    const data = await cachedFetch(url, "json");
+    if (!data || data.status === "error" || !data.close) return null;
+    const price = parseFloat(data.close);
+    const prevClose = parseFloat(data.previous_close);
+    const change = price - prevClose;
+    const changePct = (change / prevClose) * 100;
+    return {
+      symbol: yahooSymbol,
+      shortName: data.name || base,
+      longName: data.name || base,
+      regularMarketPrice: price,
+      regularMarketPreviousClose: prevClose,
+      regularMarketChange: change,
+      regularMarketChangePercent: changePct,
+      regularMarketVolume: parseInt(data.volume) || 0,
+      regularMarketOpen: parseFloat(data.open) || price,
+      regularMarketDayHigh: parseFloat(data.fifty_two_week?.high) || price,
+      regularMarketDayLow: parseFloat(data.fifty_two_week?.low) || price,
+      currency: data.currency || suffix,
+      exchange: data.exchange || exchange,
+      quoteType: "EQUITY",
+      stockPilotProvider: "TwelveData"
+    };
+  } catch(e) { return null; }
+};
 const SEC_USER_AGENT = process.env.SEC_USER_AGENT || "StockPilot educational app contact@example.com";
 
 const cache = new Map();
@@ -223,27 +273,48 @@ const getFinnhubHistoryPayload = async (symbol, range = "1y") => {
 const getQuotePayload = async (symbols) => {
   const cleanSymbols = [...new Set(symbols.map(cleanSymbol).filter(Boolean))].slice(0, 80);
   if (!cleanSymbols.length) return { quoteResponse: { result: [] }, stockPilotMeta: { source: "Yahoo Finance public quote endpoint", symbols: [] } };
-  const url = new URL(YAHOO_QUOTE_URL);
-  url.searchParams.set("symbols", cleanSymbols.join(","));
+
+  // Split into domestic (US) and international
+  const domesticSymbols = cleanSymbols.filter((s) => !isTwelveDataSymbol(s));
+  const intlSymbols = cleanSymbols.filter((s) => isTwelveDataSymbol(s));
+
   const providerErrors = [];
-  let payload = { quoteResponse: { result: [] } };
-  try {
-    payload = await cachedFetch(url.toString(), "json");
-  } catch (error) {
-    providerErrors.push(`Yahoo quotes: ${error.message}`);
+  const quoteMap = {};
+
+  // Fetch US symbols via Yahoo + Finnhub as before
+  if (domesticSymbols.length) {
+    const url = new URL(YAHOO_QUOTE_URL);
+    url.searchParams.set("symbols", domesticSymbols.join(","));
+    let payload = { quoteResponse: { result: [] } };
+    try {
+      payload = await cachedFetch(url.toString(), "json");
+    } catch (error) {
+      providerErrors.push(`Yahoo quotes: ${error.message}`);
+    }
+    (payload?.quoteResponse?.result || []).forEach((quote) => {
+      quoteMap[cleanSymbol(quote.symbol)] = quote;
+    });
+    const finnhubMap = await getFinnhubQuoteMap(domesticSymbols).catch((error) => {
+      providerErrors.push(`Finnhub: ${error.message}`);
+      return {};
+    });
+    domesticSymbols.forEach((symbol) => {
+      quoteMap[symbol] = { ...(quoteMap[symbol] || { symbol }), ...(finnhubMap[symbol] || {}) };
+    });
   }
-  const quoteMap = (payload?.quoteResponse?.result || []).reduce((map, quote) => {
-    map[cleanSymbol(quote.symbol)] = quote;
-    return map;
-  }, {});
-  const finnhubMap = await getFinnhubQuoteMap(cleanSymbols).catch((error) => {
-    providerErrors.push(`Finnhub: ${error.message}`);
-    return {};
-  });
-  cleanSymbols.forEach((symbol) => {
-    quoteMap[symbol] = { ...(quoteMap[symbol] || { symbol }), ...(finnhubMap[symbol] || {}) };
-  });
-  const result = cleanSymbols.map((symbol) => quoteMap[symbol]).filter((quote) => quote && Object.keys(quote).length > 1);
+
+  // Fetch international symbols via Twelve Data
+  if (intlSymbols.length) {
+    await Promise.allSettled(intlSymbols.map(async (symbol) => {
+      const quote = await getTwelveDataQuote(symbol);
+      if (quote) quoteMap[symbol] = quote;
+      else quoteMap[symbol] = { symbol };
+    }));
+  }
+
+  const result = cleanSymbols
+    .map((symbol) => quoteMap[symbol])
+    .filter((quote) => quote && quote.regularMarketPrice != null);
   if (!result.length && providerErrors.length) throw new Error(providerErrors.join("; "));
   return {
     ...payload,
