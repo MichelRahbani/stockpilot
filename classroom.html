@@ -250,8 +250,10 @@ tr:hover td{background:#fafafa}
             <div id="dashCode" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--green);cursor:pointer" onclick="copyCode()" title="Click to copy"></div>
             <div style="font-size:11px;color:var(--green);margin-top:2px;cursor:pointer" onclick="copyCode()">click to copy</div>
           </div>
+          <span id="freezeCountdown" style="font-size:12px;color:var(--muted);margin-right:8px"></span>
           <button class="btn btn-ghost btn-sm" onclick="shareCode()" title="Get a pre-written message to share with students">📤 Share</button>
-          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Trades CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportGrades()" title="Export final grades for all students">🎓 Export Grades</button>
           <button class="btn btn-primary btn-sm" onclick="loadDashboard()">↻ Refresh</button>
         </div>
       </div>
@@ -363,6 +365,7 @@ const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 let currentUser = null;
 let currentClass = null;
 let allTrades = [];
+let allStudentStats = {};
 
 // ── Auth ──
 function getToken(){ return localStorage.getItem('supabase_token'); }
@@ -549,6 +552,7 @@ async function loadDashboard(){
 
   // Get each student's portfolio from virtual_portfolios (has positions + cash)
   const studentStats = {};
+  allStudentStats = {};
   members.forEach(m=>{
     studentStats[m.user_id] = {
       name: memberMap[m.user_id],
