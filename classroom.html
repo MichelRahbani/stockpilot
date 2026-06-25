@@ -934,7 +934,12 @@ async function loadBudgetSubmissions(){
   if(!currentClass) return;
   document.getElementById('budgetsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">⏳ Loading budgets...</td></tr>';
   try {
-    const res = await sbGet('budget_submissions', 'class_id=eq.'+currentClass.id+'&order=submitted_at.desc');
+    // Use instructor JWT for RLS
+    const t = localStorage.getItem('supabase_token') || SUPA_KEY;
+    const r = await fetch(SUPA_URL+'/rest/v1/budget_submissions?class_id=eq.'+currentClass.id+'&order=submitted_at.desc',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}
+    });
+    const res = await r.json();
     allBudgets = Array.isArray(res) ? res : [];
     if(!allBudgets.length){
       document.getElementById('budgetsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No budget submissions yet. Students can submit from the Budget tool.</td></tr>';
