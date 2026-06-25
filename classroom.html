@@ -264,7 +264,6 @@ tr:hover td{background:#fafafa}
         <button class="tab active" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
         <button class="tab" onclick="switchTab('trades',this)">📋 Trade History</button>
         <button class="tab" onclick="switchTab('budgets',this)">💰 Budgets</button>
-        <button class="tab" onclick="switchTab('challenges',this)">🎯 Budget Challenges</button>
       </div>
 
       <div id="tabLeaderboard">
@@ -304,18 +303,6 @@ tr:hover td{background:#fafafa}
             </tr></thead>
             <tbody id="budgetsBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
           </table>
-        </div>
-      </div>
-      <div id="tabChallenges" style="display:none">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
-          <div>
-            <div style="font-size:15px;font-weight:700">Budget Challenges</div>
-            <div style="font-size:13px;color:var(--muted)">Create realistic scenarios for students to solve and compete on</div>
-          </div>
-          <button class="btn btn-primary btn-sm" onclick="document.getElementById('challengeModal').style.display='flex'">+ New Challenge</button>
-        </div>
-        <div id="challengesList">
-          <div class="empty"><div class="icon">🎯</div><p>No challenges yet. Create one to get started.</p></div>
         </div>
       </div>
     </div>
@@ -369,12 +356,6 @@ tr:hover td{background:#fafafa}
             </tr></thead>
             <tbody id="sdLeaderboard"></tbody>
           </table>
-        </div>
-
-        <!-- Budget Challenges -->
-        <div style="font-size:16px;font-weight:700;margin:20px 0 12px">🎯 Budget Challenges</div>
-        <div id="sdChallengesList" style="margin-bottom:20px">
-          <div style="font-size:13px;color:var(--muted)">Loading challenges...</div>
         </div>
 
         <!-- My trade history -->
@@ -735,10 +716,6 @@ function switchTab(tab, btn){
   btn.classList.add('active');
   document.getElementById('tabLeaderboard').style.display = tab==='leaderboard'?'block':'none';
   document.getElementById('tabTrades').style.display = tab==='trades'?'block':'none';
-  document.getElementById('tabBudgets').style.display = tab==='budgets'?'block':'none';
-  document.getElementById('tabChallenges').style.display = tab==='challenges'?'block':'none';
-  if(tab==='budgets') loadBudgetSubmissions();
-  if(tab==='challenges') loadChallenges();
 }
 
 // ── Join class ──
@@ -788,34 +765,6 @@ async function loadStudentClasses(){
 }
 
 // ── Student dashboard ──
-async function loadStudentChallenges(classId){
-  const el = document.getElementById('sdChallengesList');
-  if(!el) return;
-  try {
-    const t = localStorage.getItem('supabase_token')||'';
-    const r = await fetch(SUPA_URL+'/rest/v1/budget_challenges?class_id=eq.'+classId+'&order=created_at.desc',{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}
-    });
-    const challenges = await r.json();
-    if(!Array.isArray(challenges)||!challenges.length){
-      el.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:12px;background:white;border-radius:10px;border:1px solid var(--border)">No challenges yet.</div>';
-      return;
-    }
-    el.innerHTML = challenges.map(c=>{
-      const due = c.due_date?new Date(c.due_date):null;
-      const daysLeft = due?Math.ceil((due-new Date())/(1000*60*60*24)):null;
-      const isOpen = !due||daysLeft>0;
-      const dueTxt = due?(daysLeft>0?'⏳ '+daysLeft+' days left':'🔒 Closed'):'Open';
-      return '<div style="background:white;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">'
-        +'<div><div style="font-weight:700;margin-bottom:4px">'+c.title+'</div>'
-        +'<div style="font-size:12px;color:var(--muted)">💵 $'+Number(c.monthly_income).toLocaleString()+'/mo · '+c.points+' pts · '+dueTxt+'</div></div>'
-        +(isOpen?'<a href="/budget-challenge?id='+c.id+'" class="btn btn-primary btn-sm" style="text-decoration:none">Start Challenge →</a>'
-          :'<span style="font-size:12px;color:var(--muted)">Closed</span>')
-        +'</div>';
-    }).join('');
-  } catch(e){ if(el) el.innerHTML = ''; }
-}
-
 async function openStudentDashboard(classId){
   const classes = await sbGet('classes','id=eq.'+classId);
   if(!classes.length) return;
@@ -824,7 +773,6 @@ async function openStudentDashboard(classId){
   const myName = getName();
 
   document.getElementById('sdClassName').textContent = cls.name;
-  loadStudentChallenges(classId);
   document.getElementById('sdInstructor').textContent = 'Instructor: ' + (cls.instructor_name||'');
   document.getElementById('studentClassList').style.display = 'none';
   document.getElementById('studentDashboard').style.display = 'block';
@@ -986,12 +934,7 @@ async function loadBudgetSubmissions(){
   if(!currentClass) return;
   document.getElementById('budgetsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">⏳ Loading budgets...</td></tr>';
   try {
-    // Use instructor JWT for RLS
-    const t = localStorage.getItem('supabase_token') || SUPA_KEY;
-    const r = await fetch(SUPA_URL+'/rest/v1/budget_submissions?class_id=eq.'+currentClass.id+'&order=submitted_at.desc',{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}
-    });
-    const res = await r.json();
+    const res = await sbGet('budget_submissions', 'class_id=eq.'+currentClass.id+'&order=submitted_at.desc');
     allBudgets = Array.isArray(res) ? res : [];
     if(!allBudgets.length){
       document.getElementById('budgetsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No budget submissions yet. Students can submit from the Budget tool.</td></tr>';
@@ -1040,174 +983,6 @@ function exportBudgetsCSV(){
   a.click();
 }
 
-// ── Budget Challenges ──
-let currentChallenges = [];
-let currentChallengeForExport = null;
-
-async function loadChallenges(){
-  if(!currentClass) return;
-  const el = document.getElementById('challengesList');
-  el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">⏳ Loading challenges...</div>';
-  try {
-    const t = localStorage.getItem('supabase_token') || SUPA_KEY;
-    const r = await fetch(SUPA_URL+'/rest/v1/budget_challenges?class_id=eq.'+currentClass.id+'&order=created_at.desc',{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}
-    });
-    currentChallenges = await r.json();
-    if(!Array.isArray(currentChallenges)||!currentChallenges.length){
-      el.innerHTML = '<div class="empty"><div class="icon">🎯</div><p>No challenges yet. Create one to get started.</p></div>';
-      return;
-    }
-    el.innerHTML = currentChallenges.map(c=>{
-      const due = c.due_date ? new Date(c.due_date) : null;
-      const daysLeft = due ? Math.ceil((due-new Date())/(1000*60*60*24)) : null;
-      const dueTxt = due ? (daysLeft>0 ? '⏳ '+daysLeft+' days left' : '🔒 Closed') : 'No due date';
-      const dueColor = daysLeft<=3&&daysLeft>0 ? '#dc2626' : daysLeft<=7&&daysLeft>0 ? '#d97706' : 'var(--muted)';
-      const fixed = c.fixed_expenses || {};
-      const fixedTotal = (fixed.rent||0)+(fixed.loan||0)+(fixed.transport||0)+(fixed.utilities||0);
-      return '<div style="background:white;border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:12px">'
-        +'<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap">'
-        +'<div style="flex:1">'
-        +'<div style="font-size:16px;font-weight:700;margin-bottom:4px">'+c.title+'</div>'
-        +'<div style="font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5">'+c.scenario+'</div>'
-        +'<div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px">'
-        +'<span style="background:#f0fdf4;color:#16a34a;padding:4px 10px;border-radius:20px;font-weight:600">💵 $'+Number(c.monthly_income).toLocaleString()+'/mo income</span>'
-        +'<span style="background:#eff6ff;color:#2563eb;padding:4px 10px;border-radius:20px;font-weight:600">🎯 '+c.target_savings_rate+'% savings target</span>'
-        +'<span style="background:#fef3c7;color:#d97706;padding:4px 10px;border-radius:20px;font-weight:600">🏠 $'+fixedTotal.toLocaleString()+' fixed costs</span>'
-        +'<span style="color:'+dueColor+';font-weight:600">'+dueTxt+'</span>'
-        +'</div>'
-        +'</div>'
-        +'<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">'
-        +'<span style="font-size:20px;font-weight:800;color:#2563eb">'+c.points+' pts</span>'
-        +'<button class="btn btn-primary btn-sm" onclick="viewChallengeSubmissions(this.dataset.id)" data-id="'+c.id+'">View Submissions</button>'
-        +'<a class="btn btn-ghost btn-sm" href="/budget-challenge?id='+c.id+'" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center">🎮 Preview</a>'
-        +'</div>'
-        +'</div>'
-        +'</div>';
-    }).join('');
-  } catch(e){
-    el.innerHTML = '<div class="empty"><div class="icon">⚠️</div><p>Could not load challenges.</p></div>';
-  }
-}
-
-async function createChallenge(){
-  const title = document.getElementById('chTitle').value.trim();
-  const scenario = document.getElementById('chScenario').value.trim();
-  const income = parseFloat(document.getElementById('chIncome').value)||0;
-  const dueDate = document.getElementById('chDueDate').value;
-  const targetSavings = parseInt(document.getElementById('chTargetSavings').value)||20;
-  const targetEmergency = parseFloat(document.getElementById('chTargetEmergency').value)||5000;
-  const points = parseInt(document.getElementById('chPoints').value)||100;
-  const rent = parseFloat(document.getElementById('chRent').value)||0;
-  const loan = parseFloat(document.getElementById('chLoan').value)||0;
-  const transport = parseFloat(document.getElementById('chTransport').value)||0;
-  const utilities = parseFloat(document.getElementById('chUtilities').value)||0;
-  const msg = document.getElementById('challengeMsg');
-
-  if(!title||!income){ showMsg('challengeMsg','Please enter a title and monthly income.','error'); return; }
-
-  showMsg('challengeMsg','Creating challenge...','success');
-  try {
-    const t = localStorage.getItem('supabase_token');
-    const uid = getUid();
-    const r = await fetch(SUPA_URL+'/rest/v1/budget_challenges',{
-      method:'POST',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t,'Content-Type':'application/json','Prefer':'return=representation'},
-      body: JSON.stringify({
-        class_id: currentClass.id,
-        instructor_id: uid,
-        title, scenario,
-        monthly_income: income,
-        target_savings_rate: targetSavings,
-        target_emergency_months: Math.round(targetEmergency/(income||1)),
-        fixed_expenses: {rent,loan,transport,utilities},
-        due_date: dueDate||null,
-        points
-      })
-    });
-    const result = await r.json();
-    if(r.ok&&result[0]){
-      document.getElementById('challengeModal').style.display='none';
-      ['chTitle','chScenario','chIncome','chDueDate','chTargetSavings','chTargetEmergency','chPoints','chRent','chLoan','chTransport','chUtilities'].forEach(id=>{
-        const el=document.getElementById(id); if(el) el.value='';
-      });
-      loadChallenges();
-    } else {
-      showMsg('challengeMsg','Error creating challenge. Try again.','error');
-    }
-  } catch(e){ showMsg('challengeMsg','Error: '+e.message,'error'); }
-}
-
-async function viewChallengeSubmissions(challengeId){
-  const challenge = currentChallenges.find(c=>c.id===challengeId);
-  if(!challenge) return;
-  currentChallengeForExport = challenge;
-  document.getElementById('challengeSubsTitle').textContent = '🎯 '+challenge.title;
-  document.getElementById('challengeSubsDesc').textContent = challenge.scenario;
-  document.getElementById('challengeSubsBody').innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">⏳ Loading...</div>';
-  openModal('challengeSubsModal');
-
-  try {
-    const t = localStorage.getItem('supabase_token')||SUPA_KEY;
-    const r = await fetch(SUPA_URL+'/rest/v1/budget_challenge_submissions?challenge_id=eq.'+challengeId+'&order=score.desc',{
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}
-    });
-    const subs = await r.json();
-    if(!Array.isArray(subs)||!subs.length){
-      document.getElementById('challengeSubsBody').innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">No submissions yet.</div>';
-      return;
-    }
-
-    const medals = ['🥇','🥈','🥉'];
-    document.getElementById('challengeSubsBody').innerHTML =
-      '<table style="width:100%;border-collapse:collapse;font-size:13px">'
-      +'<thead><tr style="border-bottom:2px solid var(--border)">'
-      +'<th style="padding:8px;text-align:left">#</th>'
-      +'<th style="padding:8px;text-align:left">Student</th>'
-      +'<th style="padding:8px;text-align:right">Score</th>'
-      +'<th style="padding:8px;text-align:right">Savings Rate</th>'
-      +'<th style="padding:8px;text-align:right">Leftover</th>'
-      +'<th style="padding:8px;text-align:left">Badges</th>'
-      +'<th style="padding:8px;text-align:left">Submitted</th>'
-      +'</tr></thead><tbody>'
-      +subs.map((s,i)=>{
-        const scoreColor = s.score>=80?'#16a34a':s.score>=60?'#d97706':'#dc2626';
-        const badges = Array.isArray(s.badges)?s.badges:[];
-        return '<tr style="border-bottom:1px solid var(--border)">'
-          +'<td style="padding:10px 8px">'+(medals[i]||'#'+(i+1))+'</td>'
-          +'<td style="padding:10px 8px;font-weight:600">'+(s.nickname||'Student')+'</td>'
-          +'<td style="padding:10px 8px;text-align:right;font-weight:700;font-size:16px;color:'+scoreColor+'">'+s.score+'</td>'
-          +'<td style="padding:10px 8px;text-align:right">'+s.savings_rate+'%</td>'
-          +'<td style="padding:10px 8px;text-align:right;color:'+(s.leftover>=0?'#16a34a':'#dc2626')+'">$'+Math.abs(s.leftover).toLocaleString()+(s.leftover>=0?' surplus':' gap')+'</td>'
-          +'<td style="padding:10px 8px">'+badges.join(' ')+'</td>'
-          +'<td style="padding:10px 8px;color:var(--muted)">'+new Date(s.submitted_at).toLocaleDateString()+'</td>'
-          +'</tr>';
-      }).join('')
-      +'</tbody></table>';
-  } catch(e){
-    document.getElementById('challengeSubsBody').innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted)">Could not load submissions.</div>';
-  }
-}
-
-function exportChallengeCSV(){
-  const body = document.getElementById('challengeSubsBody');
-  if(!body||!currentChallengeForExport) return;
-  // Re-fetch and export
-  const t = localStorage.getItem('supabase_token')||SUPA_KEY;
-  fetch(SUPA_URL+'/rest/v1/budget_challenge_submissions?challenge_id=eq.'+currentChallengeForExport.id+'&order=score.desc',{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}
-  }).then(r=>r.json()).then(subs=>{
-    if(!Array.isArray(subs)||!subs.length){ alert('No submissions to export.'); return; }
-    const headers=['Student','Score','Savings Rate %','Housing','Food','Transport','Utilities','Entertainment','Savings','Debt Payment','Emergency Fund','Other','Total Expenses','Leftover','Badges','Submitted'];
-    const rows=subs.map(s=>[s.nickname||'',s.score,s.savings_rate+'%',s.housing||0,s.food||0,s.transport||0,s.utilities||0,s.entertainment||0,s.savings||0,s.debt_payment||0,s.emergency_fund||0,s.other||0,s.total_expenses||0,s.leftover||0,(s.badges||[]).join(' '),new Date(s.submitted_at).toLocaleDateString()]);
-    const csv=[headers,...rows].map(r=>r.join(',')).join('\n');
-    const blob=new Blob([csv],{type:'text/csv'});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement('a');
-    a.href=url; a.download='challenge_'+currentChallengeForExport.title.replace(/\s+/g,'_')+'.csv'; a.click();
-  });
-}
-
 // ── Token refresh — keep session alive ──
 async function refreshToken(){
   const t = getToken();
@@ -1235,94 +1010,5 @@ const _origDoSignin = doSignin;
 updateNavAuth();
 if(getToken()) showView('landingView');
 </script>
-
-<!-- BUDGET CHALLENGE MODAL -->
-<div class="modal-bg" id="challengeModal" style="display:none">
-  <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="document.getElementById('challengeModal').style.display='none'">✕</button>
-    <h2 style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px">🎯 New Budget Challenge</h2>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Create a realistic financial scenario for your students to solve</p>
-
-    <div style="display:flex;flex-direction:column;gap:14px">
-      <div>
-        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">CHALLENGE TITLE</label>
-        <input id="chTitle" class="field" placeholder="e.g. Recent Graduate Budget" style="width:100%"/>
-      </div>
-
-      <div>
-        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">SCENARIO DESCRIPTION</label>
-        <textarea id="chScenario" class="field" rows="3" placeholder="e.g. You just graduated and landed your first job. You earn $3,500/month after tax. You have $12,000 in student debt at 6.5% APR. Build a budget that covers your needs and starts paying off debt." style="width:100%;resize:vertical"></textarea>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div>
-          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">MONTHLY INCOME (after tax)</label>
-          <input id="chIncome" class="field" type="number" placeholder="3500" style="width:100%"/>
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">DUE DATE</label>
-          <input id="chDueDate" class="field" type="date" style="width:100%"/>
-        </div>
-      </div>
-
-      <div style="background:#f8fafc;border:1px solid var(--border);border-radius:10px;padding:14px">
-        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:10px">FIXED EXPENSES (students must pay these — not negotiable)</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div>
-            <label style="font-size:11px;color:var(--muted)">Rent / Housing</label>
-            <input id="chRent" class="field" type="number" placeholder="1200" style="width:100%"/>
-          </div>
-          <div>
-            <label style="font-size:11px;color:var(--muted)">Student Loan Min. Payment</label>
-            <input id="chLoan" class="field" type="number" placeholder="150" style="width:100%"/>
-          </div>
-          <div>
-            <label style="font-size:11px;color:var(--muted)">Transportation</label>
-            <input id="chTransport" class="field" type="number" placeholder="0" style="width:100%"/>
-          </div>
-          <div>
-            <label style="font-size:11px;color:var(--muted)">Utilities</label>
-            <input id="chUtilities" class="field" type="number" placeholder="0" style="width:100%"/>
-          </div>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px">
-        <div>
-          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">TARGET SAVINGS RATE %</label>
-          <input id="chTargetSavings" class="field" type="number" placeholder="20" style="width:100%"/>
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">EMERGENCY FUND TARGET ($)</label>
-          <input id="chTargetEmergency" class="field" type="number" placeholder="5000" style="width:100%"/>
-        </div>
-        <div>
-          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px">POINTS POSSIBLE</label>
-          <input id="chPoints" class="field" type="number" placeholder="100" style="width:100%"/>
-        </div>
-      </div>
-    </div>
-
-    <div id="challengeMsg" style="display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px"></div>
-    <div style="display:flex;gap:10px;margin-top:20px">
-      <button class="btn btn-primary" onclick="createChallenge()" style="flex:1">Create Challenge →</button>
-      <button class="btn btn-ghost" onclick="document.getElementById('challengeModal').style.display='none'">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- VIEW CHALLENGE SUBMISSIONS MODAL -->
-<div class="modal-bg" id="challengeSubsModal" style="display:none">
-  <div class="modal" style="max-width:800px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="document.getElementById('challengeSubsModal').style.display='none'">✕</button>
-    <h2 style="font-size:18px;font-weight:700;margin-bottom:4px" id="challengeSubsTitle">Challenge Submissions</h2>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:16px" id="challengeSubsDesc"></p>
-    <div id="challengeSubsBody"></div>
-    <div style="margin-top:16px">
-      <button class="btn btn-ghost btn-sm" onclick="exportChallengeCSV()">⬇ Export CSV</button>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
