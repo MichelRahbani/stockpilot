@@ -3,428 +3,514 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Budget Challenge | StockPilot Classroom</title>
+<title>Budget Challenge — Can You Master Your Money? | StockPilot</title>
+<meta name="description" content="Real-world budget scenarios. Allocate your income, hit your savings targets, earn badges. Free, no signup needed."/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--green:#16a34a;--blue:#2563eb;--red:#dc2626;--amber:#d97706;--bg:#f8fafc;--white:#fff;--border:#e2e8f0;--muted:#94a3b8;--text:#0f172a}
+:root{--green:#16a34a;--blue:#2563eb;--red:#dc2626;--amber:#d97706;--bg:#f8fafc;--white:#fff;--border:#e2e8f0;--muted:#94a3b8;--text:#0f172a;--dark:#0f172a}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
 .nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;text-decoration:none;color:var(--text)}
-.nav-badge{background:var(--blue);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px}
-.page{max-width:960px;margin:0 auto;padding:32px 24px}
-.scenario-card{background:white;border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:24px;position:relative;overflow:hidden}
-.scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--blue),var(--green))}
-.scenario-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--blue);text-transform:uppercase;margin-bottom:8px}
-.scenario-title{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:8px}
-.scenario-text{font-size:14px;color:#475569;line-height:1.7;margin-bottom:16px}
-.scenario-pills{display:flex;gap:8px;flex-wrap:wrap}
-.pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600}
-.pill-green{background:#f0fdf4;color:var(--green)}
-.pill-blue{background:#eff6ff;color:var(--blue)}
-.pill-amber{background:#fffbeb;color:var(--amber)}
-.pill-red{background:#fef2f2;color:var(--red)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-@media(max-width:600px){.grid2{grid-template-columns:1fr}}
-.section-card{background:white;border:1px solid var(--border);border-radius:16px;padding:20px}
-.section-title{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-.input-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9}
-.input-row:last-child{border-bottom:none}
-.input-label{font-size:14px;font-weight:500;display:flex;flex-direction:column;gap:2px}
-.input-hint{font-size:11px;color:var(--muted);font-weight:400}
-.input-fixed{font-size:14px;font-weight:600;color:var(--red);background:#fef2f2;padding:6px 12px;border-radius:8px}
-.inp{width:110px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;text-align:right;transition:border-color 0.15s}
-.inp:focus{outline:none;border-color:var(--blue)}
-.score-panel{background:var(--text);color:white;border-radius:16px;padding:24px;position:sticky;top:72px}
-.score-big{font-family:'Fraunces',serif;font-size:64px;font-weight:700;line-height:1;text-align:center;margin:8px 0}
-.score-label{text-align:center;font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px}
-.meter-row{display:flex;align-items:center;justify-content:space-between;font-size:12px;margin-bottom:8px}
-.meter-bar{height:6px;background:rgba(255,255,255,0.1);border-radius:3px;margin-bottom:12px;overflow:hidden}
-.meter-fill{height:100%;border-radius:3px;transition:width 0.4s ease}
-.leftover-display{background:rgba(255,255,255,0.08);border-radius:10px;padding:12px;text-align:center;margin:12px 0}
-.leftover-amount{font-size:20px;font-weight:700}
-.badges-row{display:flex;gap:6px;flex-wrap:wrap;margin:12px 0}
-.badge{background:rgba(255,255,255,0.1);border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600}
-.badge.earned{background:rgba(22,163,74,0.3);color:#86efac}
-.submit-btn{width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;margin-top:8px}
-.submit-btn:hover{background:#1d4ed8;transform:translateY(-1px)}
-.submit-btn:disabled{background:rgba(255,255,255,0.2);cursor:not-allowed;transform:none}
-.rank-banner{background:linear-gradient(135deg,#1e40af,#2563eb);border-radius:12px;padding:14px;text-align:center;margin-top:12px;display:none}
-.rank-num{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:white}
-.rank-label{font-size:12px;color:rgba(255,255,255,0.6)}
-.warning-box{background:#fef3c7;border:1px solid #fbbf24;border-radius:10px;padding:12px;font-size:13px;color:#92400e;margin:8px 0;display:none}
-.success-box{background:#f0fdf4;border:1px solid #86efac;border-radius:10px;padding:12px;font-size:13px;color:#166534;margin:8px 0;display:none}
-.leaderboard-mini{margin-top:16px}
-.lb-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.08);font-size:13px}
-.lb-row:last-child{border-bottom:none}
+.nav-links{display:flex;gap:8px}
+.nav-link{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none}
+.nav-link:hover{background:#f1f5f9;color:var(--text)}
+.nav-cta{padding:8px 16px;border-radius:8px;background:var(--blue);color:white;font-size:13px;font-weight:600;text-decoration:none}
+
+/* Hero */
+.hero{background:var(--dark);color:white;padding:80px 24px 60px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(37,99,235,0.4),transparent 70%)}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.3);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:#93c5fd;letter-spacing:0.04em;margin-bottom:24px;position:relative}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(2.4rem,6vw,4rem);font-weight:700;line-height:1.05;letter-spacing:-0.03em;max-width:700px;margin:0 auto 16px;position:relative}
+.hero h1 em{font-style:italic;font-weight:300;color:#93c5fd}
+.hero-sub{font-size:clamp(1rem,2vw,1.1rem);color:rgba(255,255,255,0.5);max-width:480px;margin:0 auto 40px;line-height:1.6;position:relative}
+.stats-row{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;position:relative}
+.stat{text-align:center}
+.stat-num{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;color:white}
+.stat-lbl{font-size:12px;color:rgba(255,255,255,0.4)}
+
+/* Scenario picker */
+.picker{max-width:1000px;margin:0 auto;padding:48px 24px}
+.picker-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;text-align:center;margin-bottom:8px}
+.picker-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:32px}
+.scenarios-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.scenario-card{background:white;border:2px solid var(--border);border-radius:16px;padding:24px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));transform:scaleX(0);transform-origin:left;transition:transform 0.3s}
+.scenario-card:hover{border-color:var(--accent,var(--blue));transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+.scenario-card:hover::before{transform:scaleX(1)}
+.scenario-card.selected{border-color:var(--accent,var(--blue));background:#f0f9ff}
+.scenario-card.selected::before{transform:scaleX(1)}
+.sc-emoji{font-size:36px;margin-bottom:12px}
+.sc-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;margin-bottom:6px}
+.sc-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px}
+.sc-pills{display:flex;gap:6px;flex-wrap:wrap}
+.sc-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f1f5f9;color:var(--muted)}
+.start-btn{display:block;width:100%;max-width:320px;margin:32px auto 0;padding:16px;background:var(--blue);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-align:center}
+.start-btn:hover{background:#1d4ed8;transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,0.3)}
+.start-btn:disabled{background:#94a3b8;cursor:not-allowed;transform:none}
+
+/* Game */
+.game{max-width:1000px;margin:0 auto;padding:32px 24px;display:none}
+.back-btn{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);font-family:'DM Sans',sans-serif;padding:0;margin-bottom:20px;display:flex;align-items:center;gap:6px}
+.back-btn:hover{color:var(--text)}
+.scenario-banner{background:var(--dark);color:white;border-radius:16px;padding:24px;margin-bottom:24px;position:relative;overflow:hidden}
+.scenario-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 0% 50%,rgba(37,99,235,0.3),transparent)}
+.sb-emoji{font-size:32px;margin-bottom:8px;position:relative}
+.sb-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;margin-bottom:6px;position:relative}
+.sb-text{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;position:relative;max-width:600px}
+.sb-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;position:relative}
+.sb-pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.pill-g{background:rgba(22,163,74,0.2);color:#86efac}
+.pill-b{background:rgba(37,99,235,0.2);color:#93c5fd}
+.pill-r{background:rgba(220,38,38,0.2);color:#fca5a5}
+.pill-a{background:rgba(217,119,6,0.2);color:#fcd34d}
+
+.game-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
+@media(max-width:700px){.game-grid{grid-template-columns:1fr}}
+
+.alloc-card{background:white;border:1px solid var(--border);border-radius:16px;padding:20px}
+.alloc-section{margin-bottom:20px}
+.alloc-section-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.alloc-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8fafc}
+.alloc-row:last-child{border-bottom:none}
+.alloc-label{font-size:14px;display:flex;flex-direction:column;gap:2px}
+.alloc-hint{font-size:11px;color:var(--muted)}
+.alloc-fixed{font-size:13px;font-weight:700;color:var(--red);background:#fef2f2;padding:5px 10px;border-radius:8px;white-space:nowrap}
+.inp{width:100px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;text-align:right;transition:all 0.15s}
+.inp:focus{outline:none;border-color:var(--blue);background:#f0f9ff}
+.inp.over{border-color:var(--red);background:#fef2f2}
+.inp.good{border-color:var(--green)}
+
+/* Score panel */
+.score-panel{background:var(--dark);color:white;border-radius:16px;padding:22px;position:sticky;top:72px}
+.score-ring{width:120px;height:120px;margin:0 auto 12px;position:relative}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.score-ring-big{font-family:'Fraunces',serif;font-size:32px;font-weight:700;line-height:1}
+.score-ring-lbl{font-size:10px;color:rgba(255,255,255,0.4)}
+.score-grade{text-align:center;font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:16px}
+
+.metric-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin-bottom:4px}
+.metric-bar{height:5px;background:rgba(255,255,255,0.1);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.metric-fill{height:100%;border-radius:3px;transition:width 0.35s}
+
+.leftover-box{background:rgba(255,255,255,0.07);border-radius:10px;padding:10px 14px;text-align:center;margin:12px 0}
+.leftover-num{font-size:18px;font-weight:700}
+.leftover-lbl{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px}
+
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
+.badge{background:rgba(255,255,255,0.08);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;transition:all 0.3s}
+.badge.lit{background:rgba(22,163,74,0.25);color:#86efac}
+
+.submit-btn{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px;transition:all 0.2s}
+.submit-btn:hover{background:#1d4ed8}
+.submit-btn:disabled{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);cursor:not-allowed}
+
+/* Results */
+.results{max-width:600px;margin:0 auto;padding:32px 24px;display:none;text-align:center}
+.results-score{font-family:'Fraunces',serif;font-size:80px;font-weight:700;line-height:1;margin:16px 0}
+.results-grade{font-size:20px;font-weight:600;margin-bottom:8px}
+.results-badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px 0}
+.results-badge{background:#f0fdf4;border:1px solid #86efac;color:#166534;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600}
+.results-breakdown{background:white;border:1px solid var(--border);border-radius:16px;padding:24px;margin:24px 0;text-align:left}
+.breakdown-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8fafc;font-size:14px}
+.breakdown-row:last-child{border-bottom:none}
+.cta-box{background:var(--dark);color:white;border-radius:16px;padding:24px;margin-top:24px}
+.cta-box h3{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;margin-bottom:8px}
+.cta-box p{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px}
+.cta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.cta-btn{padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.cta-primary{background:var(--blue);color:white}
+.cta-ghost{background:rgba(255,255,255,0.1);color:white}
 </style>
 </head>
 <body>
 <nav>
-  <a href="/classroom" class="nav-brand">
-    <img src="/logo-dark.jpg" alt="StockPilot" style="width:28px;height:28px;border-radius:6px"/>
-    StockPilot <span class="nav-badge">CLASSROOM</span>
+  <a href="/" class="nav-brand">
+    <img src="/logo.jpg" alt="StockPilot" style="width:28px;height:28px;border-radius:6px"/>
+    StockPilot
   </a>
-  <div style="font-size:13px;color:var(--muted)" id="navUser"></div>
+  <div class="nav-links">
+    <a href="/trade" class="nav-link">Virtual Market</a>
+    <a href="/app" class="nav-link">Portfolio</a>
+    <a href="/learn" class="nav-link">Learn</a>
+    <a href="/classroom" class="nav-cta">Classroom</a>
+  </div>
 </nav>
 
-<div class="page" id="loadingState">
-  <div style="text-align:center;padding:60px 0;color:var(--muted)">⏳ Loading challenge...</div>
+<!-- Hero -->
+<div class="hero" id="heroSection">
+  <div class="hero-eyebrow">🎯 Free · No signup · Real scenarios</div>
+  <h1>Can you master<br/><em>your budget?</em></h1>
+  <p class="hero-sub">Pick a real-world scenario, allocate your income, and see how your budget holds up. Get scored, earn badges, and learn what actually works.</p>
+  <div class="stats-row">
+    <div class="stat"><div class="stat-num">5</div><div class="stat-lbl">Scenarios</div></div>
+    <div class="stat"><div class="stat-num">100</div><div class="stat-lbl">Max Score</div></div>
+    <div class="stat"><div class="stat-num">5 min</div><div class="stat-lbl">To complete</div></div>
+  </div>
 </div>
 
-<div class="page" id="mainContent" style="display:none">
-  <!-- Scenario -->
-  <div class="scenario-card" id="scenarioCard">
-    <div class="scenario-eyebrow">🎯 Budget Challenge</div>
-    <div class="scenario-title" id="challengeTitle"></div>
-    <div class="scenario-text" id="challengeScenario"></div>
-    <div class="scenario-pills" id="scenarioPills"></div>
-  </div>
+<!-- Scenario Picker -->
+<div class="picker" id="pickerSection">
+  <div class="picker-title">Choose your scenario</div>
+  <div class="picker-sub">Each scenario is based on real US financial data. Pick the one closest to your situation — or just try them all.</div>
+  <div class="scenarios-grid" id="scenariosGrid"></div>
+  <button class="start-btn" id="startBtn" onclick="startGame()" disabled>Pick a scenario to start →</button>
+</div>
 
-  <!-- Due date warning -->
-  <div class="warning-box" id="dueDateWarning"></div>
-  <div class="success-box" id="alreadySubmitted">✓ You already submitted this challenge. You can resubmit to improve your score.</div>
-
-  <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start">
-    <div>
-      <!-- Fixed Expenses -->
-      <div class="section-card" style="margin-bottom:16px" id="fixedExpensesCard">
-        <div class="section-title">🔒 Fixed Expenses <span style="font-size:11px;font-weight:400;color:var(--muted)">(required — cannot change)</span></div>
-        <div id="fixedExpensesList"></div>
-      </div>
-
-      <!-- Variable Expenses -->
-      <div class="section-card" style="margin-bottom:16px">
-        <div class="section-title">📊 Your Budget Allocation</div>
-        <div class="input-row">
-          <div class="input-label">🏠 Housing / Rent <span class="input-hint">Rent, mortgage, renters insurance</span></div>
-          <input class="inp" id="bHousing" type="number" min="0" placeholder="0" oninput="recalc()"/>
-        </div>
-        <div class="input-row">
-          <div class="input-label">🍔 Food <span class="input-hint">Groceries, dining out, coffee</span></div>
-          <input class="inp" id="bFood" type="number" min="0" placeholder="0" oninput="recalc()"/>
-        </div>
-        <div class="input-row">
-          <div class="input-label">🚗 Transportation <span class="input-hint">Gas, transit, parking, Uber</span></div>
-          <input class="inp" id="bTransport" type="number" min="0" placeholder="0" oninput="recalc()"/>
-        </div>
-        <div class="input-row">
-          <div class="input-label">💡 Utilities <span class="input-hint">Electric, internet, phone, water</span></div>
-          <input class="inp" id="bUtilities" type="number" min="0" placeholder="0" oninput="recalc()"/>
-        </div>
-        <div class="input-row">
-          <div class="input-label">🎮 Entertainment <span class="input-hint">Streaming, hobbies, going out</span></div>
-          <input class="inp" id="bEntertainment" type="number" min="0" placeholder="0" oninput="recalc()"/>
-        </div>
-        <div class="input-row">
-          <div class="input-label">💰 Savings <span class="input-hint">Monthly amount you save</span></div>
-          <input class="inp" id="bSavings" type="number" min="0" placeholder="0" oninput="recalc()" style="border-color:var(--green)"/>
-        </div>
-        <div class="input-row">
-          <div class="input-label">💳 Extra Debt Payment <span class="input-hint">Above minimum required payment</span></div>
-          <input class="inp" id="bDebt" type="number" min="0" placeholder="0" oninput="recalc()"/>
-        </div>
-        <div class="input-row">
-          <div class="input-label">🏦 Emergency Fund <span class="input-hint">Building your safety net</span></div>
-          <input class="inp" id="bEmergency" type="number" min="0" placeholder="0" oninput="recalc()"/>
-        </div>
-        <div class="input-row" style="border-bottom:none">
-          <div class="input-label">📦 Other <span class="input-hint">Clothing, personal care, misc</span></div>
-          <input class="inp" id="bOther" type="number" min="0" placeholder="0" oninput="recalc()"/>
-        </div>
-      </div>
-    </div>
-
-    <!-- Score Panel -->
+<!-- Game -->
+<div class="game" id="gameSection">
+  <button class="back-btn" onclick="backToPicker()">← Back to scenarios</button>
+  <div class="scenario-banner" id="gameBanner"></div>
+  <div class="game-grid">
+    <div class="alloc-card" id="allocCard"></div>
     <div class="score-panel" id="scorePanel">
-      <div style="font-size:12px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:4px">BUDGET SCORE</div>
-      <div class="score-big" id="scoreDisplay">—</div>
-      <div class="score-label" id="scoreLabel">Fill in your budget to see your score</div>
+      <div class="score-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#86efac" stroke-width="10"
+            stroke-dasharray="326.7" stroke-dashoffset="326.7" stroke-linecap="round" id="scoreArc"
+            style="transition:stroke-dashoffset 0.5s,stroke 0.3s"/>
+        </svg>
+        <div class="score-ring-num">
+          <div class="score-ring-big" id="scoreNum">—</div>
+          <div class="score-ring-lbl">/ 100</div>
+        </div>
+      </div>
+      <div class="score-grade" id="scoreGrade">Fill in your budget</div>
 
-      <div class="leftover-display">
-        <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:4px">MONTHLY LEFTOVER</div>
-        <div class="leftover-amount" id="leftoverDisplay">—</div>
+      <div class="leftover-box">
+        <div class="leftover-num" id="leftoverNum">—</div>
+        <div class="leftover-lbl">MONTHLY LEFTOVER</div>
       </div>
 
-      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px;margin-top:12px">SAVINGS RATE</div>
-      <div class="meter-row"><span id="savingsRateDisplay">0%</span><span id="savingsRateTarget" style="color:rgba(255,255,255,0.4)"></span></div>
-      <div class="meter-bar"><div class="meter-fill" id="savingsMeter" style="width:0%;background:#86efac"></div></div>
+      <div class="metric-row"><span style="font-size:11px;color:rgba(255,255,255,0.4)">SAVINGS RATE</span><span id="savRateNum" style="font-size:12px">0%</span></div>
+      <div class="metric-bar"><div class="metric-fill" id="savMeter" style="width:0%;background:#86efac"></div></div>
 
-      <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:6px">BUDGET BALANCE</div>
-      <div class="meter-row"><span id="balanceDisplay">$0 remaining</span></div>
-      <div class="meter-bar"><div class="meter-fill" id="balanceMeter" style="width:100%;background:#86efac"></div></div>
+      <div class="metric-row"><span style="font-size:11px;color:rgba(255,255,255,0.4)">BUDGET BALANCE</span><span id="balNum" style="font-size:12px">—</span></div>
+      <div class="metric-bar"><div class="metric-fill" id="balMeter" style="width:0%;background:#86efac"></div></div>
 
-      <div class="badges-row" id="badgesRow"></div>
+      <div class="badges" id="badgesEl"></div>
+      <button class="submit-btn" id="submitBtn" onclick="showResults()" disabled>See My Results →</button>
+    </div>
+  </div>
+</div>
 
-      <button class="submit-btn" onclick="submitChallenge()" id="submitBtn" disabled>Submit Budget</button>
-      <div id="submitMsg" style="font-size:12px;text-align:center;margin-top:8px;color:rgba(255,255,255,0.5)"></div>
-
-      <div class="rank-banner" id="rankBanner">
-        <div class="rank-label">YOUR CLASS RANK</div>
-        <div class="rank-num" id="rankNum">#1</div>
-        <div class="rank-label" id="rankOf"></div>
-      </div>
-
-      <div class="leaderboard-mini" id="miniLeaderboard"></div>
+<!-- Results -->
+<div class="results" id="resultsSection">
+  <div style="font-size:48px" id="resultsEmoji">🏆</div>
+  <div class="results-score" id="resultsScore"></div>
+  <div class="results-grade" id="resultsGrade"></div>
+  <div class="results-badges" id="resultsBadges"></div>
+  <div class="results-breakdown" id="resultsBreakdown"></div>
+  <div class="cta-box">
+    <h3>Want to compete with a class?</h3>
+    <p>Professors can assign Budget Challenges as graded assignments. Students compete on a live leaderboard.</p>
+    <div class="cta-row">
+      <a href="/classroom" class="cta-btn cta-primary">Set Up a Classroom →</a>
+      <button class="cta-btn cta-ghost" onclick="backToPicker()">Try Another Scenario</button>
     </div>
   </div>
 </div>
 
 <script>
-const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+const SCENARIOS = [
+  {
+    id:'grad',
+    emoji:'🎓',
+    title:'Recent Graduate',
+    desc:'You just landed your first job out of college. Student loans are kicking in, rent is expensive, and you\'re trying to figure out how to actually save money.',
+    income:3500,
+    fixed:{rent:1100,loan:200,transport:0,utilities:0},
+    targetSavings:15,
+    targetEmergency:3500,
+    accent:'#2563eb',
+    pills:['$3,500/mo','Student loans','Entry level job'],
+    tip:'The 50/30/20 rule is a good starting point: 50% needs, 30% wants, 20% savings.'
+  },
+  {
+    id:'nyc',
+    emoji:'🏙️',
+    title:'Big City Life',
+    desc:'You\'re living in a major city. High rent, no car, but good salary. The challenge: high cost of living eats into everything.',
+    income:5500,
+    fixed:{rent:2200,loan:0,transport:150,utilities:120},
+    targetSavings:20,
+    targetEmergency:5500,
+    accent:'#7c3aed',
+    pills:['$5,500/mo','NYC / LA / SF','High rent'],
+    tip:'In high cost cities, housing often takes 40%+ of income. The key is keeping everything else lean.'
+  },
+  {
+    id:'family',
+    emoji:'👨‍👩‍👧',
+    title:'Young Family',
+    desc:'Married with one kid. Childcare is brutal, you have a mortgage, and one partner works part-time. Making it all work is a puzzle.',
+    income:6800,
+    fixed:{rent:1600,loan:0,transport:400,utilities:200},
+    targetSavings:15,
+    targetEmergency:10000,
+    accent:'#16a34a',
+    pills:['$6,800/mo','Mortgage','Childcare costs'],
+    tip:'Families need 6 months emergency fund. Start small — even $100/month adds up fast.'
+  },
+  {
+    id:'hustle',
+    emoji:'💼',
+    title:'Side Hustler',
+    desc:'You have a 9-5 plus freelance income on the side. Income is inconsistent month to month. You want to pay off debt and invest.',
+    income:4200,
+    fixed:{rent:900,loan:300,transport:200,utilities:80},
+    targetSavings:25,
+    targetEmergency:8400,
+    accent:'#d97706',
+    pills:['$4,200/mo avg','Variable income','Debt to clear'],
+    tip:'With variable income, budget to your lowest expected month. Save the surplus months.'
+  },
+  {
+    id:'reset',
+    emoji:'🔄',
+    title:'Financial Reset',
+    desc:'You went through a rough patch — job loss, medical bills, or just bad habits. Income is back but you\'re rebuilding from scratch.',
+    income:2900,
+    fixed:{rent:850,loan:0,transport:120,utilities:90},
+    targetSavings:10,
+    targetEmergency:2900,
+    accent:'#dc2626',
+    pills:['$2,900/mo','Rebuilding credit','Tight budget'],
+    tip:'Focus on the basics first: stable housing, food, transport. Build emergency fund before investing.'
+  }
+];
 
-let challenge = null;
-let token = localStorage.getItem('supabase_token');
-let uid = null;
-let nickname = localStorage.getItem('supabase_name') || 'Student';
+let selectedScenario = null;
+let earnedBadges = [];
 
-try { uid = JSON.parse(atob(token.split('.')[1])).sub; } catch(e){}
+// Render scenario cards
+document.getElementById('scenariosGrid').innerHTML = SCENARIOS.map((s,i) => `
+  <div class="scenario-card" onclick="selectScenario(${i})" id="sc-${s.id}" style="--accent:${s.accent}">
+    <div class="sc-emoji">${s.emoji}</div>
+    <div class="sc-title">${s.title}</div>
+    <div class="sc-desc">${s.desc}</div>
+    <div class="sc-pills">${s.pills.map(p=>`<span class="sc-pill">${p}</span>`).join('')}</div>
+  </div>
+`).join('');
 
-// Parse challenge ID from URL
-const challengeId = new URLSearchParams(window.location.search).get('id');
+function selectScenario(i){
+  document.querySelectorAll('.scenario-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('sc-'+SCENARIOS[i].id).classList.add('selected');
+  selectedScenario = SCENARIOS[i];
+  document.getElementById('startBtn').disabled = false;
+  document.getElementById('startBtn').textContent = 'Start: '+SCENARIOS[i].title+' →';
+}
 
-async function init(){
-  if(!challengeId){ document.getElementById('loadingState').innerHTML = '<div style="text-align:center;padding:60px;color:#dc2626">No challenge ID provided.</div>'; return; }
-  if(!token||!uid){ window.location.href = '/classroom'; return; }
+function startGame(){
+  if(!selectedScenario) return;
+  const s = selectedScenario;
+  document.getElementById('heroSection').style.display = 'none';
+  document.getElementById('pickerSection').style.display = 'none';
+  document.getElementById('gameSection').style.display = 'block';
+  window.scrollTo(0,0);
 
-  // Fetch challenge
-  const r = await fetch(SUPA_URL+'/rest/v1/budget_challenges?id=eq.'+challengeId,{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
-  });
-  const data = await r.json();
-  if(!data||!data[0]){ document.getElementById('loadingState').innerHTML = '<div style="text-align:center;padding:60px;color:#dc2626">Challenge not found.</div>'; return; }
-  challenge = data[0];
-
-  // Render scenario
-  document.getElementById('challengeTitle').textContent = challenge.title;
-  document.getElementById('challengeScenario').textContent = challenge.scenario;
-  const fixed = challenge.fixed_expenses||{};
+  // Banner
+  const fixed = s.fixed;
   const fixedTotal = (fixed.rent||0)+(fixed.loan||0)+(fixed.transport||0)+(fixed.utilities||0);
-  document.getElementById('scenarioPills').innerHTML =
-    '<span class="pill pill-green">💵 $'+Number(challenge.monthly_income).toLocaleString()+'/mo income</span>'
-    +'<span class="pill pill-blue">🎯 '+challenge.target_savings_rate+'% savings target</span>'
-    +(challenge.due_date?'<span class="pill pill-amber">📅 Due '+new Date(challenge.due_date).toLocaleDateString()+'</span>':''  )
-    +'<span class="pill pill-red">🔒 $'+fixedTotal.toLocaleString()+' fixed costs</span>';
+  document.getElementById('gameBanner').innerHTML = `
+    <div class="sb-emoji">${s.emoji}</div>
+    <div class="sb-title">${s.title}</div>
+    <div class="sb-text">${s.desc}</div>
+    <div class="sb-pills">
+      <span class="sb-pill pill-g">💵 $${s.income.toLocaleString()}/mo take-home</span>
+      <span class="sb-pill pill-r">🔒 $${fixedTotal.toLocaleString()} fixed costs</span>
+      <span class="sb-pill pill-b">🎯 ${s.targetSavings}% savings target</span>
+      <span class="sb-pill pill-a">💡 ${s.tip}</span>
+    </div>`;
 
+  // Build allocation form
+  let html = '';
   // Fixed expenses
-  const fixedList = document.getElementById('fixedExpensesList');
-  fixedList.innerHTML = '';
-  if(fixed.rent>0) fixedList.innerHTML += fixedRow('🏠 Rent/Housing', fixed.rent);
-  if(fixed.loan>0) fixedList.innerHTML += fixedRow('💳 Loan Min. Payment', fixed.loan);
-  if(fixed.transport>0) fixedList.innerHTML += fixedRow('🚗 Transportation', fixed.transport);
-  if(fixed.utilities>0) fixedList.innerHTML += fixedRow('💡 Utilities', fixed.utilities);
-  if(!fixedList.innerHTML) document.getElementById('fixedExpensesCard').style.display='none';
-
-  // Due date warning
-  if(challenge.due_date){
-    const daysLeft = Math.ceil((new Date(challenge.due_date)-new Date())/(1000*60*60*24));
-    if(daysLeft<=3&&daysLeft>0){
-      const w = document.getElementById('dueDateWarning');
-      w.textContent = '⚠️ This challenge closes in '+daysLeft+' day'+(daysLeft===1?'':\'s')+'. Submit before '+new Date(challenge.due_date).toLocaleDateString();
-      w.style.display='block';
-    }
+  if(fixedTotal > 0){
+    html += '<div class="alloc-section"><div class="alloc-section-title">🔒 Fixed Expenses <span style="font-weight:400;text-transform:none;letter-spacing:0">(locked in — can\'t change)</span></div>';
+    if(fixed.rent>0) html += fixedRow('🏠 Rent / Mortgage', fixed.rent);
+    if(fixed.loan>0) html += fixedRow('💳 Loan Min. Payment', fixed.loan);
+    if(fixed.transport>0) html += fixedRow('🚗 Transportation', fixed.transport);
+    if(fixed.utilities>0) html += fixedRow('💡 Utilities', fixed.utilities);
+    html += '</div>';
   }
-
-  document.getElementById('savingsRateTarget').textContent = 'target: '+challenge.target_savings_rate+'%';
-  document.getElementById('navUser').textContent = nickname;
-
-  // Check existing submission
-  const sr = await fetch(SUPA_URL+'/rest/v1/budget_challenge_submissions?challenge_id=eq.'+challengeId+'&user_id=eq.'+uid,{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token}
+  // Variable
+  html += `<div class="alloc-section"><div class="alloc-section-title">📊 Your Allocations <span style="font-weight:400;text-transform:none;letter-spacing:0">($${s.income.toLocaleString()} to work with)</span></div>`;
+  const vars = [
+    ['bHousing','🏠','Housing / Rent','Rent, mortgage, renters insurance'],
+    ['bFood','🍔','Food','Groceries + dining out'],
+    ['bTransport','🚗','Transportation','Gas, transit, Uber, parking'],
+    ['bUtilities','💡','Utilities','Electric, internet, phone'],
+    ['bEntertain','🎮','Entertainment','Streaming, going out, hobbies'],
+    ['bSavings','💰','Savings','Monthly savings — the most important line'],
+    ['bDebt','💳','Extra Debt Payment','Pay more than the minimum'],
+    ['bEmergency','🛡️','Emergency Fund','Your safety net'],
+    ['bOther','📦','Other','Clothes, personal care, misc'],
+  ];
+  // Pre-fill some sensible defaults for housing/food if not in fixed
+  const defaults = {bHousing: fixed.rent>0?0:s.fixed.rent||0, bFood:300, bTransport:fixed.transport>0?0:100, bUtilities:fixed.utilities>0?0:100};
+  vars.forEach(([id,icon,label,hint])=>{
+    html += `<div class="alloc-row">
+      <div class="alloc-label">${icon} ${label}<span class="alloc-hint">${hint}</span></div>
+      <input class="inp" id="${id}" type="number" min="0" placeholder="0" oninput="recalc()" value="${defaults[id]||''}"/>
+    </div>`;
   });
-  const existing = await sr.json();
-  if(existing&&existing[0]){
-    document.getElementById('alreadySubmitted').style.display='block';
-    // Pre-fill their last submission
-    const s = existing[0];
-    ['Housing','Food','Transport','Utilities','Entertainment','Savings','Debt','Emergency','Other'].forEach(k=>{
-      const el = document.getElementById('b'+k);
-      if(el) el.value = s[k.toLowerCase()]||0;
-    });
-    recalc();
-  }
-
-  document.getElementById('loadingState').style.display='none';
-  document.getElementById('mainContent').style.display='block';
-  loadMiniLeaderboard();
+  html += '</div>';
+  document.getElementById('allocCard').innerHTML = html;
+  recalc();
 }
 
 function fixedRow(label, amount){
-  return '<div class="input-row"><div class="input-label">'+label+'</div><div class="input-fixed">$'+Number(amount).toLocaleString()+'/mo</div></div>';
+  return `<div class="alloc-row"><div class="alloc-label">${label}</div><div class="alloc-fixed">$${Number(amount).toLocaleString()}/mo</div></div>`;
 }
 
-function v(id){ return parseFloat(document.getElementById(id).value)||0; }
+function v(id){ return parseFloat(document.getElementById(id)?.value)||0; }
 
 function recalc(){
-  if(!challenge) return;
-  const income = challenge.monthly_income;
-  const fixed = challenge.fixed_expenses||{};
+  const s = selectedScenario;
+  if(!s) return;
+  const fixed = s.fixed;
   const fixedTotal = (fixed.rent||0)+(fixed.loan||0)+(fixed.transport||0)+(fixed.utilities||0);
-  const varTotal = v('bHousing')+v('bFood')+v('bTransport')+v('bUtilities')+v('bEntertainment')+v('bSavings')+v('bDebt')+v('bEmergency')+v('bOther');
-  const totalSpent = fixedTotal + varTotal;
-  const leftover = income - totalSpent;
-  const savingsRate = income>0 ? Math.round((v('bSavings')/income)*100) : 0;
-  const targetSavings = challenge.target_savings_rate||20;
+  const varTotal = v('bHousing')+v('bFood')+v('bTransport')+v('bUtilities')+v('bEntertain')+v('bSavings')+v('bDebt')+v('bEmergency')+v('bOther');
+  const total = fixedTotal + varTotal;
+  const leftover = s.income - total;
+  const savRate = s.income>0 ? (v('bSavings')/s.income*100) : 0;
+  const entPct = s.income>0 ? v('bEntertain')/s.income : 0;
+  const emergMonths = total>0 ? v('bEmergency')/total : 0;
 
-  // Score calculation
+  // Score (100 pts)
   let score = 0;
-
-  // 1. Balance score (30 pts) — must not overspend
-  if(leftover>=0) score += 30;
-  else score += Math.max(0, 30+Math.round(leftover/income*30));
-
-  // 2. Savings rate score (35 pts)
-  const savingsPct = Math.min(savingsRate/targetSavings, 1.5);
-  score += Math.round(savingsPct*35);
-
-  // 3. Emergency fund score (15 pts)
-  const monthlyExpenses = totalSpent;
-  const emergencyMonths = monthlyExpenses>0 ? v('bEmergency')/monthlyExpenses : 0;
-  score += Math.min(Math.round(emergencyMonths*5), 15);
-
-  // 4. Debt payment score (10 pts) — paying more than minimum
+  if(leftover >= 0) score += 30;
+  else score += Math.max(0, 30 + Math.round(leftover/s.income*30));
+  score += Math.round(Math.min(savRate/s.targetSavings, 1.5)*35);
+  score += Math.min(Math.round(emergMonths*5), 15);
   if(v('bDebt')>0) score += 10;
-
-  // 5. No category overdoing it (10 pts) — entertainment < 15% of income
-  const entPct = income>0 ? v('bEntertainment')/income : 0;
-  if(entPct<=0.15) score += 10;
-  else score += Math.round((1-entPct)*10);
-
+  score += entPct<=0.15 ? 10 : Math.round((1-entPct)*10);
   score = Math.max(0, Math.min(100, score));
 
-  // Display
-  const scoreEl = document.getElementById('scoreDisplay');
-  scoreEl.textContent = score;
-  scoreEl.style.color = score>=80?'#86efac':score>=60?'#fbbf24':'#fca5a5';
+  // Arc
+  const arc = document.getElementById('scoreArc');
+  const pct = score/100;
+  arc.style.strokeDashoffset = 326.7*(1-pct);
+  arc.style.stroke = score>=80?'#86efac':score>=60?'#fbbf24':'#fca5a5';
 
-  const labels = {100:'Perfect budget! 🏆',90:'Outstanding!',80:'Strong plan!',70:'Good, can improve',60:'Needs some work',50:'Getting there',0:'Review your plan'};
-  const lk = Object.keys(labels).map(Number).filter(k=>score>=k).sort((a,b)=>b-a)[0];
-  document.getElementById('scoreLabel').textContent = labels[lk]||'Fill in your budget';
+  // Score num
+  const sn = document.getElementById('scoreNum');
+  sn.textContent = total===0?'—':score;
+  sn.style.color = score>=80?'#86efac':score>=60?'#fbbf24':'#fca5a5';
+
+  const grades = [[90,'Outstanding! 🏆'],[80,'Strong budget!'],[70,'Good, refine it'],[60,'Getting there'],[50,'Needs work'],[0,'Keep trying']];
+  const grade = grades.find(([min])=>score>=min)||grades[grades.length-1];
+  document.getElementById('scoreGrade').textContent = total===0?'Fill in your budget':grade[1];
 
   // Leftover
-  const lEl = document.getElementById('leftoverDisplay');
-  lEl.textContent = (leftover>=0?'$':'−$')+Math.abs(leftover).toLocaleString()+' '+(leftover>=0?'surplus':'over budget');
-  lEl.style.color = leftover>=0?'#86efac':'#fca5a5';
+  const ln = document.getElementById('leftoverNum');
+  ln.textContent = (leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString()+(leftover>=0?' surplus':' over budget');
+  ln.style.color = leftover>=0?'#86efac':'#fca5a5';
 
-  // Savings rate meter
-  document.getElementById('savingsRateDisplay').textContent = savingsRate+'%';
-  const sm = document.getElementById('savingsMeter');
-  sm.style.width = Math.min(savingsRate/targetSavings*100, 100)+'%';
-  sm.style.background = savingsRate>=targetSavings?'#86efac':'#fbbf24';
+  // Meters
+  const sm = document.getElementById('savMeter');
+  sm.style.width = Math.min(savRate/s.targetSavings*100,100)+'%';
+  sm.style.background = savRate>=s.targetSavings?'#86efac':'#fbbf24';
+  document.getElementById('savRateNum').textContent = savRate.toFixed(1)+'%';
 
-  // Balance meter
-  const balPct = Math.max(0,Math.min(leftover/income*100,100));
-  document.getElementById('balanceMeter').style.width = balPct+'%';
-  document.getElementById('balanceMeter').style.background = leftover>=0?'#86efac':'#fca5a5';
-  document.getElementById('balanceDisplay').textContent = (leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString()+' remaining';
+  const balPct = Math.max(0,Math.min(leftover/s.income*100,100));
+  document.getElementById('balMeter').style.width = balPct+'%';
+  document.getElementById('balMeter').style.background = leftover>=0?'#86efac':'#fca5a5';
+  document.getElementById('balNum').textContent = (leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString();
 
   // Badges
-  const badges = [];
-  if(savingsRate>=targetSavings) badges.push({icon:'💰',label:'Savings Champion'});
-  if(v('bDebt')>0) badges.push({icon:'⚡',label:'Debt Crusher'});
-  if(leftover>=0&&leftover/income<0.05) badges.push({icon:'🎯',label:'Zero Waster'});
-  if(entPct<=0.05) badges.push({icon:'🧘',label:'Minimalist'});
-  if(v('bEmergency')>0) badges.push({icon:'🛡️',label:'Safety Builder'});
-  if(score>=90) badges.push({icon:'🏆',label:'Budget Master'});
+  earnedBadges = [];
+  if(savRate>=s.targetSavings) earnedBadges.push({icon:'💰',label:'Savings Champion'});
+  if(v('bDebt')>0) earnedBadges.push({icon:'⚡',label:'Debt Crusher'});
+  if(leftover>=0&&leftover/s.income<0.05) earnedBadges.push({icon:'🎯',label:'Zero Waster'});
+  if(entPct<=0.05&&total>0) earnedBadges.push({icon:'🧘',label:'Minimalist'});
+  if(v('bEmergency')>0) earnedBadges.push({icon:'🛡️',label:'Safety Builder'});
+  if(score>=90) earnedBadges.push({icon:'🏆',label:'Budget Master'});
+  if(v('bFood')<200&&total>0) earnedBadges.push({icon:'🥦',label:'Frugal Foodie'});
 
-  document.getElementById('badgesRow').innerHTML = badges.map(b=>
-    '<div class="badge earned">'+b.icon+' '+b.label+'</div>'
-  ).join('');
+  const allBadges = [
+    {icon:'💰',label:'Savings Champion'},{icon:'⚡',label:'Debt Crusher'},
+    {icon:'🎯',label:'Zero Waster'},{icon:'🧘',label:'Minimalist'},
+    {icon:'🛡️',label:'Safety Builder'},{icon:'🏆',label:'Budget Master'},{icon:'🥦',label:'Frugal Foodie'}
+  ];
+  document.getElementById('badgesEl').innerHTML = allBadges.map(b=>{
+    const earned = earnedBadges.find(e=>e.icon===b.icon);
+    return `<div class="badge${earned?' lit':''}">${b.icon} ${b.label}</div>`;
+  }).join('');
 
-  // Enable submit if budget is valid
-  document.getElementById('submitBtn').disabled = totalSpent===0;
+  // Enable submit
+  document.getElementById('submitBtn').disabled = total===0;
 }
 
-async function submitChallenge(){
-  if(!challenge||!uid) return;
-  const btn = document.getElementById('submitBtn');
-  btn.disabled = true; btn.textContent = 'Submitting...';
-
-  const income = challenge.monthly_income;
-  const fixed = challenge.fixed_expenses||{};
+function showResults(){
+  const s = selectedScenario;
+  const fixed = s.fixed;
   const fixedTotal = (fixed.rent||0)+(fixed.loan||0)+(fixed.transport||0)+(fixed.utilities||0);
-  const housing = v('bHousing'), food = v('bFood'), transport = v('bTransport'),
-        utilities = v('bUtilities'), entertainment = v('bEntertainment'),
-        savings = v('bSavings'), debt = v('bDebt'), emergency = v('bEmergency'), other = v('bOther');
-  const totalVar = housing+food+transport+utilities+entertainment+savings+debt+emergency+other;
-  const totalExpenses = fixedTotal+totalVar;
-  const leftover = income-totalExpenses;
-  const savingsRate = income>0?Math.round((savings/income)*100):0;
+  const varTotal = v('bHousing')+v('bFood')+v('bTransport')+v('bUtilities')+v('bEntertain')+v('bSavings')+v('bDebt')+v('bEmergency')+v('bOther');
+  const total = fixedTotal+varTotal;
+  const leftover = s.income-total;
+  const savRate = s.income>0?(v('bSavings')/s.income*100):0;
+  const entPct = s.income>0?v('bEntertain')/s.income:0;
+  const emergMonths = total>0?v('bEmergency')/total:0;
 
-  // Calculate score
-  const targetSavings = challenge.target_savings_rate||20;
   let score = 0;
-  if(leftover>=0) score+=30; else score+=Math.max(0,30+Math.round(leftover/income*30));
-  score += Math.round(Math.min(savingsRate/targetSavings,1.5)*35);
-  const monthlyExpenses = totalExpenses;
-  const emergencyMonths = monthlyExpenses>0?emergency/monthlyExpenses:0;
-  score += Math.min(Math.round(emergencyMonths*5),15);
-  if(debt>0) score+=10;
-  const entPct = income>0?entertainment/income:0;
-  score += entPct<=0.15?10:Math.round((1-entPct)*10);
-  score = Math.max(0,Math.min(100,score));
+  if(leftover>=0) score+=30; else score+=Math.max(0,30+Math.round(leftover/s.income*30));
+  score+=Math.round(Math.min(savRate/s.targetSavings,1.5)*35);
+  score+=Math.min(Math.round(emergMonths*5),15);
+  if(v('bDebt')>0) score+=10;
+  score+=entPct<=0.15?10:Math.round((1-entPct)*10);
+  score=Math.max(0,Math.min(100,score));
 
-  const badges = [];
-  if(savingsRate>=targetSavings) badges.push('💰 Savings Champion');
-  if(debt>0) badges.push('⚡ Debt Crusher');
-  if(leftover>=0&&leftover/income<0.05) badges.push('🎯 Zero Waster');
-  if(entPct<=0.05) badges.push('🧘 Minimalist');
-  if(emergency>0) badges.push('🛡️ Safety Builder');
-  if(score>=90) badges.push('🏆 Budget Master');
+  document.getElementById('gameSection').style.display='none';
+  document.getElementById('resultsSection').style.display='block';
+  window.scrollTo(0,0);
 
-  try {
-    const r = await fetch(SUPA_URL+'/rest/v1/budget_challenge_submissions',{
-      method:'POST',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},
-      body: JSON.stringify({
-        challenge_id:challengeId, class_id:challenge.class_id,
-        user_id:uid, nickname,
-        monthly_income:income, housing, food, transport, utilities,
-        entertainment, savings, debt_payment:debt, emergency_fund:emergency, other,
-        total_expenses:totalExpenses, leftover, savings_rate:savingsRate, score, badges
-      })
-    });
-    if(r.ok){
-      document.getElementById('submitMsg').textContent = '✓ Submitted! Score: '+score+'/100';
-      document.getElementById('submitMsg').style.color = '#86efac';
-      btn.textContent = 'Resubmit Budget'; btn.disabled=false;
-      document.getElementById('alreadySubmitted').style.display='block';
-      loadMiniLeaderboard();
-    } else {
-      btn.textContent = 'Submit Budget'; btn.disabled=false;
-      document.getElementById('submitMsg').textContent = 'Error submitting. Try again.';
-    }
-  } catch(e){
-    btn.textContent = 'Submit Budget'; btn.disabled=false;
-    document.getElementById('submitMsg').textContent = 'Error: '+e.message;
-  }
+  const emojis = {90:'🏆',80:'🌟',70:'💪',60:'📈',0:'💡'};
+  const ek = Object.keys(emojis).map(Number).filter(k=>score>=k).sort((a,b)=>b-a)[0];
+  document.getElementById('resultsEmoji').textContent = emojis[ek]||'💡';
+
+  const rs = document.getElementById('resultsScore');
+  rs.textContent = score;
+  rs.style.color = score>=80?'#16a34a':score>=60?'#d97706':'#dc2626';
+
+  const grades2 = [[90,'Outstanding budget!'],[80,'Strong financial plan'],[70,'Good effort, some room to improve'],[60,'On the right track'],[0,'Keep learning — you\'ll get there']];
+  const g2 = grades2.find(([min])=>score>=min)||grades2[grades2.length-1];
+  document.getElementById('resultsGrade').textContent = g2[1];
+
+  document.getElementById('resultsBadges').innerHTML = earnedBadges.length
+    ? earnedBadges.map(b=>`<div class="results-badge">${b.icon} ${b.label}</div>`).join('')
+    : '<div style="color:var(--muted);font-size:13px">No badges this time — try again!</div>';
+
+  // Breakdown
+  const rows = [
+    ['Monthly Income','$'+s.income.toLocaleString(),''],
+    ['Fixed Expenses','−$'+fixedTotal.toLocaleString(),''],
+    ['Housing','−$'+v('bHousing').toLocaleString(),''],
+    ['Food','−$'+v('bFood').toLocaleString(),''],
+    ['Transportation','−$'+v('bTransport').toLocaleString(),''],
+    ['Utilities','−$'+v('bUtilities').toLocaleString(),''],
+    ['Entertainment','−$'+v('bEntertain').toLocaleString(),entPct>0.15?'⚠️ Over 15%':''],
+    ['Savings','$'+v('bSavings').toLocaleString(),savRate>=s.targetSavings?'✓ Target met':'⚠️ Below target'],
+    ['Extra Debt Payment','$'+v('bDebt').toLocaleString(),''],
+    ['Emergency Fund','$'+v('bEmergency').toLocaleString(),''],
+    ['Other','−$'+v('bOther').toLocaleString(),''],
+    ['Monthly Leftover',(leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString(),leftover>=0?'✓':'⚠️ Over budget'],
+    ['Savings Rate',savRate.toFixed(1)+'%',savRate>=s.targetSavings?'✓ Met '+s.targetSavings+'% target':'Target: '+s.targetSavings+'%'],
+  ];
+  document.getElementById('resultsBreakdown').innerHTML = '<div style="font-size:13px;font-weight:700;margin-bottom:12px">Budget Breakdown</div>'
+    +rows.map(([l,v,note])=>`<div class="breakdown-row"><span>${l}</span><span style="font-weight:600">${v} <span style="font-weight:400;color:${note.includes('⚠️')?'#dc2626':'#16a34a'};font-size:12px">${note}</span></span></div>`).join('');
 }
 
-async function loadMiniLeaderboard(){
-  const r = await fetch(SUPA_URL+'/rest/v1/budget_challenge_submissions?challenge_id=eq.'+challengeId+'&order=score.desc&limit=5',{
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+(token||SUPA_KEY)}
-  });
-  const subs = await r.json();
-  if(!Array.isArray(subs)||!subs.length) return;
-  const myRank = subs.findIndex(s=>s.user_id===uid)+1;
-  if(myRank>0){
-    document.getElementById('rankBanner').style.display='block';
-    document.getElementById('rankNum').textContent = '#'+myRank;
-    document.getElementById('rankOf').textContent = 'out of '+subs.length+' students';
-  }
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('miniLeaderboard').innerHTML =
-    '<div style="font-size:11px;font-weight:700;letter-spacing:0.06em;color:rgba(255,255,255,0.3);margin-bottom:8px">TOP SCORES</div>'
-    +subs.slice(0,5).map((s,i)=>
-      '<div class="lb-row" style="'+(s.user_id===uid?'background:rgba(255,255,255,0.05);border-radius:6px;padding:8px;margin:-2px':'')+'">'
-      +'<span>'+( medals[i]||'#'+(i+1) )+' '+(s.nickname||'Student')+(s.user_id===uid?' (you)':'')+'</span>'
-      +'<span style="font-weight:700;color:'+(s.score>=80?'#86efac':s.score>=60?'#fbbf24':'#fca5a5')+'">'+s.score+'</span>'
-      +'</div>'
-    ).join('');
+function backToPicker(){
+  document.getElementById('heroSection').style.display='block';
+  document.getElementById('pickerSection').style.display='block';
+  document.getElementById('gameSection').style.display='none';
+  document.getElementById('resultsSection').style.display='none';
+  window.scrollTo(0,0);
 }
-
-init();
 </script>
 </body>
 </html>
