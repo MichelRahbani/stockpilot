@@ -312,7 +312,7 @@ tr:hover td{background:#fafafa}
             <div style="font-size:15px;font-weight:700">Budget Challenges</div>
             <div style="font-size:13px;color:var(--muted)">Create realistic scenarios for students to solve and compete on</div>
           </div>
-          <button class="btn btn-primary btn-sm" onclick="openModal('challengeModal')">+ New Challenge</button>
+          <button class="btn btn-primary btn-sm" onclick="document.getElementById('challengeModal').style.display='flex'">+ New Challenge</button>
         </div>
         <div id="challengesList">
           <div class="empty"><div class="icon">🎯</div><p>No challenges yet. Create one to get started.</p></div>
@@ -1127,7 +1127,7 @@ async function createChallenge(){
     });
     const result = await r.json();
     if(r.ok&&result[0]){
-      closeModal('challengeModal');
+      document.getElementById('challengeModal').style.display='none';
       ['chTitle','chScenario','chIncome','chDueDate','chTargetSavings','chTargetEmergency','chPoints','chRent','chLoan','chTransport','chUtilities'].forEach(id=>{
         const el=document.getElementById(id); if(el) el.value='';
       });
@@ -1239,7 +1239,7 @@ if(getToken()) showView('landingView');
 <!-- BUDGET CHALLENGE MODAL -->
 <div class="modal-bg" id="challengeModal" style="display:none">
   <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeModal('challengeModal')">✕</button>
+    <button class="modal-close" onclick="document.getElementById('challengeModal').style.display='none'">✕</button>
     <h2 style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px">🎯 New Budget Challenge</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:20px">Create a realistic financial scenario for your students to solve</p>
 
@@ -1306,7 +1306,7 @@ if(getToken()) showView('landingView');
     <div id="challengeMsg" style="display:none;margin-top:12px;padding:10px;border-radius:8px;font-size:13px"></div>
     <div style="display:flex;gap:10px;margin-top:20px">
       <button class="btn btn-primary" onclick="createChallenge()" style="flex:1">Create Challenge →</button>
-      <button class="btn btn-ghost" onclick="closeModal('challengeModal')">Cancel</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('challengeModal').style.display='none'">Cancel</button>
     </div>
   </div>
 </div>
@@ -1314,7 +1314,7 @@ if(getToken()) showView('landingView');
 <!-- VIEW CHALLENGE SUBMISSIONS MODAL -->
 <div class="modal-bg" id="challengeSubsModal" style="display:none">
   <div class="modal" style="max-width:800px;max-height:90vh;overflow-y:auto">
-    <button class="modal-close" onclick="closeModal('challengeSubsModal')">✕</button>
+    <button class="modal-close" onclick="document.getElementById('challengeSubsModal').style.display='none'">✕</button>
     <h2 style="font-size:18px;font-weight:700;margin-bottom:4px" id="challengeSubsTitle">Challenge Submissions</h2>
     <p style="font-size:13px;color:var(--muted);margin-bottom:16px" id="challengeSubsDesc"></p>
     <div id="challengeSubsBody"></div>
