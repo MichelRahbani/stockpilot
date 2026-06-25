@@ -622,6 +622,7 @@ async function loadDashboard(){
   });
 
   // Sort by portfolio value
+  allStudentStats = studentStats;
   const students = Object.values(studentStats).sort((a,b)=>b.portfolioValue-a.portfolioValue);
   const avgReturn = students.length
     ? students.reduce((a,s)=>a+((s.portfolioValue-100000)/100000*100),0)/students.length
@@ -637,6 +638,16 @@ async function loadDashboard(){
 
   // Leaderboard
   const medals = ['🥇','🥈','🥉'];
+  // Freeze countdown
+  const freezeEl = document.getElementById('freezeCountdown');
+  if(freezeEl && currentClass.freeze_date){
+    const fd = new Date(currentClass.freeze_date);
+    const daysLeft = Math.ceil((fd - new Date())/(1000*60*60*24));
+    if(daysLeft > 0) freezeEl.innerHTML = '🔒 Freezes in <strong>'+daysLeft+'</strong> day'+(daysLeft===1?'':'s')+' &middot; '+fd.toLocaleDateString();
+    else freezeEl.innerHTML = '🔒 <strong>Frozen</strong> since '+fd.toLocaleDateString();
+    freezeEl.style.color = daysLeft <= 7 ? '#dc2626' : 'var(--muted)';
+  } else if(freezeEl){ freezeEl.textContent=''; }
+
   document.getElementById('leaderboardBody').innerHTML = students.length ? students.map((s,i)=>{
     const ret = ((s.portfolioValue-100000)/100000*100);
     const retStr = (ret>=0?'+':'')+ret.toFixed(2)+'%';
