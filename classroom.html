@@ -926,6 +926,62 @@ function exportGrades(){
   a.href=url; a.download='grades_'+(currentClass?.name||'class')+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
 }
 
+// ── Budget Submissions ──
+let allBudgets = [];
+
+async function loadBudgetSubmissions(){
+  if(!currentClass) return;
+  document.getElementById('budgetsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">⏳ Loading budgets...</td></tr>';
+  try {
+    const res = await sbGet('budget_submissions', 'class_id=eq.'+currentClass.id+'&order=submitted_at.desc');
+    allBudgets = Array.isArray(res) ? res : [];
+    if(!allBudgets.length){
+      document.getElementById('budgetsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No budget submissions yet. Students can submit from the Budget tool.</td></tr>';
+      return;
+    }
+    document.getElementById('budgetsBody').innerHTML = allBudgets.map(b=>{
+      const score = b.budget_score || 0;
+      const scoreColor = score >= 75 ? 'var(--green)' : score >= 50 ? '#d97706' : 'var(--red)';
+      const leftover = b.leftover || 0;
+      return '<tr>'
+        +'<td><strong>'+(b.nickname||'Student')+'</strong></td>'
+        +'<td>$'+(b.monthly_income||0).toLocaleString()+'</td>'
+        +'<td>$'+(b.total_expenses||0).toLocaleString()+'</td>'
+        +'<td>'+(b.savings_rate||0)+'%</td>'
+        +'<td style="color:'+(leftover>=0?'var(--green)':'var(--red)')+'">$'+Math.abs(leftover).toLocaleString()+(leftover>=0?' surplus':' gap')+'</td>'
+        +'<td style="color:'+scoreColor+'"><strong>'+score+'</strong></td>'
+        +'<td style="color:var(--muted);font-size:12px">'+new Date(b.submitted_at).toLocaleDateString()+'</td>'
+        +'</tr>';
+    }).join('');
+  } catch(e){
+    document.getElementById('budgetsBody').innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Could not load budgets.</td></tr>';
+  }
+}
+
+function exportBudgetsCSV(){
+  if(!allBudgets.length){ alert('No budget submissions to export.'); return; }
+  const headers = ['Student','Monthly Income','Fixed Bills','Flex Spending','Savings','Debt Payments','Total Expenses','Leftover','Savings Rate %','Budget Score','Submitted'];
+  const rows = allBudgets.map(b=>[
+    b.nickname||'',
+    b.monthly_income||0,
+    b.fixed_bills||0,
+    b.flex_spending||0,
+    b.monthly_savings||0,
+    b.debt_payments||0,
+    b.total_expenses||0,
+    b.leftover||0,
+    (b.savings_rate||0)+'%',
+    b.budget_score||0,
+    new Date(b.submitted_at).toLocaleDateString()
+  ]);
+  const csv = [headers,...rows].map(r=>r.join(',')).join('\n');
+  const blob = new Blob([csv],{type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download='budgets_'+(currentClass?.name||'class')+'_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+}
+
 // ── Token refresh — keep session alive ──
 async function refreshToken(){
   const t = getToken();
