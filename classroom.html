@@ -716,6 +716,8 @@ function switchTab(tab, btn){
   btn.classList.add('active');
   document.getElementById('tabLeaderboard').style.display = tab==='leaderboard'?'block':'none';
   document.getElementById('tabTrades').style.display = tab==='trades'?'block':'none';
+  document.getElementById('tabBudgets').style.display = tab==='budgets'?'block':'none';
+  if(tab==='budgets') loadBudgetSubmissions();
 }
 
 // ── Join class ──
