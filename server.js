@@ -605,6 +605,9 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && (reqUrl.pathname === "/app" || reqUrl.pathname === "/app/" || reqUrl.pathname === "/index.html")) {
       return sendStaticFile(res, "index.html");
     }
+    if (req.method === "GET" && (reqUrl.pathname === "/daily-challenge" || reqUrl.pathname === "/daily-challenge/")) {
+      return sendStaticFile(res, "daily-challenge.html");
+    }
     if (req.method === "GET" && (reqUrl.pathname === "/budget-challenge" || reqUrl.pathname === "/budget-challenge/")) {
       return sendStaticFile(res, "budget-challenge.html");
     }
