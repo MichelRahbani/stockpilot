@@ -11121,3 +11121,90 @@ const pullVirtualMarketFromCloud = async () => {
     }
   } catch(e) {}
 };
+
+// ── Budget Class Submission ──
+window.submitBudgetToClass = async function() {
+  const token = localStorage.getItem('supabase_token');
+  if (!token) {
+    const msg = document.getElementById('submitBudgetMsg');
+    if (msg) { msg.textContent = 'Sign in first to submit your budget.'; msg.style.color='#dc2626'; msg.style.display='block'; }
+    return;
+  }
+
+  // Check user is in a class
+  const uid = JSON.parse(atob(token.split('.')[1])).sub;
+  const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+  const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+
+  const msg = document.getElementById('submitBudgetMsg');
+  if (msg) { msg.textContent = 'Submitting...'; msg.style.color='#2563eb'; msg.style.display='block'; }
+
+  try {
+    // Get user's classes
+    const classRes = await fetch(SUPA_URL + '/rest/v1/class_members?user_id=eq.' + uid + '&select=class_id,nickname', {
+      headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + token }
+    });
+    const classes = await classRes.json();
+    if (!classes || !classes.length) {
+      if (msg) { msg.textContent = 'You are not in any class. Join a class first.'; msg.style.color='#dc2626'; }
+      return;
+    }
+
+    // If multiple classes, use the most recent one
+    const classId = classes[0].class_id;
+    const nickname = classes[0].nickname || localStorage.getItem('supabase_name') || 'Student';
+
+    // Read current budget values from DOM
+    const income = parseFloat(document.getElementById('monthlyIncome')?.value) || 0;
+    const fixedBills = parseFloat(document.getElementById('fixedBills')?.value) || 0;
+    const flexSpending = parseFloat(document.getElementById('flexSpending')?.value) || 0;
+    const savings = parseFloat(document.getElementById('monthlySavings')?.value) || 0;
+    const debt = parseFloat(document.getElementById('debtPayments')?.value) || 0;
+    const emergency = parseFloat(document.getElementById('emergencyFund')?.value) || 0;
+    const totalExpenses = fixedBills + flexSpending + savings + debt;
+    const leftover = income - totalExpenses;
+    const savingsRate = income > 0 ? Math.round((savings / income) * 100) : 0;
+    const score = parseInt(document.getElementById('budgetHealthScore')?.textContent) || 0;
+
+    if (income === 0) {
+      if (msg) { msg.textContent = 'Enter your income first before submitting.'; msg.style.color='#dc2626'; }
+      return;
+    }
+
+    // Upsert budget submission
+    const subRes = await fetch(SUPA_URL + '/rest/v1/budget_submissions', {
+      method: 'POST',
+      headers: {
+        apikey: SUPA_KEY, Authorization: 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify({
+        user_id: uid,
+        class_id: classId,
+        nickname,
+        monthly_income: income,
+        fixed_bills: fixedBills,
+        flex_spending: flexSpending,
+        monthly_savings: savings,
+        debt_payments: debt,
+        emergency_fund: emergency,
+        total_expenses: totalExpenses,
+        leftover,
+        savings_rate: savingsRate,
+        budget_score: score,
+        submitted_at: new Date().toISOString()
+      })
+    });
+
+    if (subRes.ok || subRes.status === 201) {
+      if (msg) { msg.textContent = '✓ Budget submitted to your class!'; msg.style.color='#16a34a'; }
+    } else {
+      const err = await subRes.text();
+      if (msg) { msg.textContent = 'Error submitting. Try again.'; msg.style.color='#dc2626'; }
+      console.error('Budget submit error:', err);
+    }
+  } catch(e) {
+    if (msg) { msg.textContent = 'Error: ' + e.message; msg.style.color='#dc2626'; }
+  }
+};
