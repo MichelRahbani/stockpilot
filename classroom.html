@@ -1237,7 +1237,7 @@ if(getToken()) showView('landingView');
 </script>
 
 <!-- BUDGET CHALLENGE MODAL -->
-<div class="modal-bg" id="challengeModal">
+<div class="modal-bg" id="challengeModal" style="display:none">
   <div class="modal" style="max-width:600px;max-height:90vh;overflow-y:auto">
     <button class="modal-close" onclick="closeModal('challengeModal')">✕</button>
     <h2 style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px">🎯 New Budget Challenge</h2>
@@ -1312,7 +1312,7 @@ if(getToken()) showView('landingView');
 </div>
 
 <!-- VIEW CHALLENGE SUBMISSIONS MODAL -->
-<div class="modal-bg" id="challengeSubsModal">
+<div class="modal-bg" id="challengeSubsModal" style="display:none">
   <div class="modal" style="max-width:800px;max-height:90vh;overflow-y:auto">
     <button class="modal-close" onclick="closeModal('challengeSubsModal')">✕</button>
     <h2 style="font-size:18px;font-weight:700;margin-bottom:4px" id="challengeSubsTitle">Challenge Submissions</h2>
