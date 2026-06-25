@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Daily Budget Challenge | StockPilot</title>
+<meta name="description" content="A new real-world budget scenario every day. Compete on the global leaderboard. Free, no signup needed to play."/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:rgba(255,255,255,0.08);--text:rgba(255,255,255,0.9);--muted:rgba(255,255,255,0.35);--dim:rgba(255,255,255,0.2)}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;text-decoration:none;color:var(--text)}
+.nav-badge{background:#2563eb;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:0.04em}
+.nav-links{display:flex;gap:8px}
+.nav-link{padding:7px 14px;border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.15s}
+.nav-link:hover{color:var(--text)}
+
+/* Header */
+.header{padding:48px 24px 32px;max-width:960px;margin:0 auto}
+.daily-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.25);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:700;color:#fca5a5;letter-spacing:0.04em;margin-bottom:20px}
+.daily-badge::before{content:'';width:6px;height:6px;background:#dc2626;border-radius:50%;animation:pulse 1.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.header h1{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.1}
+.header h1 span{color:#fca5a5;font-style:italic;font-weight:300}
+.header-sub{font-size:14px;color:var(--muted);margin-bottom:24px}
+.countdown-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.countdown{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px}
+.countdown-label{font-size:11px;color:var(--muted)}
+.countdown-time{font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#fca5a5}
+.date-pill{font-size:12px;color:var(--muted);background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 12px}
+
+/* Main layout */
+.main{max-width:960px;margin:0 auto;padding:0 24px 48px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
+@media(max-width:700px){.main{grid-template-columns:1fr}}
+
+/* Scenario */
+.scenario-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#dc2626,#f97316)}
+.sc-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.08em;color:#fca5a5;text-transform:uppercase;margin-bottom:8px}
+.sc-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.sc-text{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
+.sc-pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.pill-r{background:rgba(220,38,38,0.12);color:#fca5a5}
+.pill-g{background:rgba(22,163,74,0.12);color:#86efac}
+.pill-b{background:rgba(37,99,235,0.12);color:#93c5fd}
+.pill-a{background:rgba(217,119,6,0.12);color:#fcd34d}
+
+/* Allocation */
+.alloc-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px}
+.section-lbl{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.alloc-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.alloc-row:last-child{border-bottom:none}
+.alloc-label{font-size:14px;display:flex;flex-direction:column;gap:2px}
+.alloc-hint{font-size:11px;color:var(--dim)}
+.fixed-tag{font-size:13px;font-weight:700;color:#fca5a5;background:rgba(220,38,38,0.1);padding:5px 10px;border-radius:8px}
+.inp{width:100px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;text-align:right;background:var(--bg3);color:var(--text);transition:border-color 0.15s}
+.inp:focus{outline:none;border-color:#2563eb}
+
+/* Score panel */
+.score-panel{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;position:sticky;top:72px}
+.score-ring{width:120px;height:120px;margin:0 auto 12px;position:relative}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
+.score-big{font-family:'Fraunces',serif;font-size:34px;font-weight:700;line-height:1}
+.score-sub{font-size:10px;color:var(--muted)}
+.score-grade{text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px}
+.leftover-box{background:var(--bg3);border-radius:10px;padding:10px 14px;text-align:center;margin:10px 0}
+.leftover-num{font-size:18px;font-weight:700}
+.leftover-lbl{font-size:10px;color:var(--muted);margin-top:2px}
+.metric-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
+.metric-bar{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;margin-bottom:12px;overflow:hidden}
+.metric-fill{height:100%;border-radius:3px;transition:width 0.35s,background 0.35s}
+.badges{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
+.badge{background:rgba(255,255,255,0.06);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--muted);transition:all 0.3s}
+.badge.lit{background:rgba(22,163,74,0.2);color:#86efac}
+.submit-btn{width:100%;padding:13px;background:#dc2626;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px;transition:all 0.2s}
+.submit-btn:hover{background:#b91c1c}
+.submit-btn:disabled{background:rgba(255,255,255,0.08);color:var(--muted);cursor:not-allowed}
+.already-tag{text-align:center;font-size:12px;color:#86efac;margin-top:8px;display:none}
+
+/* Leaderboard */
+.lb-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px}
+.lb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.lb-title{font-size:14px;font-weight:700}
+.lb-sub{font-size:11px;color:var(--muted)}
+.lb-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-size:16px;width:28px;flex-shrink:0;text-align:center}
+.lb-name{flex:1;font-size:13px;font-weight:600}
+.lb-score{font-size:15px;font-weight:700}
+.lb-you{background:rgba(37,99,235,0.08);border-radius:8px;padding:2px 6px;font-size:10px;color:#93c5fd;margin-left:4px}
+.my-rank-box{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:10px 14px;text-align:center;margin-top:12px;display:none}
+.my-rank-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#93c5fd}
+.my-rank-lbl{font-size:11px;color:var(--muted)}
+
+/* Results overlay */
+.results-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
+.results-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:480px;width:100%;text-align:center;position:relative}
+.results-emoji{font-size:56px;margin-bottom:12px}
+.results-score{font-family:'Fraunces',serif;font-size:72px;font-weight:700;line-height:1;margin-bottom:4px}
+.results-grade{font-size:16px;color:var(--muted);margin-bottom:20px}
+.results-badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.results-badge{background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);color:#86efac;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600}
+.results-breakdown{background:var(--bg3);border-radius:12px;padding:16px;text-align:left;margin-bottom:20px;font-size:13px}
+.bd-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+.bd-row:last-child{border-bottom:none}
+.results-close{width:100%;padding:12px;background:#2563eb;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.share-btn{width:100%;padding:11px;background:rgba(255,255,255,0.08);color:var(--text);border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-brand">
+    <img src="/logo-dark.jpg" alt="StockPilot" style="width:28px;height:28px;border-radius:6px;object-fit:cover"/>
+    StockPilot <span class="nav-badge">DAILY</span>
+  </a>
+  <div class="nav-links">
+    <a href="/budget-challenge" class="nav-link">All Scenarios</a>
+    <a href="/trade" class="nav-link">Virtual Market</a>
+    <a href="/app" class="nav-link">App</a>
+  </div>
+</nav>
+
+<div class="header">
+  <div class="daily-badge">🔴 LIVE · Daily Challenge</div>
+  <h1>Today's Budget<br/><span id="scenarioNameInline">Challenge</span></h1>
+  <div class="header-sub" id="headerSub">A new scenario resets every day at midnight. Can you top the leaderboard?</div>
+  <div class="countdown-row">
+    <div class="countdown">
+      <div class="countdown-label">Resets in</div>
+      <div class="countdown-time" id="countdown">--:--:--</div>
+    </div>
+    <div class="date-pill" id="datePill"></div>
+  </div>
+</div>
+
+<div class="main">
+  <div>
+    <div class="scenario-card" id="scenarioCard"></div>
+    <div class="alloc-card" id="allocCard"></div>
+  </div>
+
+  <div>
+    <div class="score-panel" style="margin-bottom:16px">
+      <div class="score-ring">
+        <svg width="120" height="120" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="52" fill="none" stroke="#dc2626" stroke-width="10"
+            stroke-dasharray="326.7" stroke-dashoffset="326.7" stroke-linecap="round" id="scoreArc"
+            style="transition:stroke-dashoffset 0.5s,stroke 0.3s"/>
+        </svg>
+        <div class="score-ring-inner">
+          <div class="score-big" id="scoreNum">—</div>
+          <div class="score-sub">/ 100</div>
+        </div>
+      </div>
+      <div class="score-grade" id="scoreGrade">Fill in your budget</div>
+      <div class="leftover-box">
+        <div class="leftover-num" id="leftoverNum">—</div>
+        <div class="leftover-lbl">MONTHLY LEFTOVER</div>
+      </div>
+      <div class="metric-row"><span>SAVINGS RATE</span><span id="savRateNum">0%</span></div>
+      <div class="metric-bar"><div class="metric-fill" id="savMeter" style="width:0%;background:#86efac"></div></div>
+      <div class="metric-row"><span>BUDGET BALANCE</span><span id="balNum">—</span></div>
+      <div class="metric-bar"><div class="metric-fill" id="balMeter" style="width:0%;background:#86efac"></div></div>
+      <div class="badges" id="badgesEl"></div>
+      <button class="submit-btn" id="submitBtn" onclick="submitScore()" disabled>Submit Score →</button>
+      <div class="already-tag" id="alreadyTag">✓ Score submitted today!</div>
+    </div>
+
+    <div class="lb-card">
+      <div class="lb-header">
+        <div>
+          <div class="lb-title">🏆 Today's Leaderboard</div>
+          <div class="lb-sub" id="lbSub">Loading...</div>
+        </div>
+      </div>
+      <div id="lbRows"><div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Loading...</div></div>
+      <div class="my-rank-box" id="myRankBox">
+        <div class="my-rank-num" id="myRankNum">#—</div>
+        <div class="my-rank-lbl">Your rank today</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Results overlay -->
+<div class="results-overlay" id="resultsOverlay">
+  <div class="results-card">
+    <div class="results-emoji" id="resEmoji">🏆</div>
+    <div class="results-score" id="resScore"></div>
+    <div class="results-grade" id="resGrade"></div>
+    <div class="results-badges" id="resBadges"></div>
+    <div class="results-breakdown" id="resBreakdown"></div>
+    <button class="results-close" onclick="closeResults()">See Leaderboard →</button>
+    <button class="share-btn" onclick="shareScore()">📤 Share My Score</button>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+const token = localStorage.getItem('supabase_token');
+let uid = null, nickname = 'Anonymous';
+try { uid = JSON.parse(atob(token.split('.')[1])).sub; nickname = localStorage.getItem('supabase_name')||'Anonymous'; } catch(e){}
+
+// ── 30 daily scenarios pool ──
+const SCENARIO_POOL = [
+  {emoji:'🎓',name:'Recent Graduate',desc:'First job out of college. Student loans just kicked in and rent is expensive in your city. Time to figure out adult money.',income:3500,fixed:{rent:1100,loan:200},targetSavings:15,tip:'Start with the 50/30/20 rule: needs, wants, savings.'},
+  {emoji:'🏙️',name:'Big City Grind',desc:'High salary, higher costs. You live in NYC. Rent alone is brutal but you refuse to move to Jersey.',income:6200,fixed:{rent:2600,loan:0,transport:150,utilities:120},targetSavings:20,tip:'In expensive cities, keep lifestyle inflation in check.'},
+  {emoji:'👨‍👩‍👧',name:'Young Family',desc:'Two incomes, one kid. Childcare runs $1,200/month. You have a mortgage and both cars need gas.',income:7200,fixed:{rent:1800,loan:0,transport:500,utilities:220},targetSavings:15,tip:'Build 6 months emergency fund before investing.'},
+  {emoji:'💼',name:'Side Hustler',desc:'9-5 plus freelance. Income varies month to month. You want to kill debt and start investing.',income:4800,fixed:{rent:950,loan:350,transport:180,utilities:90},targetSavings:25,tip:'Budget to your lowest expected month. Save the surplus.'},
+  {emoji:'🔄',name:'Starting Over',desc:'Job loss, medical bills, bad luck. Income is back but you\'re rebuilding from scratch. Every dollar counts.',income:2900,fixed:{rent:800,loan:0,transport:120,utilities:80},targetSavings:10,tip:'Basics first. Housing, food, transport. Build from there.'},
+  {emoji:'🏡',name:'New Homeowner',desc:'Just bought your first house. Mortgage is manageable but every appliance is waiting to break.',income:5500,fixed:{rent:1650,loan:0,transport:300,utilities:250},targetSavings:15,tip:'Keep 1-2% of home value saved for repairs annually.'},
+  {emoji:'📱',name:'Tech Worker',desc:'Good salary, stock options, and a lifestyle to match. The risk: lifestyle creep is real.',income:9500,fixed:{rent:2800,loan:0,transport:200,utilities:150},targetSavings:30,tip:'High income is worthless without high savings rate.'},
+  {emoji:'🍕',name:'Restaurant Worker',desc:'Inconsistent tips, no benefits. Some months are great, some are brutal. Stability is the goal.',income:2600,fixed:{rent:750,loan:0,transport:100,utilities:70},targetSavings:8,tip:'Automate savings on your good weeks. Don\'t wait.'},
+  {emoji:'👩‍⚕️',name:'Nurse Life',desc:'Good pay, brutal hours, student loans from nursing school. Night shifts are wearing you down.',income:5800,fixed:{rent:1300,loan:400,transport:250,utilities:130},targetSavings:20,tip:'Automate everything. You don\'t have time to think about money.'},
+  {emoji:'🎨',name:'Freelance Creative',desc:'Designer, photographer, writer. Creative work pays well when it pays. Cash flow is unpredictable.',income:4200,fixed:{rent:1100,loan:0,transport:150,utilities:90},targetSavings:20,tip:'Set aside 25-30% for taxes first. Then budget the rest.'},
+  {emoji:'🚗',name:'Rideshare Driver',desc:'Uber/Lyft full time. Flexible but no benefits, car expenses eat into earnings, and gas prices hurt.',income:3100,fixed:{rent:850,loan:0,transport:400,utilities:80},targetSavings:10,tip:'Track every car expense. They add up fast.'},
+  {emoji:'🎮',name:'Game Developer',desc:'Dream job, modest salary. Student debt from a coding bootcamp. You spend too much on Steam sales.',income:4400,fixed:{rent:1200,loan:280,transport:100,utilities:100},targetSavings:18,tip:'Cut subscriptions and impulse buys first.'},
+  {emoji:'👩‍🏫',name:'Teacher',desc:'You love the job. The pay, not so much. Public school teacher with pension but tight monthly budget.',income:3800,fixed:{rent:950,loan:200,transport:200,utilities:120},targetSavings:12,tip:'Max out your 403b — teacher pensions are powerful.'},
+  {emoji:'🏋️',name:'Personal Trainer',desc:'Client-based income. Some months you\'re booked solid, others are slow. Gym rent is non-negotiable.',income:3600,fixed:{rent:800,loan:0,transport:200,utilities:100},targetSavings:15,tip:'Build a 3-month buffer for slow seasons.'},
+  {emoji:'🌎',name:'Digital Nomad',desc:'You work remotely and move every few months. No fixed rent but constant travel costs and no routine.',income:5200,fixed:{rent:900,loan:0,transport:350,utilities:0},targetSavings:25,tip:'Travel hacking and house-sitting can cut costs dramatically.'},
+  {emoji:'💊',name:'Pharmacy Tech',desc:'Stable hours, decent pay, no debt. Just starting out and want to build wealth the right way.',income:3200,fixed:{rent:900,loan:0,transport:150,utilities:100},targetSavings:20,tip:'Index funds + consistency beats timing the market.'},
+  {emoji:'🔧',name:'Electrician',desc:'Trade work pays well when busy. Union benefits are solid. Off-season can be slow.',income:5600,fixed:{rent:1100,loan:0,transport:350,utilities:180},targetSavings:22,tip:'Take advantage of union benefits and retirement matching.'},
+  {emoji:'📚',name:'PhD Student',desc:'Stipend covers basics, barely. You\'re building career capital, not cash. Debt is looming.',income:2200,fixed:{rent:700,loan:0,transport:50,utilities:60},targetSavings:5,tip:'Roth IRA contributions even on a stipend pay off long term.'},
+  {emoji:'🧑‍💻',name:'Junior Dev',desc:'First dev job, bootcamp grad. Salary is good for your age but you overspend on tech.',income:4800,fixed:{rent:1400,loan:350,transport:100,utilities:110},targetSavings:20,tip:'Max your 401k match before anything else.'},
+  {emoji:'🏦',name:'Bank Teller',desc:'Entry-level finance. Ironically, most bank tellers struggle with their own finances.',income:3000,fixed:{rent:900,loan:0,transport:150,utilities:90},targetSavings:12,tip:'Use the employer banking perks. Free savings accounts matter.'},
+  {emoji:'✈️',name:'Flight Attendant',desc:'Travel perks are amazing. Pay is less amazing. Based in an expensive city and rarely home.',income:4100,fixed:{rent:1100,loan:0,transport:200,utilities:80},targetSavings:18,tip:'Free flights reduce vacation costs — factor that in.'},
+  {emoji:'🛒',name:'Retail Manager',desc:'Promoted from associate. Long hours, decent pay. Student debt from a degree you don\'t use.',income:3700,fixed:{rent:950,loan:250,transport:180,utilities:100},targetSavings:15,tip:'Retail discounts are a perk — use them wisely.'},
+  {emoji:'🔬',name:'Lab Researcher',desc:'Post-doc position. Fascinating work, modest pay. Grant funding ends in 8 months.',income:4200,fixed:{rent:1100,loan:300,transport:100,utilities:110},targetSavings:18,tip:'Build runway savings — academic income can be unpredictable.'},
+  {emoji:'🎵',name:'Music Producer',desc:'Making beats and licensing tracks. Income is feast or famine. A viral track could change everything.',income:3800,fixed:{rent:900,loan:0,transport:150,utilities:100},targetSavings:15,tip:'Treat royalties as a bonus, not income.'},
+  {emoji:'🏥',name:'Hospital Admin',desc:'Healthcare administration. Stable job with benefits. Mortgage recently approved — exciting and terrifying.',income:5100,fixed:{rent:1600,loan:0,transport:280,utilities:200},targetSavings:18,tip:'Build 6 months emergency fund before extra mortgage payments.'},
+  {emoji:'🐕',name:'Vet Tech',desc:'You love animals more than money, which is good, because vet techs don\'t make much.',income:2800,fixed:{rent:800,loan:150,transport:120,utilities:80},targetSavings:10,tip:'Workplace discounts on pet care save hundreds annually.'},
+  {emoji:'📦',name:'Warehouse Worker',desc:'Amazon fulfillment. Benefits are solid, overtime is available. Body is taking a beating.',income:3400,fixed:{rent:850,loan:0,transport:200,utilities:90},targetSavings:12,tip:'Use every dollar of 401k matching — it\'s free money.'},
+  {emoji:'🏗️',name:'Construction Worker',desc:'Union carpenter. Good hourly rate, seasonal work. Summer money has to last through winter.',income:5200,fixed:{rent:1000,loan:0,transport:350,utilities:160},targetSavings:20,tip:'Separate a "winter fund" from your main savings.'},
+  {emoji:'💈',name:'Barber / Stylist',desc:'Chair rental model. You keep what you earn minus the chair fee. Tips make or break the week.',income:3500,fixed:{rent:400,loan:0,transport:150,utilities:80},targetSavings:15,tip:'Track tips separately. They\'re taxable income.'},
+  {emoji:'🧑‍🍳',name:'Line Cook',desc:'Kitchen hustle is real. Late nights, early prep, physically demanding. Slowly working toward head chef.',income:2700,fixed:{rent:750,loan:0,transport:100,utilities:70},targetSavings:8,tip:'Meal prep at home — it\'s ironic but cooks often eat out too much.'},
+];
+
+// Get today's scenario using date as seed
+function getDailyScenario() {
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0,10); // YYYY-MM-DD
+  let hash = 0;
+  for(let i=0;i<dateStr.length;i++) hash = ((hash<<5)-hash)+dateStr.charCodeAt(i);
+  const idx = Math.abs(hash) % SCENARIO_POOL.length;
+  return { ...SCENARIO_POOL[idx], dateStr };
+}
+
+let scenario = getDailyScenario();
+let earnedBadges = [];
+let finalScore = 0;
+
+// Init UI
+function init() {
+  // Date pill
+  const d = new Date();
+  document.getElementById('datePill').textContent = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+  document.getElementById('scenarioNameInline').textContent = scenario.name;
+
+  // Scenario card
+  const fixed = scenario.fixed||{};
+  const fixedTotal = Object.values(fixed).reduce((a,b)=>a+(b||0),0);
+  document.getElementById('scenarioCard').innerHTML =
+    '<div class="sc-eyebrow">🎯 Today\'s Scenario</div>'
+    +'<div class="sc-title">'+scenario.emoji+' '+scenario.name+'</div>'
+    +'<div class="sc-text">'+scenario.desc+'</div>'
+    +'<div class="sc-pills">'
+    +'<span class="pill pill-g">💵 $'+scenario.income.toLocaleString()+'/mo take-home</span>'
+    +'<span class="pill pill-r">🔒 $'+fixedTotal.toLocaleString()+' fixed costs</span>'
+    +'<span class="pill pill-b">🎯 '+scenario.targetSavings+'% savings target</span>'
+    +'<span class="pill pill-a">💡 '+scenario.tip+'</span>'
+    +'</div>';
+
+  // Allocation form
+  let html = '';
+  if(fixedTotal>0){
+    html += '<div class="section-lbl">🔒 Fixed Expenses <span style="font-weight:400;text-transform:none;letter-spacing:0">(locked — cannot change)</span></div>';
+    const fixedLabels = {rent:'🏠 Rent/Housing',loan:'💳 Loan Min. Payment',transport:'🚗 Transportation',utilities:'💡 Utilities'};
+    Object.entries(fixed).forEach(([k,v])=>{ if(v>0) html += '<div class="alloc-row"><div class="alloc-label">'+fixedLabels[k]+'</div><div class="fixed-tag">$'+Number(v).toLocaleString()+'/mo</div></div>'; });
+    html += '<div style="height:16px"></div>';
+  }
+  html += '<div class="section-lbl">📊 Your Allocation <span style="font-weight:400;text-transform:none;letter-spacing:0">($'+scenario.income.toLocaleString()+' to allocate)</span></div>';
+  const vars = [
+    ['bHousing','🏠 Housing / Rent','Rent, mortgage, insurance',fixed.rent>0?0:''],
+    ['bFood','🍔 Food','Groceries + dining',''],
+    ['bTransport','🚗 Transportation','Gas, transit, rideshare',fixed.transport>0?0:''],
+    ['bUtilities','💡 Utilities','Electric, internet, phone',fixed.utilities>0?0:''],
+    ['bEntertain','🎮 Entertainment','Streaming, going out, hobbies',''],
+    ['bSavings','💰 Savings','Monthly savings — the key number',''],
+    ['bDebt','💳 Extra Debt Payment','Above the minimum',''],
+    ['bEmergency','🛡️ Emergency Fund','Building your safety net',''],
+    ['bOther','📦 Other','Clothing, personal care, misc',''],
+  ];
+  vars.forEach(([id,label,hint,def])=>{
+    html += '<div class="alloc-row">'
+      +'<div class="alloc-label">'+label+'<span class="alloc-hint">'+hint+'</span></div>'
+      +'<input class="inp" id="'+id+'" type="number" min="0" placeholder="0" oninput="recalc()" value="'+(def||'')+'"/>'
+      +'</div>';
+  });
+  document.getElementById('allocCard').innerHTML = html;
+
+  // Countdown
+  updateCountdown();
+  setInterval(updateCountdown, 1000);
+
+  // Load leaderboard
+  loadLeaderboard();
+
+  // Check if already submitted today
+  checkExistingSubmission();
+
+  recalc();
+}
+
+function updateCountdown(){
+  const now = new Date();
+  const midnight = new Date(now);
+  midnight.setHours(24,0,0,0);
+  const diff = midnight - now;
+  const h = Math.floor(diff/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  document.getElementById('countdown').textContent =
+    String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+}
+
+function v(id){ return parseFloat(document.getElementById(id)?.value)||0; }
+
+function recalc(){
+  const s = scenario;
+  const fixed = s.fixed||{};
+  const fixedTotal = Object.values(fixed).reduce((a,b)=>a+(b||0),0);
+  const varTotal = v('bHousing')+v('bFood')+v('bTransport')+v('bUtilities')+v('bEntertain')+v('bSavings')+v('bDebt')+v('bEmergency')+v('bOther');
+  const total = fixedTotal+varTotal;
+  const leftover = s.income-total;
+  const savRate = s.income>0?(v('bSavings')/s.income*100):0;
+  const entPct = s.income>0?v('bEntertain')/s.income:0;
+  const emergMonths = total>0?v('bEmergency')/total:0;
+
+  let score = 0;
+  if(leftover>=0) score+=30; else score+=Math.max(0,30+Math.round(leftover/s.income*30));
+  score+=Math.round(Math.min(savRate/s.targetSavings,1.5)*35);
+  score+=Math.min(Math.round(emergMonths*5),15);
+  if(v('bDebt')>0) score+=10;
+  score+=entPct<=0.15?10:Math.round((1-entPct)*10);
+  score=Math.max(0,Math.min(100,score));
+  finalScore = score;
+
+  const arc = document.getElementById('scoreArc');
+  arc.style.strokeDashoffset = 326.7*(1-score/100);
+  arc.style.stroke = score>=80?'#86efac':score>=60?'#fbbf24':'#fca5a5';
+
+  const sn = document.getElementById('scoreNum');
+  sn.textContent = total===0?'—':score;
+  sn.style.color = score>=80?'#86efac':score>=60?'#fbbf24':'#fca5a5';
+
+  const grades = [[90,'Outstanding! 🏆'],[80,'Strong budget!'],[70,'Good, refine it'],[60,'Getting there'],[50,'Needs work'],[0,'Keep trying']];
+  const g = grades.find(([min])=>score>=min)||grades[grades.length-1];
+  document.getElementById('scoreGrade').textContent = total===0?'Fill in your budget':g[1];
+
+  const ln = document.getElementById('leftoverNum');
+  ln.textContent = (leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString()+(leftover>=0?' surplus':' over budget');
+  ln.style.color = leftover>=0?'#86efac':'#fca5a5';
+
+  const sm = document.getElementById('savMeter');
+  sm.style.width = Math.min(savRate/s.targetSavings*100,100)+'%';
+  sm.style.background = savRate>=s.targetSavings?'#86efac':'#fbbf24';
+  document.getElementById('savRateNum').textContent = savRate.toFixed(1)+'%';
+
+  const bm = document.getElementById('balMeter');
+  bm.style.width = Math.max(0,Math.min(leftover/s.income*100,100))+'%';
+  bm.style.background = leftover>=0?'#86efac':'#fca5a5';
+  document.getElementById('balNum').textContent = (leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString();
+
+  earnedBadges = [];
+  if(savRate>=s.targetSavings) earnedBadges.push({icon:'💰',label:'Savings Champion'});
+  if(v('bDebt')>0) earnedBadges.push({icon:'⚡',label:'Debt Crusher'});
+  if(leftover>=0&&leftover/s.income<0.05) earnedBadges.push({icon:'🎯',label:'Zero Waster'});
+  if(entPct<=0.05&&total>0) earnedBadges.push({icon:'🧘',label:'Minimalist'});
+  if(v('bEmergency')>0) earnedBadges.push({icon:'🛡️',label:'Safety Builder'});
+  if(score>=90) earnedBadges.push({icon:'🏆',label:'Budget Master'});
+
+  const allBadges = [{icon:'💰',label:'Savings Champion'},{icon:'⚡',label:'Debt Crusher'},{icon:'🎯',label:'Zero Waster'},{icon:'🧘',label:'Minimalist'},{icon:'🛡️',label:'Safety Builder'},{icon:'🏆',label:'Budget Master'}];
+  document.getElementById('badgesEl').innerHTML = allBadges.map(b=>{
+    const e = earnedBadges.find(eb=>eb.icon===b.icon);
+    return '<div class="badge'+(e?' lit':'')+'">'+b.icon+' '+b.label+'</div>';
+  }).join('');
+
+  document.getElementById('submitBtn').disabled = total===0;
+}
+
+async function checkExistingSubmission(){
+  if(!uid) return;
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/daily_challenge_submissions?challenge_date=eq.'+scenario.dateStr+'&user_id=eq.'+uid,{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+(token||SUPA_KEY)}
+    });
+    const data = await r.json();
+    if(data&&data[0]){
+      document.getElementById('alreadyTag').style.display='block';
+      document.getElementById('submitBtn').textContent = 'Resubmit →';
+    }
+  } catch(e){}
+}
+
+async function submitScore(){
+  if(!uid){
+    alert('Sign in to submit your score to the leaderboard! Your score still counts locally.');
+    return;
+  }
+  const btn = document.getElementById('submitBtn');
+  btn.disabled=true; btn.textContent='Submitting...';
+
+  const s = scenario;
+  const fixed = s.fixed||{};
+  const fixedTotal = Object.values(fixed).reduce((a,b)=>a+(b||0),0);
+  const varTotal = v('bHousing')+v('bFood')+v('bTransport')+v('bUtilities')+v('bEntertain')+v('bSavings')+v('bDebt')+v('bEmergency')+v('bOther');
+  const total = fixedTotal+varTotal;
+  const leftover = s.income-total;
+  const savRate = s.income>0?Math.round(v('bSavings')/s.income*100):0;
+
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/daily_challenge_submissions',{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body:JSON.stringify({challenge_date:scenario.dateStr,user_id:uid,nickname,score:finalScore,savings_rate:savRate,leftover,badges:earnedBadges.map(b=>b.icon+' '+b.label)})
+    });
+    if(r.ok){
+      document.getElementById('alreadyTag').style.display='block';
+      btn.textContent='Resubmit →'; btn.disabled=false;
+      showResults();
+      loadLeaderboard();
+    } else {
+      btn.disabled=false; btn.textContent='Submit Score →';
+    }
+  } catch(e){ btn.disabled=false; btn.textContent='Submit Score →'; }
+}
+
+function showResults(){
+  const emojis = [[90,'🏆'],[80,'🌟'],[70,'💪'],[60,'📈'],[0,'💡']];
+  const e = emojis.find(([min])=>finalScore>=min)||emojis[emojis.length-1];
+  document.getElementById('resEmoji').textContent = e[1];
+  const rs = document.getElementById('resScore');
+  rs.textContent = finalScore;
+  rs.style.color = finalScore>=80?'#86efac':finalScore>=60?'#fbbf24':'#fca5a5';
+  const grades = [[90,'Outstanding!'],[80,'Strong budget!'],[70,'Good effort'],[60,'Getting there'],[0,'Keep learning']];
+  const g = grades.find(([min])=>finalScore>=min)||grades[grades.length-1];
+  document.getElementById('resGrade').textContent = g[1];
+  document.getElementById('resBadges').innerHTML = earnedBadges.length
+    ? earnedBadges.map(b=>'<div class="results-badge">'+b.icon+' '+b.label+'</div>').join('')
+    : '<div style="color:var(--muted);font-size:13px">No badges — try again!</div>';
+  const s = scenario;
+  const fixed = s.fixed||{};
+  const fixedTotal = Object.values(fixed).reduce((a,b)=>a+(b||0),0);
+  const varTotal = v('bHousing')+v('bFood')+v('bTransport')+v('bUtilities')+v('bEntertain')+v('bSavings')+v('bDebt')+v('bEmergency')+v('bOther');
+  const leftover = s.income-fixedTotal-varTotal;
+  const savRate = s.income>0?(v('bSavings')/s.income*100):0;
+  document.getElementById('resBreakdown').innerHTML =
+    '<div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">BREAKDOWN</div>'
+    +[['Income','$'+s.income.toLocaleString()],['Fixed Costs','−$'+fixedTotal.toLocaleString()],['Your Spending','−$'+varTotal.toLocaleString()],['Savings Rate',savRate.toFixed(1)+'%'+(savRate>=s.targetSavings?' ✓':'')],['Leftover',(leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString()+(leftover>=0?' ✓':'')]]
+    .map(([l,v])=>'<div class="bd-row"><span style="color:var(--muted)">'+l+'</span><span style="font-weight:600">'+v+'</span></div>').join('');
+  document.getElementById('resultsOverlay').style.display='flex';
+}
+
+function closeResults(){ document.getElementById('resultsOverlay').style.display='none'; }
+
+function shareScore(){
+  const text = 'I scored '+finalScore+'/100 on today\'s StockPilot Budget Challenge! 🎯 Can you beat me? mystockspilot.com/daily-challenge';
+  if(navigator.share) navigator.share({text});
+  else { navigator.clipboard.writeText(text); alert('Score copied to clipboard!'); }
+}
+
+async function loadLeaderboard(){
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/daily_challenge_submissions?challenge_date=eq.'+scenario.dateStr+'&order=score.desc&limit=20',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+(token||SUPA_KEY)}
+    });
+    const rows = await r.json();
+    if(!Array.isArray(rows)||!rows.length){
+      document.getElementById('lbRows').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">No submissions yet — be first!</div>';
+      document.getElementById('lbSub').textContent='0 players today';
+      return;
+    }
+    document.getElementById('lbSub').textContent=rows.length+' player'+(rows.length===1?'':'s')+' today';
+    const medals=['🥇','🥈','🥉'];
+    document.getElementById('lbRows').innerHTML = rows.map((row,i)=>{
+      const isMe = row.user_id===uid;
+      const scoreColor = row.score>=80?'#86efac':row.score>=60?'#fbbf24':'#fca5a5';
+      return '<div class="lb-row" style="'+(isMe?'background:rgba(37,99,235,0.08);border-radius:8px;padding:8px;margin:-2px':'')+'"><div class="lb-rank">'+(medals[i]||'#'+(i+1))+'</div><div class="lb-name">'+(row.nickname||'Anonymous')+(isMe?'<span class="lb-you">you</span>':'')+'</div><div class="lb-score" style="color:'+scoreColor+'">'+row.score+'</div></div>';
+    }).join('');
+    if(uid){
+      const myRank = rows.findIndex(r=>r.user_id===uid)+1;
+      if(myRank>0){
+        document.getElementById('myRankBox').style.display='block';
+        document.getElementById('myRankNum').textContent='#'+myRank;
+        document.getElementById('myRankBox').querySelector('.my-rank-lbl').textContent='out of '+rows.length+' players today';
+      }
+    }
+  } catch(e){ document.getElementById('lbRows').innerHTML='<div style="text-align:center;padding:20px;color:var(--muted);font-size:13px">Could not load leaderboard.</div>'; }
+}
+
+// Refresh leaderboard every 60s
+setInterval(loadLeaderboard, 60000);
+init();
+</script>
+</body>
+</html>
