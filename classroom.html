@@ -1079,7 +1079,7 @@ async function loadChallenges(){
         +'</div>'
         +'<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-end">'
         +'<span style="font-size:20px;font-weight:800;color:#2563eb">'+c.points+' pts</span>'
-        +'<button class="btn btn-primary btn-sm" onclick="viewChallengeSubmissions(''+c.id+'')">View Submissions</button>'
+        +'<button class="btn btn-primary btn-sm" onclick="viewChallengeSubmissions(this.dataset.id)" data-id="'+c.id+'">View Submissions</button>'
         +'<a class="btn btn-ghost btn-sm" href="/budget-challenge?id='+c.id+'" target="_blank" style="text-decoration:none;display:inline-flex;align-items:center">🎮 Preview</a>'
         +'</div>'
         +'</div>'
