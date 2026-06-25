@@ -889,6 +889,28 @@ function exportCSV(){
   a.href=url; a.download=(currentClass?.name||'class')+'_trades.csv'; a.click();
 }
 
+function exportGrades(){
+  if(!allStudentStats||!Object.keys(allStudentStats).length){ alert('Load the dashboard first.'); return; }
+  const headers=['Student','Portfolio Value','Return %','Cash','Trades','Last Trade','Grade Suggestion'];
+  const rows=Object.values(allStudentStats).sort((a,b)=>b.portfolioValue-a.portfolioValue).map(s=>{
+    const ret=((s.portfolioValue-100000)/100000*100).toFixed(2);
+    const n=parseFloat(ret);
+    let g='C';
+    if(s.trades>=10&&n>=5)g='A';
+    else if(s.trades>=5&&n>=0)g='B';
+    else if(s.trades>=3)g='C';
+    else if(s.trades>=1)g='D';
+    else g='F';
+    return [s.name,'$'+s.portfolioValue.toFixed(2),ret+'%','$'+s.cash.toFixed(2),s.trades,
+      s.lastTrade?new Date(s.lastTrade).toLocaleDateString():'Never',g];
+  });
+  const csv=[headers,...rows].map(r=>r.join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download='grades_'+(currentClass?.name||'class')+'_'+new Date().toISOString().slice(0,10)+'.csv'; a.click();
+}
+
 // ── Token refresh — keep session alive ──
 async function refreshToken(){
   const t = getToken();
