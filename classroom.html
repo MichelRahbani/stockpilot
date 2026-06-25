@@ -371,6 +371,12 @@ tr:hover td{background:#fafafa}
           </table>
         </div>
 
+        <!-- Budget Challenges -->
+        <div style="font-size:16px;font-weight:700;margin:20px 0 12px">🎯 Budget Challenges</div>
+        <div id="sdChallengesList" style="margin-bottom:20px">
+          <div style="font-size:13px;color:var(--muted)">Loading challenges...</div>
+        </div>
+
         <!-- My trade history -->
         <div style="font-size:16px;font-weight:700;margin:20px 0 12px">📋 My Trade History</div>
         <div class="table-wrap">
@@ -782,6 +788,34 @@ async function loadStudentClasses(){
 }
 
 // ── Student dashboard ──
+async function loadStudentChallenges(classId){
+  const el = document.getElementById('sdChallengesList');
+  if(!el) return;
+  try {
+    const t = localStorage.getItem('supabase_token')||'';
+    const r = await fetch(SUPA_URL+'/rest/v1/budget_challenges?class_id=eq.'+classId+'&order=created_at.desc',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+t}
+    });
+    const challenges = await r.json();
+    if(!Array.isArray(challenges)||!challenges.length){
+      el.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:12px;background:white;border-radius:10px;border:1px solid var(--border)">No challenges yet.</div>';
+      return;
+    }
+    el.innerHTML = challenges.map(c=>{
+      const due = c.due_date?new Date(c.due_date):null;
+      const daysLeft = due?Math.ceil((due-new Date())/(1000*60*60*24)):null;
+      const isOpen = !due||daysLeft>0;
+      const dueTxt = due?(daysLeft>0?'⏳ '+daysLeft+' days left':'🔒 Closed'):'Open';
+      return '<div style="background:white;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">'
+        +'<div><div style="font-weight:700;margin-bottom:4px">'+c.title+'</div>'
+        +'<div style="font-size:12px;color:var(--muted)">💵 $'+Number(c.monthly_income).toLocaleString()+'/mo · '+c.points+' pts · '+dueTxt+'</div></div>'
+        +(isOpen?'<a href="/budget-challenge?id='+c.id+'" class="btn btn-primary btn-sm" style="text-decoration:none">Start Challenge →</a>'
+          :'<span style="font-size:12px;color:var(--muted)">Closed</span>')
+        +'</div>';
+    }).join('');
+  } catch(e){ if(el) el.innerHTML = ''; }
+}
+
 async function openStudentDashboard(classId){
   const classes = await sbGet('classes','id=eq.'+classId);
   if(!classes.length) return;
@@ -790,6 +824,7 @@ async function openStudentDashboard(classId){
   const myName = getName();
 
   document.getElementById('sdClassName').textContent = cls.name;
+  loadStudentChallenges(classId);
   document.getElementById('sdInstructor').textContent = 'Instructor: ' + (cls.instructor_name||'');
   document.getElementById('studentClassList').style.display = 'none';
   document.getElementById('studentDashboard').style.display = 'block';
