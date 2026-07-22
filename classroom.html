@@ -264,6 +264,7 @@ tr:hover td{background:#fafafa}
         <button class="tab active" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
         <button class="tab" onclick="switchTab('trades',this)">📋 Trade History</button>
         <button class="tab" onclick="switchTab('budgets',this)">💰 Budgets</button>
+        <button class="tab" onclick="switchTab('assignments',this)">📝 Assignments</button>
       </div>
 
       <div id="tabLeaderboard">
@@ -302,6 +303,49 @@ tr:hover td{background:#fafafa}
               <th>Student</th><th>Income</th><th>Expenses</th><th>Savings Rate</th><th>Leftover</th><th>Score</th><th>Submitted</th>
             </tr></thead>
             <tbody id="budgetsBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="tabAssignments" style="display:none">
+        <div style="background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px">
+          <div style="font-size:14px;font-weight:700;margin-bottom:12px">+ New Assignment</div>
+          <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:10px">
+            <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Title</label>
+              <input type="text" id="newAsgTitle" placeholder="e.g. Assignment 1: Make 5 Trades" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+            <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Points</label>
+              <input type="number" id="newAsgPoints" value="5" min="1" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+            <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Due Date</label>
+              <input type="date" id="newAsgDue" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+            <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Type</label>
+              <select id="newAsgType" onchange="updateAsgCriteriaLabel()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+                <option value="trading">Virtual Trading</option>
+                <option value="budget">Budget Planner</option>
+                <option value="budget_challenge">Budget Challenge</option>
+                <option value="daily_challenge">Daily Budget Challenge</option>
+              </select></div>
+            <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px" id="newAsgCriteriaLabel">Minimum trades required</label>
+              <input type="number" id="newAsgCriteria" value="5" min="1" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Students pass or fail — no partial credit. Grading runs automatically off what they've already done in the app, so nothing to grade by hand.</p>
+          <button class="btn btn-primary btn-sm" onclick="createAssignment()">+ Add Assignment</button>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+          <span style="font-size:13px;color:var(--muted)">Assignments for this class</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" id="runGradingBtn" onclick="runGrading()">↻ Run Grading</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportAssignmentGrades()">🎓 Export Assignment Grades</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Title</th><th>Type</th><th>Points</th><th>Due Date</th><th>Passed</th><th></th>
+            </tr></thead>
+            <tbody id="assignmentsBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No assignments yet. Add one above.</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -716,6 +760,9 @@ function switchTab(tab, btn){
   btn.classList.add('active');
   document.getElementById('tabLeaderboard').style.display = tab==='leaderboard'?'block':'none';
   document.getElementById('tabTrades').style.display = tab==='trades'?'block':'none';
+  document.getElementById('tabBudgets').style.display = tab==='budgets'?'block':'none';
+  document.getElementById('tabAssignments').style.display = tab==='assignments'?'block':'none';
+  if(tab==='assignments') loadAssignments();
 }
 
 // ── Join class ──
@@ -981,6 +1028,202 @@ function exportBudgetsCSV(){
   const a = document.createElement('a');
   a.href=url; a.download='budgets_'+(currentClass?.name||'class')+'_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
+}
+
+// ── Assignments (named, point-valued, pass/fail, auto-graded) ──
+let allAssignments = [];
+let currentClassMemberCount = 0;
+const ASG_CRITERIA_LABELS = {
+  trading: 'Minimum trades required',
+  budget: 'Minimum budget score (0-100)',
+  budget_challenge: 'Minimum budget challenge score (0-100)',
+  daily_challenge: 'Minimum # of daily challenges completed'
+};
+
+function updateAsgCriteriaLabel(){
+  const type = document.getElementById('newAsgType').value;
+  document.getElementById('newAsgCriteriaLabel').textContent = ASG_CRITERIA_LABELS[type] || 'Minimum required';
+}
+
+async function createAssignment(){
+  if(!currentClass) return;
+  const title = document.getElementById('newAsgTitle').value.trim();
+  const points = parseInt(document.getElementById('newAsgPoints').value) || 5;
+  const due = document.getElementById('newAsgDue').value || null;
+  const type = document.getElementById('newAsgType').value;
+  const critValue = parseFloat(document.getElementById('newAsgCriteria').value) || 1;
+
+  if(!title){ alert('Give the assignment a title first.'); return; }
+
+  let pass_criteria = {};
+  if(type==='trading') pass_criteria = {min_trades: critValue};
+  else if(type==='budget') pass_criteria = {min_score: critValue};
+  else if(type==='budget_challenge') pass_criteria = {min_score: critValue};
+  else if(type==='daily_challenge') pass_criteria = {min_count: critValue};
+
+  try {
+    await sbPost('class_assignments', {
+      class_id: currentClass.id,
+      title, points, due_date: due, type, pass_criteria,
+      sort_order: allAssignments.length
+    });
+    document.getElementById('newAsgTitle').value = '';
+    await loadAssignments();
+  } catch(e){
+    alert('Could not create assignment: '+e.message);
+  }
+}
+
+async function loadAssignments(){
+  if(!currentClass) return;
+  document.getElementById('assignmentsBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
+  try {
+    const members = await sbGet('class_members','class_id=eq.'+currentClass.id);
+    currentClassMemberCount = members.length;
+    allAssignments = await sbGet('class_assignments','class_id=eq.'+currentClass.id+'&order=sort_order.asc');
+    const completions = await sbGet('assignment_completions','class_id=eq.'+currentClass.id);
+    renderAssignments(completions);
+  } catch(e){
+    document.getElementById('assignmentsBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Could not load assignments.</td></tr>';
+  }
+}
+
+const ASG_TYPE_LABELS = {
+  trading: '📈 Trading', budget: '💰 Budget Planner',
+  budget_challenge: '🎯 Budget Challenge', daily_challenge: '📅 Daily Challenge'
+};
+
+function renderAssignments(completions){
+  if(!allAssignments.length){
+    document.getElementById('assignmentsBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No assignments yet. Add one above.</td></tr>';
+    return;
+  }
+  document.getElementById('assignmentsBody').innerHTML = allAssignments.map(a=>{
+    const passedCount = (completions||[]).filter(c=>c.assignment_id===a.id && c.passed).length;
+    return '<tr>'
+      +'<td><strong>'+a.title+'</strong></td>'
+      +'<td>'+(ASG_TYPE_LABELS[a.type]||a.type)+'</td>'
+      +'<td>'+a.points+' pts</td>'
+      +'<td>'+(a.due_date?new Date(a.due_date+'T00:00:00').toLocaleDateString():'—')+'</td>'
+      +'<td>'+passedCount+' / '+(currentClassMemberCount||'?')+'</td>'
+      +'<td><button class="btn btn-ghost btn-sm" onclick="deleteAssignment(\''+a.id+'\')" title="Delete">🗑</button></td>'
+      +'</tr>';
+  }).join('');
+}
+
+async function deleteAssignment(id){
+  if(!confirm('Delete this assignment? This also removes any recorded scores for it.')) return;
+  try {
+    await fetch(SUPA_URL+'/rest/v1/class_assignments?id=eq.'+id,{
+      method:'DELETE', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+    });
+    await loadAssignments();
+  } catch(e){ alert('Could not delete: '+e.message); }
+}
+
+// Auto-grade every assignment against what students have already done —
+// nothing to grade by hand.
+async function runGrading(){
+  if(!currentClass) return;
+  const btn = document.getElementById('runGradingBtn');
+  if(btn){ btn.disabled=true; btn.textContent='Grading...'; }
+  try {
+    const members = await sbGet('class_members','class_id=eq.'+currentClass.id);
+    currentClassMemberCount = members.length;
+    if(!allAssignments.length || !members.length){
+      if(btn){ btn.disabled=false; btn.textContent='↻ Run Grading'; }
+      return;
+    }
+    const uids = members.map(m=>m.user_id);
+    const uidList = uids.join(',');
+
+    const [trades, budgets, budgetChallenges, dailyChallenges] = await Promise.all([
+      sbGet('trades','user_id=in.('+uidList+')'),
+      sbGet('budget_submissions','class_id=eq.'+currentClass.id),
+      sbGet('budget_challenge_submissions','class_id=eq.'+currentClass.id),
+      sbGet('daily_challenge_submissions','class_id=eq.'+currentClass.id)
+    ]);
+
+    const tradeCountByUser = {};
+    (trades||[]).forEach(t=>{ tradeCountByUser[t.user_id] = (tradeCountByUser[t.user_id]||0)+1; });
+
+    const bestBudgetByUser = {};
+    (budgets||[]).forEach(b=>{ bestBudgetByUser[b.user_id] = Math.max(bestBudgetByUser[b.user_id]||0, b.budget_score||0); });
+
+    const bestBudgetChallengeByUser = {};
+    (budgetChallenges||[]).forEach(b=>{ bestBudgetChallengeByUser[b.user_id] = Math.max(bestBudgetChallengeByUser[b.user_id]||0, b.score||0); });
+
+    const dailyCountByUser = {};
+    (dailyChallenges||[]).forEach(d=>{ dailyCountByUser[d.user_id] = (dailyCountByUser[d.user_id]||0)+1; });
+
+    const rows = [];
+    for(const a of allAssignments){
+      const crit = a.pass_criteria||{};
+      for(const m of members){
+        let passed = false;
+        if(a.type==='trading') passed = (tradeCountByUser[m.user_id]||0) >= (crit.min_trades||1);
+        else if(a.type==='budget') passed = (bestBudgetByUser[m.user_id]||0) >= (crit.min_score||0);
+        else if(a.type==='budget_challenge') passed = (bestBudgetChallengeByUser[m.user_id]||0) >= (crit.min_score||0);
+        else if(a.type==='daily_challenge') passed = (dailyCountByUser[m.user_id]||0) >= (crit.min_count||1);
+
+        rows.push({
+          assignment_id: a.id,
+          class_id: currentClass.id,
+          user_id: m.user_id,
+          nickname: m.nickname,
+          passed,
+          points_awarded: passed ? a.points : 0,
+          evaluated_at: new Date().toISOString()
+        });
+      }
+    }
+
+    await fetch(SUPA_URL+'/rest/v1/assignment_completions', {
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body: JSON.stringify(rows)
+    });
+
+    await loadAssignments();
+    alert('Grading complete — scores updated for '+members.length+' students across '+allAssignments.length+' assignments.');
+  } catch(e){
+    alert('Grading failed: '+e.message);
+  } finally {
+    if(btn){ btn.disabled=false; btn.textContent='↻ Run Grading'; }
+  }
+}
+
+// Build the Canvas-ready CSV: one column per assignment, plus a total
+async function exportAssignmentGrades(){
+  if(!currentClass) return;
+  if(!allAssignments.length){ alert('Create at least one assignment first.'); return; }
+  try {
+    const members = await sbGet('class_members','class_id=eq.'+currentClass.id);
+    const completions = await sbGet('assignment_completions','class_id=eq.'+currentClass.id);
+
+    const totalPoints = allAssignments.reduce((sum,a)=>sum+a.points,0);
+    const headers = ['Student', ...allAssignments.map(a=>a.title+' ('+a.points+' pts'+(a.due_date?', due '+a.due_date:'')+')'), 'Total (/'+totalPoints+')'];
+
+    const rows = members.map(m=>{
+      let total = 0;
+      const cells = allAssignments.map(a=>{
+        const c = completions.find(x=>x.assignment_id===a.id && x.user_id===m.user_id);
+        const pts = c ? c.points_awarded : 0;
+        total += pts;
+        return pts;
+      });
+      return [m.nickname||'Student', ...cells, total];
+    });
+
+    const csv = [headers, ...rows].map(r=>r.join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download='assignment_grades_'+(currentClass?.name||'class')+'_'+new Date().toISOString().slice(0,10)+'.csv';
+    a.click();
+  } catch(e){
+    alert('Could not export: '+e.message);
+  }
 }
 
 // ── Token refresh — keep session alive ──
