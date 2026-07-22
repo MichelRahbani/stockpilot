@@ -408,6 +408,16 @@ async function checkExistingSubmission(){
   } catch(e){}
 }
 
+async function getMyClassId(){
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/class_members?user_id=eq.'+uid+'&select=class_id',{
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+(token||SUPA_KEY)}
+    });
+    const rows = await r.json();
+    return (rows && rows.length) ? rows[0].class_id : null;
+  } catch(e){ return null; }
+}
+
 async function submitScore(){
   if(!uid){
     alert('Sign in to submit your score to the leaderboard! Your score still counts locally.');
@@ -423,12 +433,13 @@ async function submitScore(){
   const total = fixedTotal+varTotal;
   const leftover = s.income-total;
   const savRate = s.income>0?Math.round(v('bSavings')/s.income*100):0;
+  const classId = await getMyClassId();
 
   try {
     const r = await fetch(SUPA_URL+'/rest/v1/daily_challenge_submissions',{
       method:'POST',
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
-      body:JSON.stringify({challenge_date:scenario.dateStr,user_id:uid,nickname,score:finalScore,savings_rate:savRate,leftover,badges:earnedBadges.map(b=>b.icon+' '+b.label)})
+      body:JSON.stringify({challenge_date:scenario.dateStr,user_id:uid,nickname,score:finalScore,savings_rate:savRate,leftover,badges:earnedBadges.map(b=>b.icon+' '+b.label),class_id:classId})
     });
     if(r.ok){
       document.getElementById('alreadyTag').style.display='block';
