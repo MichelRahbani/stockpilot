@@ -215,6 +215,49 @@ nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid v
 </div>
 
 <script>
+// ── Save results to class (if signed in and in a class) ──
+const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+
+async function saveBudgetChallengeResult(scenarioId, score, savingsRate, leftover, badges){
+  try {
+    const token = localStorage.getItem('supabase_token');
+    if(!token) return; // not signed in — game still works, just isn't graded
+
+    const uid = JSON.parse(atob(token.split('.')[1])).sub;
+    const nickname = localStorage.getItem('supabase_name') || 'Student';
+
+    // Find the student's class (if any) so the result can be scoped to it
+    let classId = null;
+    try {
+      const classRes = await fetch(SUPA_URL+'/rest/v1/class_members?user_id=eq.'+uid+'&select=class_id', {
+        headers:{apikey:SUPA_KEY, Authorization:'Bearer '+token}
+      });
+      const memberships = await classRes.json();
+      if(memberships && memberships.length) classId = memberships[0].class_id;
+    } catch(e){}
+
+    await fetch(SUPA_URL+'/rest/v1/budget_challenge_submissions', {
+      method:'POST',
+      headers:{
+        apikey:SUPA_KEY, Authorization:'Bearer '+token,
+        'Content-Type':'application/json',
+        Prefer:'return=minimal'
+      },
+      body: JSON.stringify({
+        user_id: uid,
+        class_id: classId,
+        nickname,
+        scenario_id: scenarioId,
+        score,
+        savings_rate: savingsRate,
+        leftover,
+        badges: badges.map(b=>b.icon+' '+b.label)
+      })
+    });
+  } catch(e){ /* saving is best-effort — never block the student's results screen */ }
+}
+
 const SCENARIOS = [
   {
     id:'grad',
@@ -464,6 +507,8 @@ function showResults(){
   if(v('bDebt')>0) score+=10;
   score+=entPct<=0.15?10:Math.round((1-entPct)*10);
   score=Math.max(0,Math.min(100,score));
+
+  saveBudgetChallengeResult(s.id, score, savRate, leftover, earnedBadges);
 
   document.getElementById('gameSection').style.display='none';
   document.getElementById('resultsSection').style.display='block';
