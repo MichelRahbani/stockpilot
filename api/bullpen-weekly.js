@@ -69,7 +69,10 @@ module.exports = async (req, res) => {
     const results = [];
 
     for (const league of leagues) {
-      const weekStart = new Date(league.week_start_date);
+      // If a league has no start date on record, treat it as "just started"
+      // rather than defaulting to epoch (1970), which would force an
+      // immediate incorrect reset.
+      const weekStart = league.week_start_date ? new Date(league.week_start_date) : now;
       const daysSince = Math.floor((now - weekStart) / 86400000);
 
       // Only reset if 7+ days have passed
