@@ -3,6 +3,7 @@
 <head>
 
 <!-- Google Analytics -->
+<script src="/bullpen-shared.js"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -10,9 +11,6 @@
   gtag('js', new Date());
   gtag('config', 'G-TZLSC36Y26');
   gtag('event', 'page_view', {page_title: 'Bullpen Landing', page_location: window.location.href});
-  function trackEvent(action, category, label){
-    if(typeof gtag !== 'undefined') gtag('event', action, {event_category: category, event_label: label});
-  }
 </script>
 
 <meta charset="UTF-8"/>
@@ -699,25 +697,6 @@ function genCode() {
 
 let currentCode = '';
 
-const SUPABASE_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
-
-async function sbPost(table, body) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table, {
-    method: 'POST',
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
-    body: JSON.stringify(body)
-  });
-  return res.json();
-}
-
-async function sbGet(table, params) {
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?' + params, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
-  });
-  return res.json();
-}
-
 async function createLeague() {
   const name = document.getElementById('leagueName').value.trim();
   const manager = document.getElementById('managerName').value.trim();
@@ -867,7 +846,6 @@ checkContinueBanner();
 const SUPA_URL="https://xkfxofcmrmpazfjviatq.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
 let _pendingAction=null;
-function isLoggedIn(){return !!localStorage.getItem('supabase_token');}
 function requireAuth(action){if(isLoggedIn()){action();return;}_pendingAction=action;document.getElementById('signinModal').style.display='flex';}
 function openSignin(){document.getElementById('signinModal').style.display='flex';}
 function closeSignin(){document.getElementById('signinModal').style.display='none';_pendingAction=null;}
