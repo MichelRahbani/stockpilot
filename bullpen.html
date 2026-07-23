@@ -718,7 +718,7 @@ async function createLeague() {
     localStorage.setItem('bullpen_my_league', currentCode);
     localStorage.setItem('bullpen_my_name', manager);
     localStorage.setItem('bullpen_my_member_id', member[0]?.id || '');
-    trackEvent('league_joined', 'Bullpen', code);
+    trackEvent('league_joined', 'Bullpen', currentCode);
     trackEvent('league_created', 'Bullpen', selectedFormat);
 
     closeCreate();
@@ -756,7 +756,7 @@ async function joinLeague() {
     localStorage.setItem('bullpen_my_league', code);
     localStorage.setItem('bullpen_my_name', name);
     localStorage.setItem('bullpen_my_member_id', member[0]?.id || '');
-    trackEvent('league_created', 'Bullpen', selectedFormat);
+    trackEvent('league_joined', 'Bullpen', selectedFormat);
 
     closeJoin();
     window.location.href = '/bullpen-draft.html?code=' + code + '&name=' + encodeURIComponent(name) + '&mid=' + (member[0]?.id || '');
