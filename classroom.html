@@ -911,6 +911,52 @@ const ASG_TYPE_LINK = {
   daily_challenge: {url:'/daily-challenge.html', label:'Play Daily Challenge'}
 };
 
+// Check the current student's own progress against each assignment's pass
+// criteria, using the same rules the instructor's "Run Grading" uses, and
+// save the result — so status is always fresh without instructor action.
+async function selfGradeAssignments(assignments, classId, uid){
+  try {
+    const [trades, budgets, budgetChallenges, dailyChallenges] = await Promise.all([
+      sbGet('trades','user_id=eq.'+uid),
+      sbGet('budget_submissions','class_id=eq.'+classId+'&user_id=eq.'+uid),
+      sbGet('budget_challenge_submissions','class_id=eq.'+classId+'&user_id=eq.'+uid),
+      sbGet('daily_challenge_submissions','class_id=eq.'+classId+'&user_id=eq.'+uid)
+    ]);
+
+    const tradeCount = Array.isArray(trades) ? trades.length : 0;
+    const bestBudget = (Array.isArray(budgets)?budgets:[]).reduce((m,b)=>Math.max(m,b.budget_score||0),0);
+    const bestBudgetChallenge = (Array.isArray(budgetChallenges)?budgetChallenges:[]).reduce((m,b)=>Math.max(m,b.score||0),0);
+    const dailyCount = Array.isArray(dailyChallenges) ? dailyChallenges.length : 0;
+
+    const rows = assignments.map(a=>{
+      const crit = a.pass_criteria||{};
+      let passed = false;
+      if(a.type==='trading') passed = tradeCount >= (crit.min_trades||1);
+      else if(a.type==='budget') passed = bestBudget >= (crit.min_score||0);
+      else if(a.type==='budget_challenge') passed = bestBudgetChallenge >= (crit.min_score||0);
+      else if(a.type==='daily_challenge') passed = dailyCount >= (crit.min_count||1);
+      return {
+        assignment_id: a.id,
+        class_id: classId,
+        user_id: uid,
+        nickname: getName() || 'Student',
+        passed,
+        points_awarded: passed ? a.points : 0,
+        evaluated_at: new Date().toISOString()
+      };
+    });
+
+    await fetch(SUPA_URL+'/rest/v1/assignment_completions', {
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body: JSON.stringify(rows)
+    });
+  } catch(e){
+    // Best-effort — if this fails, the student just sees whatever status
+    // was last saved rather than a broken page.
+  }
+}
+
 async function loadStudentAssignments(classId, uid){
   const wrap = document.getElementById('sdAssignmentsList');
   const scoreEl = document.getElementById('sdAssignmentsScore');
@@ -920,10 +966,22 @@ async function loadStudentAssignments(classId, uid){
   let completions = [];
   try {
     assignments = await sbGet('class_assignments','class_id=eq.'+classId+'&order=sort_order.asc');
-    completions = await sbGet('assignment_completions','class_id=eq.'+classId+'&user_id=eq.'+uid);
   } catch(e){
     wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Could not load assignments.</p>';
     return;
+  }
+
+  if(assignments.length){
+    // Check my own progress against each assignment right now, so status
+    // is always current the moment I look — no waiting on the instructor
+    // to run grading.
+    await selfGradeAssignments(assignments, classId, uid);
+  }
+
+  try {
+    completions = await sbGet('assignment_completions','class_id=eq.'+classId+'&user_id=eq.'+uid);
+  } catch(e){
+    completions = [];
   }
 
   if(!assignments.length){
