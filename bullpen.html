@@ -342,6 +342,7 @@ footer a:hover{color:var(--text)}
   <div class="bp-nav-right bp-nav-desktop">
     <a href="/trade" class="sp-link">← Back to StockPilot</a>
     <button class="btn-ghost" id="navSignInBtn" onclick="openSignin()" style="display:none">Sign In</button>
+    <a href="/bullpen-madness.html" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center">🏆 Madness</a>
     <button class="btn-ghost" onclick="requireAuth(openJoin)">Join League</button>
     <button class="btn-primary" onclick="requireAuth(openCreate)">Create League</button>
   </div>
@@ -361,6 +362,7 @@ footer a:hover{color:var(--text)}
   <div id="mobileUserPill" style="display:none;padding:10px 14px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);border-radius:9px;font-size:13px;color:var(--green);font-weight:500"></div>
   <button onclick="closeBpMenu();requireAuth(openCreate)" style="width:100%;padding:13px;background:var(--green);color:#000;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Create League</button>
   <button onclick="closeBpMenu();requireAuth(openJoin)" style="width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Join with Code</button>
+  <a href="/bullpen-madness.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(124,77,255,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">🏆 Bullpen Madness</a>
   <button id="mobileSignInBtn" onclick="closeBpMenu();openSignin()" style="width:100%;padding:13px;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.08);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
   <a href="/trade" style="display:block;text-align:center;font-size:13px;color:var(--muted);text-decoration:none;padding:8px">← Back to StockPilot</a>
 </div>
@@ -389,6 +391,20 @@ footer a:hover{color:var(--text)}
   <div class="stat-item"><div class="stat-num">15</div><div class="stat-label">Max League Size</div></div>
   <div class="stat-item"><div class="stat-num">2</div><div class="stat-label">Free Trades/Week</div></div>
   <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Always Free</div></div>
+</div>
+
+<!-- BULLPEN MADNESS CALLOUT -->
+<div class="section" style="padding-top:0">
+  <a href="/bullpen-madness.html" style="text-decoration:none;display:block">
+    <div style="background:linear-gradient(135deg,rgba(124,77,255,0.12),rgba(0,230,118,0.06));border:1.5px solid rgba(124,77,255,0.35);border-radius:18px;padding:28px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;max-width:900px;margin:0 auto;transition:border-color 0.2s" onmouseover="this.style.borderColor='rgba(124,77,255,0.7)'" onmouseout="this.style.borderColor='rgba(124,77,255,0.35)'">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:6px;background:rgba(124,77,255,0.15);color:#7c4dff;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 12px;border-radius:100px;margin-bottom:10px">🏆 New</div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;color:var(--text)">BULLPEN MADNESS</div>
+        <div style="color:var(--muted);font-size:14px;margin-top:4px">Up to 50 players. Tables of 4. Single or double elimination bracket tournament.</div>
+      </div>
+      <div style="background:#7c4dff;color:#fff;padding:12px 24px;border-radius:10px;font-weight:700;font-size:14px;white-space:nowrap">Check it out →</div>
+    </div>
+  </a>
 </div>
 
 <!-- HOW IT WORKS -->
