@@ -128,11 +128,15 @@ tr:hover td{background:#fafafa}
     <button class="modal-close" onclick="closeModal('signinModal')">✕</button>
     <h2>Sign in to continue</h2>
     <p class="subtitle">You need a StockPilot account to create or join a class.</p>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button type="button" id="siTabIn" onclick="setSiMode('in')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer">Sign In</button>
+      <button type="button" id="siTabUp" onclick="setSiMode('up')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer">Sign Up</button>
+    </div>
     <div class="msg" id="siMsg"></div>
+    <div class="field" id="siNameField" style="display:none"><label>Name</label><input type="text" id="siName" placeholder="Your name"/></div>
     <div class="field"><label>Email</label><input type="email" id="siEmail" placeholder="your@email.com"/></div>
     <div class="field"><label>Password</label><input type="password" id="siPass" placeholder="Your password"/></div>
-    <button class="btn btn-primary" style="width:100%;margin-bottom:10px" onclick="doSignin()">Sign In</button>
-    <p style="text-align:center;font-size:13px;color:var(--muted)">No account? <a href="/app" style="color:var(--green)">Create one free</a></p>
+    <button class="btn btn-primary" style="width:100%;margin-bottom:10px" id="siSubmitBtn" onclick="doSiSubmit()">Sign In</button>
   </div>
 </div>
 
@@ -468,6 +472,45 @@ function requireAuth(fn){
   if(getToken()){ fn(); return; }
   window._pendingFn = fn;
   openModal('signinModal');
+}
+
+let siMode = 'in';
+function setSiMode(mode){
+  siMode = mode;
+  document.getElementById('siNameField').style.display = mode==='up' ? 'block' : 'none';
+  document.getElementById('siSubmitBtn').textContent = mode==='up' ? 'Create Account' : 'Sign In';
+  const inTab = document.getElementById('siTabIn'), upTab = document.getElementById('siTabUp');
+  if(mode==='up'){
+    inTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer';
+    upTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer';
+  } else {
+    inTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer';
+    upTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer';
+  }
+}
+function doSiSubmit(){ return siMode === 'up' ? doSignup() : doSignin(); }
+
+async function doSignup(){
+  const name = document.getElementById('siName').value.trim();
+  const email = document.getElementById('siEmail').value.trim();
+  const pass = document.getElementById('siPass').value;
+  if(!name || !email || !pass || pass.length < 6){ showMsg('siMsg','Add a name, email, and a password with at least 6 characters.','error'); return; }
+  showMsg('siMsg','Creating account...','success');
+  try {
+    const r = await fetch(SUPA_URL+'/auth/v1/signup',{
+      method:'POST', headers:{'Content-Type':'application/json','apikey':SUPA_KEY},
+      body: JSON.stringify({email, password:pass})
+    });
+    const d = await r.json();
+    if(d.error || !d.access_token){ showMsg('siMsg', (d.error&&d.error.message) || d.msg || 'Could not create account. Try a different email.','error'); return; }
+    localStorage.setItem('supabase_token', d.access_token);
+    if(d.refresh_token) localStorage.setItem('supabase_refresh_token', d.refresh_token);
+    localStorage.setItem('supabase_email', email);
+    localStorage.setItem('supabase_name', name);
+    updateNavAuth();
+    closeModal('signinModal');
+    if(window._pendingFn){ const f=window._pendingFn; window._pendingFn=null; f(); }
+  } catch(e){ showMsg('siMsg','Error creating account. Try again.','error'); }
 }
 
 async function doSignin(){
