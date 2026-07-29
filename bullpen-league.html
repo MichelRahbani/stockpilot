@@ -1056,13 +1056,20 @@ document.getElementById('manageModal').addEventListener('click',function(e){if(e
     <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">x</button>
     <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:white;margin-bottom:4px">Sign In to Play</div>
     <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">You need a StockPilot account to interact with this league.</div>
+    <div style="display:flex;gap:8px;margin-bottom:16px">
+      <button type="button" id="siTabIn" onclick="setSiMode('in')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
+      <button type="button" id="siTabUp" onclick="setSiMode('up')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Sign Up</button>
+    </div>
     <div id="siMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
+    <div id="siNameField" style="display:none">
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Name</div>
+      <input id="siName" type="text" placeholder="Your name" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+    </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
     <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
     <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
-    <button onclick="doSignin()" style="width:100%;padding:12px;background:#00e676;color:#000;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">Sign In to Bullpen</button>
-    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">No account? <a href="/app" target="_blank" style="color:#00e676;text-decoration:none" onclick="localStorage.setItem('bullpen_pending_return', window.location.href)">Create one free</a></div>
+    <button id="siSubmitBtn" onclick="doSiSubmit()" style="width:100%;padding:12px;background:#00e676;color:#000;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">Sign In to Bullpen</button>
     <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
   </div>
 </div>
@@ -1085,6 +1092,49 @@ function showSiMsg(msg, ok){
   el.style.background = ok ? 'rgba(22,163,74,0.15)' : 'rgba(220,38,38,0.15)';
   el.style.color = ok ? '#86efac' : '#fca5a5';
   el.style.border = '1px solid ' + (ok ? 'rgba(22,163,74,0.3)' : 'rgba(220,38,38,0.3)');
+}
+
+let siMode='in';
+function setSiMode(mode){
+  siMode=mode;
+  document.getElementById('siNameField').style.display = mode==='up' ? 'block' : 'none';
+  document.getElementById('siSubmitBtn').textContent = mode==='up' ? 'Create Account' : 'Sign In to Bullpen';
+  const inTab=document.getElementById('siTabIn'), upTab=document.getElementById('siTabUp');
+  if(mode==='up'){
+    inTab.style.cssText="flex:1;padding:9px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif";
+    upTab.style.cssText="flex:1;padding:9px;border-radius:8px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif";
+  } else {
+    inTab.style.cssText="flex:1;padding:9px;border-radius:8px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif";
+    upTab.style.cssText="flex:1;padding:9px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif";
+  }
+}
+function doSiSubmit(){ return siMode==='up' ? doSignup() : doSignin(); }
+
+async function doSignup(){
+  const name=document.getElementById('siName').value.trim();
+  const email=document.getElementById('siEmail').value.trim();
+  const pass=document.getElementById('siPass').value;
+  if(!name||!email||!pass||pass.length<6){showSiMsg('Add a name, email, and a password with at least 6 characters.',false);return;}
+  showSiMsg('Creating account...',true);
+  try{
+    const r=await fetch(SUPABASE_URL+'/auth/v1/signup',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({email,password:pass})});
+    const d=await r.json();
+    if(d.error||!d.access_token){showSiMsg((d.error&&d.error.message)||d.msg||'Could not create account. Try a different email.',false);return;}
+    localStorage.setItem('supabase_token',d.access_token);
+    localStorage.setItem('supabase_email',email);
+    localStorage.setItem('supabase_name',name);
+    showSiMsg('Account created! Welcome, '+name+'.',true);
+    setTimeout(()=>{
+      closeSignin();
+      const displayName = localStorage.getItem('supabase_name')||name;
+      if(!myMember && members.length){
+        myMember = members.find(m=>m.name===displayName)||null;
+        if(myMember){ localStorage.setItem('bullpen_my_member_id', myMember.id); localStorage.setItem('bullpen_my_name', myMember.name); }
+      }
+      updateNavAuth();
+      if(window._pendingHubAction){ const fn=window._pendingHubAction; window._pendingHubAction=null; fn(); }
+    }, 600);
+  }catch(e){showSiMsg('Error creating account. Try again.',false);}
 }
 
 async function doSignin(){
