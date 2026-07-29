@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bullpen Showdown | StockPilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00e676;--green-d:#00c853;--red:#ff1744;--gold:#ffd600;--blue:#2979ff;
+  --bg:#080c10;--bg2:#0d1117;--bg3:#161b22;--border:rgba(255,255,255,0.08);
+  --text:#e6edf3;--muted:#7d8590;--card:rgba(255,255,255,0.04);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-top:76px}
+
+.bp-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(8,12,16,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.bp-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.bp-logo-mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--blue),var(--green));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#000}
+.bp-logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text)}
+.bp-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-ghost:hover{border-color:var(--blue);color:var(--blue)}
+
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+.t-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+.t-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px}
+.t-meta{font-size:13px;color:var(--muted);margin-top:2px}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600}
+.pill.blue{border-color:rgba(41,121,255,0.4);color:var(--blue)}
+.pill.gold{border-color:rgba(255,214,0,0.4);color:var(--gold)}
+.pill.red{border-color:rgba(255,23,68,0.4);color:var(--red)}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px}
+.card h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.5px;margin-bottom:16px}
+
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat-box .v{font-family:'DM Mono',monospace;font-size:22px;font-weight:600}
+.stat-box .l{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:4px}
+
+.table-standings{width:100%;border-collapse:collapse}
+.table-standings th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:8px;border-bottom:1px solid var(--border)}
+.table-standings td{padding:12px 8px;border-bottom:1px solid var(--border);font-size:14px}
+.table-standings tr.me{background:rgba(41,121,255,0.08)}
+.rank-badge{width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--bg3)}
+.rank-badge.top3{background:rgba(255,214,0,0.15);color:var(--gold)}
+.return-up{color:var(--green);font-weight:700}
+.return-down{color:var(--red);font-weight:700}
+
+.trade-row{display:grid;grid-template-columns:1fr 100px auto auto;gap:10px;margin-bottom:14px}
+.trade-row input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif}
+.trade-row input:focus{outline:none;border-color:var(--blue)}
+.btn-buy{background:var(--green);border:none;color:#000;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-sell{background:var(--red);border:none;color:#fff;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+.quote-preview{font-size:12px;color:var(--muted);margin-bottom:14px;min-height:16px}
+
+.holding-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+.holding-row:last-child{border-bottom:none}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.loading{text-align:center;padding:80px 20px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav class="bp-nav">
+  <a href="/bullpen-showdown.html" class="bp-logo">
+    <div class="bp-logo-mark">S</div>
+    <div><div class="bp-logo-text">STOCKPILOT</div><div class="bp-logo-sub">Bullpen Showdown</div></div>
+  </a>
+  <a href="/bullpen-showdown.html" class="btn-ghost" style="text-decoration:none">← All Showdowns</a>
+</nav>
+
+<div class="wrap" id="app">
+  <div class="loading">Loading showdown...</div>
+</div>
+
+<script src="/bullpen-shared.js"></script>
+<script>
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+const params = new URLSearchParams(window.location.search);
+const code = (params.get('code') || '').toUpperCase();
+const token = localStorage.getItem('supabase_token');
+const myUid = token ? JSON.parse(atob(token.split('.')[1])).sub : null;
+const myName = localStorage.getItem('bshowdown_my_name') || localStorage.getItem('supabase_name') || '';
+
+let tournament = null, entries = [], myEntry = null;
+let priceCache = {};
+
+async function getPrice(ticker){
+  if(priceCache[ticker] !== undefined) return priceCache[ticker];
+  try{
+    const res = await fetch(`${BACKEND}/api/quotes?symbols=${ticker}`);
+    const data = await res.json();
+    const price = data?.quoteResponse?.result?.[0]?.regularMarketPrice || 0;
+    priceCache[ticker] = price;
+    return price;
+  }catch(e){ return 0; }
+}
+
+function isPastEndDate(){
+  return tournament.end_date <= new Date().toISOString().split('T')[0];
+}
+
+async function load(){
+  if(!code){ document.getElementById('app').innerHTML = '<div class="empty-state">No showdown code given.</div>'; return; }
+  const tourneys = await sbGet('bullpen_showdown_tournaments', 'code=eq.'+code);
+  tournament = tourneys[0];
+  if(!tournament){ document.getElementById('app').innerHTML = '<div class="empty-state">Showdown not found.</div>'; return; }
+
+  entries = await sbGet('bullpen_showdown_entries', 'tournament_id=eq.'+tournament.id);
+  myEntry = entries.find(e => (myUid && e.user_id === myUid) || e.nickname === myName) || null;
+
+  if(tournament.status === 'completed' || isPastEndDate()) await renderCompleted();
+  else await renderActive();
+}
+
+function isCommissioner(){
+  return myEntry && (tournament.commissioner_name === myEntry.nickname);
+}
+
+async function computeLiveValues(){
+  const withValues = [];
+  for(const e of entries){
+    let value = e.cash;
+    for(const [ticker, shares] of Object.entries(e.holdings || {})){
+      value += shares * await getPrice(ticker);
+    }
+    const pct = (value - e.starting_cash) / e.starting_cash * 100;
+    withValues.push({...e, liveValue: value, livePct: pct});
+  }
+  withValues.sort((a,b) => b.livePct - a.livePct);
+  return withValues;
+}
+
+async function renderActive(){
+  const app = document.getElementById('app');
+  if(!myEntry){
+    app.innerHTML = `
+      <div class="t-header">
+        <div><div class="t-name">📈 ${tournament.name}</div><div class="t-meta">Code: ${tournament.code} · Ends ${tournament.end_date}</div></div>
+      </div>
+      <div class="card empty-state">You haven't joined this showdown yet. <a href="/bullpen-showdown.html" style="color:var(--blue)">Join with the code →</a></div>`;
+    return;
+  }
+
+  const withValues = await computeLiveValues();
+  const me = withValues.find(e => e.id === myEntry.id);
+  const myRank = withValues.findIndex(e => e.id === myEntry.id) + 1;
+
+  const daysLeft = Math.max(0, Math.ceil((new Date(tournament.end_date) - new Date()) / 86400000));
+
+  const holdingsHtml = Object.entries(me.holdings || {}).length
+    ? await Promise.all(Object.entries(me.holdings).map(async ([ticker, shares]) => {
+        const price = await getPrice(ticker);
+        return `<div class="holding-row"><span>${ticker} · ${shares} sh</span><span>$${(shares*price).toFixed(2)}</span></div>`;
+      }))
+    : ['<div style="color:var(--muted);font-size:13px">No holdings yet</div>'];
+
+  app.innerHTML = `
+    <div class="t-header">
+      <div><div class="t-name">📈 ${tournament.name}</div><div class="t-meta">Code: ${tournament.code} · ${entries.length} player${entries.length===1?'':'s'}</div></div>
+      <span class="pill blue">Ends ${tournament.end_date}</span>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box"><div class="v">$${me.cash.toLocaleString(undefined,{maximumFractionDigits:0})}</div><div class="l">Cash</div></div>
+      <div class="stat-box"><div class="v" style="color:${me.livePct>=0?'var(--green)':'var(--red)'}">${me.livePct>=0?'+':''}${me.livePct.toFixed(2)}%</div><div class="l">Return</div></div>
+      <div class="stat-box"><div class="v">${daysLeft}d</div><div class="l">Left</div></div>
+    </div>
+
+    <div class="card">
+      <h2>🏆 Leaderboard</h2>
+      <table class="table-standings">
+        <thead><tr><th>#</th><th>Player</th><th style="text-align:right">Return</th></tr></thead>
+        <tbody>
+          ${withValues.map((e,i) => `
+            <tr class="${myEntry.id===e.id?'me':''}">
+              <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
+              <td>${e.nickname}${myEntry.id===e.id?' (you)':''}</td>
+              <td style="text-align:right" class="${e.livePct>=0?'return-up':'return-down'}">${e.livePct>=0?'+':''}${e.livePct.toFixed(2)}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>💹 Trade</h2>
+      <div class="trade-row">
+        <input type="text" id="tradeTicker" placeholder="Ticker, e.g. AAPL" style="text-transform:uppercase">
+        <input type="number" id="tradeShares" placeholder="Shares" min="1">
+        <button class="btn-buy" onclick="doTrade('buy')">Buy</button>
+        <button class="btn-sell" onclick="doTrade('sell')">Sell</button>
+      </div>
+      <div class="quote-preview" id="quotePreview"></div>
+      <h2 style="font-size:15px;margin-top:18px">Your Holdings</h2>
+      ${holdingsHtml.join('')}
+    </div>
+  `;
+
+  document.getElementById('tradeTicker').addEventListener('blur', updateQuotePreview);
+}
+
+async function updateQuotePreview(){
+  const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
+  if(!ticker) return;
+  const price = await getPrice(ticker);
+  document.getElementById('quotePreview').textContent = price ? `${ticker}: $${price.toFixed(2)}` : 'Ticker not found';
+}
+
+async function doTrade(action){
+  if(isPastEndDate()){ alert('This showdown has ended — no more trading.'); location.reload(); return; }
+  const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
+  const shares = parseFloat(document.getElementById('tradeShares').value);
+  if(!ticker || !shares || shares <= 0){ alert('Enter a ticker and a positive number of shares.'); return; }
+
+  const price = await getPrice(ticker);
+  if(!price){ alert('Could not get a price for that ticker.'); return; }
+  const total = price * shares;
+  const holdings = {...(myEntry.holdings || {})};
+  let cash = myEntry.cash;
+
+  if(action === 'buy'){
+    if(total > cash){ alert('Not enough cash for that trade.'); return; }
+    holdings[ticker] = (holdings[ticker] || 0) + shares;
+    cash -= total;
+  } else {
+    if((holdings[ticker] || 0) < shares){ alert("You don't have that many shares to sell."); return; }
+    holdings[ticker] -= shares;
+    if(holdings[ticker] <= 0) delete holdings[ticker];
+    cash += total;
+  }
+
+  await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {cash, holdings});
+  await sbPost('bullpen_showdown_trades', {entry_id: myEntry.id, ticker, action, shares, price, total});
+  trackEvent('showdown_trade', 'BullpenShowdown', action+'_'+ticker);
+  await load();
+}
+
+async function renderCompleted(){
+  const app = document.getElementById('app');
+  const withValues = await computeLiveValues();
+  const champ = withValues[0];
+
+  app.innerHTML = `
+    <div class="t-header">
+      <div><div class="t-name">📈 ${tournament.name}</div><div class="t-meta">Code: ${tournament.code}</div></div>
+      <span class="pill gold">🏆 Complete</span>
+    </div>
+
+    <div class="card" style="text-align:center;padding:40px 20px">
+      <div style="font-size:48px;margin-bottom:10px">🏆</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px">${champ ? champ.nickname : 'No one played'}</div>
+      ${champ ? `<div style="color:${champ.livePct>=0?'var(--green)':'var(--red)'};font-weight:700;margin-top:6px">${champ.livePct>=0?'+':''}${champ.livePct.toFixed(2)}%</div>` : ''}
+    </div>
+
+    <div class="card">
+      <h2>Final Standings</h2>
+      <table class="table-standings">
+        <thead><tr><th>#</th><th>Player</th><th style="text-align:right">Return</th></tr></thead>
+        <tbody>
+          ${withValues.map((e,i) => `
+            <tr class="${myEntry && myEntry.id===e.id?'me':''}">
+              <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
+              <td>${e.nickname}${myEntry && myEntry.id===e.id?' (you)':''}</td>
+              <td style="text-align:right" class="${e.livePct>=0?'return-up':'return-down'}">${e.livePct>=0?'+':''}${e.livePct.toFixed(2)}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  if(tournament.status !== 'completed'){
+    await sbPatch('bullpen_showdown_tournaments', 'id=eq.'+tournament.id, {status: 'completed'});
+  }
+}
+
+load();
+</script>
+</body>
+</html>
