@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bullpen Madness | StockPilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Bebas+Neue&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00e676;--green-d:#00c853;--red:#ff1744;--gold:#ffd600;--purple:#7c4dff;
+  --bg:#080c10;--bg2:#0d1117;--bg3:#161b22;--border:rgba(255,255,255,0.08);
+  --text:#e6edf3;--muted:#7d8590;--card:rgba(255,255,255,0.04);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding-top:76px}
+
+.bp-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(8,12,16,0.9);backdrop-filter:blur(16px);border-bottom:1px solid var(--border)}
+.bp-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.bp-logo-mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--green));display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:20px;color:#000}
+.bp-logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text)}
+.bp-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.btn-ghost:hover{border-color:var(--purple);color:var(--purple)}
+
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+.t-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px}
+.t-name{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px}
+.t-meta{font-size:13px;color:var(--muted);margin-top:2px}
+.pill{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border);padding:6px 14px;border-radius:100px;font-size:12px;font-weight:600}
+.pill.purple{border-color:rgba(124,77,255,0.4);color:var(--purple)}
+.pill.green{border-color:rgba(0,230,118,0.4);color:var(--green)}
+.pill.red{border-color:rgba(255,23,68,0.4);color:var(--red)}
+.pill.gold{border-color:rgba(255,214,0,0.4);color:var(--gold)}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px}
+.card h2{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:0.5px;margin-bottom:16px}
+
+.member-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.member-row:last-child{border-bottom:none}
+.m-avatar{width:32px;height:32px;border-radius:50%;background:var(--purple);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#000;flex-shrink:0}
+.m-name{font-weight:600;font-size:14px;flex:1}
+.m-name .you{font-size:10px;color:var(--purple);margin-left:6px}
+
+.btn-full-purple{background:var(--purple);border:none;color:#fff;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;width:100%}
+.btn-full-purple:hover{background:#6a3fe0}
+.btn-full-purple:disabled{opacity:0.5;cursor:default}
+.btn-outline-red{background:transparent;border:1.5px solid rgba(255,23,68,0.4);color:var(--red);padding:10px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer}
+
+.table-standings{width:100%;border-collapse:collapse}
+.table-standings th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:8px;border-bottom:1px solid var(--border)}
+.table-standings td{padding:12px 8px;border-bottom:1px solid var(--border);font-size:14px}
+.table-standings tr.me{background:rgba(124,77,255,0.08)}
+.rank-badge{width:24px;height:24px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;background:var(--bg3)}
+.rank-badge.advancing{background:rgba(0,230,118,0.2);color:var(--green)}
+.return-up{color:var(--green);font-weight:700}
+.return-down{color:var(--red);font-weight:700}
+
+.trade-row{display:grid;grid-template-columns:1fr 100px auto auto;gap:10px;margin-bottom:14px}
+.trade-row input{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif}
+.trade-row input:focus{outline:none;border-color:var(--purple)}
+.btn-buy{background:var(--green);border:none;color:#000;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+.btn-sell{background:var(--red);border:none;color:#fff;padding:10px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px}
+.quote-preview{font-size:12px;color:var(--muted);margin-bottom:14px;min-height:16px}
+
+.holding-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
+.holding-row:last-child{border-bottom:none}
+
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.stat-box{background:var(--bg3);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:center}
+.stat-box .v{font-family:'DM Mono',monospace;font-size:22px;font-weight:600}
+.stat-box .l{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:4px}
+
+.bracket-tag{font-size:11px;font-weight:700;text-transform:uppercase;padding:3px 10px;border-radius:100px}
+.bracket-tag.winners{background:rgba(0,230,118,0.15);color:var(--green)}
+.bracket-tag.losers{background:rgba(255,23,68,0.15);color:var(--red)}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
+.loading{text-align:center;padding:80px 20px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<nav class="bp-nav">
+  <a href="/bullpen-madness.html" class="bp-logo">
+    <div class="bp-logo-mark">S</div>
+    <div><div class="bp-logo-text">STOCKPILOT</div><div class="bp-logo-sub">Bullpen Madness</div></div>
+  </a>
+  <a href="/bullpen-madness.html" class="btn-ghost" style="text-decoration:none">← All Tournaments</a>
+</nav>
+
+<div class="wrap" id="app">
+  <div class="loading">Loading tournament...</div>
+</div>
+
+<script src="/bullpen-shared.js"></script>
+<script src="/bullpen-madness-shared.js"></script>
+<script>
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+const params = new URLSearchParams(window.location.search);
+const code = (params.get('code') || '').toUpperCase();
+const token = localStorage.getItem('supabase_token');
+const myUid = token ? JSON.parse(atob(token.split('.')[1])).sub : null;
+const myName = localStorage.getItem('bmadness_my_name') || localStorage.getItem('supabase_name') || '';
+
+let tournament = null, entries = [], myEntry = null;
+let priceCache = {};
+
+async function getPrice(ticker){
+  if(priceCache[ticker] !== undefined) return priceCache[ticker];
+  try{
+    const res = await fetch(`${BACKEND}/api/quotes?symbols=${ticker}`);
+    const data = await res.json();
+    const price = data?.quoteResponse?.result?.[0]?.regularMarketPrice || 0;
+    priceCache[ticker] = price;
+    return price;
+  }catch(e){ return 0; }
+}
+
+async function load(){
+  if(!code){ document.getElementById('app').innerHTML = '<div class="empty-state">No tournament code given.</div>'; return; }
+  const tourneys = await sbGet('bullpen_madness_tournaments', 'code=eq.'+code);
+  tournament = tourneys[0];
+  if(!tournament){ document.getElementById('app').innerHTML = '<div class="empty-state">Tournament not found.</div>'; return; }
+
+  entries = await sbGet('bullpen_madness_entries', 'tournament_id=eq.'+tournament.id);
+  myEntry = entries.find(e => (myUid && e.user_id === myUid) || e.nickname === myName) || null;
+
+  if(tournament.status === 'open') renderLobby();
+  else if(tournament.status === 'in_progress') await renderInProgress();
+  else renderCompleted();
+}
+
+function isCommissioner(){
+  return myEntry && (tournament.commissioner_name === myEntry.nickname);
+}
+
+// ── LOBBY (open, not started) ──
+function renderLobby(){
+  const app = document.getElementById('app');
+  const full = entries.length >= tournament.max_players;
+  app.innerHTML = `
+    <div class="t-header">
+      <div>
+        <div class="t-name">🏟️ ${tournament.name}</div>
+        <div class="t-meta">Code: ${tournament.code} · ${tournament.elimination_type === 'double' ? 'Double' : 'Single'} Elimination · $${tournament.starting_cash.toLocaleString()} per round</div>
+      </div>
+      <span class="pill purple">⏳ Waiting to Start</span>
+    </div>
+
+    <div class="card">
+      <h2>👥 Players (${entries.length} / ${tournament.max_players})</h2>
+      <div id="lobbyList"></div>
+    </div>
+
+    ${isCommissioner() ? `
+    <div class="card">
+      <h2>⚙️ Commissioner</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+        ${entries.length < 4 ? 'Need at least 4 players to start.' :
+          entries.length % 2 !== 0 ? 'Player count should be even for clean bracket tables — consider waiting for one more.' :
+          `Starting now will randomly split ${entries.length} players into tables of 4 for Round 1.`}
+      </p>
+      <button class="btn-full-purple" id="startBtn" ${entries.length < 4 ? 'disabled' : ''} onclick="startTournament()">🚀 Start Tournament</button>
+    </div>` : `
+    <div class="card">
+      <p style="font-size:13px;color:var(--muted)">Waiting for ${tournament.commissioner_name} to start the tournament. Share code <strong style="color:var(--text)">${tournament.code}</strong> with anyone else who wants in.</p>
+    </div>`}
+  `;
+  document.getElementById('lobbyList').innerHTML = entries.map(e => `
+    <div class="member-row">
+      <div class="m-avatar">${e.nickname.charAt(0).toUpperCase()}</div>
+      <div class="m-name">${e.nickname}${e.nickname === tournament.commissioner_name ? ' <span class="you">👑 commish</span>' : ''}${myEntry && e.id === myEntry.id ? ' <span class="you">(you)</span>' : ''}</div>
+    </div>
+  `).join('') || '<div class="empty-state">No one has joined yet.</div>';
+}
+
+async function startTournament(){
+  if(!confirm('Start the tournament now? Once started, no new players can join.')) return;
+  const btn = document.getElementById('startBtn');
+  btn.textContent = 'Starting...'; btn.disabled = true;
+
+  const active = entries.filter(e => e.status === 'active');
+  const plan = planRound(active);
+
+  // Mark byes
+  for(const bye of plan.byes){
+    await sbPatch('bullpen_madness_entries', 'id=eq.'+bye.id, {had_bye: true});
+  }
+
+  // Create round-1 tables
+  let tableNum = 1;
+  for(const table of plan.tables){
+    const t = await sbPost('bullpen_madness_tables', {
+      tournament_id: tournament.id, round_number: 1, bracket: 'winners', table_number: tableNum++, status: 'active'
+    });
+    const tableId = t[0].id;
+    for(const entry of table){
+      await sbPost('bullpen_madness_table_members', {
+        table_id: tableId, entry_id: entry.id, starting_cash: tournament.starting_cash,
+        cash: tournament.starting_cash, holdings: {}, was_bye: false
+      });
+    }
+  }
+
+  await sbPatch('bullpen_madness_tournaments', 'id=eq.'+tournament.id, {
+    status: 'in_progress', current_round: 1, round_started_at: new Date().toISOString()
+  });
+
+  trackEvent('madness_started', 'BullpenMadness', code);
+  location.reload();
+}
+
+// ── IN PROGRESS ──
+async function renderInProgress(){
+  const app = document.getElementById('app');
+  if(!myEntry){
+    app.innerHTML = `<div class="empty-state">This tournament already started and you're not in it.</div>`;
+    return;
+  }
+  if(myEntry.status === 'eliminated'){
+    app.innerHTML = `
+      <div class="t-header"><div class="t-name">🏟️ ${tournament.name}</div><span class="pill red">Round ${tournament.current_round}</span></div>
+      <div class="card empty-state">
+        <div style="font-size:40px;margin-bottom:10px">💀</div>
+        You were eliminated in Round ${myEntry.eliminated_round || '?'}. Thanks for playing!
+      </div>`;
+    return;
+  }
+
+  const tables = await sbGet('bullpen_madness_tables', 'tournament_id=eq.'+tournament.id+'&round_number=eq.'+tournament.current_round+'&status=eq.active');
+  const myTable = tables.find(async t => true); // placeholder, resolved below
+  let foundTable = null, myMember = null;
+  for(const t of tables){
+    const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+t.id);
+    const mine = members.find(m => m.entry_id === myEntry.id);
+    if(mine){ foundTable = t; myMember = mine; break; }
+  }
+
+  if(!foundTable){
+    app.innerHTML = `<div class="empty-state">Waiting for your next table to be set up. Check back shortly.</div>`;
+    return;
+  }
+
+  const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+foundTable.id);
+  const withEntries = members.map(m => ({...m, entry: entries.find(e => e.id === m.entry_id)}));
+
+  // Compute live values
+  for(const m of withEntries){
+    let value = m.cash;
+    for(const [ticker, shares] of Object.entries(m.holdings || {})){
+      value += shares * await getPrice(ticker);
+    }
+    m.liveValue = value;
+    m.livePct = ((value - m.starting_cash) / m.starting_cash * 100);
+  }
+  withEntries.sort((a,b) => b.livePct - a.livePct);
+
+  const holdingsHtml = Object.entries(myMember.holdings || {}).length
+    ? await Promise.all(Object.entries(myMember.holdings).map(async ([ticker, shares]) => {
+        const price = await getPrice(ticker);
+        return `<div class="holding-row"><span>${ticker} · ${shares} sh</span><span>$${(shares*price).toFixed(2)}</span></div>`;
+      }))
+    : ['<div style="color:var(--muted);font-size:13px">No holdings yet</div>'];
+
+  const roundStart = new Date(tournament.round_started_at);
+  const roundEnd = new Date(roundStart.getTime() + tournament.round_length_days * 86400000);
+  const daysLeft = Math.max(0, Math.ceil((roundEnd - new Date()) / 86400000));
+
+  app.innerHTML = `
+    <div class="t-header">
+      <div>
+        <div class="t-name">🏟️ ${tournament.name}</div>
+        <div class="t-meta">Round ${tournament.current_round} · Table ${foundTable.table_number}</div>
+      </div>
+      <span class="bracket-tag ${myEntry.bracket}">${myEntry.bracket}</span>
+    </div>
+
+    <div class="stat-grid">
+      <div class="stat-box"><div class="v">$${myMember.cash.toLocaleString(undefined,{maximumFractionDigits:0})}</div><div class="l">Cash</div></div>
+      <div class="stat-box"><div class="v" style="color:${myMember.livePct>=0?'var(--green)':'var(--red)'}">${myMember.livePct>=0?'+':''}${myMember.livePct.toFixed(2)}%</div><div class="l">Return</div></div>
+      <div class="stat-box"><div class="v">${daysLeft}d</div><div class="l">Left in Round</div></div>
+    </div>
+
+    <div class="card">
+      <h2>🏆 Table Standings</h2>
+      <table class="table-standings">
+        <thead><tr><th>#</th><th>Player</th><th style="text-align:right">Return</th></tr></thead>
+        <tbody>
+          ${withEntries.map((m,i) => `
+            <tr class="${myEntry.id===m.entry_id?'me':''}">
+              <td><span class="rank-badge ${i<2?'advancing':''}">${i+1}</span></td>
+              <td>${m.entry.nickname}${myEntry.id===m.entry_id?' (you)':''}</td>
+              <td style="text-align:right" class="${m.livePct>=0?'return-up':'return-down'}">${m.livePct>=0?'+':''}${m.livePct.toFixed(2)}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px">Top 2 advance when the round closes.</p>
+    </div>
+
+    <div class="card">
+      <h2>💹 Trade</h2>
+      <div class="trade-row">
+        <input type="text" id="tradeTicker" placeholder="Ticker, e.g. AAPL" style="text-transform:uppercase">
+        <input type="number" id="tradeShares" placeholder="Shares" min="1">
+        <button class="btn-buy" onclick="doTrade('buy')">Buy</button>
+        <button class="btn-sell" onclick="doTrade('sell')">Sell</button>
+      </div>
+      <div class="quote-preview" id="quotePreview"></div>
+      <h2 style="font-size:15px;margin-top:18px">Your Holdings</h2>
+      ${holdingsHtml.join('')}
+    </div>
+
+    ${isCommissioner() ? `
+    <div class="card">
+      <h2>⚙️ Commissioner</h2>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Close this round early and advance the bracket. Normally you'd wait for the round timer, but you can force it if everyone's ready.</p>
+      <button class="btn-outline-red" onclick="closeRoundAndAdvance()">Close Round & Advance Bracket</button>
+    </div>` : ''}
+  `;
+
+  document.getElementById('tradeTicker').addEventListener('blur', updateQuotePreview);
+}
+
+async function updateQuotePreview(){
+  const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
+  if(!ticker) return;
+  const price = await getPrice(ticker);
+  document.getElementById('quotePreview').textContent = price ? `${ticker}: $${price.toFixed(2)}` : 'Ticker not found';
+}
+
+async function doTrade(action){
+  const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
+  const shares = parseFloat(document.getElementById('tradeShares').value);
+  if(!ticker || !shares || shares <= 0){ alert('Enter a ticker and a positive number of shares.'); return; }
+
+  const tables = await sbGet('bullpen_madness_tables', 'tournament_id=eq.'+tournament.id+'&round_number=eq.'+tournament.current_round+'&status=eq.active');
+  let foundTable = null, myMember = null;
+  for(const t of tables){
+    const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+t.id);
+    const mine = members.find(m => m.entry_id === myEntry.id);
+    if(mine){ foundTable = t; myMember = mine; break; }
+  }
+  if(!myMember){ alert('Could not find your table.'); return; }
+
+  const price = await getPrice(ticker);
+  if(!price){ alert('Could not get a price for that ticker.'); return; }
+  const total = price * shares;
+  const holdings = {...(myMember.holdings || {})};
+
+  if(action === 'buy'){
+    if(total > myMember.cash){ alert('Not enough cash for that trade.'); return; }
+    holdings[ticker] = (holdings[ticker] || 0) + shares;
+    myMember.cash -= total;
+  } else {
+    if((holdings[ticker] || 0) < shares){ alert("You don't have that many shares to sell."); return; }
+    holdings[ticker] -= shares;
+    if(holdings[ticker] <= 0) delete holdings[ticker];
+    myMember.cash += total;
+  }
+
+  await sbPatch('bullpen_madness_table_members', 'id=eq.'+myMember.id, {cash: myMember.cash, holdings});
+  await sbPost('bullpen_madness_trades', {table_member_id: myMember.id, ticker, action, shares, price, total});
+  trackEvent('madness_trade', 'BullpenMadness', action+'_'+ticker);
+  await renderInProgress();
+}
+
+// ── Commissioner: close the current round for everyone, advance the bracket ──
+async function closeRoundAndAdvance(){
+  if(!confirm(`Close Round ${tournament.current_round} for everyone and advance the bracket? This can't be undone.`)) return;
+
+  const allTables = await sbGet('bullpen_madness_tables', 'tournament_id=eq.'+tournament.id+'&round_number=eq.'+tournament.current_round+'&status=eq.active');
+
+  const winnersAdvancing = [], losersAdvancing = [];
+  let winnersChampionEntry = null, losersChampionEntry = null;
+
+  for(const table of allTables){
+    const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+table.id);
+    const withPct = [];
+    for(const m of members){
+      let value = m.cash;
+      for(const [ticker, shares] of Object.entries(m.holdings || {})) value += shares * await getPrice(ticker);
+      const pct = (value - m.starting_cash) / m.starting_cash * 100;
+      withPct.push({...m, entry: entries.find(e=>e.id===m.entry_id), pct_return: pct, ending_value: value, bracket: table.bracket});
+    }
+
+    const isFinalTable = withPct.length <= 4 && await isLastTableInBracket(table.bracket);
+    const resolved = resolveTable(withPct, tournament.elimination_type, isFinalTable);
+
+    for(const r of resolved){
+      await sbPatch('bullpen_madness_table_members', 'id=eq.'+r.id, {
+        ending_value: r.ending_value, pct_return: r.pct_return, placement: r.placement, advanced: r.advanced
+      });
+      if(r.bracketChampion){
+        if(table.bracket === 'winners') winnersChampionEntry = r.entry;
+        else losersChampionEntry = r.entry;
+        await sbPatch('bullpen_madness_entries', 'id=eq.'+r.entry.id, {status: 'champion'});
+      } else if(r.advanced){
+        (table.bracket === 'winners' ? winnersAdvancing : losersAdvancing).push(r.entry);
+      } else if(r.eliminated){
+        await sbPatch('bullpen_madness_entries', 'id=eq.'+r.entry.id, {status: 'eliminated', eliminated_round: tournament.current_round});
+      } else {
+        // dropped from winners to losers
+        await sbPatch('bullpen_madness_entries', 'id=eq.'+r.entry.id, {bracket: 'losers'});
+        losersAdvancing.push({...r.entry, bracket: 'losers'});
+      }
+    }
+    await sbPatch('bullpen_madness_tables', 'id=eq.'+table.id, {status: 'completed'});
+  }
+
+  // Grand final: both brackets have crowned a champion
+  if(winnersChampionEntry && losersChampionEntry){
+    const t = await sbPost('bullpen_madness_tables', {
+      tournament_id: tournament.id, round_number: tournament.current_round + 1, bracket: 'grand_final', table_number: 1, status: 'active'
+    });
+    for(const entry of [winnersChampionEntry, losersChampionEntry]){
+      await sbPost('bullpen_madness_table_members', {
+        table_id: t[0].id, entry_id: entry.id, starting_cash: tournament.starting_cash,
+        cash: tournament.starting_cash, holdings: {}, was_bye: false
+      });
+    }
+    await sbPatch('bullpen_madness_tournaments', 'id=eq.'+tournament.id, {
+      current_round: tournament.current_round + 1, round_started_at: new Date().toISOString()
+    });
+    alert('Grand Final set! ' + winnersChampionEntry.nickname + ' vs ' + losersChampionEntry.nickname);
+    location.reload();
+    return;
+  }
+
+  // Single champion with nothing left to play (single elim, or grand final just resolved)
+  if(winnersChampionEntry && winnersAdvancing.length === 0 && losersAdvancing.length === 0 && !losersChampionEntry){
+    await sbPatch('bullpen_madness_tournaments', 'id=eq.'+tournament.id, {status: 'completed'});
+    alert('🏆 Tournament complete! Champion: ' + winnersChampionEntry.nickname);
+    location.reload();
+    return;
+  }
+
+  // Otherwise, set up next round's tables for whichever brackets still have players
+  const nextRound = tournament.current_round + 1;
+  let tableNum = 1;
+  for(const [bracketName, advancing] of [['winners', winnersAdvancing], ['losers', losersAdvancing]]){
+    if(!advancing.length) continue;
+    const plan = planRound(advancing);
+    for(const bye of plan.byes) await sbPatch('bullpen_madness_entries', 'id=eq.'+bye.id, {had_bye: true});
+    for(const table of plan.tables){
+      const t = await sbPost('bullpen_madness_tables', {
+        tournament_id: tournament.id, round_number: nextRound, bracket: bracketName, table_number: tableNum++, status: 'active'
+      });
+      for(const entry of table){
+        await sbPost('bullpen_madness_table_members', {
+          table_id: t[0].id, entry_id: entry.id, starting_cash: tournament.starting_cash,
+          cash: tournament.starting_cash, holdings: {}, was_bye: false
+        });
+      }
+    }
+  }
+
+  await sbPatch('bullpen_madness_tournaments', 'id=eq.'+tournament.id, {
+    current_round: nextRound, round_started_at: new Date().toISOString()
+  });
+  trackEvent('madness_round_closed', 'BullpenMadness', 'round_'+tournament.current_round);
+  location.reload();
+}
+
+async function isLastTableInBracket(bracket){
+  const activeInBracket = entries.filter(e => e.status === 'active' && e.bracket === bracket);
+  return activeInBracket.length <= 4;
+}
+
+function renderCompleted(){
+  const champ = entries.find(e => e.status === 'champion');
+  document.getElementById('app').innerHTML = `
+    <div class="t-header"><div class="t-name">🏟️ ${tournament.name}</div><span class="pill gold">🏆 Complete</span></div>
+    <div class="card" style="text-align:center;padding:50px 20px">
+      <div style="font-size:56px;margin-bottom:12px">🏆</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px">${champ ? champ.nickname : 'Unknown'}</div>
+      <div style="color:var(--muted);font-size:14px;margin-top:6px">Bullpen Madness Champion</div>
+    </div>
+  `;
+}
+
+load();
+</script>
+</body>
+</html>
