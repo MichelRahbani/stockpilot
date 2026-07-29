@@ -256,6 +256,7 @@ async function renderInProgress(){
     m.livePct = ((value - m.starting_cash) / m.starting_cash * 100);
   }
   withEntries.sort((a,b) => b.livePct - a.livePct);
+  myMember = withEntries.find(m => m.entry_id === myEntry.id); // re-point to the enriched copy with livePct/liveValue
 
   const holdingsHtml = Object.entries(myMember.holdings || {}).length
     ? await Promise.all(Object.entries(myMember.holdings).map(async ([ticker, shares]) => {
