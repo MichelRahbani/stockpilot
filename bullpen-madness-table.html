@@ -75,6 +75,22 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .bracket-tag{font-size:11px;font-weight:700;text-transform:uppercase;padding:3px 10px;border-radius:100px}
 .bracket-tag.winners{background:rgba(0,230,118,0.15);color:var(--green)}
 .bracket-tag.losers{background:rgba(255,23,68,0.15);color:var(--red)}
+.bracket-tag.grand_final{background:rgba(255,214,0,0.15);color:var(--gold)}
+
+.bracket-btn{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 16px;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif}
+.bracket-btn:hover{border-color:var(--purple);color:var(--purple)}
+.bracket-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:40px 16px;overflow-y:auto}
+.bracket-modal-overlay.open{display:flex}
+.bracket-modal{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:640px}
+.bracket-modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.bracket-modal-header h2{font-family:'Bebas Neue',sans-serif;font-size:24px}
+.bracket-round-group{margin-bottom:24px}
+.bracket-round-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.bracket-table-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.bracket-member-row{display:flex;align-items:center;justify-content:space-between;padding:4px 0;font-size:13px}
+.bracket-member-row .status-icon{width:18px;text-align:center;flex-shrink:0}
+.bracket-member-row .m-name{flex:1;margin-left:6px}
+.bracket-member-row .m-pct{font-family:'DM Mono',monospace;font-size:12px}
 
 .empty-state{text-align:center;padding:60px 20px;color:var(--muted)}
 .loading{text-align:center;padding:80px 20px;color:var(--muted)}
@@ -92,6 +108,16 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 <div class="wrap" id="app">
   <div class="loading">Loading tournament...</div>
+</div>
+
+<div class="bracket-modal-overlay" id="bracketModal">
+  <div class="bracket-modal">
+    <div class="bracket-modal-header">
+      <h2>🏆 Full Bracket</h2>
+      <button class="modal-close" onclick="document.getElementById('bracketModal').classList.remove('open')" style="background:transparent;border:none;color:var(--muted);font-size:22px;cursor:pointer">✕</button>
+    </div>
+    <div id="bracketContent"></div>
+  </div>
 </div>
 
 <script src="/bullpen-shared.js"></script>
@@ -147,6 +173,7 @@ function renderLobby(){
         <div class="t-meta">Code: ${tournament.code} · ${tournament.elimination_type === 'double' ? 'Double' : 'Single'} Elimination · $${tournament.starting_cash.toLocaleString()} per round</div>
       </div>
       <span class="pill purple">⏳ Waiting to Start</span>
+      <button class="bracket-btn" onclick="showBracket()">🏆 View Bracket</button>
     </div>
 
     <div class="card">
@@ -275,7 +302,10 @@ async function renderInProgress(){
         <div class="t-name">🏟️ ${tournament.name}</div>
         <div class="t-meta">Round ${tournament.current_round} · Table ${foundTable.table_number}</div>
       </div>
-      <span class="bracket-tag ${myEntry.bracket}">${myEntry.bracket}</span>
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="bracket-tag ${myEntry.bracket}">${myEntry.bracket}</span>
+        <button class="bracket-btn" onclick="showBracket()">🏆 View Bracket</button>
+      </div>
     </div>
 
     <div class="stat-grid">
@@ -489,13 +519,65 @@ async function isLastTableInBracket(bracket){
 function renderCompleted(){
   const champ = entries.find(e => e.status === 'champion');
   document.getElementById('app').innerHTML = `
-    <div class="t-header"><div class="t-name">🏟️ ${tournament.name}</div><span class="pill gold">🏆 Complete</span></div>
+    <div class="t-header"><div class="t-name">🏟️ ${tournament.name}</div><div style="display:flex;align-items:center;gap:10px"><span class="pill gold">🏆 Complete</span><button class="bracket-btn" onclick="showBracket()">🏆 View Bracket</button></div></div>
     <div class="card" style="text-align:center;padding:50px 20px">
       <div style="font-size:56px;margin-bottom:12px">🏆</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:1px">${champ ? champ.nickname : 'Unknown'}</div>
       <div style="color:var(--muted);font-size:14px;margin-top:6px">Bullpen Madness Champion</div>
     </div>
   `;
+}
+
+// ── Full bracket view ──
+async function showBracket(){
+  const modal = document.getElementById('bracketModal');
+  const content = document.getElementById('bracketContent');
+  content.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Loading bracket...</p>';
+  modal.classList.add('open');
+
+  const allTables = await sbGet('bullpen_madness_tables', 'tournament_id=eq.'+tournament.id+'&order=round_number.asc,bracket.asc,table_number.asc');
+  if(!allTables.length){
+    content.innerHTML = '<p style="color:var(--muted);text-align:center;padding:20px">Bracket hasn\'t started yet.</p>';
+    return;
+  }
+
+  const byRound = {};
+  for(const t of allTables){
+    if(!byRound[t.round_number]) byRound[t.round_number] = [];
+    byRound[t.round_number].push(t);
+  }
+
+  let html = '';
+  for(const roundNum of Object.keys(byRound).sort((a,b)=>a-b)){
+    const roundTables = byRound[roundNum];
+    const isCurrentRound = parseInt(roundNum) === tournament.current_round && tournament.status === 'in_progress';
+    html += `<div class="bracket-round-group"><div class="bracket-round-title">Round ${roundNum}${isCurrentRound ? ' · In Progress' : ''}</div>`;
+
+    for(const t of roundTables){
+      const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+t.id);
+      const withNames = members.map(m => ({...m, entry: entries.find(e => e.id === m.entry_id)}))
+        .sort((a,b) => (a.placement||99) - (b.placement||99));
+
+      const bracketLabel = t.bracket === 'grand_final' ? '🏆 GRAND FINAL' : (t.bracket === 'losers' ? 'Losers Bracket' : 'Winners Bracket');
+      html += `<div class="bracket-table-card"><div style="font-size:11px;color:var(--muted);margin-bottom:6px">${bracketLabel} · Table ${t.table_number}</div>`;
+
+      for(const m of withNames){
+        let icon = '⏳', pctDisplay = '';
+        if(t.status === 'completed' && m.pct_return !== null && m.pct_return !== undefined){
+          pctDisplay = `<span class="m-pct" style="color:${m.pct_return>=0?'var(--green)':'var(--red)'}">${m.pct_return>=0?'+':''}${m.pct_return.toFixed(2)}%</span>`;
+          if(m.advanced) icon = '✅';
+          else if(m.placement === 1 && t.bracket === 'grand_final') icon = '🏆';
+          else icon = '💀';
+        }
+        const isMe = myEntry && m.entry_id === myEntry.id;
+        html += `<div class="bracket-member-row"><span class="status-icon">${icon}</span><span class="m-name">${m.entry ? m.entry.nickname : '?'}${isMe ? ' (you)' : ''}</span>${pctDisplay}</div>`;
+      }
+      html += `</div>`;
+    }
+    html += `</div>`;
+  }
+
+  content.innerHTML = html;
 }
 
 load();
