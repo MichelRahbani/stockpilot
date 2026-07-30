@@ -156,7 +156,9 @@ async function renderActive(){
   const holdingsHtml = Object.entries(me.holdings || {}).length
     ? await Promise.all(Object.entries(me.holdings).map(async ([ticker, shares]) => {
         const price = await getPrice(ticker);
-        return `<div class="holding-row"><span>${ticker} · ${shares} sh</span><span>$${(shares*price).toFixed(2)}</span></div>`;
+        const isShort = shares < 0;
+        const label = isShort ? `${ticker} · SHORT ${Math.abs(shares)} sh` : `${ticker} · ${shares} sh`;
+        return `<div class="holding-row"><span${isShort ? ' style="color:var(--red)"' : ''}>${label}</span><span style="color:${isShort?'var(--red)':'inherit'}">$${(shares*price).toFixed(2)}</span></div>`;
       }))
     : ['<div style="color:var(--muted);font-size:13px">No holdings yet</div>'];
 
@@ -197,6 +199,7 @@ async function renderActive(){
         <button class="btn-sell" onclick="doTrade('sell')">Sell</button>
       </div>
       <div class="quote-preview" id="quotePreview"></div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;margin-top:-8px">Sell more than you own to open a short position.</div>
       <h2 style="font-size:15px;margin-top:18px">Your Holdings</h2>
       ${holdingsHtml.join('')}
     </div>
@@ -229,9 +232,20 @@ async function doTrade(action){
     holdings[ticker] = (holdings[ticker] || 0) + shares;
     cash -= total;
   } else {
-    if((holdings[ticker] || 0) < shares){ alert("You don't have that many shares to sell."); return; }
-    holdings[ticker] -= shares;
-    if(holdings[ticker] <= 0) delete holdings[ticker];
+    const currentHolding = holdings[ticker] || 0;
+    const newHolding = currentHolding - shares;
+    // Selling more than you own opens (or adds to) a short position —
+    // the math already works correctly with negative share counts, so
+    // this is the same formula either way, just with a risk cap on shorts.
+    if(newHolding < 0){
+      const shortExposure = Math.abs(newHolding) * price;
+      if(shortExposure > myEntry.starting_cash * 2){
+        alert('That short position would be too large — capped at 2x your starting cash to keep risk reasonable.');
+        return;
+      }
+    }
+    holdings[ticker] = newHolding;
+    if(holdings[ticker] === 0) delete holdings[ticker];
     cash += total;
   }
 
