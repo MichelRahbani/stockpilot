@@ -63,6 +63,11 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .btn-buy{background:var(--green);border:none;color:#000;padding:10px 16px;border-radius:3px;font-weight:700;cursor:pointer;font-size:13px}
 .btn-sell{background:var(--red);border:none;color:#fff;padding:10px 16px;border-radius:3px;font-weight:700;cursor:pointer;font-size:13px}
 .quote-preview{font-size:12px;color:var(--muted);margin-bottom:14px;min-height:16px}
+.pct-row{display:flex;gap:8px;margin-top:10px;align-items:center;flex-wrap:wrap}
+.pct-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:6px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.pct-btn:hover{border-color:var(--purple);color:var(--purple)}
+.trade-feed-row{padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.trade-feed-row:last-child{border-bottom:none}
 
 .holding-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
 .holding-row:last-child{border-bottom:none}
@@ -335,16 +340,27 @@ async function renderInProgress(){
 
     <div class="card">
       <h2>💹 Trade</h2>
-      <div class="trade-row">
-        <input type="text" id="tradeTicker" placeholder="Ticker, e.g. AAPL" style="text-transform:uppercase">
+      <input type="text" id="tradeTicker" placeholder="Ticker, e.g. AAPL" style="text-transform:uppercase;width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:10px">
+      <div id="tickerInfo"></div>
+      <div class="trade-row" style="grid-template-columns:1fr auto auto">
         <input type="number" id="tradeShares" placeholder="Shares" min="1">
         <button class="btn-buy" onclick="doTrade('buy')">Buy</button>
         <button class="btn-sell" onclick="doTrade('sell')">Sell</button>
       </div>
-      <div class="quote-preview" id="quotePreview"></div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:14px;margin-top:-8px">Sell more than you own to open a short position.</div>
-      <h2 style="font-size:15px;margin-top:18px">Your Holdings</h2>
+      <div class="pct-row">
+        <button class="pct-btn" onclick="setPct(25)">25%</button>
+        <button class="pct-btn" onclick="setPct(50)">50%</button>
+        <button class="pct-btn" onclick="setPct(100)">100%</button>
+        <span style="font-size:11px;color:var(--muted);align-self:center;margin-left:4px">of buying power</span>
+      </div>
+      <div style="font-size:11px;color:var(--muted);margin:10px 0 14px">Sell more than you own to open a short position.</div>
+      <h2 style="font-size:15px;margin-top:4px">Your Holdings</h2>
       ${holdingsHtml.join('')}
+    </div>
+
+    <div class="card">
+      <h2>📜 Table Trades</h2>
+      <div id="recentTradesFeed"><div style="color:var(--muted);font-size:13px">Loading...</div></div>
     </div>
 
     ${isCommissioner() ? `
@@ -356,19 +372,109 @@ async function renderInProgress(){
   `;
 
   document.getElementById('tradeTicker').addEventListener('blur', updateQuotePreview);
+  loadRecentTrades(withEntries);
+}
+
+async function getHistory(ticker){
+  try{
+    const res = await fetch(`${BACKEND}/api/history?symbol=${ticker}&range=5d&interval=1d`);
+    const data = await res.json();
+    const result = data?.chart?.result?.[0];
+    return (result?.indicators?.quote?.[0]?.close || []).filter(c => c != null);
+  }catch(e){ return []; }
+}
+
+function sparklineSvg(closes){
+  if(closes.length < 2) return '';
+  const width=110, height=32;
+  const min = Math.min(...closes), max = Math.max(...closes);
+  const range = (max - min) || 1;
+  const points = closes.map((c,i) => {
+    const x = (i/(closes.length-1)) * width;
+    const y = height - ((c-min)/range) * height;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
+  const up = closes[closes.length-1] >= closes[0];
+  const color = up ? 'var(--green)' : 'var(--red)';
+  return `<svg width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></svg>`;
 }
 
 async function updateQuotePreview(){
   const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
-  if(!ticker) return;
+  const infoEl = document.getElementById('tickerInfo');
+  if(!infoEl) return;
+  if(!ticker){ infoEl.innerHTML = ''; return; }
+  infoEl.innerHTML = '<div style="color:var(--muted);font-size:12px;margin-bottom:10px">Loading...</div>';
+  const [price, closes] = await Promise.all([getPrice(ticker), getHistory(ticker)]);
+  if(!price){ infoEl.innerHTML = '<div style="color:var(--red);font-size:12px;margin-bottom:10px">Ticker not found</div>'; return; }
+  const dayChange = closes.length>=2 ? ((closes[closes.length-1]-closes[closes.length-2])/closes[closes.length-2]*100) : null;
+  infoEl.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px">
+      <div>
+        <div style="font-weight:700;font-size:15px">${ticker}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:13px">$${price.toFixed(2)}${dayChange!==null?` <span style="color:${dayChange>=0?'var(--green)':'var(--red)'}">${dayChange>=0?'▲':'▼'} ${Math.abs(dayChange).toFixed(2)}%</span>`:''}</div>
+      </div>
+      ${sparklineSvg(closes)}
+    </div>`;
+}
+
+async function setPct(pct){
+  const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
+  if(!ticker){ showToast('Enter a ticker first.', 'error'); return; }
   const price = await getPrice(ticker);
-  document.getElementById('quotePreview').textContent = price ? `${ticker}: $${price.toFixed(2)}` : 'Ticker not found';
+  if(!price){ showToast('Could not get a price for that ticker.', 'error'); return; }
+  const tables = await sbGet('bullpen_madness_tables', 'tournament_id=eq.'+tournament.id+'&round_number=eq.'+tournament.current_round+'&status=eq.active');
+  let myMember = null;
+  for(const t of tables){
+    const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+t.id);
+    const mine = members.find(m => m.entry_id === myEntry.id);
+    if(mine){ myMember = mine; break; }
+  }
+  if(!myMember) return;
+  const shares = Math.max(1, Math.floor((myMember.cash * pct/100) / price));
+  document.getElementById('tradeShares').value = shares;
+}
+
+async function loadRecentTrades(tableMembers){
+  const feed = document.getElementById('recentTradesFeed');
+  if(!feed) return;
+  const memberIds = tableMembers.map(m => m.id);
+  if(!memberIds.length){ feed.innerHTML = '<div style="color:var(--muted);font-size:13px">No trades yet.</div>'; return; }
+  const trades = await sbGet('bullpen_madness_trades', 'table_member_id=in.('+memberIds.join(',')+')&order=created_at.desc&limit=15');
+  if(!trades.length){ feed.innerHTML = '<div style="color:var(--muted);font-size:13px">No trades yet.</div>'; return; }
+  feed.innerHTML = trades.map(t => {
+    const member = tableMembers.find(m => m.id === t.table_member_id);
+    const name = member ? member.entry.nickname : '?';
+    const time = new Date(t.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    const color = t.action==='buy' ? 'var(--green)' : 'var(--red)';
+    return `<div class="trade-feed-row"><span style="color:${color};font-weight:700;text-transform:uppercase;font-size:11px;width:36px;display:inline-block">${t.action}</span><strong>${t.ticker}</strong> <span style="color:var(--muted)">${t.shares} sh @ $${t.price.toFixed(2)}</span><span style="color:var(--muted);float:right">${name} · ${time}</span></div>`;
+  }).join('');
+}
+
+function showToast(msg, type){
+  let container = document.getElementById('toastContainer');
+  if(!container){
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:2000;display:flex;flex-direction:column;gap:8px;align-items:flex-end;max-width:90vw';
+    document.body.appendChild(container);
+  }
+  const color = type==='error' ? 'var(--red)' : 'var(--green)';
+  const toast = document.createElement('div');
+  toast.style.cssText = `background:var(--bg2);border:1px solid ${color};color:${color};padding:12px 18px;border-radius:10px;font-size:14px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,0.4);opacity:0;transform:translateY(8px);transition:all 0.25s;max-width:320px`;
+  toast.textContent = msg;
+  container.appendChild(toast);
+  requestAnimationFrame(()=>{ toast.style.opacity='1'; toast.style.transform='translateY(0)'; });
+  setTimeout(()=>{
+    toast.style.opacity='0'; toast.style.transform='translateY(8px)';
+    setTimeout(()=>toast.remove(), 300);
+  }, 3200);
 }
 
 async function doTrade(action){
   const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
   const shares = parseFloat(document.getElementById('tradeShares').value);
-  if(!ticker || !shares || shares <= 0){ alert('Enter a ticker and a positive number of shares.'); return; }
+  if(!ticker || !shares || shares <= 0){ showToast('Enter a ticker and a positive number of shares.', 'error'); return; }
 
   const tables = await sbGet('bullpen_madness_tables', 'tournament_id=eq.'+tournament.id+'&round_number=eq.'+tournament.current_round+'&status=eq.active');
   let foundTable = null, myMember = null;
@@ -377,15 +483,15 @@ async function doTrade(action){
     const mine = members.find(m => m.entry_id === myEntry.id);
     if(mine){ foundTable = t; myMember = mine; break; }
   }
-  if(!myMember){ alert('Could not find your table.'); return; }
+  if(!myMember){ showToast('Could not find your table.', 'error'); return; }
 
   const price = await getPrice(ticker);
-  if(!price){ alert('Could not get a price for that ticker.'); return; }
+  if(!price){ showToast('Could not get a price for that ticker.', 'error'); return; }
   const total = price * shares;
   const holdings = {...(myMember.holdings || {})};
 
   if(action === 'buy'){
-    if(total > myMember.cash){ alert('Not enough cash for that trade.'); return; }
+    if(total > myMember.cash){ showToast('Not enough cash for that trade.', 'error'); return; }
     holdings[ticker] = (holdings[ticker] || 0) + shares;
     myMember.cash -= total;
   } else {
@@ -394,7 +500,7 @@ async function doTrade(action){
     if(newHolding < 0){
       const shortExposure = Math.abs(newHolding) * price;
       if(shortExposure > myMember.starting_cash * 2){
-        alert('That short position would be too large — capped at 2x your starting cash to keep risk reasonable.');
+        showToast('That short position would be too large — capped at 2x your starting cash.', 'error');
         return;
       }
     }
@@ -406,6 +512,7 @@ async function doTrade(action){
   await sbPatch('bullpen_madness_table_members', 'id=eq.'+myMember.id, {cash: myMember.cash, holdings});
   await sbPost('bullpen_madness_trades', {table_member_id: myMember.id, ticker, action, shares, price, total});
   trackEvent('madness_trade', 'BullpenMadness', action+'_'+ticker);
+  showToast(`${action==='buy'?'Bought':'Sold'} ${shares} ${ticker} @ $${price.toFixed(2)}`, 'success');
   await renderInProgress();
 }
 
