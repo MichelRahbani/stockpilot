@@ -159,27 +159,8 @@ footer{flex-direction:column;text-align:center;padding:20px}
   </div>
 </nav>
 
-<div class="ticker-wrap"><div class="ticker-track">
-  <div class="ticker-item"><strong>AAPL</strong> $294.80 <span class="up">+1.38%</span></div>
-  <div class="ticker-item"><strong>NVDA</strong> $225.83 <span class="up">+2.29%</span></div>
-  <div class="ticker-item"><strong>TSLA</strong> $445.27 <span class="up">+2.73%</span></div>
-  <div class="ticker-item"><strong>MSFT</strong> $407.77 <span class="dn">-1.19%</span></div>
-  <div class="ticker-item"><strong>AMZN</strong> $270.13 <span class="up">+1.62%</span></div>
-  <div class="ticker-item"><strong>META</strong> $616.63 <span class="up">+2.26%</span></div>
-  <div class="ticker-item"><strong>SPY</strong> $742.31 <span class="up">+0.56%</span></div>
-  <div class="ticker-item"><strong>QQQ</strong> $714.71 <span class="up">+1.06%</span></div>
-  <div class="ticker-item"><strong>GLD</strong> $430.50 <span class="dn">-0.56%</span></div>
-  <div class="ticker-item"><strong>BTC</strong> $103,200 <span class="up">+1.20%</span></div>
-  <div class="ticker-item"><strong>AAPL</strong> $294.80 <span class="up">+1.38%</span></div>
-  <div class="ticker-item"><strong>NVDA</strong> $225.83 <span class="up">+2.29%</span></div>
-  <div class="ticker-item"><strong>TSLA</strong> $445.27 <span class="up">+2.73%</span></div>
-  <div class="ticker-item"><strong>MSFT</strong> $407.77 <span class="dn">-1.19%</span></div>
-  <div class="ticker-item"><strong>AMZN</strong> $270.13 <span class="up">+1.62%</span></div>
-  <div class="ticker-item"><strong>META</strong> $616.63 <span class="up">+2.26%</span></div>
-  <div class="ticker-item"><strong>SPY</strong> $742.31 <span class="up">+0.56%</span></div>
-  <div class="ticker-item"><strong>QQQ</strong> $714.71 <span class="up">+1.06%</span></div>
-  <div class="ticker-item"><strong>GLD</strong> $430.50 <span class="dn">-0.56%</span></div>
-  <div class="ticker-item"><strong>BTC</strong> $103,200 <span class="up">+1.20%</span></div>
+<div class="ticker-wrap"><div class="ticker-track" id="tickerTrack">
+  <div class="ticker-item">Loading market data...</div>
 </div></div>
 
 <section class="hero">
@@ -408,6 +389,33 @@ footer{flex-direction:column;text-align:center;padding:20px}
     }).join('');
   })
   .catch(function(){document.getElementById('landingLbRows').innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader! 🚀</div>';});
+})();
+</script>
+
+<script>
+(function(){
+  var BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+  var SYMS = ['AAPL','NVDA','TSLA','MSFT','AMZN','META','GOOGL','SPY','QQQ','AMD','NFLX','COIN','PLTR','BA','DIS'];
+  fetch(BACKEND + '/api/quotes?symbols=' + SYMS.join(','))
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      var results = (data && data.quoteResponse && data.quoteResponse.result) || [];
+      var track = document.getElementById('tickerTrack');
+      if(!results.length){ return; }
+      var html = '';
+      results.forEach(function(q){
+        if(!q || typeof q.regularMarketPrice !== 'number') return;
+        var pct = typeof q.regularMarketChangePercent === 'number' ? q.regularMarketChangePercent : 0;
+        var up = pct >= 0;
+        var priceStr = q.regularMarketPrice >= 1000
+          ? q.regularMarketPrice.toLocaleString(undefined, {maximumFractionDigits:2})
+          : q.regularMarketPrice.toFixed(2);
+        html += '<div class="ticker-item"><strong>' + q.symbol + '</strong> $' + priceStr
+          + ' <span class="' + (up ? 'up' : 'dn') + '">' + (up ? '+' : '') + pct.toFixed(2) + '%</span></div>';
+      });
+      if(html){ track.innerHTML = html + html; } // duplicate for seamless loop
+    })
+    .catch(function(){ /* leave the loading placeholder if the fetch fails */ });
 })();
 </script>
 
