@@ -536,6 +536,12 @@ async function doSignin(){
 }
 
 // ── Supabase helpers ──
+// Writes should identify WHO is making the request whenever we know —
+// reads stay on the anon key since class leaderboards etc. are meant
+// to be viewable regardless of login state.
+function writeAuthToken(){
+  return localStorage.getItem('supabase_token') || SUPA_KEY;
+}
 async function sbGet(table, qs=''){
   const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{
     headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
@@ -545,7 +551,7 @@ async function sbGet(table, qs=''){
 async function sbPost(table, body){
   const r = await fetch(SUPA_URL+'/rest/v1/'+table,{
     method:'POST',
-    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+    headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json','Prefer':'return=representation'},
     body: JSON.stringify(body)
   });
   return r.json();
@@ -1006,7 +1012,7 @@ async function selfGradeAssignments(assignments, classId, uid){
 
     await fetch(SUPA_URL+'/rest/v1/assignment_completions?on_conflict=assignment_id,user_id', {
       method:'POST',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
       body: JSON.stringify(rows)
     });
   } catch(e){
@@ -1306,7 +1312,7 @@ async function deleteAssignment(id){
   if(!confirm('Delete this assignment? This also removes any recorded scores for it.')) return;
   try {
     await fetch(SUPA_URL+'/rest/v1/class_assignments?id=eq.'+id,{
-      method:'DELETE', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY}
+      method:'DELETE', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken()}
     });
     await loadAssignments();
   } catch(e){ alert('Could not delete: '+e.message); }
@@ -1371,7 +1377,7 @@ async function runGrading(){
 
     await fetch(SUPA_URL+'/rest/v1/assignment_completions?on_conflict=assignment_id,user_id', {
       method:'POST',
-      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
       body: JSON.stringify(rows)
     });
 
