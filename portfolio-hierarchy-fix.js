@@ -16,7 +16,7 @@
     important(document.querySelector('.topbar'), {
       'display': 'flex', 'align-items': 'flex-start', 'justify-content': 'space-between',
       'gap': '24px', 'flex-wrap': 'wrap', 'background': 'transparent',
-      'border': 'none', 'box-shadow': 'none', 'padding': '8px 4px 20px'
+      'border': 'none', 'box-shadow': 'none', 'padding': '8px 4px 20px 24px'
     });
     var topbarActions = document.querySelector('.topbar .topbar-actions');
     if(topbarActions) topbarActions.style.setProperty('display', 'none', 'important');
