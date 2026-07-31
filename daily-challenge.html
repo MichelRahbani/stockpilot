@@ -436,7 +436,7 @@ async function submitScore(){
   const classId = await getMyClassId();
 
   try {
-    const r = await fetch(SUPA_URL+'/rest/v1/daily_challenge_submissions',{
+    const r = await fetch(SUPA_URL+'/rest/v1/daily_challenge_submissions?on_conflict=challenge_date,user_id',{
       method:'POST',
       headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
       body:JSON.stringify({challenge_date:scenario.dateStr,user_id:uid,nickname,score:finalScore,savings_rate:savRate,leftover,badges:earnedBadges.map(b=>b.icon+' '+b.label),class_id:classId})
