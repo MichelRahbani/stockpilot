@@ -202,8 +202,8 @@ function renderLobby(){
   `;
   document.getElementById('lobbyList').innerHTML = entries.map(e => `
     <div class="member-row">
-      <div class="m-avatar">${e.nickname.charAt(0).toUpperCase()}</div>
-      <div class="m-name">${e.nickname}${e.nickname === tournament.commissioner_name ? ' <span class="you">👑 commish</span>' : ''}${myEntry && e.id === myEntry.id ? ' <span class="you">(you)</span>' : ''}</div>
+      <div class="m-avatar">${escapeHtml(e.nickname).charAt(0).toUpperCase()}</div>
+      <div class="m-name">${escapeHtml(e.nickname)}${e.nickname === tournament.commissioner_name ? ' <span class="you">👑 commish</span>' : ''}${myEntry && e.id === myEntry.id ? ' <span class="you">(you)</span>' : ''}</div>
     </div>
   `).join('') || '<div class="empty-state">No one has joined yet.</div>';
 }
@@ -329,7 +329,7 @@ async function renderInProgress(){
           ${withEntries.map((m,i) => `
             <tr class="${myEntry.id===m.entry_id?'me':''}">
               <td><span class="rank-badge ${i<2?'advancing':''}">${i+1}</span></td>
-              <td>${m.entry.nickname}${myEntry.id===m.entry_id?' (you)':''}</td>
+              <td>${escapeHtml(m.entry.nickname)}${myEntry.id===m.entry_id?' (you)':''}</td>
               <td style="text-align:right" class="${m.livePct>=0?'return-up':'return-down'}">${m.livePct>=0?'+':''}${m.livePct.toFixed(2)}%</td>
             </tr>
           `).join('')}
@@ -447,7 +447,7 @@ async function loadRecentTrades(tableMembers){
     const name = member ? member.entry.nickname : '?';
     const time = new Date(t.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
     const color = t.action==='buy' ? 'var(--green)' : 'var(--red)';
-    return `<div class="trade-feed-row"><span style="color:${color};font-weight:700;text-transform:uppercase;font-size:11px;width:36px;display:inline-block">${t.action}</span><strong>${t.ticker}</strong> <span style="color:var(--muted)">${t.shares} sh @ $${t.price.toFixed(2)}</span><span style="color:var(--muted);float:right">${name} · ${time}</span></div>`;
+    return `<div class="trade-feed-row"><span style="color:${color};font-weight:700;text-transform:uppercase;font-size:11px;width:36px;display:inline-block">${t.action}</span><strong>${escapeHtml(t.ticker)}</strong> <span style="color:var(--muted)">${t.shares} sh @ $${t.price.toFixed(2)}</span><span style="color:var(--muted);float:right">${escapeHtml(name)} · ${time}</span></div>`;
   }).join('');
 }
 
@@ -640,7 +640,7 @@ function renderCompleted(){
     <div class="t-header"><div class="t-name">🏟️ ${tournament.name}</div><div style="display:flex;align-items:center;gap:10px"><span class="pill gold">🏆 Complete</span><button class="bracket-btn" onclick="showBracket()">🏆 View Bracket</button></div></div>
     <div class="card" style="text-align:center;padding:50px 20px">
       <div style="font-size:56px;margin-bottom:12px">🏆</div>
-      <div style="font-family:'Anton',sans-serif;font-size:32px;letter-spacing:1px">${champ ? champ.nickname : 'Unknown'}</div>
+      <div style="font-family:'Anton',sans-serif;font-size:32px;letter-spacing:1px">${champ ? escapeHtml(champ.nickname) : 'Unknown'}</div>
       <div style="color:var(--muted);font-size:14px;margin-top:6px">Bullpen Madness Champion</div>
     </div>
   `;
@@ -688,7 +688,7 @@ async function showBracket(){
           else icon = '💀';
         }
         const isMe = myEntry && m.entry_id === myEntry.id;
-        html += `<div class="bracket-member-row"><span class="status-icon">${icon}</span><span class="m-name">${m.entry ? m.entry.nickname : '?'}${isMe ? ' (you)' : ''}</span>${pctDisplay}</div>`;
+        html += `<div class="bracket-member-row"><span class="status-icon">${icon}</span><span class="m-name">${m.entry ? escapeHtml(m.entry.nickname) : '?'}${isMe ? ' (you)' : ''}</span>${pctDisplay}</div>`;
       }
       html += `</div>`;
     }
