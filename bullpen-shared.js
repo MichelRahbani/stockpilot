@@ -46,3 +46,18 @@ function trackEvent(action, category, label){
 function isLoggedIn(){
   return !!localStorage.getItem('supabase_token');
 }
+
+// Escapes user-supplied text (nicknames, names, anything a person typed)
+// before it gets inserted into innerHTML via template strings. Without
+// this, someone could set their display name to a script/HTML payload
+// that runs in every other viewer's browser — a stored XSS attack that
+// can steal login tokens straight out of localStorage.
+function escapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
