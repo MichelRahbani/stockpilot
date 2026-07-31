@@ -84,7 +84,7 @@
     if(!header || header.dataset.fixed) return;
     header.dataset.fixed = '1';
     var siteNav = header.querySelector('.sp-site-nav');
-    if(siteNav) siteNav.style.display = 'none';
+    if(siteNav) siteNav.style.setProperty('display', 'none', 'important');
     header.style.position = 'fixed';
     injectMobileCSS();
     header.appendChild(makeCenterDiv());
