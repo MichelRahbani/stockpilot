@@ -566,6 +566,21 @@ function showView(id){
 // ── Modals ──
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+// Escapes user-supplied text (student names, anything a person typed)
+// before it gets inserted into innerHTML via template strings. Without
+// this, a student could set their display name to a script/HTML payload
+// that runs in the instructor's (or classmates') browser — a stored XSS
+// attack that can steal login tokens straight out of localStorage.
+function escapeHtml(str){
+  if(str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
 function showMsg(id, text, type){
   const el = document.getElementById(id);
   el.textContent = text; el.className = 'msg '+type; el.style.display = 'block';
@@ -768,7 +783,7 @@ async function loadDashboard(){
       : 'No trades';
     return `<tr>
       <td class="${i<3?'rank-'+(i+1):''}">${medals[i]||'#'+(i+1)}</td>
-      <td><strong>${s.name}</strong></td>
+      <td><strong>${escapeHtml(s.name)}</strong></td>
       <td><strong>$${s.portfolioValue.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</strong></td>
       <td class="${ret>=0?'up':'down'}">${retStr}</td>
       <td>$${s.cash.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
@@ -923,7 +938,7 @@ async function openStudentDashboard(classId){
     const isMe = s.name===myName;
     return `<tr style="${isMe?'background:var(--green-l);font-weight:600':''}">
       <td>${medals[i]||'#'+(i+1)}</td>
-      <td>${s.name}${isMe?' <span style="font-size:11px;color:var(--green)">(you)</span>':''}</td>
+      <td>${escapeHtml(s.name)}${isMe?' <span style="font-size:11px;color:var(--green)">(you)</span>':''}</td>
       <td style="color:${ret>=0?'var(--green)':'var(--red)'}">${(ret>=0?'+':'')+ret.toFixed(2)}%</td>
       <td>$${s.value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}</td>
     </tr>`;
