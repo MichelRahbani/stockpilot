@@ -2,15 +2,6 @@
   // StockPilot Share Widget
   // Add <script src="/share.js"></script> before </body> on any page
 
-  var style = document.createElement('style');
-  style.textContent = `
-    #sp-share-btn {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      z-index: 9999;
-      background: #1a9e6e;
-      color: white;
 var css = [
   "#sp-share-btn{position:fixed;bottom:24px;right:24px;z-index:9999;background:#1a9e6e;color:white;border:none;border-radius:50px;padding:12px 20px;font-family:sans-serif;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:8px;box-shadow:0 4px 20px rgba(26,158,110,0.4);transition:all 0.2s}",
   "#sp-share-btn:hover{background:#147a55;transform:translateY(-2px)}",
