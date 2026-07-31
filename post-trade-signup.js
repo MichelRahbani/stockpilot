@@ -50,10 +50,10 @@
      +'<button id="sp-pts-close">✕</button>'
      +'<span id="sp-pts-emoji">💰</span>'
      +'<h2 id="sp-pts-title">Nice trade! Save your portfolio.</h2>'
-     +'<p id="sp-pts-body">You're building something. Don't lose it when you close this tab.</p>'
-     +'<div id="sp-pts-warning">'+valueStr+' Sign up to keep it forever — it's free.</div>'
+     +'<p id="sp-pts-body">You\'re building something. Don\'t lose it when you close this tab.</p>'
+     +'<div id="sp-pts-warning">'+valueStr+' Sign up to keep it forever — it\'s free.</div>'
      +'<button id="sp-pts-cta">Create Free Account →</button><br>'
-     +'<button id="sp-pts-skip">I'll risk losing it</button>'
+     +'<button id="sp-pts-skip">I\'ll risk losing it</button>'
      +'<div id="sp-pts-value"><span>✅ Free forever</span><span>✅ No credit card</span><span>✅ 30 seconds</span></div>'
      +'</div>';
     document.body.appendChild(overlay);
