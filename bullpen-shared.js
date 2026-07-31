@@ -6,6 +6,15 @@
 const SUPABASE_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
 
+// Writes should identify WHO is making the request whenever we know —
+// that's what lets database rules eventually tell "this person editing
+// their own row" apart from "this person editing someone else's row".
+// Reads stay on the anon key since leaderboards etc. are meant to be
+// publicly viewable regardless of login state.
+function writeAuthToken(){
+  return localStorage.getItem('supabase_token') || SUPABASE_KEY;
+}
+
 async function sbGet(table, qs){
   const r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
     headers:{ apikey: SUPABASE_KEY, Authorization: 'Bearer '+SUPABASE_KEY }
@@ -16,7 +25,7 @@ async function sbGet(table, qs){
 async function sbPost(table, body){
   const r = await fetch(SUPABASE_URL+'/rest/v1/'+table, {
     method:'POST',
-    headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json', Prefer:'return=representation' },
+    headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+writeAuthToken(), 'Content-Type':'application/json', Prefer:'return=representation' },
     body: JSON.stringify(body)
   });
   return r.json();
@@ -25,7 +34,7 @@ async function sbPost(table, body){
 async function sbPatch(table, qs, body){
   const r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
     method:'PATCH',
-    headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json' },
+    headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+writeAuthToken(), 'Content-Type':'application/json' },
     body: JSON.stringify(body)
   });
   return r.ok;
@@ -34,7 +43,7 @@ async function sbPatch(table, qs, body){
 async function sbDelete(table, qs){
   const r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
     method:'DELETE',
-    headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY }
+    headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+writeAuthToken() }
   });
   return r.ok;
 }
