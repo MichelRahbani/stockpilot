@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account | StockPilot</title>
+<meta name="description" content="Everything you've joined or created on StockPilot, tied to your account.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Anton&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#00e676;--red:#ff1744;--purple:#7c4dff;--blue:#2979ff;--gold:#ffb020;
+  --bg:#0a0e0d;--bg2:#12161a;--bg3:#181d21;--border:rgba(255,255,255,0.08);
+  --text:#f2ede0;--muted:#8a8d90;--card:rgba(255,255,255,0.03);
+}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh}
+
+.nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:rgba(10,14,13,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--border)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+.nav-logo img{height:32px;width:32px;border-radius:7px;object-fit:cover}
+.nav-logo-text{font-family:'Anton',sans-serif;font-size:19px;letter-spacing:1px}
+.nav-back{color:var(--muted);text-decoration:none;font-size:13px;border:1px solid var(--border);padding:8px 16px;border-radius:8px}
+.nav-back:hover{border-color:var(--green);color:var(--green)}
+
+.wrap{max-width:820px;margin:0 auto;padding:40px 20px 80px}
+.page-title{font-family:'Anton',sans-serif;font-size:34px;letter-spacing:1px;margin-bottom:6px}
+.page-sub{color:var(--muted);font-size:14px;margin-bottom:32px}
+
+.section{margin-bottom:32px}
+.section-title{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.item-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:16px;text-decoration:none;color:var(--text);transition:border-color 0.15s}
+.item-card:hover{border-color:var(--green)}
+.item-name{font-weight:700;font-size:15px}
+.item-meta{font-size:12px;color:var(--muted);margin-top:3px}
+.item-pill{font-size:11px;font-weight:700;text-transform:uppercase;padding:4px 10px;border-radius:100px;white-space:nowrap}
+.pill-teacher{background:rgba(255,214,0,0.15);color:var(--gold)}
+.pill-student{background:rgba(0,230,118,0.15);color:var(--green)}
+.pill-madness{background:rgba(124,77,255,0.15);color:var(--purple)}
+.pill-showdown{background:rgba(41,121,255,0.15);color:var(--blue)}
+
+.empty{color:var(--muted);font-size:13px;padding:14px 4px}
+.loading{text-align:center;padding:60px 20px;color:var(--muted)}
+
+.gate{text-align:center;padding:100px 20px}
+.gate h2{font-family:'Anton',sans-serif;font-size:26px;margin-bottom:10px}
+.gate p{color:var(--muted);margin-bottom:20px}
+.gate a{display:inline-block;background:var(--green);color:#000;padding:12px 28px;border-radius:10px;font-weight:700;text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="nav-logo">
+    <img src="/logo.jpg" alt="StockPilot">
+    <span class="nav-logo-text">STOCKPILOT</span>
+  </a>
+  <a href="/trade" class="nav-back">← Back to StockPilot</a>
+</nav>
+
+<div class="wrap" id="app">
+  <div class="loading">Loading your account...</div>
+</div>
+
+<script src="/bullpen-shared.js"></script>
+<script>
+async function load(){
+  const app = document.getElementById('app');
+  const token = localStorage.getItem('supabase_token');
+
+  if(!token){
+    app.innerHTML = `
+      <div class="gate">
+        <h2>Sign in to see your stuff</h2>
+        <p>Every class, tournament, and showdown you've joined lives here once you're signed in.</p>
+        <a href="/trade">Go sign in →</a>
+      </div>`;
+    return;
+  }
+
+  let uid;
+  try { uid = JSON.parse(atob(token.split('.')[1])).sub; }
+  catch(e){
+    app.innerHTML = `<div class="gate"><h2>Something's off with your session</h2><p>Try signing in again.</p><a href="/trade">Go sign in →</a></div>`;
+    return;
+  }
+
+  app.innerHTML = `
+    <div class="page-title">My Account</div>
+    <div class="page-sub">Everything you've joined or created, tied to your actual account — no matter what device you're on.</div>
+
+    <div class="section">
+      <div class="section-title">🎓 Classes</div>
+      <div id="classesList"><div class="loading" style="padding:20px">Loading...</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">🏆 Bullpen Madness</div>
+      <div id="madnessList"><div class="loading" style="padding:20px">Loading...</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">📈 Bullpen Showdown</div>
+      <div id="showdownList"><div class="loading" style="padding:20px">Loading...</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">⚾ Bullpen League</div>
+      <div class="empty">Bullpen League doesn't yet track which leagues belong to your account — it only remembers on the device you joined from. This is a known gap we're working on.</div>
+    </div>
+  `;
+
+  loadClasses(uid);
+  loadMadness(uid);
+  loadShowdown(uid);
+}
+
+async function loadClasses(uid){
+  const el = document.getElementById('classesList');
+  try {
+    const [teaching, memberRows] = await Promise.all([
+      sbGet('classes', 'instructor_id=eq.'+uid+'&order=created_at.desc'),
+      sbGet('class_members', 'user_id=eq.'+uid)
+    ]);
+
+    let studentClasses = [];
+    if(memberRows.length){
+      const classIds = memberRows.map(m => m.class_id);
+      studentClasses = await sbGet('classes', 'id=in.('+classIds.join(',')+')');
+    }
+
+    const rows = [
+      ...teaching.map(c => ({...c, role: 'teacher'})),
+      ...studentClasses.map(c => ({...c, role: 'student'}))
+    ];
+
+    if(!rows.length){ el.innerHTML = '<div class="empty">You haven\'t joined or created any classes yet.</div>'; return; }
+
+    el.innerHTML = rows.map(c => `
+      <a href="/classroom.html" class="item-card">
+        <div>
+          <div class="item-name">${escapeHtml(c.name)}</div>
+          <div class="item-meta">Code: ${escapeHtml(c.join_code || c.code || '—')}</div>
+        </div>
+        <span class="item-pill ${c.role==='teacher'?'pill-teacher':'pill-student'}">${c.role==='teacher'?'Instructor':'Student'}</span>
+      </a>
+    `).join('');
+  } catch(e){
+    el.innerHTML = '<div class="empty">Could not load your classes.</div>';
+  }
+}
+
+async function loadMadness(uid){
+  const el = document.getElementById('madnessList');
+  try {
+    const entries = await sbGet('bullpen_madness_entries', 'user_id=eq.'+uid);
+    if(!entries.length){ el.innerHTML = '<div class="empty">You haven\'t joined or created a Bullpen Madness tournament yet.</div>'; return; }
+
+    const tournamentIds = [...new Set(entries.map(e => e.tournament_id))];
+    const tournaments = await sbGet('bullpen_madness_tournaments', 'id=in.('+tournamentIds.join(',')+')');
+
+    el.innerHTML = entries.map(e => {
+      const t = tournaments.find(t => t.id === e.tournament_id);
+      if(!t) return '';
+      return `
+        <a href="/bullpen-madness-table.html?code=${t.code}" class="item-card">
+          <div>
+            <div class="item-name">${escapeHtml(t.name)}</div>
+            <div class="item-meta">Code: ${t.code} · ${t.status === 'in_progress' ? 'Round ' + t.current_round : t.status}</div>
+          </div>
+          <span class="item-pill pill-madness">${t.elimination_type === 'double' ? 'Double Elim' : 'Single Elim'}</span>
+        </a>`;
+    }).join('') || '<div class="empty">You haven\'t joined or created a Bullpen Madness tournament yet.</div>';
+  } catch(e){
+    el.innerHTML = '<div class="empty">Could not load your tournaments.</div>';
+  }
+}
+
+async function loadShowdown(uid){
+  const el = document.getElementById('showdownList');
+  try {
+    const entries = await sbGet('bullpen_showdown_entries', 'user_id=eq.'+uid);
+    if(!entries.length){ el.innerHTML = '<div class="empty">You haven\'t joined or created a Bullpen Showdown yet.</div>'; return; }
+
+    const tournamentIds = [...new Set(entries.map(e => e.tournament_id))];
+    const tournaments = await sbGet('bullpen_showdown_tournaments', 'id=in.('+tournamentIds.join(',')+')');
+
+    el.innerHTML = entries.map(e => {
+      const t = tournaments.find(t => t.id === e.tournament_id);
+      if(!t) return '';
+      return `
+        <a href="/bullpen-showdown-pool.html?code=${t.code}" class="item-card">
+          <div>
+            <div class="item-name">${escapeHtml(t.name)}</div>
+            <div class="item-meta">Code: ${t.code} · Ends ${t.end_date}</div>
+          </div>
+          <span class="item-pill pill-showdown">${t.status === 'completed' ? 'Complete' : 'Active'}</span>
+        </a>`;
+    }).join('') || '<div class="empty">You haven\'t joined or created a Bullpen Showdown yet.</div>';
+  } catch(e){
+    el.innerHTML = '<div class="empty">Could not load your showdowns.</div>';
+  }
+}
+
+load();
+</script>
+</body>
+</html>
