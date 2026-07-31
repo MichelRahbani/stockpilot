@@ -187,7 +187,7 @@ async function renderActive(){
           ${withValues.map((e,i) => `
             <tr class="${myEntry.id===e.id?'me':''}">
               <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
-              <td>${e.nickname}${myEntry.id===e.id?' (you)':''}</td>
+              <td>${escapeHtml(e.nickname)}${myEntry.id===e.id?' (you)':''}</td>
               <td style="text-align:right" class="${e.livePct>=0?'return-up':'return-down'}">${e.livePct>=0?'+':''}${e.livePct.toFixed(2)}%</td>
             </tr>
           `).join('')}
@@ -289,7 +289,7 @@ async function loadRecentTrades(){
     const name = entry ? entry.nickname : '?';
     const time = new Date(t.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
     const color = t.action==='buy' ? 'var(--green)' : 'var(--red)';
-    return `<div class="trade-feed-row"><span style="color:${color};font-weight:700;text-transform:uppercase;font-size:11px;width:36px;display:inline-block">${t.action}</span><strong>${t.ticker}</strong> <span style="color:var(--muted)">${t.shares} sh @ $${t.price.toFixed(2)}</span><span style="color:var(--muted);float:right">${name} · ${time}</span></div>`;
+    return `<div class="trade-feed-row"><span style="color:${color};font-weight:700;text-transform:uppercase;font-size:11px;width:36px;display:inline-block">${t.action}</span><strong>${escapeHtml(t.ticker)}</strong> <span style="color:var(--muted)">${t.shares} sh @ $${t.price.toFixed(2)}</span><span style="color:var(--muted);float:right">${escapeHtml(name)} · ${time}</span></div>`;
   }).join('');
 }
 
@@ -367,7 +367,7 @@ async function renderCompleted(){
 
     <div class="card" style="text-align:center;padding:40px 20px">
       <div style="font-size:48px;margin-bottom:10px">🏆</div>
-      <div style="font-family:'Anton',sans-serif;font-size:28px;letter-spacing:1px">${champ ? champ.nickname : 'No one played'}</div>
+      <div style="font-family:'Anton',sans-serif;font-size:28px;letter-spacing:1px">${champ ? escapeHtml(champ.nickname) : 'No one played'}</div>
       ${champ ? `<div style="color:${champ.livePct>=0?'var(--green)':'var(--red)'};font-weight:700;margin-top:6px">${champ.livePct>=0?'+':''}${champ.livePct.toFixed(2)}%</div>` : ''}
     </div>
 
@@ -379,7 +379,7 @@ async function renderCompleted(){
           ${withValues.map((e,i) => `
             <tr class="${myEntry && myEntry.id===e.id?'me':''}">
               <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
-              <td>${e.nickname}${myEntry && myEntry.id===e.id?' (you)':''}</td>
+              <td>${escapeHtml(e.nickname)}${myEntry && myEntry.id===e.id?' (you)':''}</td>
               <td style="text-align:right" class="${e.livePct>=0?'return-up':'return-down'}">${e.livePct>=0?'+':''}${e.livePct.toFixed(2)}%</td>
             </tr>
           `).join('')}
