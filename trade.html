@@ -425,6 +425,15 @@ function loadForMarket(id) {
   return {cash: s, pos: {}, trades: []};
 }
 
+function showToast(msg, type){
+  const t = document.getElementById('toast');
+  if(!t) return;
+  t.textContent = msg;
+  t.className = 'toast show ' + (type || 'ok');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
 function switchMarket(id) {
   if (id === activeMarket) return;
   activeMarket = id;
