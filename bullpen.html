@@ -974,6 +974,23 @@ async function doForgot(){
   await fetch(SUPA_URL+'/auth/v1/recover',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email})});
   showSiMsg('Password reset email sent!',true);
 }
+// Update mobile menu auth state
+function updateMobileAuth(){
+  const name=localStorage.getItem('supabase_name');
+  const signInBtn=document.getElementById('mobileSignInBtn');
+  const userPill=document.getElementById('mobileUserPill');
+  if(name){
+    if(signInBtn) signInBtn.style.display='none';
+    if(userPill){userPill.style.display='block';userPill.textContent='👤 '+name;}
+  } else {
+    if(signInBtn) signInBtn.style.display='block';
+    if(userPill) userPill.style.display='none';
+  }
+  // Also show/hide desktop sign in btn
+  const deskSignIn=document.getElementById('navSignInBtn');
+  if(deskSignIn) deskSignIn.style.display=name?'none':'block';
+}
+
 function updateNavAuth(){
   const name=localStorage.getItem('supabase_name');
   const navRight=document.querySelector('.bp-nav-right');
@@ -1012,22 +1029,7 @@ document.addEventListener('click',function(e){
     menu.style.display='none';
   }
 });
-// Update mobile menu auth state
-function updateMobileAuth(){
-  const name=localStorage.getItem('supabase_name');
-  const signInBtn=document.getElementById('mobileSignInBtn');
-  const userPill=document.getElementById('mobileUserPill');
-  if(name){
-    if(signInBtn) signInBtn.style.display='none';
-    if(userPill){userPill.style.display='block';userPill.textContent='👤 '+name;}
-  } else {
-    if(signInBtn) signInBtn.style.display='block';
-    if(userPill) userPill.style.display='none';
-  }
-  // Also show/hide desktop sign in btn
-  const deskSignIn=document.getElementById('navSignInBtn');
-  if(deskSignIn) deskSignIn.style.display=name?'none':'block';
-}
+// Update mobile menu auth state (moved earlier in the file — see updateNavAuth)
 // Run on load
 document.addEventListener('DOMContentLoaded', updateMobileAuth);
 updateMobileAuth();
