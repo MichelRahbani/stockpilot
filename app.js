@@ -32,7 +32,7 @@ const pushAppStateToCloud = async (token, userId) => {
   try {
     const state = localStorage.getItem("stockPilot.appState");
     if (!state) return;
-    await fetch(SUPABASE_URL + "/rest/v1/user_data", {
+    await fetch(SUPABASE_URL + "/rest/v1/user_data?on_conflict=user_id", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -11172,7 +11172,7 @@ window.submitBudgetToClass = async function() {
     }
 
     // Upsert budget submission
-    const subRes = await fetch(SUPA_URL + '/rest/v1/budget_submissions', {
+    const subRes = await fetch(SUPA_URL + '/rest/v1/budget_submissions?on_conflict=user_id,class_id', {
       method: 'POST',
       headers: {
         apikey: SUPA_KEY, Authorization: 'Bearer ' + token,
