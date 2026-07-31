@@ -926,3 +926,133 @@ body .learning-area-tabs { display: flex !important; flex-direction: row !import
 
 /* Fix info buttons */
 .term-card:not([hidden]) { display: block !important; }
+
+/* ══════════════════════════════════════════════════════════
+   Portfolio page visual hierarchy pass
+   Problem: every block (header, mode tabs, disclaimer, sub-nav,
+   term guide, demo card) got identical white-card treatment,
+   so nothing stood out and the page read as flat and cluttered.
+   Fix: let the headline actually lead, quiet down the status
+   widgets and disclaimer text, tighten the gap between the
+   navigation pieces so they read as one system, and give the
+   first real action (Quick Demo Load) its own visual weight.
+   Loaded last on purpose — wins over the older layered rules
+   above and in styles.css without having to hunt all of them down.
+   ══════════════════════════════════════════════════════════ */
+
+/* Header: let the Fraunces headline lead, quiet the status widgets */
+.topbar {
+  display: flex !important;
+  align-items: flex-start !important;
+  justify-content: space-between !important;
+  gap: 24px !important;
+  flex-wrap: wrap !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 8px 4px 20px !important;
+}
+.topbar h2 { max-width: 640px !important; }
+.topbar .topbar-copy { max-width: 480px !important; }
+.topbar .topbar-actions { display: none !important; }
+
+.live-data-pill,
+.account-widget {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  gap: 4px !important;
+}
+.live-data-pill { flex-direction: row !important; align-items: center !important; }
+.live-data-pill strong,
+.account-widget strong,
+.account-widget #accountName {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: var(--sp-g600) !important;
+}
+.live-data-pill small,
+.account-widget span,
+.account-widget #accountStatus {
+  font-size: 11px !important;
+  color: var(--sp-g400) !important;
+}
+.account-widget-actions .ghost-button {
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+  border-radius: 100px !important;
+}
+
+/* Navigation system: mode tabs -> disclaimer -> sub-nav should read
+   as one connected unit, not three separate competing cards */
+.workspace-navigator {
+  border-radius: 12px 12px 0 0 !important;
+  border-bottom: none !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+}
+
+.data-quality-banner {
+  background: var(--sp-g50) !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 8px 16px !important;
+  display: flex !important;
+  align-items: baseline !important;
+  gap: 8px !important;
+  font-size: 12px !important;
+}
+.data-quality-banner strong {
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.06em !important;
+  color: var(--sp-g400) !important;
+  flex-shrink: 0 !important;
+}
+.data-quality-banner span {
+  font-size: 12px !important;
+  color: var(--sp-g400) !important;
+  line-height: 1.5 !important;
+}
+
+.invest-nav {
+  border-radius: 0 0 12px 12px !important;
+  border-top: none !important;
+  margin-bottom: 20px !important;
+}
+
+/* Term Guide: a small inline tip, not a full banner card */
+.help-launcher {
+  background: none !important;
+  border: none !important;
+  padding: 0 0 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+.help-launcher .primary-button {
+  background: transparent !important;
+  color: var(--sp-green) !important;
+  border: 1px solid var(--sp-green-l) !important;
+  box-shadow: none !important;
+  padding: 5px 12px !important;
+  font-size: 12px !important;
+}
+.help-launcher span {
+  font-size: 12px !important;
+  color: var(--sp-g400) !important;
+}
+
+/* Quick Demo Load: this is the actual first action — give it real weight */
+.lookup-panel.active {
+  background: var(--sp-green-l) !important;
+  border: 1px solid rgba(26,158,110,0.15) !important;
+  border-radius: var(--sp-radius) !important;
+  padding: 24px !important;
+}
+.lookup-panel.active .section-title h2 {
+  font-family: 'Fraunces', serif !important;
+  font-size: 20px !important;
+}
