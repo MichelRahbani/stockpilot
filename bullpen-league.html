@@ -542,7 +542,7 @@ function renderSeasonStandings(){
     const isMe=m.id===myMemberId||m.name===myName;
     return `<div style="display:flex;align-items:center;gap:6px;background:${isMe?'rgba(0,230,118,0.08)':'rgba(255,255,255,0.03)'};border:1px solid ${isMe?'rgba(0,230,118,0.2)':'var(--border)'};border-radius:8px;padding:8px 12px">
       <div style="width:22px;height:22px;border-radius:5px;background:${colors[i%colors.length]};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#000">${m.name.charAt(0)}</div>
-      <div style="font-size:13px;font-weight:500">${m.name}</div>
+      <div style="font-size:13px;font-weight:500">${escapeHtml(m.name)}</div>
       <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--gold);margin-left:4px">${m.season_points||0}pts</div>
     </div>`;
   }).join('');
@@ -563,7 +563,7 @@ function renderLeaderboard(){
     const picks=[...(m.starters||[])].slice(0,3).join(' · ')||'No picks yet';
     return `<div class="lb-row${isMe?' me':''}" onclick="previewMember('${m.id}')">
       <div class="lb-rank ${rankClass}">${rankIcon}</div>
-      <div><div class="lb-name">${m.name}${isMe?' <span style="font-size:10px;color:var(--green)">(you)</span>':''}</div><div class="lb-picks">${picks}</div></div>
+      <div><div class="lb-name">${escapeHtml(m.name)}${isMe?' <span style="font-size:10px;color:var(--green)">(you)</span>':''}</div><div class="lb-picks">${picks}</div></div>
       <div style="text-align:right"><div class="lb-score ${sc}">${ss}</div><div style="font-size:10px;color:var(--gold);font-family:'DM Mono',monospace">${seasonPts}pts</div></div>
     </div>`;
   }).join('');
@@ -581,7 +581,7 @@ function renderMembers(){
     const kickBtn=isCommissioner&&!isMe?`<button class="kick-btn" onclick="kickMember('${m.id}','${m.name.replace(/'/g,'')}')" title="Kick from league">Kick</button>`:'';
     return `<div class="member-row">
       <div class="m-avatar" style="background:${colors[i%colors.length]}">${m.name.charAt(0).toUpperCase()}</div>
-      <div class="m-name">${m.name}${isMe?'<span class="you">(you)</span>':''}${isComm?'<span class="commissioner">👑 commish</span>':''}</div>
+      <div class="m-name">${escapeHtml(m.name)}${isMe?'<span class="you">(you)</span>':''}${isComm?'<span class="commissioner">👑 commish</span>':''}</div>
       <div class="m-status ${hasDraft?'drafted':'pending'}">${hasDraft?'✓':'⏳'}</div>
       ${kickBtn}
     </div>`;
@@ -609,10 +609,15 @@ function renderRoster(){
         <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:6px">Who are you?</div>
         <div style="font-size:13px;color:var(--muted);margin-bottom:16px">Select your name to access your roster</div>
         <div style="display:flex;flex-direction:column;gap:8px;max-width:260px;margin:0 auto 16px">
-          ${members.map(m=>`<button onclick="identifyAsMember('${m.id}','${m.name.replace(/'/g,'')}','${(m.starters||[]).length}')" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:11px 16px;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;text-align:left;transition:all 0.15s;font-family:DM Sans,sans-serif" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">${m.name} ${m.starters&&m.starters.length?'<span style=\'font-size:11px;color:var(--green)\'>✓ drafted</span>':'<span style=\'font-size:11px;color:var(--gold)\'>⏳ pending</span>'}</button>`).join('')}
+          ${members.map(m=>`<button class="identify-member-btn" data-id="${escapeHtml(m.id)}" data-name="${escapeHtml(m.name)}" data-starters="${(m.starters||[]).length}" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:9px;padding:11px 16px;color:var(--text);font-size:14px;font-weight:500;cursor:pointer;text-align:left;transition:all 0.15s;font-family:DM Sans,sans-serif" onmouseover="this.style.borderColor='var(--green)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'">${escapeHtml(m.name)} ${m.starters&&m.starters.length?'<span style=\'font-size:11px;color:var(--green)\'>✓ drafted</span>':'<span style=\'font-size:11px;color:var(--gold)\'>⏳ pending</span>'}</button>`).join('')}
         </div>
         <div style="font-size:12px;color:var(--muted)">Not in this league? <a href="/bullpen.html" style="color:var(--green)">Join one →</a></div>
       </div>`;
+      body.querySelectorAll('.identify-member-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          identifyAsMember(btn.dataset.id, btn.dataset.name, btn.dataset.starters);
+        });
+      });
     }
     document.getElementById('swapBtn').disabled=true;
     document.getElementById('faBtn').disabled=true;
