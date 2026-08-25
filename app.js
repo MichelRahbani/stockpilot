@@ -5475,7 +5475,7 @@ const getMissionQueue = ({ stats, savingsStats, spendingStats, riskyHoldings, cr
   addMission(stats.largest && stats.largest.allocation > 30, {
     tone: "warn",
     title: "Check concentration",
-    detail: `${stats.largest.ticker} is ${formatNumber(stats.largest.allocation)}% of the loaded portfolio.`
+    detail: stats.largest ? `${stats.largest.ticker} is ${formatNumber(stats.largest.allocation)}% of the loaded portfolio.` : ""
   });
   addMission(riskyHoldings.length >= 2, {
     tone: "warn",
