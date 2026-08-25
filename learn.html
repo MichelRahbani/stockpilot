@@ -1,185 +1,587 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="robots" content="index, follow"/>
-<title>42 Free Investing Lessons for Beginners | StockPilot Learn</title>
-<meta property="og:image" content="https://mystockspilot.com/logo.jpg"/>
-<meta name="description" content="42 free investing lessons covering stocks, bonds, ETFs, risk, budgeting and more. No jargon. No account needed. Start learning in 2 minutes."/>
-<meta name="keywords" content="free investing lessons, learn investing for beginners, stock market basics, how to invest money, investing course free, personal finance for beginners"/>
-<meta property="og:title" content="42 Free Investing Lessons for Beginners | StockPilot Learn"/>
-<meta property="og:description" content="42 free investing lessons covering stocks, bonds, ETFs, risk, budgeting and more. No jargon. No account needed. Start learning in 2 minutes."/>
-<meta property="og:url" content="https://mystockspilot.com/learn"/>
-<meta property="og:type" content="website"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="StockPilot Learn — Free Investing Lessons"/>
-<meta name="twitter:description" content="Learn investing in plain English. 42 free lessons, no signup, no jargon."/>
-<link rel="canonical" href="https://mystockspilot.com/learn"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--purple:#7c3aed;--purple-d:#6d28d9;--purple-l:#f5f3ff;--purple-m:#c4b5fd;--green:#1a9e6e;--g100:#ede9fe;--g400:#94a3b8;--g600:#475569;--g900:#0f172a;--white:#ffffff;--off:#faf9ff}
-html{scroll-behavior:smooth}
-body{font-family:'DM Sans',sans-serif;background:var(--off);color:var(--g900);min-height:100vh;overflow-x:hidden}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(250,249,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--g100)}
-.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--g900)}
-.logo-mark{width:32px;height:32px;background:var(--purple);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:14px;font-weight:700;color:white}
-.logo-text{font-family:'Fraunces',serif;font-size:17px;font-weight:700;letter-spacing:-0.02em}
-.logo-badge{background:var(--purple);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:0.05em}
-.nav-links{display:flex;align-items:center;gap:8px}
-.nav-link{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--g600);text-decoration:none;transition:all 0.15s}
-.nav-link:hover{background:var(--g100);color:var(--g900)}
-.nav-cta{padding:8px 18px;border-radius:10px;background:var(--purple);color:white;font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s}
-.nav-cta:hover{background:var(--purple-d);transform:translateY(-1px)}
-.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(124,58,237,0.1) 0%,transparent 70%);pointer-events:none}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--purple-l);border:1px solid var(--g100);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--purple);letter-spacing:0.04em;margin-bottom:28px;animation:fadeUp 0.6s ease both}
-.hero-eyebrow::before{content:'';width:6px;height:6px;background:var(--purple);border-radius:50%;animation:pulse 2s ease infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
-.hero h1{font-family:'Fraunces',serif;font-size:clamp(2.8rem,7vw,5.5rem);font-weight:700;line-height:1.04;letter-spacing:-0.03em;color:var(--g900);max-width:820px;margin-bottom:24px;animation:fadeUp 0.6s 0.1s ease both}
-.hero h1 em{font-style:italic;font-weight:300;color:var(--purple)}
-.hero-sub{font-size:clamp(1rem,2vw,1.2rem);color:var(--g600);max-width:560px;line-height:1.6;margin-bottom:40px;animation:fadeUp 0.6s 0.2s ease both}
-.hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.6s 0.3s ease both}
-.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--purple);color:white;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(124,58,237,0.3)}
-.btn-primary:hover{background:var(--purple-d);transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,0.35)}
-.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:white;color:var(--g900);border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;border:1px solid var(--g100);cursor:pointer;transition:all 0.2s}
-.btn-secondary:hover{border-color:var(--purple-m);background:var(--purple-l)}
-.stats-strip{display:flex;justify-content:center;flex-wrap:wrap;margin-top:60px;background:white;border:1px solid var(--g100);border-radius:16px;overflow:hidden;max-width:700px;width:100%;animation:fadeUp 0.6s 0.4s ease both;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
-.stat-item{flex:1;min-width:140px;padding:20px 24px;text-align:center;border-right:1px solid var(--g100)}
-.stat-item:last-child{border-right:none}
-.stat-num{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:var(--purple);line-height:1;margin-bottom:4px}
-.stat-label{font-size:11px;color:var(--g400);font-weight:500;letter-spacing:0.04em}
-.topics{padding:80px 24px;max-width:1100px;margin:0 auto}
-.section-label{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--purple);margin-bottom:12px;text-align:center}
-.section-title{font-family:'Fraunces',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-0.025em;text-align:center;color:var(--g900);margin-bottom:56px;line-height:1.1}
-.topics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
-.topic-card{background:white;border:1px solid var(--g100);border-radius:16px;padding:28px;transition:all 0.2s;position:relative;overflow:hidden}
-.topic-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--purple);transform:scaleX(0);transform-origin:left;transition:transform 0.3s}
-.topic-card:hover{border-color:var(--purple-m);transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,58,237,0.08)}
-.topic-card:hover::before{transform:scaleX(1)}
-.topic-icon{width:44px;height:44px;background:var(--purple-l);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--purple)}
-.topic-card h3{font-family:'Fraunces',serif;font-size:1.05rem;font-weight:700;letter-spacing:-0.01em;margin-bottom:8px}
-.topic-card p{font-size:14px;color:var(--g600);line-height:1.6;margin-bottom:14px}
-.topic-lessons{font-size:12px;font-weight:600;color:var(--purple);letter-spacing:0.02em}
-.lesson-list{display:flex;flex-direction:column;gap:12px;margin-top:48px}
-.lesson-item{display:flex;align-items:center;gap:16px;padding:16px 20px;background:var(--off);border:1px solid var(--g100);border-radius:12px;transition:all 0.2s;text-decoration:none;color:inherit}
-.lesson-item:hover{border-color:var(--purple-m);background:var(--purple-l);transform:translateX(4px)}
-.lesson-num{width:32px;height:32px;background:var(--purple);color:white;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:700;flex-shrink:0}
-.lesson-title{font-size:14px;font-weight:600;color:var(--g900)}
-.lesson-desc{font-size:12px;color:var(--g400);margin-top:2px}
-.lesson-arrow{margin-left:auto;color:var(--purple);font-size:18px;flex-shrink:0;opacity:0;transition:opacity 0.2s}
-.lesson-item:hover .lesson-arrow{opacity:1}
-.more-lessons{text-align:center;margin-top:24px;font-size:14px;color:var(--g400)}
-.more-lessons a{color:var(--purple);font-weight:600;text-decoration:none}
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-top:48px;counter-reset:steps}
-.step{display:flex;flex-direction:column;gap:12px;counter-increment:steps}
-.step::before{content:counter(steps);width:36px;height:36px;background:var(--purple);color:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1rem;font-weight:700;flex-shrink:0}
-.step h3{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;letter-spacing:-0.01em}
-.step p{font-size:13px;color:var(--g600);line-height:1.6}
-.cta-banner{padding:80px 24px;text-align:center;background:var(--g900);position:relative;overflow:hidden}
-.cta-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(124,58,237,0.3) 0%,transparent 70%);pointer-events:none}
-.cta-banner h2{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:-0.03em;color:white;margin-bottom:16px;line-height:1.1;position:relative}
-.cta-banner p{font-size:1rem;color:rgba(255,255,255,0.6);margin-bottom:36px;position:relative}
-.cta-banner .btn-primary{background:white;color:var(--g900);box-shadow:0 4px 20px rgba(0,0,0,0.3);position:relative}
-.cta-banner .btn-primary:hover{background:var(--purple-l);transform:translateY(-2px)}
-footer{padding:32px 24px;text-align:center;border-top:1px solid var(--g100);background:var(--off)}
-footer p{font-size:13px;color:var(--g400)}
-footer a{color:var(--purple);text-decoration:none}
-footer a:hover{text-decoration:underline}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
-.reveal.visible{opacity:1;transform:translateY(0)}
-@media(max-width:600px){.nav-links a:not(.nav-cta){display:none}.stats-strip{flex-direction:column}.stat-item{border-right:none;border-bottom:1px solid var(--g100)}.stat-item:last-child{border-bottom:none}}
-</style>
-</head>
-<body>
-<nav>
-  <a href="/" class="logo"><img src="/logo.jpg" alt="StockPilot" style="width:30px;height:30px;border-radius:6px;object-fit:contain;display:block;"><span class="logo-text">StockPilot</span><span class="logo-badge">LEARN</span></a>
-  <div class="nav-links">
-    <a href="/app" class="nav-link">Full App</a>
-    <a href="/budget" class="nav-link">Budget Planner</a>
-    <a href="/trade" class="nav-link">Virtual Market</a>
-    <a href="/app?mode=education" class="nav-cta">Start Learning Free →</a>
-  </div>
-</nav>
-<section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-eyebrow">Free · No signup required · 42 lessons</div>
-  <h1>Investing, explained<br/><em>in plain English.</em></h1>
-  <p class="hero-sub">42 beginner lessons covering stocks, bonds, risk, budgeting, compounding, and more. No jargon, no textbooks — just clear explanations you can actually use.</p>
-  <div class="hero-actions">
-    <a href="/app?mode=education" class="btn-primary">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-      Start Learning Free
-    </a>
-    <a href="#topics" class="btn-secondary">See what's covered</a>
-  </div>
-  <div class="stats-strip">
-    <div class="stat-item"><div class="stat-num">42</div><div class="stat-label">Free lessons</div></div>
-    <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Always free</div></div>
-    <div class="stat-item"><div class="stat-num">5 min</div><div class="stat-label">Per lesson</div></div>
-    <div class="stat-item"><div class="stat-num">0</div><div class="stat-label">Signups needed</div></div>
-  </div>
-</section>
-<section class="topics" id="topics">
-  <p class="section-label reveal">What you'll learn</p>
-  <h2 class="section-title reveal">From zero to confident<br/>in 6 topic areas.</h2>
-  <div class="topics-grid">
-    <div class="topic-card reveal"><div class="topic-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><h3>Money Fundamentals</h3><p>Income vs expense, net worth, cash flow, and why budgeting before investing is the right order.</p><div class="topic-lessons">8 lessons</div></div>
-    <div class="topic-card reveal"><div class="topic-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3>Stock Market Basics</h3><p>What stocks are, how markets work, what a P/E ratio means, and why prices go up and down.</p><div class="topic-lessons">10 lessons</div></div>
-    <div class="topic-card reveal"><div class="topic-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg></div><h3>Risk &amp; Diversification</h3><p>Beta, volatility, correlation, and why spreading your money across different assets is the most important thing a beginner can do.</p><div class="topic-lessons">8 lessons</div></div>
-    <div class="topic-card reveal"><div class="topic-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h3>Compounding &amp; Time</h3><p>Why starting early matters more than starting with more money. How compound interest works and what it means for your wealth.</p><div class="topic-lessons">6 lessons</div></div>
-    <div class="topic-card reveal"><div class="topic-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><h3>Bonds &amp; Fixed Income</h3><p>What bonds are, why they belong in a portfolio, and how interest rates affect bond prices.</p><div class="topic-lessons">5 lessons</div></div>
-    <div class="topic-card reveal"><div class="topic-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div><h3>Making Real Decisions</h3><p>How to evaluate a holding, when to sell, how to avoid emotional decisions, and how to use a portfolio score.</p><div class="topic-lessons">5 lessons</div></div>
-  </div>
-</section>
-<section style="padding:80px 24px;background:white;border-top:1px solid #ede9fe;border-bottom:1px solid #ede9fe;">
-  <div style="max-width:760px;margin:0 auto;">
-    <p class="section-label reveal" style="text-align:center">Sample lessons</p>
-    <h2 class="section-title reveal">See what a lesson looks like.</h2>
-    <div class="lesson-list">
-      <a href="/app?mode=education" class="lesson-item reveal"><div class="lesson-num">01</div><div><div class="lesson-title">Income vs Expense — the only equation that matters</div><div class="lesson-desc">Why your cash flow is the starting point for every financial decision</div></div><div class="lesson-arrow">→</div></a>
-      <a href="/app?mode=education" class="lesson-item reveal"><div class="lesson-num">05</div><div><div class="lesson-title">What is a P/E ratio and why does it matter?</div><div class="lesson-desc">How to tell if a stock is expensive or cheap relative to its earnings</div></div><div class="lesson-arrow">→</div></a>
-      <a href="/app?mode=education" class="lesson-item reveal"><div class="lesson-num">11</div><div><div class="lesson-title">Diversification in plain English</div><div class="lesson-desc">Why spreading your money is the one rule every beginner must follow</div></div><div class="lesson-arrow">→</div></a>
-      <a href="/app?mode=education" class="lesson-item reveal"><div class="lesson-num">18</div><div><div class="lesson-title">Compound interest — the eighth wonder of the world</div><div class="lesson-desc">Why starting at 22 beats starting at 32 with twice the money</div></div><div class="lesson-arrow">→</div></a>
-      <a href="/app?mode=education" class="lesson-item reveal"><div class="lesson-num">27</div><div><div class="lesson-title">What beta tells you about a stock</div><div class="lesson-desc">Understanding volatility and how it affects your portfolio risk</div></div><div class="lesson-arrow">→</div></a>
-    </div>
-    <p class="more-lessons reveal">+ 37 more lessons · <a href="/app?mode=education">See all lessons →</a></p>
-  </div>
-</section>
-<section style="padding:80px 24px;">
-  <div style="max-width:900px;margin:0 auto;">
-    <p class="section-label reveal" style="text-align:center">How it works</p>
-    <h2 class="section-title reveal">Learn at your own pace.<br/>No pressure, no schedule.</h2>
-    <div class="steps">
-      <div class="step reveal"><h3>Pick a topic</h3><p>Start anywhere — money basics, stocks, risk, or compounding. No required order, no prerequisites.</p></div>
-      <div class="step reveal"><h3>Read the lesson</h3><p>Each lesson is short (5 min), written in plain English, with real examples and no textbook language.</p></div>
-      <div class="step reveal"><h3>Take the quiz</h3><p>A quick quiz after each lesson to lock in what you learned. Weak spots are tracked so you can review them.</p></div>
-      <div class="step reveal"><h3>Apply it</h3><p>Use the portfolio and budget tools alongside your learning to see concepts in action with real market data.</p></div>
-    </div>
-  </div>
-</section>
-<section class="cta-banner">
-  <h2>Start learning<br/>in 2 minutes.</h2>
-  <p>Free, no account needed. Pick any lesson and go.</p>
-  <a href="/app?mode=education" class="btn-primary">Open Learning Center →</a>
-</section>
-<footer>
-  <p><a href="/">StockPilot</a> · <a href="/app">Full App</a> · <a href="/budget">Budget Planner</a> · <a href="/trade">Virtual Market</a> · Free personal finance education. Not financial advice.</p>
-</footer>
+  <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>42 Free Investing Lessons for Beginners | StockPilot Learn</title>
+    <meta name="description" content="Learn investing and personal finance in plain English. Free lessons, terms, quizzes, and scenario practice, no signup required to start." />
+    <meta name="keywords" content="learn investing, investing for beginners, personal finance lessons, free investing course" />
+    <meta property="og:title" content="StockPilot Learn — Free Investing Lessons" />
+    <meta property="og:description" content="Learn investing and personal finance in plain English, free." />
+    <meta property="og:url" content="https://mystockspilot.com/learn" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="StockPilot Learn — Free Investing Lessons" />
+    <meta name="twitter:description" content="Learn investing and personal finance in plain English, free." />
+    <link rel="canonical" href="https://mystockspilot.com/learn" />
+    <link rel="stylesheet" href="./styles.css" />
+  <link rel="stylesheet" href="app-theme.css"><!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
 <script>
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
-}, { threshold: 0.1 });
-document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
-document.querySelectorAll('.topic-card').forEach((card, i) => { card.style.transitionDelay = (i * 0.07) + 's'; });
-document.querySelectorAll('.lesson-item').forEach((item, i) => { item.style.transitionDelay = (i * 0.06) + 's'; });
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-TZLSC36Y26');
 </script>
-  <script src="/share.js"></script>
-  <script src="/cross-promo.js"></script>
-          <script src="/ux-fixes.js"></script>
-  <script src="/nav-fix.js"></script>
-</body>
+</head>
+  <body class="command-mode beginner-mode">
+  <div id="welcomePopup" style="display:flex;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:99999;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:16px;padding:32px;max-width:480px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+      <div style="font-size:48px;margin-bottom:16px;">📚</div>
+      <h2 style="font-size:22px;font-weight:700;margin-bottom:12px;color:#1a1a1a;">For Learning Purposes Only</h2>
+      <p style="color:#555;font-size:15px;line-height:1.6;margin-bottom:24px;">StockPilot is an educational tool designed to help you learn about investing and personal finance. <strong>Nothing here is financial advice.</strong> Always consult a licensed financial advisor before making real investment decisions.</p>
+      <button onclick="document.getElementById('welcomePopup').style.display='none';localStorage.setItem('disclaimerSeen','true')" style="background:#1a6b4a;color:#fff;border:none;border-radius:10px;padding:14px 32px;font-size:16px;font-weight:600;cursor:pointer;width:100%;">I Understand — Let's Learn</button>
+    </div>
+  </div>
+  <script>if(localStorage.getItem('disclaimerSeen')){document.getElementById('welcomePopup').style.display='none';}</script>
+
+    <header class="sp-site-header" role="banner">
+      <a href="/" class="sp-site-logo" aria-label="StockPilot home">
+        <img src="/logo.jpg" alt="StockPilot" class="sp-site-logo-mark">
+        <span class="sp-site-logo-text">StockPilot</span>
+        <span class="sp-site-logo-badge">LEARN</span>
+      </a>
+      <nav class="sp-site-nav" aria-label="Site navigation">
+        <a href="/app" class="sp-site-nav-link">Investing</a>
+        <a href="/budget" class="sp-site-nav-link">Budget Planner</a>
+        <a href="/trade" class="sp-site-nav-link">Virtual Market</a>
+      </nav>
+    </header>
+
+    <main class="app-shell">
+      <aside class="sidebar" aria-label="Analysis controls">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">SP</div>
+          <div>
+            <h1 id="brandTitle">StockPilot Learn</h1>
+            <p id="brandSubtitle">Free investing lessons, one small idea at a time.</p>
+          </div>
+        </div>
+
+        <section class="panel education-control">
+          <div class="panel-heading">
+            <h2>Learning Focus</h2>
+          </div>
+          <div class="quick-actions">
+            <button class="ghost-button active" data-learn-panel="tips" type="button">Tips</button>
+            <button class="ghost-button" data-learn-panel="terms" type="button">Simple Terms</button>
+            <button class="ghost-button" data-learn-panel="history" type="button">History</button>
+            <button class="ghost-button" data-learn-panel="concepts" type="button">Concepts</button>
+            <button class="ghost-button" data-learn-panel="behavior" type="button">Behavior</button>
+            <button class="ghost-button" data-learn-panel="quiz" type="button">Quiz</button>
+          </div>
+        </section>
+
+        <section class="panel education-control">
+          <div class="panel-heading">
+            <h2>Study Rule</h2>
+          </div>
+          <p>Short lessons first. Each card should teach one idea, one mistake to avoid, or one historical pattern.</p>
+        </section>
+
+        <section class="panel disclaimer">
+          <h2>Important</h2>
+          <p id="modeDisclaimer">This app supports learning, not financial advice. Verify all figures before making investment decisions.</p>
+        </section>
+      </aside>
+
+      <section class="workspace">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="workspaceEyebrow">StockPilot Learn</p>
+            <h2 id="workspaceTitle">Follow a money path one small lesson at a time.</h2>
+            <p class="topbar-copy" id="workspaceCopy">Plain-English lessons, terms, history, and practice quizzes. Free, no signup required to start.</p>
+          </div>
+          <div class="topbar-actions" id="workspaceTags">
+            <span>Free forever</span>
+            <span>No signup to start</span>
+            <span>Educational</span>
+          </div>
+          <div class="live-data-pill checking" id="liveDataPill" aria-live="polite">
+            <span id="liveDataDot" aria-hidden="true"></span>
+            <div>
+              <strong id="liveDataStatus">Checking data</strong>
+              <small id="liveDataDetail">Connecting to StockPilot gateway...</small>
+            </div>
+          </div>
+          <div class="account-widget" id="accountWidget">
+            <span id="accountStatus">Guest Mode</span>
+            <strong id="accountName">No account</strong>
+            <div class="account-widget-actions">
+              <button class="ghost-button small-button" id="openAccountButton" type="button">Sign In</button>
+              <button class="ghost-button small-button" id="openSettingsButton" type="button">Settings</button>
+            </div>
+          </div>
+        </header>
+
+        <section class="education-hub" id="educationHub" aria-label="Educational and learning workspace">
+          <div class="education-hero">
+            <div>
+              <p class="eyebrow">Learning Center</p>
+              <h2>Follow a money path one small lesson at a time.</h2>
+              <p>Progress through expanded units with simple-English explanations, examples, why-it-matters notes, and practice prompts, then use the full tips, terms, history, concepts, and quick checks underneath.</p>
+            </div>
+            <div class="lesson-card spotlight-card">
+              <span>Path Progress</span>
+              <strong id="learningProgressScore">0%</strong>
+              <p id="learningProgressDetail">Complete lessons to build your finance path.</p>
+              <button class="ghost-button small-button section-clear-button" id="clearLearningButton" type="button">Clear Learning</button>
+            </div>
+          </div>
+
+          <nav class="learning-area-tabs" aria-label="Learning areas" style="display:none">
+            <label class="field compact nav-select-field">
+              <span>Learning section</span>
+              <select id="learningAreaSelect">
+                <option value="overview">Overview</option>
+                <option value="pathway">Pathway</option>
+                <option value="library:tips">Tips</option>
+                <option value="library:terms">Terms</option>
+                <option value="library:history">History</option>
+                <option value="library:concepts">Concepts</option>
+                <option value="library:behavior">Behavior</option>
+                <option value="practice">Practice</option>
+              </select>
+            </label>
+            <button class="learning-area-tab active" data-learning-area="overview" type="button" aria-pressed="true">Overview</button>
+            <button class="learning-area-tab" data-learning-area="pathway" type="button" aria-pressed="false">Pathway</button>
+            <button class="learning-area-tab" data-learning-area="library" data-default-panel="tips" type="button" aria-pressed="false">Tips</button>
+            <button class="learning-area-tab" data-learning-area="library" data-default-panel="terms" type="button" aria-pressed="false">Terms</button>
+            <button class="learning-area-tab" data-learning-area="library" data-default-panel="history" type="button" aria-pressed="false">History</button>
+            <button class="learning-area-tab" data-learning-area="library" data-default-panel="concepts" type="button" aria-pressed="false">Concepts</button>
+            <button class="learning-area-tab" data-learning-area="library" data-default-panel="behavior" type="button" aria-pressed="false">Behavior</button>
+            <button class="learning-area-tab" data-learning-area="practice" type="button" aria-pressed="false">Practice</button>
+          </nav>
+
+          <div class="duo-subject-grid">
+            <button class="duo-subject-card" data-duo-area="overview" type="button">
+              <div class="duo-subject-icon" style="background:#e8f5e9">🗺️</div>
+              <div class="duo-subject-info">
+                <strong>Overview</strong>
+                <span>Your roadmap & missions</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarOverview"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="pathway" type="button">
+              <div class="duo-subject-icon" style="background:#e3f2fd">📈</div>
+              <div class="duo-subject-info">
+                <strong>Guided Path</strong>
+                <span>Lessons in order</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarPathway" style="background:#1976d2"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="tips" type="button">
+              <div class="duo-subject-icon" style="background:#fff8e1">💡</div>
+              <div class="duo-subject-info">
+                <strong>Tips</strong>
+                <span>Practical money habits</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarTips" style="background:#f59e0b"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="terms" type="button">
+              <div class="duo-subject-icon" style="background:#f3e5f5">📖</div>
+              <div class="duo-subject-info">
+                <strong>Terms</strong>
+                <span>Plain-English definitions</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarTerms" style="background:#9c27b0"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="history" type="button">
+              <div class="duo-subject-icon" style="background:#fce4ec">🏛️</div>
+              <div class="duo-subject-info">
+                <strong>History</strong>
+                <span>Market events & lessons</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarHistory" style="background:#e91e63"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="concepts" type="button">
+              <div class="duo-subject-icon" style="background:#e0f7fa">🧠</div>
+              <div class="duo-subject-info">
+                <strong>Concepts</strong>
+                <span>Core finance ideas</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarConcepts" style="background:#00bcd4"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="behavior" type="button">
+              <div class="duo-subject-icon" style="background:#fff3e0">🧘</div>
+              <div class="duo-subject-info">
+                <strong>Behavior</strong>
+                <span>Investor psychology</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarBehavior" style="background:#ff9800"></div></div>
+            </button>
+            <button class="duo-subject-card" data-duo-area="practice" type="button">
+              <div class="duo-subject-icon" style="background:#e8f5e9">🎯</div>
+              <div class="duo-subject-info">
+                <strong>Practice</strong>
+                <span>Quiz & scenario lab</span>
+              </div>
+              <div class="duo-subject-progress"><div class="duo-subject-bar" id="duoBarPractice" style="background:#4caf50"></div></div>
+            </button>
+          </div>
+
+          <section class="learning-dashboard-section" data-learning-area-panel="overview" aria-label="Learning roadmap dashboard">
+            <div class="section-title">
+              <div>
+                <h2>Learning Roadmap</h2>
+                <span class="table-note">Your current level, next lesson, weak areas, and money missions.</span>
+              </div>
+            </div>
+            <div class="learning-dashboard-grid">
+              <article class="learning-dashboard-card">
+                <span>Level</span>
+                <strong id="learningLevel">Starter</strong>
+                <p id="learningLevelDetail">Complete lessons and quizzes to level up.</p>
+              </article>
+              <article class="learning-dashboard-card">
+                <span>Next Step</span>
+                <strong id="learningNextStep">Start the path</strong>
+                <p id="learningNextStepDetail">Unlock lessons in order to keep the course focused.</p>
+              </article>
+              <article class="learning-dashboard-card">
+                <span>Weak Areas</span>
+                <strong id="learningWeakCount">0 topics</strong>
+                <p id="learningWeakDetail">Missed quiz answers will show review topics here.</p>
+              </article>
+            </div>
+            <div class="learning-dashboard-lists">
+              <article class="learning-dashboard-panel">
+                <h3>Review These Topics</h3>
+                <div class="learning-review-list" id="learningReviewList"></div>
+              </article>
+              <article class="learning-dashboard-panel">
+                <h3>Money Missions</h3>
+                <div class="learning-mission-list" id="learningMissionList"></div>
+              </article>
+            </div>
+          </section>
+
+          <section class="learning-path-section" data-learning-area-panel="pathway" aria-label="Guided learning path" hidden>
+            <div class="section-title">
+              <div>
+                <h2>Guided Pathway</h2>
+                <span class="table-note">A deeper guided route through budgeting, protection, saving systems, investing, valuation, and market history.</span>
+              </div>
+              <div class="learning-xp-card">
+                <span id="learningXp">0 XP</span>
+                <strong id="learningStreak">0 lessons complete</strong>
+              </div>
+            </div>
+            <div class="pathway-progress-track"><strong id="pathwayProgressBar"></strong></div>
+            <div class="pathway-map" id="pathwayMap"></div>
+          </section>
+
+          <section class="learning-chart-grid" data-learning-area-panel="overview">
+            <article class="education-panel active">
+              <div class="section-title">
+                <div>
+                  <h2>Learning Library Map <button class="info-button" data-term="libraryMap" type="button" aria-label="Explain learning library map">i</button></h2>
+                  <span class="table-note">How the learning cards are distributed across the app.</span>
+                </div>
+              </div>
+              <canvas id="learningLibraryChart" width="760" height="320" aria-label="Learning library category chart"></canvas>
+            </article>
+            <article class="education-panel active">
+              <div class="section-title">
+                <div>
+                  <h2>History Timeline Graph <button class="info-button" data-term="historyTimeline" type="button" aria-label="Explain history timeline graph">i</button></h2>
+                  <span class="table-note">Historical examples grouped by broad era.</span>
+                </div>
+              </div>
+              <canvas id="historyEraChart" width="760" height="320" aria-label="Historical finance timeline chart"></canvas>
+            </article>
+          </section>
+
+          <section class="education-panel active" data-learning-area-panel="library" data-education-panel="tips" hidden>
+            <div class="section-title">
+              <div>
+                <h2>Practical Tips</h2>
+                <span class="table-note">Simple habits that help beginners avoid common money mistakes.</span>
+              </div>
+            </div>
+            <div class="learning-category"><span>Everyday Money Systems</span></div>
+            <div class="lesson-grid">
+              <article class="lesson-card"><span>Budgeting</span><strong>Give every dollar a job</strong><p>Before the month starts, decide what income is for bills, savings, debt, and flexible spending.</p></article>
+              <article class="lesson-card"><span>Saving</span><strong>Automate the first move</strong><p>Move savings right after income arrives. What is left becomes the spending plan, not the other way around.</p></article>
+              <article class="lesson-card"><span>Cash Flow</span><strong>Separate needs, goals, and wants</strong><p>Needs protect stability, goals build the future, and wants keep life enjoyable. Mixing them makes budgets confusing.</p></article>
+              <article class="lesson-card"><span>Spending</span><strong>Use a friction rule</strong><p>Remove one-click buying, unsubscribe from promo emails, or wait 24 hours before purchases that were not planned.</p></article>
+              <article class="lesson-card"><span>Tracking</span><strong>Review the last 7 days</strong><p>Weekly reviews are easier than monthly guilt. Look for patterns, not perfection.</p></article>
+              <article class="lesson-card"><span>Income</span><strong>Budget from take-home pay</strong><p>Use money that actually lands in your account, not salary before taxes and deductions.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Debt, Credit, and Emergencies</span></div>
+            <div class="lesson-grid">
+              <article class="lesson-card"><span>Behavior</span><strong>Write the reason before acting</strong><p>If you buy, sell, cut spending, or change goals, write the reason. It helps you catch emotional decisions.</p></article>
+              <article class="lesson-card"><span>Debt</span><strong>APR is the danger signal</strong><p>A small balance with a high APR can grow faster than a larger low-rate balance. Rate matters.</p></article>
+              <article class="lesson-card"><span>Credit</span><strong>Utilization matters</strong><p>Using too much of a credit limit can hurt flexibility and may affect credit scores. Low usage is usually cleaner.</p></article>
+              <article class="lesson-card"><span>Emergency</span><strong>Start with one small buffer</strong><p>The first goal does not have to be huge. Even $500 can stop small emergencies from becoming credit-card debt.</p></article>
+              <article class="lesson-card"><span>Debt</span><strong>Minimums are not a plan</strong><p>Minimum payments keep accounts current, but they can stretch interest for a long time. Extra principal changes the timeline.</p></article>
+              <article class="lesson-card"><span>Insurance</span><strong>Protect against big shocks</strong><p>Insurance is not exciting, but it exists for events too large for a normal monthly budget to absorb.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Investing and Long-Term Decisions</span></div>
+            <div class="lesson-grid">
+              <article class="lesson-card"><span>Investing</span><strong>Do not judge risk by price alone</strong><p>A $20 stock is not automatically cheaper than a $200 stock. Valuation, quality, debt, and growth matter more.</p></article>
+              <article class="lesson-card"><span>Portfolio</span><strong>Rebalancing is a habit</strong><p>Checking your target mix occasionally can keep one winner or one risky asset from taking over.</p></article>
+              <article class="lesson-card"><span>Mindset</span><strong>Boring systems beat heroic effort</strong><p>The best money setup is usually one you can repeat when life is busy.</p></article>
+              <article class="lesson-card"><span>Timing</span><strong>Markets do not move on your schedule</strong><p>Money needed soon usually deserves less risk than money you can leave alone for years.</p></article>
+              <article class="lesson-card"><span>Diversifying</span><strong>Avoid one-story portfolios</strong><p>If every holding depends on the same trend, the portfolio may be less diversified than it looks.</p></article>
+              <article class="lesson-card"><span>News</span><strong>Separate news from action</strong><p>A headline can be important without requiring a trade. Ask what changed about your plan.</p></article>
+            </div>
+          </section>
+
+          <section class="education-panel" data-learning-area-panel="library" data-education-panel="terms" hidden>
+            <div class="section-title">
+              <div>
+                <h2>Simple English Terms <button class="info-button" data-term="beginnerGuide" type="button" aria-label="Explain simple English terms">i</button></h2>
+                <span class="table-note">Quick translations for finance words that usually sound more complicated than they are.</span>
+              </div>
+            </div>
+
+            <div class="learning-category"><span>Budgeting Terms</span></div>
+            <div class="term-library-grid">
+              <article class="simple-term-card"><span>Income</span><strong>Money coming in.</strong><p>Paychecks, side work, allowance, business money, or any cash you receive.</p></article>
+              <article class="simple-term-card"><span>Expense</span><strong>Money going out.</strong><p>Rent, food, transport, subscriptions, debt payments, and anything you pay for.</p></article>
+              <article class="simple-term-card"><span>Fixed Cost</span><strong>A bill that repeats.</strong><p>Usually rent, insurance, phone bills, loan payments, or subscriptions.</p></article>
+              <article class="simple-term-card"><span>Flexible Spending</span><strong>Spending you can adjust.</strong><p>Food delivery, shopping, entertainment, rideshares, and casual purchases.</p></article>
+              <article class="simple-term-card"><span>Cash Flow</span><strong>What is left after money moves.</strong><p>If income is higher than spending, cash flow is positive. If spending is higher, it is negative.</p></article>
+              <article class="simple-term-card"><span>Budget</span><strong>A plan for your money.</strong><p>It tells your money where to go before it disappears randomly.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Saving and Debt Terms</span></div>
+            <div class="term-library-grid">
+              <article class="simple-term-card"><span>Emergency Fund</span><strong>Backup cash.</strong><p>Money set aside for problems like job loss, car repair, medical bills, or family emergencies.</p></article>
+              <article class="simple-term-card"><span>Runway</span><strong>How long cash lasts.</strong><p>If you stopped earning money, runway estimates how many months your savings could cover spending.</p></article>
+              <article class="simple-term-card"><span>APR</span><strong>The yearly cost of debt.</strong><p>A higher APR means debt gets expensive faster if you do not pay it down.</p></article>
+              <article class="simple-term-card"><span>Principal</span><strong>The original amount.</strong><p>The money borrowed, saved, or invested before interest is added.</p></article>
+              <article class="simple-term-card"><span>Interest</span><strong>Extra money paid or earned.</strong><p>You earn it on savings. You pay it on debt.</p></article>
+              <article class="simple-term-card"><span>Minimum Payment</span><strong>The smallest required payment.</strong><p>It keeps the account current, but it may not pay debt down quickly.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Investing Terms</span></div>
+            <div class="term-library-grid">
+              <article class="simple-term-card"><span>Stock</span><strong>A tiny ownership piece.</strong><p>Buying stock means owning a small part of a company.</p></article>
+              <article class="simple-term-card"><span>Bond</span><strong>A loan to an organization.</strong><p>You lend money to a government or company, and they usually pay interest.</p></article>
+              <article class="simple-term-card"><span>ETF</span><strong>A basket you can buy.</strong><p>An ETF can hold many stocks, bonds, or assets in one tradable fund.</p></article>
+              <article class="simple-term-card"><span>Commodity</span><strong>A raw real-world asset.</strong><p>Gold, oil, silver, wheat, and copper are commodities. Many people access them through ETFs.</p></article>
+              <article class="simple-term-card"><span>REIT</span><strong>Real estate you can trade.</strong><p>A REIT owns or finances property and often pays income from rent or real estate cash flows.</p></article>
+              <article class="simple-term-card"><span>Diversification</span><strong>Do not bet everything on one thing.</strong><p>Spread money across different assets so one problem hurts less.</p></article>
+              <article class="simple-term-card"><span>Volatility</span><strong>How jumpy the price is.</strong><p>High volatility means bigger ups and downs.</p></article>
+              <article class="simple-term-card"><span>Drawdown</span><strong>A drop from the high point.</strong><p>If an account was $1,000 and falls to $800, that is a 20% drawdown.</p></article>
+              <article class="simple-term-card"><span>Dividend</span><strong>Cash paid to shareholders.</strong><p>Some companies share part of their profits with stock owners.</p></article>
+              <article class="simple-term-card"><span>Valuation</span><strong>Price compared to worth.</strong><p>It asks whether an asset looks cheap, fair, or expensive compared with fundamentals.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Economy Terms</span></div>
+            <div class="term-library-grid">
+              <article class="simple-term-card"><span>Inflation</span><strong>Prices going up.</strong><p>Your money buys less when everyday prices rise.</p></article>
+              <article class="simple-term-card"><span>Interest Rate</span><strong>The price of borrowing money.</strong><p>Higher rates usually make loans more expensive and savings accounts more rewarding.</p></article>
+              <article class="simple-term-card"><span>Recession</span><strong>The economy slows down.</strong><p>Businesses may sell less, hiring may slow, and budgets can get tighter.</p></article>
+              <article class="simple-term-card"><span>Liquidity</span><strong>How easy money is to access.</strong><p>Cash is very liquid. A house or long-term investment is less liquid.</p></article>
+              <article class="simple-term-card"><span>Risk</span><strong>What can go wrong.</strong><p>Risk is the chance that reality turns out worse than the plan.</p></article>
+              <article class="simple-term-card"><span>Return</span><strong>What you gain or lose.</strong><p>If $100 becomes $110, the return is +10%.</p></article>
+            </div>
+          </section>
+
+          <section class="education-panel" data-learning-area-panel="library" data-education-panel="history" hidden>
+            <div class="section-title">
+              <div>
+                <h2>Historical Facts</h2>
+                <span class="table-note">Past events do not predict the future, but they teach useful patterns.</span>
+              </div>
+            </div>
+            <div class="learning-category"><span>Markets, Money, and Human Behavior</span></div>
+            <div class="history-timeline">
+              <article><span>1600s</span><strong>Dutch tulip mania</strong><p>Often cited as an early example of speculative excitement pushing prices far beyond practical value.</p></article>
+              <article><span>1792</span><strong>Buttonwood Agreement</strong><p>A small group of brokers in New York helped form the roots of what became the New York Stock Exchange.</p></article>
+              <article><span>1862</span><strong>U.S. paper money expanded</strong><p>During the Civil War, the U.S. issued legal tender notes, showing how governments can change money systems during stress.</p></article>
+              <article><span>1913</span><strong>Federal Reserve created</strong><p>The Fed was created after banking panics showed the need for a more organized central banking system.</p></article>
+              <article><span>1929</span><strong>Crash and Great Depression</strong><p>Speculation, leverage, and weak economic conditions helped turn a market crash into a long financial crisis.</p></article>
+              <article><span>1944</span><strong>Bretton Woods</strong><p>Global leaders designed a post-war monetary system that shaped exchange rates and international finance for decades.</p></article>
+              <article><span>1971</span><strong>Gold convertibility ended</strong><p>The U.S. ended dollar convertibility into gold, helping shift the world toward modern fiat currency systems.</p></article>
+              <article><span>1970s</span><strong>Inflation changed the game</strong><p>High inflation showed why cash can lose purchasing power and why interest rates matter to stocks, bonds, and budgets.</p></article>
+              <article><span>1987</span><strong>Black Monday</strong><p>U.S. stocks fell sharply in one day, reminding investors that liquidity and automated trading can intensify panic.</p></article>
+              <article><span>1990s</span><strong>Online brokerage grew</strong><p>Internet access lowered barriers for everyday investors, but it also made quick trading easier.</p></article>
+              <article><span>2000</span><strong>Dot-com bubble</strong><p>Many internet companies soared on excitement before profits existed. The lesson: story and fundamentals are not the same thing.</p></article>
+              <article><span>2008</span><strong>Financial crisis</strong><p>Housing debt, leverage, and complex credit products showed how risk can spread through the whole system.</p></article>
+              <article><span>2010s</span><strong>Index investing grew fast</strong><p>Low-cost index funds became a mainstream way for everyday investors to diversify without picking individual stocks.</p></article>
+              <article><span>2020</span><strong>COVID shock</strong><p>Markets can move extremely fast when uncertainty spikes, and emergency savings can matter as much as investment returns.</p></article>
+              <article><span>2021</span><strong>Meme-stock surge</strong><p>Online communities showed how attention, liquidity, and emotion can move prices dramatically in short periods.</p></article>
+              <article><span>2022</span><strong>Rate hikes returned</strong><p>Rising interest rates reminded investors and borrowers that cheap money conditions can change quickly.</p></article>
+            </div>
+          </section>
+
+          <section class="education-panel" data-learning-area-panel="library" data-education-panel="concepts" hidden>
+            <div class="section-title">
+              <div>
+                <h2>Beginner Concepts</h2>
+                <span class="table-note">Plain-English definitions for the ideas this app uses.</span>
+              </div>
+            </div>
+            <div class="learning-category"><span>Core Personal Finance</span></div>
+            <div class="concept-grid">
+              <article class="lesson-card"><span>Compound Growth</span><strong>Growth on top of growth</strong><p>If money earns returns and those returns stay invested, future gains can build on earlier gains.</p></article>
+              <article class="lesson-card"><span>Diversification</span><strong>Do not rely on one outcome</strong><p>Owning different assets can reduce the damage if one company, sector, or idea disappoints.</p></article>
+              <article class="lesson-card"><span>Opportunity Cost</span><strong>Every choice uses resources</strong><p>Money spent on one thing cannot be used for another goal, debt payment, emergency fund, or investment.</p></article>
+              <article class="lesson-card"><span>Liquidity</span><strong>How easy money is to access</strong><p>Cash is liquid. A long-term investment may be harder or costly to sell at the exact moment you need money.</p></article>
+              <article class="lesson-card"><span>Inflation</span><strong>Prices rising over time</strong><p>If inflation is high, the same dollars buy less later. Savings and wages need context.</p></article>
+              <article class="lesson-card"><span>Interest</span><strong>The cost or reward of money</strong><p>You can earn interest on savings or pay interest on debt. The direction matters a lot.</p></article>
+              <article class="lesson-card"><span>Principal</span><strong>The original amount</strong><p>Principal is the base money borrowed, invested, or saved before interest and returns.</p></article>
+              <article class="lesson-card"><span>Volatility</span><strong>How jumpy prices are</strong><p>Volatility measures ups and downs. It is not always bad, but it can test patience.</p></article>
+              <article class="lesson-card"><span>Cash Flow</span><strong>Money moving in and out</strong><p>Positive cash flow means income is higher than outflows. Negative cash flow needs attention.</p></article>
+              <article class="lesson-card"><span>Net Worth</span><strong>Assets minus debts</strong><p>It is a snapshot of what you own minus what you owe, not a measure of personal worth.</p></article>
+              <article class="lesson-card"><span>Emergency Fund</span><strong>Cash for surprise problems</strong><p>It protects against job loss, medical bills, repairs, travel emergencies, or family situations.</p></article>
+              <article class="lesson-card"><span>Sinking Fund</span><strong>Saving for expected surprises</strong><p>Car repairs, holidays, school costs, and annual fees are not random if they happen repeatedly.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Investing, Risk, and Markets</span></div>
+            <div class="concept-grid">
+              <article class="lesson-card"><span>Risk Tolerance</span><strong>How much uncertainty you can handle</strong><p>Your plan should fit both your math and your ability to stay calm when things move.</p></article>
+              <article class="lesson-card"><span>Margin of Safety</span><strong>Room for being wrong</strong><p>Because estimates are imperfect, investors often want a gap between estimated value and price.</p></article>
+              <article class="lesson-card"><span>Asset Allocation</span><strong>Your mix of asset types</strong><p>The balance between stocks, bonds, cash, crypto, and other assets often drives overall risk.</p></article>
+              <article class="lesson-card"><span>Correlation</span><strong>How assets move together</strong><p>If everything rises and falls together, diversification may be weaker than it appears.</p></article>
+              <article class="lesson-card"><span>Real Assets</span><strong>Physical-economy exposure</strong><p>Commodities and real estate can react differently to inflation, rates, supply shocks, and economic cycles.</p></article>
+              <article class="lesson-card"><span>Drawdown</span><strong>Drop from a previous high</strong><p>A 20% drawdown means the portfolio is 20% below its earlier peak value.</p></article>
+              <article class="lesson-card"><span>Real Return</span><strong>Return after inflation</strong><p>If an investment earns 5% while inflation is 3%, the rough real return is about 2%.</p></article>
+              <article class="lesson-card"><span>Valuation</span><strong>Price compared with fundamentals</strong><p>A great company can still be a risky purchase if the price already assumes perfection.</p></article>
+              <article class="lesson-card"><span>Time Horizon</span><strong>When you need the money</strong><p>Short time horizons usually need more stability. Long horizons can tolerate more uncertainty.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Debt, Credit, and Protection</span></div>
+            <div class="concept-grid">
+              <article class="lesson-card"><span>APR</span><strong>Annual borrowing cost</strong><p>APR helps compare debt costs. Higher APR debt deserves attention because interest builds faster.</p></article>
+              <article class="lesson-card"><span>Credit Score</span><strong>A lending signal</strong><p>Scores estimate repayment risk. Payment history, utilization, account age, and credit mix can matter.</p></article>
+              <article class="lesson-card"><span>Deductible</span><strong>What you pay first</strong><p>In insurance, the deductible is the amount you cover before insurance starts paying.</p></article>
+              <article class="lesson-card"><span>Fixed Cost</span><strong>A recurring required cost</strong><p>Rent, insurance, subscriptions, and loan payments can reduce flexibility if they get too large.</p></article>
+            </div>
+          </section>
+
+          <section class="education-panel" data-learning-area-panel="library" data-education-panel="behavior" hidden>
+            <div class="section-title">
+              <div>
+                <h2>Behavioral Finance</h2>
+                <span class="table-note">Investor psychology and market anomaly lessons, translated into simple decision rules.</span>
+              </div>
+            </div>
+
+            <div class="learning-category"><span>Risk Personality and Portfolio Fit</span></div>
+            <div class="concept-grid">
+              <article class="lesson-card"><span>Ability vs Willingness</span><strong>Can you take risk, and can you handle it?</strong><p>Ability is the money math: income, savings, time horizon, and goals. Willingness is the emotional side: whether you can stay calm when prices fall.</p></article>
+              <article class="lesson-card"><span>Simple Version</span><strong>Your wallet and your nerves both get a vote</strong><p>A person may be able to take risk on paper but still panic sell. Another person may want big risk but not have the cash cushion for it.</p></article>
+              <article class="lesson-card"><span>Investor Types</span><strong>Methodical, cautious, individualist, spontaneous</strong><p>Some investors rely on facts, some react from fear, some trust their own research, and some chase movement. Knowing your style helps you design guardrails.</p></article>
+              <article class="lesson-card"><span>Portfolio Rule</span><strong>Match risk to goals, not mood</strong><p>Before changing a portfolio, ask if your financial ability, emotional willingness, or actual goals changed. If none changed, the action may be emotional noise.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Common Investing Biases</span></div>
+            <div class="concept-grid">
+              <article class="lesson-card"><span>Anchoring</span><strong>Getting stuck on one price</strong><p>Investors often compare today to a purchase price or 52-week high instead of asking what the asset is worth now.</p></article>
+              <article class="lesson-card"><span>Confirmation Bias</span><strong>Only searching for proof you are right</strong><p>After buying a stock, it is easy to read only bullish takes and ignore information that challenges the thesis.</p></article>
+              <article class="lesson-card"><span>Familiarity Bias</span><strong>Buying what feels familiar</strong><p>Famous companies, local companies, employer stock, or trending names can feel safer than they really are.</p></article>
+              <article class="lesson-card"><span>Mental Accounting</span><strong>Treating money buckets like they do not interact</strong><p>A stock, savings goal, debt balance, and emergency fund all affect the same financial life. Looking at each alone can hide risk.</p></article>
+              <article class="lesson-card"><span>Loss Aversion</span><strong>Losses hurt more than gains feel good</strong><p>People often avoid realizing a loss because it feels painful, even when the better decision is to move on.</p></article>
+              <article class="lesson-card"><span>Disposition Effect</span><strong>Selling winners too fast, holding losers too long</strong><p>This happens when pride makes winning trades easy to sell and regret makes losing trades hard to sell.</p></article>
+              <article class="lesson-card"><span>Overconfidence</span><strong>Thinking skill explains every win</strong><p>Overconfident investors may trade too much, under-diversify, or blame losses on bad luck while crediting gains to talent.</p></article>
+              <article class="lesson-card"><span>Status Quo Bias</span><strong>Doing nothing because it is easier</strong><p>Staying in a bad setup can feel safe because it avoids a decision, but inaction is still a decision.</p></article>
+            </div>
+
+            <div class="learning-category"><span>Market Anomalies</span></div>
+            <div class="concept-grid">
+              <article class="lesson-card"><span>Anomaly</span><strong>A pattern that seems to challenge efficient markets</strong><p>An anomaly is a return pattern that appears unusual. It may be a real inefficiency, hidden risk, measurement problem, or coincidence.</p></article>
+              <article class="lesson-card"><span>Calendar Effects</span><strong>Some periods have looked stronger or weaker historically</strong><p>Examples include January, turn-of-the-month, holiday, or Monday effects. Useful to know, dangerous to blindly trade.</p></article>
+              <article class="lesson-card"><span>Earnings Drift</span><strong>Prices can keep moving after earnings surprises</strong><p>A positive earnings surprise may lift a stock immediately, then continue drifting if investors slowly update expectations.</p></article>
+              <article class="lesson-card"><span>Stock Splits</span><strong>The slice changes, not the pizza</strong><p>A split does not change company fundamentals, but the announcement can affect attention, liquidity, and investor demand.</p></article>
+              <article class="lesson-card"><span>Size and Value Effects</span><strong>Small-cap and value stocks have had periods of outperformance</strong><p>These patterns may reflect risk, investor behavior, or missing factors beyond basic market beta.</p></article>
+              <article class="lesson-card"><span>Reality Check</span><strong>Ask if the pattern survives costs</strong><p>Before trusting any strategy, ask whether it worked across markets and time, after taxes, transaction costs, liquidity, and data-mining risk.</p></article>
+            </div>
+
+            <div class="learning-category"><span>How StockPilot Should Use This</span></div>
+            <div class="lesson-grid">
+              <article class="lesson-card"><span>Before Buying</span><strong>Write the thesis and the opposite case</strong><p>If you cannot explain why the stock could fall, confirmation bias may be running the decision.</p></article>
+              <article class="lesson-card"><span>Before Selling</span><strong>Check the reason, not just the price</strong><p>Do not sell only because the asset is below your anchor. Ask whether fundamentals, goals, or risk limits changed.</p></article>
+              <article class="lesson-card"><span>After Big Gains</span><strong>Watch the house-money effect</strong><p>Winning can make risk feel fake. Rebalance and review concentration before one winner becomes the whole plan.</p></article>
+              <article class="lesson-card"><span>After Big Losses</span><strong>Watch the panic loop</strong><p>Losses can push people into panic selling or revenge trading. A written plan slows the emotional reaction down.</p></article>
+            </div>
+          </section>
+
+          <section class="education-panel" data-learning-area-panel="practice" data-education-panel="quiz" hidden>
+            <div class="section-title">
+              <div>
+                <h2>Quiz Mode & Scenario Lab</h2>
+                <span class="table-note">Practice decisions, get feedback, and review weak areas without real-money consequences.</span>
+              </div>
+            </div>
+            <div class="learning-practice-grid">
+              <article class="scenario-lab-card">
+                <div class="section-title">
+                  <div>
+                    <h3>Scenario Lab</h3>
+                    <span class="table-note">Choose an action and see the reasoning.</span>
+                  </div>
+                </div>
+                <div class="scenario-learning-grid" id="learningScenarioGrid"></div>
+              </article>
+              <article class="quiz-mode-card">
+                <div class="section-title">
+                  <div>
+                    <h3>Quiz Mode</h3>
+                    <span class="table-note">A scored check across budgeting, savings, debt, investing, and market behavior.</span>
+                  </div>
+                  <div class="quiz-score-card">
+                    <span id="learningQuizScore">0/0</span>
+                    <strong id="learningQuizLevel">Not started</strong>
+                  </div>
+                </div>
+                <div class="quiz-mode-list" id="learningQuizList"></div>
+              </article>
+            </div>
+            <div class="quiz-grid">
+              <article class="lesson-card"><span>Question 1</span><strong>What does diversification help with?</strong><p>It spreads risk so one bad holding or category is less likely to wreck the whole plan.</p></article>
+              <article class="lesson-card"><span>Question 2</span><strong>Why does emergency savings matter?</strong><p>It can prevent a short-term problem from forcing bad debt or panic selling.</p></article>
+              <article class="lesson-card"><span>Question 3</span><strong>What is the danger of hype?</strong><p>Hype can lift prices faster than fundamentals improve, which raises the chance of disappointment.</p></article>
+              <article class="lesson-card"><span>Question 4</span><strong>Why compare APRs?</strong><p>APR shows the yearly cost of debt, so it helps identify which balance is most expensive.</p></article>
+              <article class="lesson-card"><span>Question 5</span><strong>What does liquidity mean?</strong><p>It describes how quickly and easily money can be accessed without major loss or delay.</p></article>
+              <article class="lesson-card"><span>Question 6</span><strong>Why track cash flow monthly?</strong><p>Monthly tracking catches problems early, before they become debt or missed goals.</p></article>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <button class="settings-floating-button" id="openSettingsFloatingButton" type="button">Settings</button>
+
+    <script src="./app.js"></script>
+    <script>
+      (() => {
+        const overlay = document.querySelector("#settingsOverlay");
+        const openButtons = [
+          document.querySelector("#openSettingsButton"),
+          document.querySelector("#openSettingsFloatingButton"),
+        ];
+        const closeButtons = document.querySelectorAll("[data-close-settings]");
+        const openSettings = () => {
+          if (overlay) overlay.hidden = false;
+        };
+        const closeSettings = () => {
+          if (overlay) overlay.hidden = true;
+        };
+        openButtons.forEach((button) => button && button.addEventListener("click", openSettings));
+        closeButtons.forEach((button) => button.addEventListener("click", closeSettings));
+        if (overlay) {
+          overlay.addEventListener("click", (event) => {
+            if (event.target === overlay) closeSettings();
+          });
+        }
+      })();
+    </script>
+    <script>
+      // This page only ever shows Learning — no mode switcher exists in the
+      // markup, so force the mode here instead of relying on the 6-way
+      // switcher UI that a normal /app page has.
+      if (typeof setMoneyMode === 'function') {
+        setMoneyMode('education');
+      }
+    </script>
+    <script src="/share.js"></script>
+    <script src="/fix-modal.js"></script>
+    <script src="/nav-fix.js"></script>
+  </body>
 </html>
