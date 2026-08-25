@@ -3,12 +3,9 @@
 // Simulator are four independent tools stacked on top of each other
 // under one "Graphs" tab.
 //
-// app.js controls top-level panel visibility by toggling an "active"
-// class (.app-view{display:none!important} .app-view.active{display:block!important}).
-// When the user switches to Graphs, app.js adds "active" to all four
-// sections at once — so our job is just to remove "active" from the
-// three we don't want showing, using the same class app.js already
-// understands, rather than fighting it with inline styles.
+// Re-enforces which one shows whenever the main "Graphs" tab is clicked
+// (the only time app.js re-shows all four at once), rather than using a
+// MutationObserver, to avoid any risk of an observer/mutation loop.
 (function(){
   var sections = [
     { selector: '.graphs-section', label: 'Charts' },
@@ -59,24 +56,16 @@
     document.head.appendChild(style);
   }
 
-  function watch(){
-    sections.forEach(function(s){
-      var el = document.querySelector(s.selector);
-      if(!el || el.dataset.subtabWatched) return;
-      el.dataset.subtabWatched = '1';
-      new MutationObserver(function(muts){
-        muts.forEach(function(m){
-          if(m.attributeName === 'class' && el.classList.contains('active')){
-            enforce();
-          }
-        });
-      }).observe(el, { attributes: true, attributeFilter: ['class'] });
-    });
+  function wireMainTabClick(){
+    var mainTab = document.querySelector('.invest-tab[data-view="insights"]');
+    if(!mainTab || mainTab.dataset.subtabWired) return;
+    mainTab.dataset.subtabWired = '1';
+    mainTab.addEventListener('click', function(){ setTimeout(enforce, 50); });
   }
 
   function apply(){
     buildTabBar();
-    watch();
+    wireMainTabClick();
     if(document.getElementById('graphsSubtabBar')) enforce();
   }
 
