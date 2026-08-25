@@ -21,9 +21,16 @@
     var topbarActions = document.querySelector('.topbar .topbar-actions');
     if(topbarActions) topbarActions.style.setProperty('display', 'none', 'important');
 
-    [document.querySelector('.live-data-pill'), document.querySelector('.account-widget')].forEach(function(el){
-      important(el, {'background': 'transparent', 'border': 'none', 'box-shadow': 'none', 'padding': '0', 'gap': '4px'});
+    important(document.querySelector('.live-data-pill'), {
+      'background': 'transparent', 'border': 'none', 'box-shadow': 'none', 'padding': '0', 'gap': '4px',
+      'flex-shrink': '0', 'max-width': '230px'
     });
+    important(document.querySelector('.account-widget'), {
+      'background': 'transparent', 'border': 'none', 'box-shadow': 'none', 'padding': '0', 'gap': '4px',
+      'flex-shrink': '0', 'max-width': '180px', 'display': 'flex', 'flex-direction': 'column', 'align-items': 'flex-end'
+    });
+    var accountActions = document.querySelector('.account-widget-actions');
+    important(accountActions, { 'display': 'flex', 'gap': '6px' });
 
     var banner = document.querySelector('.data-quality-banner');
     important(banner, {
