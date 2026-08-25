@@ -1,14 +1,14 @@
-// Research tab visual cleanup — same idea as the Graphs redesign.
+// Research tab visual cleanup.
 // Company Intel, Macro Dashboard, Watchlist, Compare Assets, and Market
 // News are five independent tools stacked on top of each other under one
 // "Research" tab. This adds a sub-tab bar and shows one at a time.
 //
 // app.js controls top-level panel visibility by toggling an "active"
-// class (.app-view{display:none!important} .app-view.active{display:block!important}).
-// When the user switches to Research, app.js adds "active" to all five
-// sections at once — so our job is just to remove "active" from the
-// four we don't want showing, using the same class app.js already
-// understands, rather than fighting it with inline styles.
+// class. When the user clicks the main "Research" tab, app.js adds
+// "active" to all five sections at once — so right after that click,
+// we remove "active" from the four we don't want showing. This listens
+// for that click directly instead of watching for class mutations,
+// which is simpler and avoids any risk of an observer/mutation loop.
 (function(){
   var sections = [
     { selector: '.intel-section', label: 'Company Intel' },
@@ -60,27 +60,18 @@
     document.head.appendChild(style);
   }
 
-  // Whenever app.js re-adds "active" to all five sections (switching
-  // back to Research from elsewhere), immediately re-enforce which one
-  // should actually show.
-  function watch(){
-    sections.forEach(function(s){
-      var el = document.querySelector(s.selector);
-      if(!el || el.dataset.subtabWatched) return;
-      el.dataset.subtabWatched = '1';
-      new MutationObserver(function(muts){
-        muts.forEach(function(m){
-          if(m.attributeName === 'class' && el.classList.contains('active')){
-            enforce();
-          }
-        });
-      }).observe(el, { attributes: true, attributeFilter: ['class'] });
-    });
+  // Re-enforce whenever the main "Research" tab is clicked, since that's
+  // the only time app.js re-shows all five sections at once.
+  function wireMainTabClick(){
+    var mainTab = document.querySelector('.invest-tab[data-view="research"]');
+    if(!mainTab || mainTab.dataset.subtabWired) return;
+    mainTab.dataset.subtabWired = '1';
+    mainTab.addEventListener('click', function(){ setTimeout(enforce, 50); });
   }
 
   function apply(){
     buildTabBar();
-    watch();
+    wireMainTabClick();
     if(document.getElementById('researchSubtabBar')) enforce();
   }
 
