@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="robots" content="index, follow"/>
+<title>Free Portfolio Analyzer & Investing Tools | StockPilot Investing</title>
+<meta property="og:image" content="https://mystockspilot.com/logo.jpg"/>
+<meta name="description" content="Build, test, and analyze a stock portfolio for free. Real market data, risk scoring, rebalancing, and research tools, no signup required to start."/>
+<meta name="keywords" content="free portfolio analyzer, stock portfolio tracker, portfolio risk analysis, paper trading, rebalancing tool"/>
+<meta property="og:title" content="Free Portfolio Analyzer & Investing Tools | StockPilot Investing"/>
+<meta property="og:description" content="Build, test, and analyze a stock portfolio, free."/>
+<meta property="og:url" content="https://mystockspilot.com/investing"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="StockPilot Investing — Free Portfolio Tools"/>
+<meta name="twitter:description" content="Build, test, and analyze a stock portfolio, free."/>
+<link rel="canonical" href="https://mystockspilot.com/investing"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--blue:#1a9e6e;--blue-d:#15805a;--blue-l:#e8f7f2;--blue-m:#7cc9ab;--green:#1a9e6e;--g50:#f0f4ff;--g100:#e1e9ff;--g400:#94a3b8;--g600:#475569;--g900:#0f172a;--white:#ffffff;--off:#f8fafc}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--off);color:var(--g900);min-height:100vh;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(248,250,252,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--g100)}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--g900)}
+.logo-mark{width:32px;height:32px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:14px;font-weight:700;color:white}
+.logo-text{font-family:'Fraunces',serif;font-size:17px;font-weight:700;letter-spacing:-0.02em}
+.logo-badge{background:var(--blue);color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:0.05em}
+.nav-links{display:flex;align-items:center;gap:8px}
+.nav-link{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--g600);text-decoration:none;transition:all 0.15s;border:none;background:transparent;cursor:pointer}
+.nav-link:hover{background:var(--g100);color:var(--g900)}
+.nav-cta{padding:8px 18px;border-radius:10px;background:var(--blue);color:white;font-size:13px;font-weight:600;text-decoration:none;transition:all 0.2s;border:none;cursor:pointer}
+.nav-cta:hover{background:var(--blue-d);transform:translateY(-1px)}
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:100px 24px 60px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(26,158,110,0.12) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 80% 60%,rgba(26,158,110,0.06) 0%,transparent 60%);pointer-events:none}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--blue-l);border:1px solid var(--g100);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--blue);letter-spacing:0.04em;margin-bottom:28px;animation:fadeUp 0.6s ease both}
+.hero-eyebrow::before{content:'';width:6px;height:6px;background:var(--blue);border-radius:50%;animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(0.8)}}
+.hero h1{font-family:'Fraunces',serif;font-size:clamp(2.8rem,7vw,5.5rem);font-weight:700;line-height:1.04;letter-spacing:-0.03em;color:var(--g900);max-width:820px;margin-bottom:24px;animation:fadeUp 0.6s 0.1s ease both}
+.hero h1 em{font-style:italic;font-weight:300;color:var(--blue)}
+.hero-sub{font-size:clamp(1rem,2vw,1.2rem);color:var(--g600);max-width:540px;line-height:1.6;margin-bottom:40px;animation:fadeUp 0.6s 0.2s ease both}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.6s 0.3s ease both}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:var(--blue);color:white;border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:all 0.2s;box-shadow:0 4px 16px rgba(26,158,110,0.3)}
+.btn-primary:hover{background:var(--blue-d);transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,158,110,0.35)}
+.btn-secondary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;background:white;color:var(--g900);border-radius:12px;font-size:15px;font-weight:600;text-decoration:none;border:1px solid var(--g100);cursor:pointer;transition:all 0.2s}
+.btn-secondary:hover{border-color:var(--blue-m);background:var(--blue-l)}
+.stats-strip{display:flex;justify-content:center;gap:0;flex-wrap:wrap;margin-top:60px;background:white;border:1px solid var(--g100);border-radius:16px;overflow:hidden;max-width:700px;width:100%;animation:fadeUp 0.6s 0.4s ease both;box-shadow:0 2px 12px rgba(0,0,0,0.05)}
+.stat-item{flex:1;min-width:140px;padding:20px 24px;text-align:center;border-right:1px solid var(--g100)}
+.stat-item:last-child{border-right:none}
+.stat-num{font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:var(--blue);line-height:1;margin-bottom:4px}
+.stat-label{font-size:11px;color:var(--g400);font-weight:500;letter-spacing:0.04em}
+.features{padding:80px 24px;max-width:1100px;margin:0 auto}
+.section-label{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--blue);margin-bottom:12px;text-align:center}
+.section-title{font-family:'Fraunces',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-0.025em;text-align:center;color:var(--g900);margin-bottom:56px;line-height:1.1}
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.feature-card{background:white;border:1px solid var(--g100);border-radius:16px;padding:28px;transition:all 0.2s;position:relative;overflow:hidden}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue);transform:scaleX(0);transform-origin:left;transition:transform 0.3s}
+.feature-card:hover{border-color:var(--blue-m);transform:translateY(-2px);box-shadow:0 8px 24px rgba(26,158,110,0.08)}
+.feature-card:hover::before{transform:scaleX(1)}
+.feature-icon{width:44px;height:44px;background:var(--blue-l);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:16px;color:var(--blue)}
+.feature-card h3{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;letter-spacing:-0.01em;margin-bottom:8px}
+.feature-card p{font-size:14px;color:var(--g600);line-height:1.6}
+.how{padding:80px 24px;background:white;border-top:1px solid var(--g100);border-bottom:1px solid var(--g100)}
+.how-inner{max-width:900px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:32px;margin-top:48px;counter-reset:steps}
+.step{display:flex;flex-direction:column;gap:12px;counter-increment:steps;position:relative}
+.step::before{content:counter(steps);width:36px;height:36px;background:var(--blue);color:white;border-radius:10px;display:flex;align-items:center;justify-content:center;font-family:'Fraunces',serif;font-size:1rem;font-weight:700;flex-shrink:0}
+.step h3{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;letter-spacing:-0.01em}
+.step p{font-size:13px;color:var(--g600);line-height:1.6}
+.cta-banner{padding:80px 24px;text-align:center;background:var(--g900);position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 0%,rgba(26,158,110,0.3) 0%,transparent 70%);pointer-events:none}
+.cta-banner h2{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3.5rem);font-weight:700;letter-spacing:-0.03em;color:white;margin-bottom:16px;line-height:1.1;position:relative}
+.cta-banner p{font-size:1rem;color:rgba(255,255,255,0.6);margin-bottom:36px;position:relative}
+.cta-banner .btn-primary{background:white;color:var(--g900);box-shadow:0 4px 20px rgba(0,0,0,0.3);position:relative}
+.cta-banner .btn-primary:hover{background:var(--blue-l);transform:translateY(-2px)}
+footer{padding:32px 24px;text-align:center;border-top:1px solid var(--g100);background:var(--off)}
+footer p{font-size:13px;color:var(--g400)}
+footer a{color:var(--blue);text-decoration:none}
+footer a:hover{text-decoration:underline}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+@media(max-width:600px){.nav-links a:not(.nav-cta){display:none}.stats-strip{flex-direction:column}.stat-item{border-right:none;border-bottom:1px solid var(--g100)}.stat-item:last-child{border-bottom:none}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="logo">
+    <img src="/logo.jpg" alt="StockPilot" style="width:30px;height:30px;border-radius:6px;object-fit:contain;display:block;">
+    <span class="logo-text">StockPilot</span>
+    <span class="logo-badge">INVESTING</span>
+  </a>
+  <div class="nav-links">
+    <a href="/budget" class="nav-link">Budget</a>
+    <a href="/trade" class="nav-link">Virtual Market</a>
+    <a href="/investing-workspace.html" class="nav-cta">Start Free →</a>
+  </div>
+</nav>
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-eyebrow">Free · No signup required · Real market data</div>
+  <h1>Build a portfolio,<br/><em>before you risk real money.</em></h1>
+  <p class="hero-sub">Build, test, and analyze a stock portfolio with real market data. See your risk score, rebalance, and research every holding — in one clean workspace.</p>
+  <div class="hero-actions">
+    <a href="/investing-workspace.html" class="btn-primary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      Start Investing Free
+    </a>
+    <a href="#features" class="btn-secondary">See what's included</a>
+  </div>
+  <div class="stats-strip">
+    <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Always free</div></div>
+    <div class="stat-item"><div class="stat-num">Live</div><div class="stat-label">Real market data</div></div>
+    <div class="stat-item"><div class="stat-num">$0</div><div class="stat-label">Real money at risk</div></div>
+    <div class="stat-item"><div class="stat-num">7</div><div class="stat-label">Portfolio tools</div></div>
+  </div>
+</section>
+<section class="features" id="features">
+  <p class="section-label reveal">What's included</p>
+  <h2 class="section-title reveal">Everything you need<br/>to build a real portfolio.</h2>
+  <div class="features-grid">
+    <div class="feature-card reveal"><div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div><h3>Portfolio Builder</h3><p>Add real tickers and percentages, load live prices, and get an instant portfolio score, risk read, and correlation check.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><h3>Research</h3><p>Company fact cards, a macro dashboard, a watchlist, side-by-side comparisons, and market news — all in one place.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h3>Graphs & Stress Test</h3><p>Visualize allocation and the efficient frontier, get target-allocation suggestions, and stress-test your portfolio under a market shock.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div><h3>Rebalance Lab</h3><p>See exactly which holdings are over or under your target allocation, and what to buy or trim to get back in line.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="8" y1="10" x2="16" y2="10"/><line x1="8" y1="14" x2="12" y2="14"/></svg></div><h3>Calculators</h3><p>Compound growth, retirement targets, and other real financial math, worked out for you in plain English.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><h3>Reports</h3><p>Save portfolios and export a full report of your holdings, score, and risk profile whenever you need it.</p></div>
+  </div>
+</section>
+<section class="how">
+  <div class="how-inner">
+    <p class="section-label reveal" style="text-align:center">How it works</p>
+    <h2 class="section-title reveal">Build a portfolio<br/>in minutes, not months.</h2>
+    <div class="steps">
+      <div class="step reveal"><h3>Add your tickers</h3><p>Type in any stock, bond ETF, crypto, or fund symbol and a target percentage — or load a sample portfolio to start.</p></div>
+      <div class="step reveal"><h3>Load real prices</h3><p>Pull live market data for every holding, so your portfolio reflects what's actually happening right now.</p></div>
+      <div class="step reveal"><h3>See your score</h3><p>Get an instant portfolio score, risk read, and correlation check — plus what's actually dragging your score down.</p></div>
+      <div class="step reveal"><h3>Research and refine</h3><p>Dig into individual holdings, compare assets, rebalance toward your target, and stress-test the whole thing.</p></div>
+    </div>
+  </div>
+</section>
+<section class="cta-banner">
+  <h2>Build your first<br/>portfolio free.</h2>
+  <p>Free, real market data, no account needed to start.</p>
+  <a href="/investing-workspace.html" class="btn-primary">Open Portfolio Builder →</a>
+</section>
+<footer>
+<script>
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+document.querySelectorAll('.feature-card').forEach((card, i) => { card.style.transitionDelay = (i * 0.07) + 's'; });
+</script>
+  <script src="/share.js"></script>
+  <script src="/cross-promo.js"></script>
+          <script src="/ux-fixes.js"></script>
+  <script src="/nav-fix.js"></script>
+</body>
+</html>
