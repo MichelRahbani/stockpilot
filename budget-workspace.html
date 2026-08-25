@@ -3188,9 +3188,17 @@ Old app 14 day 28</textarea>
     <script>
       // This page only ever shows Savings & Budgeting — the mode switcher
       // is hidden via CSS, force the mode here since there's no button to click it.
-      if (typeof setMoneyMode === 'function') {
-        setMoneyMode('savings');
+      // app.js restores a last-used mode from shared browser storage
+      // (the same storage /app uses), and that can happen at a slightly
+      // different time than expected — so re-assert a few times over the
+      // first second instead of relying on running exactly once and
+      // winning a timing race.
+      function forceBudgetMode(){
+        if (typeof setMoneyMode === 'function') setMoneyMode('savings');
       }
+      forceBudgetMode();
+      setTimeout(forceBudgetMode, 300);
+      setTimeout(forceBudgetMode, 1000);
     </script>
   </body>
 </html>
