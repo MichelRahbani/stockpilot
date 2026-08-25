@@ -223,22 +223,71 @@ const getFinnhubHistoryPayload = async (symbol, range = "1y") => {
   };
 };
 
+const YAHOO_BROWSER_HEADERS = {
+  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+  "Accept": "*/*",
+  "Accept-Language": "en-US,en;q=0.9",
+  "Accept-Encoding": "gzip, deflate, br",
+  "Referer": "https://finance.yahoo.com/",
+  "Origin": "https://finance.yahoo.com",
+  "Cookie": "tbla_id=test; B=test"
+};
+
+// v8/chart doesn't need the crumb+cookie auth that v7/quote now requires,
+// so it's the reliable path — same pattern already proven out in /api/intl-quotes.
+const fetchYahooChartQuote = async (symbol) => {
+  const r = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`, { headers: YAHOO_BROWSER_HEADERS });
+  if (!r.ok) throw new Error(`chart ${r.status}`);
+  const data = await r.json();
+  const meta = data?.chart?.result?.[0]?.meta;
+  if (!meta?.regularMarketPrice) throw new Error("no price in chart meta");
+  const prev = meta.chartPreviousClose || meta.regularMarketPreviousClose || meta.regularMarketPrice;
+  return {
+    symbol,
+    shortName: meta.shortName || meta.symbol || symbol,
+    longName: meta.longName || meta.shortName || symbol,
+    regularMarketPrice: meta.regularMarketPrice,
+    regularMarketPreviousClose: prev,
+    regularMarketChange: meta.regularMarketPrice - prev,
+    regularMarketChangePercent: prev ? ((meta.regularMarketPrice - prev) / prev) * 100 : 0,
+    currency: meta.currency || "",
+    regularMarketVolume: meta.regularMarketVolume || 0,
+    regularMarketOpen: meta.regularMarketOpen || meta.regularMarketPrice,
+    fiftyTwoWeekHigh: meta.fiftyTwoWeekHigh || meta.regularMarketPrice,
+    fiftyTwoWeekLow: meta.fiftyTwoWeekLow || meta.regularMarketPrice,
+    regularMarketDayHigh: meta.regularMarketDayHigh || meta.regularMarketPrice,
+    regularMarketDayLow: meta.regularMarketDayLow || meta.regularMarketPrice,
+    marketCap: meta.marketCap || null
+  };
+};
+
 const getQuotePayload = async (symbols) => {
   const cleanSymbols = [...new Set(symbols.map(cleanSymbol).filter(Boolean))].slice(0, 80);
   if (!cleanSymbols.length) return { quoteResponse: { result: [] }, stockPilotMeta: { source: "Yahoo Finance public quote endpoint", symbols: [] } };
-  const url = new URL(YAHOO_QUOTE_URL);
-  url.searchParams.set("symbols", cleanSymbols.join(","));
   const providerErrors = [];
-  let payload = { quoteResponse: { result: [] } };
-  try {
-    payload = await cachedFetch(url.toString(), "json");
-  } catch (error) {
-    providerErrors.push(`Yahoo quotes: ${error.message}`);
-  }
-  const quoteMap = (payload?.quoteResponse?.result || []).reduce((map, quote) => {
-    map[cleanSymbol(quote.symbol)] = quote;
-    return map;
-  }, {});
+  const quoteMap = {};
+
+  await Promise.all(cleanSymbols.map(async (symbol) => {
+    try {
+      quoteMap[symbol] = await fetchYahooChartQuote(symbol);
+    } catch (chartError) {
+      // Fall back to the v7 bulk quote endpoint for this symbol only if the chart attempt failed
+      try {
+        const url = new URL(YAHOO_QUOTE_URL);
+        url.searchParams.set("symbols", symbol);
+        const r = await fetch(url.toString(), { headers: YAHOO_BROWSER_HEADERS });
+        if (!r.ok) throw new Error(`Provider returned ${r.status}`);
+        const data = await r.json();
+        const q = data?.quoteResponse?.result?.[0];
+        if (q?.regularMarketPrice) quoteMap[symbol] = q;
+        else throw new Error("no price in quote result");
+      } catch (quoteError) {
+        providerErrors.push(`Yahoo ${symbol}: ${quoteError.message}`);
+      }
+    }
+  }));
+
+  const payload = { quoteResponse: { result: Object.values(quoteMap) } };
   const finnhubMap = await getFinnhubQuoteMap(cleanSymbols).catch((error) => {
     providerErrors.push(`Finnhub: ${error.message}`);
     return {};
