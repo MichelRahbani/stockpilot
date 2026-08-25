@@ -1,10 +1,14 @@
-// Research tab visual cleanup.
+// Research tab visual cleanup — same idea as the Graphs redesign.
 // Company Intel, Macro Dashboard, Watchlist, Compare Assets, and Market
-// News are five independent tools currently stacked on top of each other
-// under one "Research" tab — to use News you have to scroll past four
-// unrelated tools first. This adds a small sub-tab bar and shows one at
-// a time, without touching any of the underlying app.js logic that
-// renders into these sections (companyIntelGrid, macroGrid, etc.).
+// News are five independent tools stacked on top of each other under one
+// "Research" tab. This adds a sub-tab bar and shows one at a time.
+//
+// app.js controls top-level panel visibility by toggling an "active"
+// class (.app-view{display:none!important} .app-view.active{display:block!important}).
+// When the user switches to Research, app.js adds "active" to all five
+// sections at once — so our job is just to remove "active" from the
+// four we don't want showing, using the same class app.js already
+// understands, rather than fighting it with inline styles.
 (function(){
   var sections = [
     { selector: '.intel-section', label: 'Company Intel' },
@@ -13,23 +17,22 @@
     { selector: '.comparison-section', label: 'Compare' },
     { selector: '.news-section', label: 'News' }
   ];
+  var current = 0;
 
-  function important(el, props){
-    if(!el) return;
-    Object.keys(props).forEach(function(k){
-      el.style.setProperty(k, props[k], 'important');
+  function enforce(){
+    sections.forEach(function(s, i){
+      var el = document.querySelector(s.selector);
+      if(!el) return;
+      if(i === current) el.classList.add('active');
+      else el.classList.remove('active');
     });
+    var tabs = document.querySelectorAll('.research-subtab');
+    tabs.forEach(function(t, i){ t.classList.toggle('active', i === current); });
   }
 
   function showOnly(index){
-    sections.forEach(function(s, i){
-      var el = document.querySelector(s.selector);
-      important(el, { 'display': i === index ? 'block' : 'none' });
-    });
-    var tabs = document.querySelectorAll('.research-subtab');
-    tabs.forEach(function(t, i){
-      t.classList.toggle('active', i === index);
-    });
+    current = index;
+    enforce();
   }
 
   function buildTabBar(){
@@ -52,23 +55,35 @@
 
     first.parentElement.insertBefore(bar, first);
 
-    // Style the active/inactive tab states, applied via a real
-    // stylesheet since these buttons are created dynamically.
     var style = document.createElement('style');
     style.textContent = '.research-subtab.active{background:#1a9e6e!important;border-color:#1a9e6e!important;color:#fff!important}.research-subtab:hover:not(.active){border-color:#1a9e6e!important;color:#1a9e6e!important}';
     document.head.appendChild(style);
   }
 
+  // Whenever app.js re-adds "active" to all five sections (switching
+  // back to Research from elsewhere), immediately re-enforce which one
+  // should actually show.
+  function watch(){
+    sections.forEach(function(s){
+      var el = document.querySelector(s.selector);
+      if(!el || el.dataset.subtabWatched) return;
+      el.dataset.subtabWatched = '1';
+      new MutationObserver(function(muts){
+        muts.forEach(function(m){
+          if(m.attributeName === 'class' && el.classList.contains('active')){
+            enforce();
+          }
+        });
+      }).observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
   function apply(){
     buildTabBar();
-    if(document.getElementById('researchSubtabBar')) showOnly(0);
+    watch();
+    if(document.getElementById('researchSubtabBar')) enforce();
   }
 
   apply();
-
-  // Research's own content areas render async (macro data, news, etc.),
-  // and the main Investing mode switcher can also hide/show this whole
-  // tab — re-run once shortly after load to catch late-rendered content,
-  // and whenever the tab bar might need rebuilding.
   setTimeout(apply, 800);
 })();
