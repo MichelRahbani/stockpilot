@@ -1,6 +1,18 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <script>
+      // Make sure app.js sees the correct mode from the very start,
+      // rather than restoring whatever mode was last used on /app from
+      // shared storage and rendering that first. app.js already
+      // prioritizes a ?mode= URL param over saved state, so just make
+      // sure it's always present before anything else loads.
+      if (new URLSearchParams(window.location.search).get('mode') !== 'savings') {
+        var params = new URLSearchParams(window.location.search);
+        params.set('mode', 'savings');
+        window.location.replace(window.location.pathname + '?' + params.toString());
+      }
+    </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Free Budget Planner & Savings Tracker | StockPilot Budget</title>
     <meta name="description" content="Plan your budget, track spending, and build savings goals for free. Real budgeting tools, no signup required to start." />
@@ -3184,21 +3196,5 @@ Old app 14 day 28</textarea>
     <script src="/fix-modal.js"></script>
         <script src="/nav-fix.js"></script>
         <script src="/portfolio-hierarchy-fix.js"></script>
-
-    <script>
-      // This page only ever shows Savings & Budgeting — the mode switcher
-      // is hidden via CSS, force the mode here since there's no button to click it.
-      // app.js restores a last-used mode from shared browser storage
-      // (the same storage /app uses), and that can happen at a slightly
-      // different time than expected — so re-assert a few times over the
-      // first second instead of relying on running exactly once and
-      // winning a timing race.
-      function forceBudgetMode(){
-        if (typeof setMoneyMode === 'function') setMoneyMode('savings');
-      }
-      forceBudgetMode();
-      setTimeout(forceBudgetMode, 300);
-      setTimeout(forceBudgetMode, 1000);
-    </script>
   </body>
 </html>
