@@ -526,7 +526,7 @@ function buildPortStory(positions, prices) {
   var totalPct = ((totalVal - totalCost) / totalCost) * 100;
   var dir = totalPct >= 0 ? 'up' : 'down';
   var absPct = Math.abs(totalPct).toFixed(1);
-  var story = 'Your virtual portfolio is ' + dir + ' ' + absPct + '% overall.';
+  var story = 'Your invested positions are ' + dir + ' ' + absPct + '% (this is separate from your overall account return, which also includes your cash).';
   if(best && bestPct > 0) story += ' ' + best + ' is your biggest winner (+' + bestPct.toFixed(1) + '%).';
   if(worst && worstPct < 0) story += ' ' + worst + ' is your biggest drag (' + worstPct.toFixed(1) + '%).';
   if(syms.length === 1) story += ' You are concentrated in one position — consider diversifying.';
