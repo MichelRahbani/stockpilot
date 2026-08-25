@@ -44,7 +44,12 @@
       bar.appendChild(btn);
     });
 
-    first.parentElement.insertBefore(bar, first);
+    // Insert the bar INSIDE the first section (as its first child),
+    // not as a sibling before it — so the bar automatically hides along
+    // with the section when app.js switches to a different top-level tab.
+    // A sibling bar has no visibility tie to that state and would stay
+    // permanently visible once built.
+    first.insertBefore(bar, first.firstChild);
 
     var style = document.createElement('style');
     style.textContent = '.reports-subtab.active{background:#1a9e6e!important;border-color:#1a9e6e!important;color:#fff!important}.reports-subtab:hover:not(.active){border-color:#1a9e6e!important;color:#1a9e6e!important}';
