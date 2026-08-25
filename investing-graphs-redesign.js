@@ -1,8 +1,14 @@
 // Graphs tab visual cleanup — same idea as the Research redesign.
 // Portfolio Graphs, Target Suggestions, Portfolio DNA, and the Stress
 // Simulator are four independent tools stacked on top of each other
-// under one "Graphs" tab. This adds a sub-tab bar and shows one at a
-// time, without touching any of the underlying app.js rendering logic.
+// under one "Graphs" tab.
+//
+// app.js controls top-level panel visibility by toggling an "active"
+// class (.app-view{display:none!important} .app-view.active{display:block!important}).
+// When the user switches to Graphs, app.js adds "active" to all four
+// sections at once — so our job is just to remove "active" from the
+// three we don't want showing, using the same class app.js already
+// understands, rather than fighting it with inline styles.
 (function(){
   var sections = [
     { selector: '.graphs-section', label: 'Charts' },
@@ -10,23 +16,22 @@
     { selector: '.dna-section', label: 'Portfolio DNA' },
     { selector: '.simulator-section', label: 'Stress Test' }
   ];
+  var current = 0;
 
-  function important(el, props){
-    if(!el) return;
-    Object.keys(props).forEach(function(k){
-      el.style.setProperty(k, props[k], 'important');
+  function enforce(){
+    sections.forEach(function(s, i){
+      var el = document.querySelector(s.selector);
+      if(!el) return;
+      if(i === current) el.classList.add('active');
+      else el.classList.remove('active');
     });
+    var tabs = document.querySelectorAll('.graphs-subtab');
+    tabs.forEach(function(t, i){ t.classList.toggle('active', i === current); });
   }
 
   function showOnly(index){
-    sections.forEach(function(s, i){
-      var el = document.querySelector(s.selector);
-      important(el, { 'display': i === index ? 'block' : 'none' });
-    });
-    var tabs = document.querySelectorAll('.graphs-subtab');
-    tabs.forEach(function(t, i){
-      t.classList.toggle('active', i === index);
-    });
+    current = index;
+    enforce();
   }
 
   function buildTabBar(){
@@ -54,9 +59,25 @@
     document.head.appendChild(style);
   }
 
+  function watch(){
+    sections.forEach(function(s){
+      var el = document.querySelector(s.selector);
+      if(!el || el.dataset.subtabWatched) return;
+      el.dataset.subtabWatched = '1';
+      new MutationObserver(function(muts){
+        muts.forEach(function(m){
+          if(m.attributeName === 'class' && el.classList.contains('active')){
+            enforce();
+          }
+        });
+      }).observe(el, { attributes: true, attributeFilter: ['class'] });
+    });
+  }
+
   function apply(){
     buildTabBar();
-    if(document.getElementById('graphsSubtabBar')) showOnly(0);
+    watch();
+    if(document.getElementById('graphsSubtabBar')) enforce();
   }
 
   apply();
