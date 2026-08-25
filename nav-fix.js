@@ -11,6 +11,7 @@
   var links = [
     {href:'/trade',        label:'Virtual Market'},
     {href:'/app',          label:'Portfolio'},
+    {href:'/investing',    label:'Investing'},
     {href:'/budget',       label:'Budget'},
     {href:'/learn',        label:'Learn'},
     {href:'/bullpen.html', label:'🏟️ Bullpen'},
