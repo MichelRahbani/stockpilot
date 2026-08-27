@@ -755,12 +755,14 @@ async function createLeague() {
   btn.disabled = true;
 
   currentCode = genCode();
+  const token = localStorage.getItem('supabase_token');
+  const uid = token ? JSON.parse(atob(token.split('.')[1])).sub : null;
 
   try {
     // Create league in Supabase
     await sbPost('bullpen_leagues', { code: currentCode, name, format: selectedFormat, max_players: parseInt(document.getElementById('maxPlayers').value), season: 1, commissioner_name: manager, current_week: 1, week_start_date: new Date().toISOString().split('T')[0] });
     // Add creator as first member
-    const member = await sbPost('bullpen_members', { league_code: currentCode, name: manager, starters: [], bench: [], score: 0, trades_left: 2 });
+    const member = await sbPost('bullpen_members', { league_code: currentCode, name: manager, user_id: uid, starters: [], bench: [], score: 0, trades_left: 2 });
     
     localStorage.setItem('bullpen_my_league', currentCode);
     localStorage.setItem('bullpen_my_name', manager);
@@ -788,6 +790,9 @@ async function joinLeague() {
   btn.textContent = 'Joining...';
   btn.disabled = true;
 
+  const token = localStorage.getItem('supabase_token');
+  const uid = token ? JSON.parse(atob(token.split('.')[1])).sub : null;
+
   try {
     // Check league exists
     const leagues = await sbGet('bullpen_leagues', 'code=eq.' + code);
@@ -799,7 +804,7 @@ async function joinLeague() {
     if(members.length >= league.max_players) { btn.textContent = 'Join League →'; btn.disabled = false; alert('This league is full!'); return; }
 
     // Add member
-    const member = await sbPost('bullpen_members', { league_code: code, name, starters: [], bench: [], score: 0, trades_left: 2 });
+    const member = await sbPost('bullpen_members', { league_code: code, name, user_id: uid, starters: [], bench: [], score: 0, trades_left: 2 });
     localStorage.setItem('bullpen_my_league', code);
     localStorage.setItem('bullpen_my_name', name);
     localStorage.setItem('bullpen_my_member_id', member[0]?.id || '');
