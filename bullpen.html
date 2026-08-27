@@ -579,7 +579,7 @@ footer a:hover{color:var(--text)}
 <!-- CTA -->
 <div class="cta-section">
   <h2>YOUR MOVE,<br/>ROOKIE.</h2>
-  <p>Season 1 is live. Draft opens now.</p>
+  <p id="ctaSeasonText">Season 1 is live. Draft opens now.</p>
   <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
     <button class="btn-big btn-big-green" onclick="requireAuth(openCreate)">Start a League</button>
     <button class="btn-big btn-big-outline" onclick="requireAuth(openJoin)">Join with Code</button>
@@ -1081,6 +1081,9 @@ updateMobileAuth();
 
   const select = document.getElementById('seasonSelect');
   if(select) select.innerHTML = '<option>Season ' + seasonNum + ' (Live Now)</option>';
+
+  const ctaText = document.getElementById('ctaSeasonText');
+  if(ctaText) ctaText.textContent = 'Season ' + seasonNum + ' is live. Draft opens now.';
 })();
 </script>
 </body>
