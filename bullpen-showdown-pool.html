@@ -42,6 +42,17 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .stat-box .l{font-size:11px;color:var(--muted);text-transform:uppercase;margin-top:4px}
 
 .table-standings{width:100%;border-collapse:collapse}
+
+.vs-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center}
+.vs-side{text-align:center;padding:18px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg3)}
+.vs-side.leading{border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.vs-side .crown{font-size:20px;margin-bottom:4px}
+.vs-name{font-weight:700;font-size:15px;margin-bottom:6px}
+.vs-name .you-tag{font-size:11px;color:var(--blue);font-weight:600}
+.vs-pct{font-family:'IBM Plex Mono',monospace;font-size:28px;font-weight:700}
+.vs-cash{font-size:12px;color:var(--muted);margin-top:4px}
+.vs-divider{font-family:'Anton',sans-serif;font-size:18px;color:var(--muted);letter-spacing:1px}
+@media(max-width:520px){.vs-grid{grid-template-columns:1fr;gap:10px}.vs-divider{display:none}}
 .table-standings th{text-align:left;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:8px;border-bottom:1px solid var(--border)}
 .table-standings td{padding:12px 8px;border-bottom:1px solid var(--border);font-size:14px}
 .table-standings tr.me{background:rgba(41,121,255,0.08)}
@@ -144,6 +155,55 @@ async function computeLiveValues(){
   return withValues;
 }
 
+// A showdown with exactly 2 entries is a 1v1 duel (created via
+// bullpen-h2h.html, which caps joins at 2) - show a genuine head-to-head
+// comparison instead of a leaderboard table built for an open pool.
+function buildStandingsCard(withValues, myEntryId, opts){
+  opts = opts || {};
+  const listHeading = opts.listHeading || '🏆 Leaderboard';
+  const vsHeading = opts.vsHeading || '⚔️ Head to Head';
+  if(withValues.length !== 2){
+    return `
+    <div class="card">
+      <h2>${listHeading}</h2>
+      <table class="table-standings">
+        <thead><tr><th>#</th><th>Player</th><th style="text-align:right">Return</th></tr></thead>
+        <tbody>
+          ${withValues.map((e,i) => `
+            <tr class="${myEntryId===e.id?'me':''}">
+              <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
+              <td>${escapeHtml(e.nickname)}${myEntryId===e.id?' (you)':''}</td>
+              <td style="text-align:right" class="${e.livePct>=0?'return-up':'return-down'}">${e.livePct>=0?'+':''}${e.livePct.toFixed(2)}%</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  const me = withValues.find(e => e.id === myEntryId) || withValues[0];
+  const them = withValues.find(e => e.id !== me.id);
+  const meLeading = me.livePct > them.livePct;
+  const tied = me.livePct === them.livePct;
+  const sideHtml = (entry, isMe, leading) => `
+    <div class="vs-side${leading && !tied ? ' leading' : ''}">
+      ${leading && !tied ? '<div class="crown">👑</div>' : ''}
+      <div class="vs-name">${escapeHtml(entry.nickname)}${isMe ? ' <span class="you-tag">(you)</span>' : ''}</div>
+      <div class="vs-pct" style="color:${entry.livePct>=0?'var(--green)':'var(--red)'}">${entry.livePct>=0?'+':''}${entry.livePct.toFixed(2)}%</div>
+      <div class="vs-cash">$${entry.liveValue.toLocaleString(undefined,{maximumFractionDigits:0})}</div>
+    </div>`;
+
+  return `
+    <div class="card">
+      <h2>${vsHeading}</h2>
+      <div class="vs-grid">
+        ${sideHtml(me, true, meLeading)}
+        <div class="vs-divider">VS</div>
+        ${sideHtml(them, false, !meLeading && !tied)}
+      </div>
+    </div>`;
+}
+
 async function renderActive(){
   const app = document.getElementById('app');
   if(!myEntry){
@@ -182,21 +242,7 @@ async function renderActive(){
       <div class="stat-box"><div class="v">${daysLeft}d</div><div class="l">Left</div></div>
     </div>
 
-    <div class="card">
-      <h2>🏆 Leaderboard</h2>
-      <table class="table-standings">
-        <thead><tr><th>#</th><th>Player</th><th style="text-align:right">Return</th></tr></thead>
-        <tbody>
-          ${withValues.map((e,i) => `
-            <tr class="${myEntry.id===e.id?'me':''}">
-              <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
-              <td>${escapeHtml(e.nickname)}${myEntry.id===e.id?' (you)':''}</td>
-              <td style="text-align:right" class="${e.livePct>=0?'return-up':'return-down'}">${e.livePct>=0?'+':''}${e.livePct.toFixed(2)}%</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
+    ${buildStandingsCard(withValues, myEntry.id)}
 
     <div class="card">
       <h2>💹 Trade</h2>
@@ -374,21 +420,7 @@ async function renderCompleted(){
       ${champ ? `<div style="color:${champ.livePct>=0?'var(--green)':'var(--red)'};font-weight:700;margin-top:6px">${champ.livePct>=0?'+':''}${champ.livePct.toFixed(2)}%</div>` : ''}
     </div>
 
-    <div class="card">
-      <h2>Final Standings</h2>
-      <table class="table-standings">
-        <thead><tr><th>#</th><th>Player</th><th style="text-align:right">Return</th></tr></thead>
-        <tbody>
-          ${withValues.map((e,i) => `
-            <tr class="${myEntry && myEntry.id===e.id?'me':''}">
-              <td><span class="rank-badge ${i<3?'top3':''}">${i+1}</span></td>
-              <td>${escapeHtml(e.nickname)}${myEntry && myEntry.id===e.id?' (you)':''}</td>
-              <td style="text-align:right" class="${e.livePct>=0?'return-up':'return-down'}">${e.livePct>=0?'+':''}${e.livePct.toFixed(2)}%</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    </div>
+    ${buildStandingsCard(withValues, myEntry ? myEntry.id : null, {listHeading: 'Final Standings', vsHeading: '🏁 Final Result'})}
   `;
 
   if(tournament.status !== 'completed'){
