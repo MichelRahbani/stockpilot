@@ -234,7 +234,7 @@ async function createDuel(){
     // instead of a leaderboard.
     const tourney = await sbPost('bullpen_showdown_tournaments', {
       code: currentCode, name, commissioner_name: manager, commissioner_user_id: uid,
-      starting_cash: startingCash, end_date: endDate, status: 'active'
+      starting_cash: startingCash, end_date: endDate, status: 'active', game_type: 'h2h'
     });
     if(!tourney || !tourney[0]) throw new Error('Could not create duel');
     const tournamentId = tourney[0].id;
