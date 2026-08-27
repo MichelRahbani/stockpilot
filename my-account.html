@@ -38,6 +38,8 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .pill-student{background:rgba(0,230,118,0.15);color:var(--green)}
 .pill-madness{background:rgba(124,77,255,0.15);color:var(--purple)}
 .pill-showdown{background:rgba(41,121,255,0.15);color:var(--blue)}
+.pill-league{background:rgba(63,178,127,0.15);color:#3fb27f}
+.pill-h2h{background:rgba(224,95,209,0.15);color:#e05fd1}
 
 .empty{color:var(--muted);font-size:13px;padding:14px 4px}
 .loading{text-align:center;padding:60px 20px;color:var(--muted)}
@@ -105,14 +107,21 @@ async function load(){
     </div>
 
     <div class="section">
+      <div class="section-title">⚔️ Bullpen 1v1</div>
+      <div id="h2hList"><div class="loading" style="padding:20px">Loading...</div></div>
+    </div>
+
+    <div class="section">
       <div class="section-title">⚾ Bullpen League</div>
-      <div class="empty">Bullpen League doesn't yet track which leagues belong to your account — it only remembers on the device you joined from. This is a known gap we're working on.</div>
+      <div id="leagueList"><div class="loading" style="padding:20px">Loading...</div></div>
     </div>
   `;
 
   loadClasses(uid);
   loadMadness(uid);
   loadShowdown(uid);
+  loadH2H(uid);
+  loadLeague(uid);
 }
 
 async function loadClasses(uid){
@@ -184,9 +193,12 @@ async function loadShowdown(uid){
 
     const tournamentIds = [...new Set(entries.map(e => e.tournament_id))];
     const tournaments = await sbGet('bullpen_showdown_tournaments', 'id=in.('+tournamentIds.join(',')+')');
+    // Showdown and 1v1 Duels share these tables - only list the actual
+    // open-pool Showdowns here, duels get their own section below.
+    const showdownOnly = tournaments.filter(t => t.game_type !== 'h2h');
 
     el.innerHTML = entries.map(e => {
-      const t = tournaments.find(t => t.id === e.tournament_id);
+      const t = showdownOnly.find(t => t.id === e.tournament_id);
       if(!t) return '';
       return `
         <a href="/bullpen-showdown-pool.html?code=${t.code}" class="item-card">
@@ -199,6 +211,59 @@ async function loadShowdown(uid){
     }).join('') || '<div class="empty">You haven\'t joined or created a Bullpen Showdown yet.</div>';
   } catch(e){
     el.innerHTML = '<div class="empty">Could not load your showdowns.</div>';
+  }
+}
+
+async function loadH2H(uid){
+  const el = document.getElementById('h2hList');
+  try {
+    const entries = await sbGet('bullpen_showdown_entries', 'user_id=eq.'+uid);
+    if(!entries.length){ el.innerHTML = '<div class="empty">You haven\'t started a Bullpen 1v1 duel yet.</div>'; return; }
+
+    const tournamentIds = [...new Set(entries.map(e => e.tournament_id))];
+    const tournaments = await sbGet('bullpen_showdown_tournaments', 'id=in.('+tournamentIds.join(',')+')');
+    const duelsOnly = tournaments.filter(t => t.game_type === 'h2h');
+
+    el.innerHTML = entries.map(e => {
+      const t = duelsOnly.find(t => t.id === e.tournament_id);
+      if(!t) return '';
+      return `
+        <a href="/bullpen-showdown-pool.html?code=${t.code}" class="item-card">
+          <div>
+            <div class="item-name">${escapeHtml(t.name)}</div>
+            <div class="item-meta">Code: ${t.code} · Ends ${t.end_date}</div>
+          </div>
+          <span class="item-pill pill-h2h">${t.status === 'completed' ? 'Complete' : 'Active'}</span>
+        </a>`;
+    }).join('') || '<div class="empty">You haven\'t started a Bullpen 1v1 duel yet.</div>';
+  } catch(e){
+    el.innerHTML = '<div class="empty">Could not load your duels.</div>';
+  }
+}
+
+async function loadLeague(uid){
+  const el = document.getElementById('leagueList');
+  try {
+    const members = await sbGet('bullpen_members', 'user_id=eq.'+uid);
+    if(!members.length){ el.innerHTML = '<div class="empty">You haven\'t joined or created a Bullpen League yet.</div>'; return; }
+
+    const leagueCodes = [...new Set(members.map(m => m.league_code))];
+    const leagues = await sbGet('bullpen_leagues', 'code=in.('+leagueCodes.join(',')+')');
+
+    el.innerHTML = members.map(m => {
+      const l = leagues.find(l => l.code === m.league_code);
+      if(!l) return '';
+      return `
+        <a href="/bullpen-league.html?code=${l.code}&mid=${m.id}" class="item-card">
+          <div>
+            <div class="item-name">${escapeHtml(l.name)}</div>
+            <div class="item-meta">Code: ${l.code} · Week ${l.current_week}</div>
+          </div>
+          <span class="item-pill pill-league">${escapeHtml(l.format || '')}</span>
+        </a>`;
+    }).join('') || '<div class="empty">You haven\'t joined or created a Bullpen League yet.</div>';
+  } catch(e){
+    el.innerHTML = '<div class="empty">Could not load your leagues.</div>';
   }
 }
 
