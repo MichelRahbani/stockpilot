@@ -334,8 +334,19 @@ async function submitDraft(){
       const found=await sbGet('bullpen_members','league_code=eq.'+leagueCode+'&name=eq.'+encodeURIComponent(myName));
       if(found&&found[0]){mid=found[0].id;localStorage.setItem('bullpen_my_member_id',mid);}
     }
-    if(mid){
-      await sbPatch('bullpen_members','id=eq.'+mid,{starters:starterTickers,bench:benchTickers});
+    if(!mid){
+      btn.textContent='Lock In Draft →';btn.classList.add('ready');
+      showToast('Could not find your league membership — try rejoining','error');
+      return;
+    }
+    // sbPatch returns whether the write actually succeeded - a stale
+    // session or a rejected request would otherwise look identical to a
+    // real save here, and the draft would silently never be recorded.
+    const saved=await sbPatch('bullpen_members','id=eq.'+mid,{starters:starterTickers,bench:benchTickers});
+    if(!saved){
+      btn.textContent='Lock In Draft →';btn.classList.add('ready');
+      showToast('Save failed — try again','error');
+      return;
     }
     localStorage.setItem('bullpen_draft_'+leagueCode,JSON.stringify({starters,bench,submittedAt:Date.now()}));
     if(typeof trackEvent!='undefined')trackEvent('draft_completed','Bullpen',leagueCode);
