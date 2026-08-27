@@ -2424,30 +2424,41 @@ const checkStockPilotApi = async () => {
   }
   let lastError = "";
   for (const baseUrl of STOCKPILOT_API_CANDIDATES) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 4000);
-    try {
-      const response = await fetch(`${baseUrl}/health`, { signal: controller.signal });
-      clearTimeout(timeout);
-      if (!response.ok) {
-        lastError = `${baseUrl} returned ${response.status}`;
-        continue;
+    // A cold-started backend (e.g. after sitting idle) can take longer than
+    // a normal warm response to answer the very first request. Try a quick
+    // 4s check first, and only if that genuinely fails, give it one more
+    // chance with a longer 10s timeout before calling it offline - a single
+    // slow wake-up shouldn't drop the whole app into fallback mode.
+    const attempts = [4000, 10000];
+    let attemptSucceeded = false;
+    for (const timeoutMs of attempts) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const response = await fetch(`${baseUrl}/health`, { signal: controller.signal });
+        clearTimeout(timeout);
+        if (!response.ok) {
+          lastError = `${baseUrl} returned ${response.status}`;
+          break;
+        }
+        const payload = await response.json().catch(() => ({}));
+        stockPilotApiBaseUrl = baseUrl;
+        stockPilotApiOnline = true;
+        stockPilotProviderStatus = payload.providerStatus || payload.providers || null;
+        stockPilotApiError = "";
+        updateDataSourceStatus();
+        renderDataFreshness();
+        renderApiStatusPanel();
+        renderSettings();
+        renderPresentationMode();
+        attemptSucceeded = true;
+        break;
+      } catch (error) {
+        clearTimeout(timeout);
+        lastError = `${baseUrl}: ${error.name === "AbortError" ? "connection timed out" : error.message || "connection failed"}`;
       }
-      const payload = await response.json().catch(() => ({}));
-      stockPilotApiBaseUrl = baseUrl;
-      stockPilotApiOnline = true;
-      stockPilotProviderStatus = payload.providerStatus || payload.providers || null;
-      stockPilotApiError = "";
-      updateDataSourceStatus();
-      renderDataFreshness();
-      renderApiStatusPanel();
-      renderSettings();
-      renderPresentationMode();
-      return true;
-    } catch (error) {
-      clearTimeout(timeout);
-      lastError = `${baseUrl}: ${error.name === "AbortError" ? "connection timed out" : error.message || "connection failed"}`;
     }
+    if (attemptSucceeded) return true;
   }
   stockPilotApiOnline = STOCKPILOT_SAME_ORIGIN;
   stockPilotProviderStatus = null;
