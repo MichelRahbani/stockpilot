@@ -40,7 +40,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 }
 .page{max-width:1100px;margin:0 auto;padding:28px 20px}
 .season-bar{display:flex;align-items:center;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px 24px;margin-bottom:24px;flex-wrap:wrap;gap:16px}
-.season-bar-left h1{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px}
+.season-bar-left h1{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:380px}
 .season-bar-left p{font-size:13px;color:var(--muted);margin-top:2px}
 .season-stats{display:flex;gap:24px}
 .sstat-val{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--green)}
@@ -344,7 +344,11 @@ let swapOut=null,swapIn=null,faDropTicker=null,faPickup=null;
 // ── Countdown ──
 function updateCountdown(){
   const diff=new Date('2026-07-04')-new Date();
-  if(diff<=0)return;
+  if(diff<=0){
+    const cd=document.querySelector('.countdown');
+    if(cd) cd.innerHTML='<div style="font-size:13px;font-weight:600;color:var(--muted)">Season Ended</div>';
+    return;
+  }
   document.getElementById('cdD').textContent=Math.floor(diff/86400000);
   document.getElementById('cdH').textContent=String(Math.floor((diff%86400000)/3600000)).padStart(2,'0');
   document.getElementById('cdM').textContent=String(Math.floor((diff%3600000)/60000)).padStart(2,'0');
@@ -392,7 +396,14 @@ async function loadData(){
 async function updateScores(){
   const allTickers=new Set();
   members.forEach(m=>{(m.starters||[]).forEach(t=>allTickers.add(t));(m.bench||[]).forEach(t=>allTickers.add(t));});
-  if(!allTickers.size)return;
+  if(!allTickers.size){
+    // No one has drafted yet — still render the leaderboard/roster with
+    // what we have (real members, empty picks) instead of leaving them
+    // stuck on the static "Loading..." placeholder forever.
+    renderLeaderboard();
+    renderRoster();
+    return;
+  }
   try{
     const res=await fetch(`${BACKEND}/api/quotes?symbols=${[...allTickers].join(',')}`);
     const data=await res.json();
