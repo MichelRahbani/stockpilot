@@ -8,7 +8,7 @@
 
   var links = [
     {href:'/trade',        label:'Virtual Market'},
-    {href:'/app',          label:'Portfolio'},
+    {href:'/dashboard.html', label:'Dashboard'},
     {href:'/investing',    label:'Investing'},
     {href:'/budget',       label:'Budget'},
     {href:'/learn',        label:'Learn'},
