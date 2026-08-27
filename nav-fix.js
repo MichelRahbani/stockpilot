@@ -1,7 +1,5 @@
 (function(){
   var path = window.location.pathname;
-  if(path === '/' || path === '') return;
-
   var isDark = path.startsWith('/trade');
   var isApp  = path.startsWith('/app') || path.endsWith('-workspace.html');
   var tc = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.5)';
