@@ -11,8 +11,23 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 // their own row" apart from "this person editing someone else's row".
 // Reads stay on the anon key since leaderboards etc. are meant to be
 // publicly viewable regardless of login state.
+//
+// Session tokens expire (typically after an hour). A stale one sitting
+// in localStorage from an old session would otherwise get sent on every
+// write, get silently rejected by the server, and look identical to a
+// successful save — nothing in the UI would ever show the failure.
+function isTokenExpired(token){
+  try{
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return !payload.exp || payload.exp * 1000 < Date.now();
+  }catch(e){
+    return true; // unreadable token — treat as expired, don't trust it
+  }
+}
 function writeAuthToken(){
-  return localStorage.getItem('supabase_token') || SUPABASE_KEY;
+  const stored = localStorage.getItem('supabase_token');
+  if(stored && !isTokenExpired(stored)) return stored;
+  return SUPABASE_KEY;
 }
 
 async function sbGet(table, qs){
@@ -23,28 +38,50 @@ async function sbGet(table, qs){
 }
 
 async function sbPost(table, body){
-  const r = await fetch(SUPABASE_URL+'/rest/v1/'+table, {
+  let r = await fetch(SUPABASE_URL+'/rest/v1/'+table, {
     method:'POST',
     headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+writeAuthToken(), 'Content-Type':'application/json', Prefer:'return=representation' },
     body: JSON.stringify(body)
   });
+  if((r.status === 401 || r.status === 403) && writeAuthToken() !== SUPABASE_KEY){
+    // The session token was rejected for a reason isTokenExpired() didn't
+    // catch — retry once with the anon key rather than fail silently.
+    r = await fetch(SUPABASE_URL+'/rest/v1/'+table, {
+      method:'POST',
+      headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json', Prefer:'return=representation' },
+      body: JSON.stringify(body)
+    });
+  }
   return r.json();
 }
 
 async function sbPatch(table, qs, body){
-  const r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
+  let r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
     method:'PATCH',
     headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+writeAuthToken(), 'Content-Type':'application/json' },
     body: JSON.stringify(body)
   });
+  if((r.status === 401 || r.status === 403) && writeAuthToken() !== SUPABASE_KEY){
+    r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
+      method:'PATCH',
+      headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY, 'Content-Type':'application/json' },
+      body: JSON.stringify(body)
+    });
+  }
   return r.ok;
 }
 
 async function sbDelete(table, qs){
-  const r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
+  let r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
     method:'DELETE',
     headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+writeAuthToken() }
   });
+  if((r.status === 401 || r.status === 403) && writeAuthToken() !== SUPABASE_KEY){
+    r = await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+qs, {
+      method:'DELETE',
+      headers:{ apikey: SUPABASE_KEY, Authorization:'Bearer '+SUPABASE_KEY }
+    });
+  }
   return r.ok;
 }
 
