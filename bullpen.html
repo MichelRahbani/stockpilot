@@ -375,7 +375,7 @@ footer a:hover{color:var(--text)}
   <div class="hero-bg"></div>
   <div class="hero-grid"></div>
   <div style="position:relative;z-index:1">
-    <div class="season-badge">
+    <div class="season-badge" id="heroSeasonBadge">
       <span class="season-dot"></span>
       Season 1 · Memorial Day → 4th of July
     </div>
@@ -505,26 +505,26 @@ footer a:hover{color:var(--text)}
     <div class="section-label">Seasons</div>
     <div class="section-title">NEW SEASON,<br/>NEW CHANCE.</div>
   </div>
-  <div class="seasons reveal">
-    <div class="season-card active">
+  <div class="seasons reveal" id="seasonsGrid">
+    <div class="season-card" data-season="1" data-start="2026-05-26" data-end="2026-07-04">
       <div class="season-name">Season 1</div>
       <div class="season-dates">May 26 → July 4, 2026</div>
-      <div class="season-status live">🟢 Live Now</div>
+      <div class="season-status"></div>
     </div>
-    <div class="season-card">
+    <div class="season-card" data-season="2" data-start="2026-07-04" data-end="2026-09-07">
       <div class="season-name">Season 2</div>
       <div class="season-dates">July 4 → Labor Day 2026</div>
-      <div class="season-status upcoming">⏳ Upcoming</div>
+      <div class="season-status"></div>
     </div>
-    <div class="season-card">
+    <div class="season-card" data-season="3" data-start="2026-09-07" data-end="2026-11-26">
       <div class="season-name">Season 3</div>
       <div class="season-dates">Labor Day → Thanksgiving 2026</div>
-      <div class="season-status upcoming">⏳ Upcoming</div>
+      <div class="season-status"></div>
     </div>
-    <div class="season-card">
+    <div class="season-card" data-season="4" data-start="2026-11-26" data-end="2027-01-01">
       <div class="season-name">Season 4</div>
       <div class="season-dates">Thanksgiving → New Year 2027</div>
-      <div class="season-status upcoming">⏳ Upcoming</div>
+      <div class="season-status"></div>
     </div>
   </div>
 </div>
@@ -537,7 +537,7 @@ footer a:hover{color:var(--text)}
   </div>
   <div class="lb-preview reveal">
     <div class="lb-header">
-      <div class="lb-title">🏆 Season 1 Standings</div>
+      <div class="lb-title" id="lbSeasonTitle">🏆 Season 1 Standings</div>
       <div class="lb-tabs">
         <button class="lb-tab active">All Time</button>
         <button class="lb-tab">This Week</button>
@@ -625,7 +625,7 @@ footer a:hover{color:var(--text)}
         </div>
         <div class="form-group" style="margin:0">
           <label class="form-label">Season</label>
-          <select class="form-input">
+          <select class="form-input" id="seasonSelect">
             <option>Season 1 (Live Now)</option>
           </select>
         </div>
@@ -1033,6 +1033,55 @@ document.addEventListener('click',function(e){
 // Run on load
 document.addEventListener('DOMContentLoaded', updateMobileAuth);
 updateMobileAuth();
+
+// ── Compute the real current season from today's date ──
+// The season cards, hero badge, leaderboard heading, and dropdown were
+// all hardcoded to "Season 1 · Live Now" forever, regardless of the
+// actual date - once Season 1's window passed, everything on the page
+// kept pointing at an already-ended season with no indication anything
+// had changed.
+(function(){
+  const cards = Array.from(document.querySelectorAll('.season-card[data-season]'));
+  if(!cards.length) return;
+  const now = new Date();
+  let current = null;
+  cards.forEach(function(card){
+    const start = new Date(card.dataset.start);
+    const end = new Date(card.dataset.end);
+    const statusEl = card.querySelector('.season-status');
+    card.classList.remove('active');
+    if(now >= start && now < end){
+      current = card;
+      card.classList.add('active');
+      statusEl.className = 'season-status live';
+      statusEl.textContent = '🟢 Live Now';
+    } else if(now >= end){
+      statusEl.className = 'season-status ended';
+      statusEl.textContent = '✅ Completed';
+    } else {
+      statusEl.className = 'season-status upcoming';
+      statusEl.textContent = '⏳ Upcoming';
+    }
+  });
+  if(!current) return; // before Season 1 or after Season 4 - leave as-is
+
+  const seasonNum = current.dataset.season;
+  const seasonDatesText = current.querySelector('.season-dates').textContent;
+
+  const badge = document.getElementById('heroSeasonBadge');
+  if(badge){
+    const dot = badge.querySelector('.season-dot');
+    badge.innerHTML = '';
+    if(dot) badge.appendChild(dot);
+    badge.appendChild(document.createTextNode('Season ' + seasonNum + ' · ' + seasonDatesText));
+  }
+
+  const lbTitle = document.getElementById('lbSeasonTitle');
+  if(lbTitle) lbTitle.textContent = '🏆 Season ' + seasonNum + ' Standings';
+
+  const select = document.getElementById('seasonSelect');
+  if(select) select.innerHTML = '<option>Season ' + seasonNum + ' (Live Now)</option>';
+})();
 </script>
 </body>
 </html>
