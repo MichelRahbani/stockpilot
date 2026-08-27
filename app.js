@@ -9772,13 +9772,21 @@ const apiGatewayUrlFor = (url, type = "json") => {
 const fetchJsonWithFallback = async (url) => {
   const apiUrl = stockPilotApiOnline ? apiGatewayUrlFor(url, "json") : "";
   if (apiUrl) {
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error(`StockPilot API failed with ${response.status}`);
-      return await response.json();
-    } catch {
-      stockPilotApiOnline = false;
-      updateDataSourceStatus();
+    // A single transient hiccup (Railway momentarily busy, one request
+    // among many concurrent ones during a bulk portfolio load) shouldn't
+    // permanently disable the gateway for the rest of the session - retry
+    // once before falling back and marking the whole gateway offline.
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error(`StockPilot API failed with ${response.status}`);
+        return await response.json();
+      } catch (error) {
+        if (attempt === 1) {
+          stockPilotApiOnline = false;
+          updateDataSourceStatus();
+        }
+      }
     }
   }
   try {
@@ -9796,13 +9804,17 @@ const fetchJsonWithFallback = async (url) => {
 const fetchTextWithFallback = async (url) => {
   const apiUrl = stockPilotApiOnline ? apiGatewayUrlFor(url, "text") : "";
   if (apiUrl) {
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) throw new Error(`StockPilot API failed with ${response.status}`);
-      return await response.text();
-    } catch {
-      stockPilotApiOnline = false;
-      updateDataSourceStatus();
+    for (let attempt = 0; attempt < 2; attempt += 1) {
+      try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) throw new Error(`StockPilot API failed with ${response.status}`);
+        return await response.text();
+      } catch (error) {
+        if (attempt === 1) {
+          stockPilotApiOnline = false;
+          updateDataSourceStatus();
+        }
+      }
     }
   }
   try {
