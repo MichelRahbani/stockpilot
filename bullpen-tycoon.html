@@ -11,20 +11,22 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --sky-top:#7ec8e3;
-  --sky-bot:#ffe9b8;
-  --ground:#6fbf73;
-  --ground-dark:#4f9e56;
+  --sky-top:#4fb0e8;
+  --sky-mid:#9adcf0;
+  --sky-bot:#ffe28a;
+  --ground:#5cc463;
+  --ground-mid:#3fa851;
+  --ground-dark:#2d8a45;
   --ink:#3a2b1a;
   --ink-dim:#8a7455;
   --card:#fffaf0;
   --line:#e8d4a8;
-  --gold:#e8a020;
-  --gold-dark:#b87a10;
+  --gold:#f2a91e;
+  --gold-dark:#c07d0a;
   --green:#3fb27f;
   --green-dark:#2c8a5f;
   --red:#e8432b;
-  --path:#f4dfa0;
+  --path:#e8bd5a;
   --shadow:0 4px 0 rgba(58,43,26,0.18);
 }
 
@@ -61,7 +63,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 /* ── World map ── */
 .world-wrap{
   position:relative;min-height:1500px;
-  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-bot) 55%,var(--ground) 56%,var(--ground-dark) 100%);
+  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 30%,var(--sky-bot) 55%,var(--ground) 56%,var(--ground-mid) 78%,var(--ground-dark) 100%);
   overflow:hidden;
 }
 .sun{
@@ -76,6 +78,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   background-size:34px 34px;
 }
 .cloud{position:absolute;filter:drop-shadow(0 3px 2px rgba(58,43,26,0.08))}
+.tree{position:absolute;pointer-events:none;z-index:1}
 .map-path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
 .country-node{
@@ -84,12 +87,20 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 }
 .country-node.locked{cursor:default}
 .node-badge{
-  width:88px;height:88px;border-radius:50%;background:var(--card);border:5px solid var(--gold);
-  display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 6px 0 var(--gold-dark);
-  transition:transform 0.15s;position:relative;
+  width:92px;height:92px;border-radius:50%;
+  background:radial-gradient(circle at 35% 30%, #fffdf6 0%, var(--card) 55%, #f2e6c8 100%);
+  border:5px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;font-size:42px;
+  box-shadow:0 7px 0 var(--gold-dark), inset 0 -6px 10px rgba(58,43,26,0.08);
+  transition:transform 0.15s;position:relative;overflow:hidden;
+}
+.node-badge::after{
+  content:'';position:absolute;top:6%;left:14%;width:55%;height:34%;border-radius:50%;
+  background:linear-gradient(160deg, rgba(255,255,255,0.85), rgba(255,255,255,0));
+  transform:rotate(-18deg);pointer-events:none;
 }
 .country-node:not(.locked) .node-badge:hover{transform:translateY(-3px) scale(1.04)}
-.country-node.locked .node-badge{background:#d8d0c0;border-color:#a89a7c;filter:grayscale(1);opacity:0.75;box-shadow:0 6px 0 #8a7d60}
+.country-node.locked .node-badge{background:radial-gradient(circle at 35% 30%, #e4ddc9 0%, #d8d0c0 55%, #c4baa0 100%);border-color:#a89a7c;filter:grayscale(1);opacity:0.8;box-shadow:0 7px 0 #8a7d60,inset 0 -6px 10px rgba(58,43,26,0.1)}
 .node-lock{position:absolute;bottom:-6px;right:-6px;background:var(--ink);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;border:3px solid var(--card)}
 .node-name{
   margin-top:10px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;color:#fff;
@@ -361,14 +372,41 @@ function renderMap(){
   const clouds = cloudSvg(6,6,110,0.95) + cloudSvg(58,13,80,0.85) + cloudSvg(28,20,130,0.9) + cloudSvg(72,32,90,0.8);
 
   const hills = `
-    <svg class="hills" style="top:52%;height:6%" viewBox="0 0 100 8" preserveAspectRatio="none">
-      <path d="M0,8 L0,4 Q15,0 30,3 T60,2 T100,4 L100,8 Z" fill="var(--ground)" opacity="0.65"/>
+    <svg class="hills" style="top:50%;height:7%" viewBox="0 0 100 8" preserveAspectRatio="none">
+      <path d="M0,8 L0,5 Q20,1 40,4 T80,3 T100,5 L100,8 Z" fill="var(--ground)" opacity="0.45"/>
+    </svg>
+    <svg class="hills" style="top:52.5%;height:6%" viewBox="0 0 100 8" preserveAspectRatio="none">
+      <path d="M0,8 L0,4 Q15,0 30,3 T60,2 T100,4 L100,8 Z" fill="var(--ground)" opacity="0.7"/>
     </svg>`;
   const groundTexture = `<div class="ground-texture"></div>`;
 
+  const treeSvg = (x, y, scale) => `
+    <svg class="tree" style="left:${x}%;top:${y}%;width:${34*scale}px" viewBox="0 0 34 40">
+      <ellipse cx="17" cy="26" rx="6" ry="4" fill="rgba(58,43,26,0.15)"/>
+      <rect x="15" y="22" width="4" height="12" rx="1.5" fill="#8a5a2e"/>
+      <circle cx="17" cy="16" r="12" fill="#4a9a4f"/>
+      <circle cx="10" cy="19" r="8" fill="#3fa851"/>
+      <circle cx="24" cy="19" r="8" fill="#3fa851"/>
+    </svg>`;
+  const bushSvg = (x, y, scale) => `
+    <svg class="tree" style="left:${x}%;top:${y}%;width:${22*scale}px" viewBox="0 0 22 14">
+      <ellipse cx="11" cy="12" rx="9" ry="2.5" fill="rgba(58,43,26,0.12)"/>
+      <circle cx="7" cy="8" r="6" fill="#4a9a4f"/>
+      <circle cx="15" cy="8" r="6" fill="#3fa851"/>
+      <circle cx="11" cy="6" r="6.5" fill="#5cb060"/>
+    </svg>`;
+  const scenery = [
+    treeSvg(6,66,1.1), treeSvg(88,58,0.9), treeSvg(12,45,0.8), bushSvg(80,88,1),
+    treeSvg(90,80,1), bushSvg(8,32,0.9), treeSvg(85,25,0.85), bushSvg(15,17,0.8),
+    treeSvg(92,10,0.9), bushSvg(60,70,0.85),
+  ].join('');
+
+  const pathD = buildPathD();
   const pathSvg = `
     <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <path d="${buildPathD()}" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="2.5,2.5" opacity="0.85" vector-effect="non-scaling-stroke"/>
+      <path d="${pathD}" fill="none" stroke="rgba(58,43,26,0.18)" stroke-width="3.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      <path d="${pathD}" fill="none" stroke="var(--path)" stroke-width="2.6" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      <path d="${pathD}" fill="none" stroke="#fff" stroke-width="0.9" stroke-dasharray="2.2,2.6" stroke-linecap="round" opacity="0.9" vector-effect="non-scaling-stroke"/>
     </svg>`;
 
   const nodes = COUNTRIES.map(country => {
@@ -386,7 +424,7 @@ function renderMap(){
       </div>`;
   }).join('');
 
-  wrap.innerHTML = sun + hills + groundTexture + clouds + pathSvg + nodes;
+  wrap.innerHTML = sun + hills + groundTexture + scenery + clouds + pathSvg + nodes;
 }
 
 // ── Country detail ──
