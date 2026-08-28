@@ -11,8 +11,10 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 :root{
-  --board:#fdf3de;
-  --board2:#fbe9c6;
+  --sky-top:#7ec8e3;
+  --sky-bot:#ffe9b8;
+  --ground:#6fbf73;
+  --ground-dark:#4f9e56;
   --ink:#3a2b1a;
   --ink-dim:#8a7455;
   --card:#fffaf0;
@@ -22,64 +24,91 @@
   --green:#3fb27f;
   --green-dark:#2c8a5f;
   --red:#e8432b;
+  --path:#f4dfa0;
   --shadow:0 4px 0 rgba(58,43,26,0.18);
 }
 
 html{scroll-behavior:smooth}
-body{
-  background:linear-gradient(180deg,var(--board) 0%,var(--board2) 100%);
-  color:var(--ink);font-family:'Nunito',sans-serif;min-height:100vh;
-  background-image:radial-gradient(circle, rgba(58,43,26,0.05) 1px, transparent 1px);
-  background-size:22px 22px;
-}
+body{color:var(--ink);font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden}
 h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 
 /* ── Nav ── */
 .tv-nav{
-  position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;
-  padding:14px 24px;background:rgba(253,243,222,0.92);backdrop-filter:blur(10px);
-  border-bottom:3px solid var(--line);
+  position:sticky;top:0;z-index:200;display:flex;align-items:center;justify-content:space-between;
+  padding:12px 20px;background:rgba(58,43,26,0.85);backdrop-filter:blur(10px);
 }
 .tv-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.tv-logo img{height:32px;width:32px;border-radius:8px}
-.tv-logo-text{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:19px;color:var(--ink)}
-.tv-logo-sub{font-size:10px;font-weight:700;color:var(--gold-dark);letter-spacing:1px;text-transform:uppercase}
-.tv-back{font-size:13px;color:var(--ink-dim);text-decoration:none;font-weight:700}
-.tv-back:hover{color:var(--ink)}
+.tv-logo img{height:30px;width:30px;border-radius:8px}
+.tv-logo-text{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:17px;color:#fff}
+.tv-logo-sub{font-size:9px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
+.tv-back{font-size:13px;color:#fff;text-decoration:none;font-weight:700;background:rgba(255,255,255,0.12);padding:8px 16px;border-radius:100px}
+.tv-back:hover{background:rgba(255,255,255,0.2)}
 
-/* ── Header / stats bar ── */
-.stats-bar{
-  max-width:1000px;margin:20px auto 0;padding:0 20px;
-  display:grid;grid-template-columns:1fr 1fr;gap:14px;
+/* ── HUD stats ── */
+.hud{
+  position:sticky;top:53px;z-index:150;display:flex;justify-content:center;gap:10px;
+  padding:10px 16px;background:linear-gradient(180deg,rgba(58,43,26,0.55),transparent);
 }
-@media(max-width:600px){.stats-bar{grid-template-columns:1fr}}
-.stat-box{
-  background:var(--card);border:3px solid var(--line);border-radius:16px;padding:16px 20px;
-  box-shadow:var(--shadow);
+.hud-pill{
+  background:var(--card);border:3px solid var(--line);border-radius:100px;padding:8px 18px;
+  box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;
 }
-.stat-label{font-size:11px;font-weight:800;color:var(--ink-dim);text-transform:uppercase;letter-spacing:1px}
-.stat-value{font-family:'Baloo 2',sans-serif;font-size:28px;font-weight:700;color:var(--ink);margin-top:2px}
-.stat-value.green{color:var(--green-dark)}
+.hud-icon{font-size:16px}
+.hud-label{font-size:9px;font-weight:800;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px;line-height:1}
+.hud-value{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:700;color:var(--ink);line-height:1.2}
+.hud-value.green{color:var(--green-dark)}
 
-.progress-box{
-  max-width:1000px;margin:14px auto 0;padding:0 20px;
+/* ── World map ── */
+.world-wrap{
+  position:relative;min-height:1500px;
+  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-bot) 55%,var(--ground) 56%,var(--ground-dark) 100%);
+  overflow:hidden;
 }
-.progress-card{
-  background:var(--card);border:3px solid var(--line);border-radius:16px;padding:16px 20px;box-shadow:var(--shadow);
+.cloud{position:absolute;background:rgba(255,255,255,0.85);border-radius:100px;filter:blur(0.5px)}
+.cloud::before,.cloud::after{content:'';position:absolute;background:inherit;border-radius:100px}
+.map-path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+.country-node{
+  position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;
+  cursor:pointer;z-index:10;width:120px;
 }
-.progress-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:13px;font-weight:700}
-.progress-track{height:16px;background:var(--board2);border:2px solid var(--line);border-radius:100px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-dark));border-radius:100px;transition:width 0.6s ease}
+.country-node.locked{cursor:default}
+.node-badge{
+  width:88px;height:88px;border-radius:50%;background:var(--card);border:5px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;font-size:40px;box-shadow:0 6px 0 var(--gold-dark);
+  transition:transform 0.15s;position:relative;
+}
+.country-node:not(.locked) .node-badge:hover{transform:translateY(-3px) scale(1.04)}
+.country-node.locked .node-badge{background:#d8d0c0;border-color:#a89a7c;filter:grayscale(1);opacity:0.75;box-shadow:0 6px 0 #8a7d60}
+.node-lock{position:absolute;bottom:-6px;right:-6px;background:var(--ink);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;border:3px solid var(--card)}
+.node-name{
+  margin-top:10px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;color:#fff;
+  text-shadow:0 2px 3px rgba(58,43,26,0.5);text-align:center;
+}
+.node-req{margin-top:2px;font-size:11px;font-weight:800;color:#fff;background:rgba(58,43,26,0.55);padding:3px 10px;border-radius:100px}
+.node-current{
+  position:absolute;top:-38px;left:50%;transform:translateX(-50%);
+  background:var(--gold);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;
+  padding:5px 12px;border-radius:100px;white-space:nowrap;box-shadow:0 3px 0 var(--gold-dark);
+  animation:bob 1.4s ease-in-out infinite;
+}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
 
-/* ── Country sections ── */
-.tv-main{max-width:1000px;margin:24px auto;padding:0 20px 80px}
-.country-section{margin-bottom:36px}
-.country-head{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-.country-flag{font-size:34px;line-height:1}
-.country-name{font-family:'Baloo 2',sans-serif;font-size:24px;font-weight:700}
-.country-lock-note{font-size:12px;color:var(--ink-dim);font-weight:700;margin-left:auto}
-
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+/* ── Country detail overlay ── */
+.detail-view{
+  position:fixed;inset:0;background:var(--sky-bot);z-index:300;overflow-y:auto;
+  transform:translateX(100%);transition:transform 0.28s ease;
+}
+.detail-view.open{transform:translateX(0)}
+.detail-head{
+  display:flex;align-items:center;gap:14px;padding:16px 20px;background:var(--card);border-bottom:4px solid var(--line);
+  position:sticky;top:0;z-index:5;
+}
+.detail-back{background:var(--gold);color:#fff;border:none;width:40px;height:40px;border-radius:50%;font-size:18px;cursor:pointer;box-shadow:0 3px 0 var(--gold-dark);flex-shrink:0}
+.detail-flag{font-size:34px}
+.detail-title{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:700}
+.detail-body{padding:20px;max-width:700px;margin:0 auto}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px}
 
 .co-card{
   background:var(--card);border:3px solid var(--line);border-radius:16px;padding:16px 14px;
@@ -87,9 +116,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 }
 .co-card:hover{transform:translateY(-2px)}
 .co-card.owned{border-color:var(--green);box-shadow:0 4px 0 rgba(63,178,127,0.3)}
-.co-card.locked{cursor:default;opacity:0.55;filter:grayscale(1)}
-.co-card.locked:hover{transform:none}
-.co-logo{font-size:38px;margin-bottom:8px}
+.co-logo{font-size:36px;margin-bottom:8px}
 .co-ticker{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px}
 .co-name{font-size:11px;color:var(--ink-dim);font-weight:700;margin-top:2px;min-height:28px}
 .co-price{font-size:13px;font-weight:800;color:var(--green-dark);margin-top:6px}
@@ -97,12 +124,11 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   position:absolute;top:-8px;right:-8px;background:var(--green);color:#fff;
   font-size:10px;font-weight:800;padding:4px 8px;border-radius:100px;border:2px solid var(--card);
 }
-.co-lock-icon{position:absolute;top:10px;right:10px;font-size:16px}
 
 /* ── Buy modal ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(58,43,26,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--card);border:4px solid var(--line);border-radius:20px;padding:26px;width:100%;max-width:380px;box-shadow:0 8px 0 rgba(58,43,26,0.18);transform:translateY(10px);transition:transform 0.2s}
+.modal{background:var(--card);border:4px solid var(--line);border-radius:20px;padding:26px;width:100%;max-width:380px;box-shadow:0 8px 0 rgba(58,43,26,0.18);transform:translateY(10px);transition:transform 0.2s;position:relative}
 .modal-overlay.open .modal{transform:translateY(0)}
 .modal-close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--ink-dim)}
 .modal-logo{font-size:52px;text-align:center;margin-bottom:6px}
@@ -141,34 +167,30 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   <a href="/bullpen.html" class="tv-back">← Bullpen</a>
 </nav>
 
-<div class="stats-bar">
-  <div class="stat-box">
-    <div class="stat-label">Net Worth</div>
-    <div class="stat-value green" id="netWorthDisplay">$10,000</div>
-  </div>
-  <div class="stat-box">
-    <div class="stat-label">Cash on Hand</div>
-    <div class="stat-value" id="cashDisplay">$10,000</div>
-  </div>
+<div class="hud">
+  <div class="hud-pill"><span class="hud-icon">💰</span><div><div class="hud-label">Net Worth</div><div class="hud-value green" id="netWorthDisplay">$10,000</div></div></div>
+  <div class="hud-pill"><span class="hud-icon">💵</span><div><div class="hud-label">Cash</div><div class="hud-value" id="cashDisplay">$10,000</div></div></div>
 </div>
 
-<div class="progress-box" id="progressBox" style="display:none">
-  <div class="progress-card">
-    <div class="progress-top">
-      <span>Next unlock: <span id="nextCountryName"></span></span>
-      <span id="progressText"></span>
-    </div>
-    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
-  </div>
+<div class="world-wrap" id="worldWrap">
+  <div class="loading" style="color:#fff">Loading your empire...</div>
 </div>
 
-<div class="tv-main" id="tvMain">
-  <div class="loading">Loading your empire...</div>
+<!-- Country detail view -->
+<div class="detail-view" id="detailView">
+  <div class="detail-head">
+    <button class="detail-back" onclick="closeDetail()">←</button>
+    <div class="detail-flag" id="detailFlag"></div>
+    <div class="detail-title" id="detailTitle"></div>
+  </div>
+  <div class="detail-body">
+    <div class="card-grid" id="detailGrid"></div>
+  </div>
 </div>
 
 <!-- Buy modal -->
 <div class="modal-overlay" id="buyModal">
-  <div class="modal" style="position:relative">
+  <div class="modal">
     <button class="modal-close" onclick="closeBuyModal()">✕</button>
     <div class="modal-logo" id="buyLogo"></div>
     <div class="modal-name" id="buyName"></div>
@@ -195,49 +217,37 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 
 <script src="/bullpen-shared.js"></script>
 <script>
-// ── Game data ──
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+
+// ── Game data — positions are percentages along the winding map ──
 const COUNTRIES = [
-  { id:'usa', flag:'🇺🇸', name:'United States', threshold:0, companies:[
-    {ticker:'AAPL', name:'Apple', logo:'🍎'},
-    {ticker:'MSFT', name:'Microsoft', logo:'🪟'},
-    {ticker:'AMZN', name:'Amazon', logo:'📦'},
-    {ticker:'GOOGL', name:'Alphabet', logo:'🔍'},
-    {ticker:'TSLA', name:'Tesla', logo:'⚡'},
+  { id:'usa', flag:'🇺🇸', name:'United States', threshold:0, x:22, y:92, companies:[
+    {ticker:'AAPL', name:'Apple', logo:'🍎'}, {ticker:'MSFT', name:'Microsoft', logo:'🪟'},
+    {ticker:'AMZN', name:'Amazon', logo:'📦'}, {ticker:'GOOGL', name:'Alphabet', logo:'🔍'}, {ticker:'TSLA', name:'Tesla', logo:'⚡'},
   ]},
-  { id:'japan', flag:'🇯🇵', name:'Japan', threshold:15000, companies:[
-    {ticker:'TM', name:'Toyota', logo:'🚗'},
-    {ticker:'SONY', name:'Sony', logo:'🎮'},
-    {ticker:'NTDOY', name:'Nintendo', logo:'🍄'},
-    {ticker:'HMC', name:'Honda', logo:'🏍️'},
+  { id:'japan', flag:'🇯🇵', name:'Japan', threshold:15000, x:74, y:76, companies:[
+    {ticker:'TM', name:'Toyota', logo:'🚗'}, {ticker:'SONY', name:'Sony', logo:'🎮'},
+    {ticker:'NTDOY', name:'Nintendo', logo:'🍄'}, {ticker:'HMC', name:'Honda', logo:'🏍️'},
   ]},
-  { id:'korea', flag:'🇰🇷', name:'South Korea', threshold:25000, companies:[
-    {ticker:'CPNG', name:'Coupang', logo:'📱'},
-    {ticker:'KB', name:'KB Financial', logo:'🏦'},
-    {ticker:'PKX', name:'POSCO', logo:'⚙️'},
-    {ticker:'SKM', name:'SK Telecom', logo:'📡'},
+  { id:'korea', flag:'🇰🇷', name:'South Korea', threshold:25000, x:26, y:60, companies:[
+    {ticker:'CPNG', name:'Coupang', logo:'📱'}, {ticker:'KB', name:'KB Financial', logo:'🏦'},
+    {ticker:'PKX', name:'POSCO', logo:'⚙️'}, {ticker:'SKM', name:'SK Telecom', logo:'📡'},
   ]},
-  { id:'germany', flag:'🇩🇪', name:'Germany', threshold:40000, companies:[
-    {ticker:'SAP', name:'SAP', logo:'💻'},
-    {ticker:'DB', name:'Deutsche Bank', logo:'🏦'},
-    {ticker:'VWAGY', name:'Volkswagen', logo:'🚙'},
-    {ticker:'BAYRY', name:'Bayer', logo:'💊'},
+  { id:'germany', flag:'🇩🇪', name:'Germany', threshold:40000, x:76, y:44, companies:[
+    {ticker:'SAP', name:'SAP', logo:'💻'}, {ticker:'DB', name:'Deutsche Bank', logo:'🏦'},
+    {ticker:'VWAGY', name:'Volkswagen', logo:'🚙'}, {ticker:'BAYRY', name:'Bayer', logo:'💊'},
   ]},
-  { id:'uk', flag:'🇬🇧', name:'United Kingdom', threshold:60000, companies:[
-    {ticker:'UL', name:'Unilever', logo:'🧴'},
-    {ticker:'SHEL', name:'Shell', logo:'⛽'},
-    {ticker:'HSBC', name:'HSBC', logo:'🏦'},
-    {ticker:'AZN', name:'AstraZeneca', logo:'💉'},
+  { id:'uk', flag:'🇬🇧', name:'United Kingdom', threshold:60000, x:24, y:28, companies:[
+    {ticker:'UL', name:'Unilever', logo:'🧴'}, {ticker:'SHEL', name:'Shell', logo:'⛽'},
+    {ticker:'HSBC', name:'HSBC', logo:'🏦'}, {ticker:'AZN', name:'AstraZeneca', logo:'💉'},
   ]},
-  { id:'china', flag:'🇨🇳', name:'China', threshold:100000, companies:[
-    {ticker:'BABA', name:'Alibaba', logo:'🛒'},
-    {ticker:'JD', name:'JD.com', logo:'📦'},
-    {ticker:'PDD', name:'Pinduoduo', logo:'🛍️'},
-    {ticker:'NIO', name:'NIO', logo:'🔋'},
+  { id:'china', flag:'🇨🇳', name:'China', threshold:100000, x:72, y:12, companies:[
+    {ticker:'BABA', name:'Alibaba', logo:'🛒'}, {ticker:'JD', name:'JD.com', logo:'📦'},
+    {ticker:'PDD', name:'Pinduoduo', logo:'🛍️'}, {ticker:'NIO', name:'NIO', logo:'🔋'},
   ]},
 ];
 const ALL_TICKERS = COUNTRIES.flatMap(c => c.companies.map(co => co.ticker));
 
-// ── Player identity: signed-in user_id, or a persistent guest device id ──
 function getDeviceId(){
   let id = localStorage.getItem('tycoon_device_id');
   if(!id){ id = 'device_' + Math.random().toString(36).slice(2) + Date.now().toString(36); localStorage.setItem('tycoon_device_id', id); }
@@ -257,12 +267,8 @@ async function loadPlayer(){
   const uid = getUid();
   const deviceId = getDeviceId();
   let rows = [];
-  if(uid){
-    rows = await sbGet('tycoon_players', 'user_id=eq.'+uid);
-  }
-  if(!rows.length){
-    rows = await sbGet('tycoon_players', 'device_id=eq.'+deviceId);
-  }
+  if(uid) rows = await sbGet('tycoon_players', 'user_id=eq.'+uid);
+  if(!rows.length) rows = await sbGet('tycoon_players', 'device_id=eq.'+deviceId);
   if(rows.length){
     player = rows[0];
   } else {
@@ -272,14 +278,12 @@ async function loadPlayer(){
   holdings = await sbGet('tycoon_holdings', 'player_id=eq.'+player.id);
 }
 
-const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
-
 async function loadQuotes(){
   try {
     const res = await fetch(BACKEND + '/api/quotes?symbols=' + ALL_TICKERS.join(','));
     const data = await res.json();
     (data.quoteResponse?.result || []).forEach(q => { quotes[q.symbol] = q.regularMarketPrice; });
-  } catch(e){ /* fall through with whatever we have, price shows as -- */ }
+  } catch(e){ /* fall through, prices show as -- */ }
 }
 
 function netWorth(){
@@ -288,51 +292,70 @@ function netWorth(){
   return total;
 }
 
-function render(){
+// ── Map rendering ──
+function buildPathD(){
+  return 'M ' + COUNTRIES.map(c => `${c.x} ${c.y}`).join(' L ');
+}
+
+function renderMap(){
   const nw = netWorth();
-  document.getElementById('netWorthDisplay').textContent = '$' + nw.toLocaleString(undefined, {maximumFractionDigits:0});
-  document.getElementById('cashDisplay').textContent = '$' + player.cash.toLocaleString(undefined, {maximumFractionDigits:0});
+  document.getElementById('netWorthDisplay').textContent = '$' + nw.toLocaleString(undefined,{maximumFractionDigits:0});
+  document.getElementById('cashDisplay').textContent = '$' + player.cash.toLocaleString(undefined,{maximumFractionDigits:0});
 
   const unlocked = player.unlocked_countries;
   const nextCountry = COUNTRIES.find(c => !unlocked.includes(c.id));
-  const progressBox = document.getElementById('progressBox');
-  if(nextCountry){
-    progressBox.style.display = 'block';
-    const pct = Math.min(100, (nw / nextCountry.threshold) * 100);
-    document.getElementById('nextCountryName').textContent = nextCountry.flag + ' ' + nextCountry.name;
-    document.getElementById('progressText').textContent = '$' + nw.toLocaleString(undefined,{maximumFractionDigits:0}) + ' / $' + nextCountry.threshold.toLocaleString();
-    document.getElementById('progressFill').style.width = pct + '%';
-  } else {
-    progressBox.style.display = 'none';
-  }
 
-  const main = document.getElementById('tvMain');
-  main.innerHTML = COUNTRIES.map(country => {
+  const wrap = document.getElementById('worldWrap');
+  const clouds = `
+    <div class="cloud" style="width:90px;height:32px;top:6%;left:8%"></div>
+    <div class="cloud" style="width:60px;height:22px;top:14%;left:60%"></div>
+    <div class="cloud" style="width:110px;height:36px;top:20%;left:30%"></div>
+    <div class="cloud" style="width:70px;height:26px;top:34%;left:75%"></div>`;
+
+  const pathSvg = `
+    <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <path d="${buildPathD()}" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="2.5,2.5" opacity="0.85" vector-effect="non-scaling-stroke"/>
+    </svg>`;
+
+  const nodes = COUNTRIES.map(country => {
     const isUnlocked = unlocked.includes(country.id);
+    const isNext = nextCountry && nextCountry.id === country.id;
     return `
-      <div class="country-section">
-        <div class="country-head">
-          <div class="country-flag">${country.flag}</div>
-          <div class="country-name">${country.name}</div>
-          ${!isUnlocked ? `<div class="country-lock-note">🔒 Unlocks at $${country.threshold.toLocaleString()} net worth</div>` : ''}
+      <div class="country-node ${isUnlocked ? '' : 'locked'}" style="left:${country.x}%;top:${country.y}%" ${isUnlocked ? `onclick="openCountry('${country.id}')"` : ''}>
+        ${isNext ? `<div class="node-current">You're here!</div>` : ''}
+        <div class="node-badge">
+          ${country.flag}
+          ${!isUnlocked ? '<div class="node-lock">🔒</div>' : ''}
         </div>
-        <div class="card-grid">
-          ${country.companies.map(co => {
-            const held = holdings.find(h => h.ticker === co.ticker);
-            const price = quotes[co.ticker];
-            return `
-              <div class="co-card ${!isUnlocked ? 'locked' : ''} ${held ? 'owned' : ''}" ${isUnlocked ? `onclick="openBuyModal('${co.ticker}')"` : ''}>
-                ${!isUnlocked ? '<div class="co-lock-icon">🔒</div>' : ''}
-                ${held ? `<div class="co-owned-badge">${held.shares} sh</div>` : ''}
-                <div class="co-logo">${co.logo}</div>
-                <div class="co-ticker">${co.ticker}</div>
-                <div class="co-name">${co.name}</div>
-                <div class="co-price">${price ? '$'+price.toFixed(2) : (isUnlocked ? '...' : '')}</div>
-              </div>`;
-          }).join('')}
-        </div>
+        <div class="node-name">${country.name}</div>
+        ${!isUnlocked ? `<div class="node-req">$${country.threshold.toLocaleString()}</div>` : ''}
       </div>`;
   }).join('');
+
+  wrap.innerHTML = clouds + pathSvg + nodes;
+}
+
+// ── Country detail ──
+function openCountry(countryId){
+  const country = COUNTRIES.find(c => c.id === countryId);
+  document.getElementById('detailFlag').textContent = country.flag;
+  document.getElementById('detailTitle').textContent = country.name;
+  document.getElementById('detailGrid').innerHTML = country.companies.map(co => {
+    const held = holdings.find(h => h.ticker === co.ticker);
+    const price = quotes[co.ticker];
+    return `
+      <div class="co-card ${held ? 'owned' : ''}" onclick="openBuyModal('${co.ticker}')">
+        ${held ? `<div class="co-owned-badge">${held.shares} sh</div>` : ''}
+        <div class="co-logo">${co.logo}</div>
+        <div class="co-ticker">${co.ticker}</div>
+        <div class="co-name">${co.name}</div>
+        <div class="co-price">${price ? '$'+price.toFixed(2) : '...'}</div>
+      </div>`;
+  }).join('');
+  document.getElementById('detailView').classList.add('open');
+}
+function closeDetail(){
+  document.getElementById('detailView').classList.remove('open');
 }
 
 async function checkUnlocks(){
@@ -353,7 +376,7 @@ function showUnlockCelebration(country){
 }
 function closeUnlockCelebration(){
   document.getElementById('unlockOverlay').classList.remove('open');
-  render();
+  renderMap();
 }
 
 // ── Buying ──
@@ -405,7 +428,9 @@ async function confirmBuy(){
 
   btn.textContent = 'Buy →'; btn.disabled = false;
   closeBuyModal();
-  render();
+  const country = COUNTRIES.find(c => c.companies.some(co => co.ticker === buyingTicker));
+  openCountry(country.id); // refresh the card grid with the new ownership state
+  renderMap();
   await checkUnlocks();
 }
 
@@ -413,11 +438,11 @@ async function init(){
   try {
     await loadPlayer();
     await loadQuotes();
-    render();
+    renderMap();
     await checkUnlocks();
   } catch(e){
-    document.getElementById('tvMain').innerHTML = `
-      <div class="loading">
+    document.getElementById('worldWrap').innerHTML = `
+      <div class="loading" style="color:#fff">
         Something went wrong loading your empire.<br/><br/>
         <button class="btn-buy" style="width:auto;padding:12px 28px" onclick="location.reload()">Try Again</button>
       </div>`;
