@@ -339,12 +339,19 @@ footer a:hover{color:var(--text)}
   </a>
 
   <!-- Desktop nav -->
-  <div class="bp-nav-right bp-nav-desktop">
-    <a href="/trade" class="sp-link">← Back to StockPilot</a>
-    <button class="btn-ghost" id="navSignInBtn" onclick="openSignin()" style="display:none">Sign In</button>
-    <a href="/bullpen-madness.html" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center">🏆 Madness</a>
-    <a href="/bullpen-showdown.html" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center">📈 Showdown</a>
-    <a href="/my-account.html" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center">👤 My Account</a>
+  <div class="bp-nav-right bp-nav-desktop" style="position:relative">
+    <a href="/trade" class="sp-link" title="Back to StockPilot" style="font-size:16px;padding:6px 4px">←</a>
+
+    <div style="position:relative">
+      <button class="btn-ghost" id="gamesMenuBtn" onclick="toggleGamesMenu()" style="display:inline-flex;align-items:center;gap:4px">🎮 Games ▾</button>
+      <div id="gamesMenu" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:rgba(8,12,16,0.98);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:10px;padding:6px;min-width:160px;z-index:200;flex-direction:column;gap:2px">
+        <a href="/bullpen-madness.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">🏆 Madness</a>
+        <a href="/bullpen-showdown.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">📈 Showdown</a>
+        <a href="/bullpen-h2h.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">⚔️ 1v1</a>
+      </div>
+    </div>
+
+    <a href="/my-account.html" id="navAccountLink" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">👤 Sign In</a>
     <button class="btn-ghost" onclick="requireAuth(openJoin)">Join League</button>
     <button class="btn-primary" onclick="requireAuth(openCreate)">Create League</button>
   </div>
@@ -366,6 +373,7 @@ footer a:hover{color:var(--text)}
   <button onclick="closeBpMenu();requireAuth(openJoin)" style="width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Join with Code</button>
   <a href="/bullpen-madness.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(124,77,255,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">🏆 Bullpen Madness</a>
   <a href="/bullpen-showdown.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(41,121,255,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">📈 Bullpen Showdown</a>
+  <a href="/bullpen-h2h.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(224,95,209,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">⚔️ Bullpen 1v1</a>
   <button id="mobileSignInBtn" onclick="closeBpMenu();openSignin()" style="width:100%;padding:13px;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.08);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
   <a href="/trade" style="display:block;text-align:center;font-size:13px;color:var(--muted);text-decoration:none;padding:8px">← Back to StockPilot</a>
 </div>
@@ -1005,25 +1013,38 @@ function updateMobileAuth(){
     if(signInBtn) signInBtn.style.display='block';
     if(userPill) userPill.style.display='none';
   }
-  // Also show/hide desktop sign in btn
-  const deskSignIn=document.getElementById('navSignInBtn');
-  if(deskSignIn) deskSignIn.style.display=name?'none':'block';
 }
 
 function updateNavAuth(){
   const name=localStorage.getItem('supabase_name');
-  const navRight=document.querySelector('.bp-nav-right');
-  if(navRight&&name){
-    if(!navRight.querySelector('.user-pill')){
-      const el=document.createElement('span');
-      el.className='user-pill';
-      el.style.cssText='font-size:13px;color:rgba(255,255,255,0.7);padding:6px 12px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.08)';
-      el.textContent='👤 '+name;
-      navRight.insertBefore(el,navRight.firstChild);
+  const link=document.getElementById('navAccountLink');
+  if(link){
+    if(name){
+      // Long generated usernames (e.g. test accounts) shouldn't be able
+      // to stretch the nav - truncate and let the ellipsis/max-width
+      // handle the rest.
+      const shown = name.length > 16 ? name.slice(0, 14) + '…' : name;
+      link.textContent = '👤 ' + shown;
+      link.title = name;
+    } else {
+      link.textContent = '👤 Sign In';
+      link.title = '';
     }
   }
   updateMobileAuth();
 }
+
+function toggleGamesMenu(){
+  const menu=document.getElementById('gamesMenu');
+  menu.style.display = menu.style.display==='flex' ? 'none' : 'flex';
+}
+document.addEventListener('click', function(e){
+  const menu=document.getElementById('gamesMenu');
+  const btn=document.getElementById('gamesMenuBtn');
+  if(menu && btn && menu.style.display==='flex' && !menu.contains(e.target) && !btn.contains(e.target)){
+    menu.style.display='none';
+  }
+});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignin();});
 (function(){
   const name=localStorage.getItem('supabase_name');
