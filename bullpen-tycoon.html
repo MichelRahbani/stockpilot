@@ -381,7 +381,7 @@ function renderMap(){
   const groundTexture = `<div class="ground-texture"></div>`;
 
   const treeSvg = (x, y, scale) => `
-    <svg class="tree" style="left:${x}%;top:${y}%;width:${34*scale}px" viewBox="0 0 34 40">
+    <svg class="tree" style="left:${x}%;top:${y}%;width:${66*scale}px" viewBox="0 0 34 40">
       <ellipse cx="17" cy="26" rx="6" ry="4" fill="rgba(58,43,26,0.15)"/>
       <rect x="15" y="22" width="4" height="12" rx="1.5" fill="#8a5a2e"/>
       <circle cx="17" cy="16" r="12" fill="#4a9a4f"/>
@@ -389,16 +389,16 @@ function renderMap(){
       <circle cx="24" cy="19" r="8" fill="#3fa851"/>
     </svg>`;
   const bushSvg = (x, y, scale) => `
-    <svg class="tree" style="left:${x}%;top:${y}%;width:${22*scale}px" viewBox="0 0 22 14">
+    <svg class="tree" style="left:${x}%;top:${y}%;width:${44*scale}px" viewBox="0 0 22 14">
       <ellipse cx="11" cy="12" rx="9" ry="2.5" fill="rgba(58,43,26,0.12)"/>
       <circle cx="7" cy="8" r="6" fill="#4a9a4f"/>
       <circle cx="15" cy="8" r="6" fill="#3fa851"/>
       <circle cx="11" cy="6" r="6.5" fill="#5cb060"/>
     </svg>`;
   const scenery = [
-    treeSvg(6,66,1.1), treeSvg(88,58,0.9), treeSvg(35,72,0.8), bushSvg(80,88,1),
-    treeSvg(90,80,1), bushSvg(8,63,0.9), treeSvg(65,95,0.85), bushSvg(45,60,0.8),
-    treeSvg(18,84,0.9), bushSvg(60,70,0.85),
+    treeSvg(6,66,1.3), treeSvg(88,58,1.1), treeSvg(35,72,1.0), bushSvg(80,88,1.2),
+    treeSvg(90,80,1.2), bushSvg(8,63,1.1), treeSvg(65,95,1.05), bushSvg(45,60,1.0),
+    treeSvg(18,84,1.1), bushSvg(60,70,1.05),
   ].join('');
 
   const pathD = buildPathD();
