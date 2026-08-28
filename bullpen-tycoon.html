@@ -44,6 +44,28 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 .tv-logo-text{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:17px;color:#fff}
 .tv-logo-sub{font-size:9px;font-weight:700;color:var(--gold);letter-spacing:1px;text-transform:uppercase}
 .tv-back{font-size:13px;color:#fff;text-decoration:none;font-weight:700;background:rgba(255,255,255,0.12);padding:8px 16px;border-radius:100px}
+.tv-help-btn{
+  width:36px;height:36px;border-radius:50%;background:var(--gold);border:none;color:#fff;
+  font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 var(--gold-dark);
+}
+.tv-help-btn:active{transform:translateY(2px);box-shadow:none}
+
+/* ── How to Play ── */
+.htp-overlay{position:fixed;inset:0;background:rgba(58,43,26,0.6);display:flex;align-items:center;justify-content:center;z-index:2500;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.25s}
+.htp-overlay.open{opacity:1;pointer-events:all}
+.htp-card{
+  background:var(--card);border:5px solid var(--gold);border-radius:24px;padding:32px 28px;width:100%;max-width:420px;
+  max-height:88vh;overflow-y:auto;transform:scale(0.9);transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+}
+.htp-overlay.open .htp-card{transform:scale(1)}
+.htp-title{font-family:'Baloo 2',sans-serif;font-size:26px;font-weight:700;text-align:center;margin-bottom:4px}
+.htp-subtitle{text-align:center;color:var(--ink-dim);font-size:14px;margin-bottom:22px}
+.htp-step{display:flex;gap:14px;align-items:flex-start;margin-bottom:18px}
+.htp-step-icon{font-size:30px;flex-shrink:0;width:44px;text-align:center}
+.htp-step-title{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px}
+.htp-step-desc{font-size:13px;color:var(--ink-dim);line-height:1.4;margin-top:2px}
+.btn-htp-close{width:100%;background:var(--green);color:#fff;border:none;padding:14px;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;margin-top:8px;font-family:'Baloo 2',sans-serif;box-shadow:0 3px 0 var(--green-dark)}
+.btn-htp-close:active{transform:translateY(2px);box-shadow:none}
 .tv-back:hover{background:rgba(255,255,255,0.2)}
 
 /* ── HUD stats ── */
@@ -216,7 +238,10 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
     <img src="/logo.jpg" alt="StockPilot"/>
     <div><div class="tv-logo-text">StockPilot</div><div class="tv-logo-sub">Bullpen Tycoon</div></div>
   </a>
-  <a href="/bullpen.html" class="tv-back">← Bullpen</a>
+  <div style="display:flex;gap:8px">
+    <button class="tv-help-btn" onclick="openHowToPlay()">?</button>
+    <a href="/bullpen.html" class="tv-back">← Bullpen</a>
+  </div>
 </nav>
 
 <div class="hud">
@@ -239,6 +264,45 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   </div>
   <div class="detail-body">
     <div class="card-grid" id="detailGrid"></div>
+  </div>
+</div>
+
+<!-- How to Play -->
+<div class="htp-overlay" id="htpOverlay">
+  <div class="htp-card">
+    <div class="htp-title">🌍 Bullpen Tycoon</div>
+    <div class="htp-subtitle">Real companies. Real prices. Your empire.</div>
+
+    <div class="htp-step">
+      <div class="htp-step-icon">💰</div>
+      <div>
+        <div class="htp-step-title">Start with $10,000</div>
+        <div class="htp-step-desc">Virtual cash, real stock prices. Nothing here uses real money.</div>
+      </div>
+    </div>
+    <div class="htp-step">
+      <div class="htp-step-icon">🏳️</div>
+      <div>
+        <div class="htp-step-title">Buy real companies</div>
+        <div class="htp-step-desc">Tap a country on the map, then tap a company to buy shares at today's real price.</div>
+      </div>
+    </div>
+    <div class="htp-step">
+      <div class="htp-step-icon">📈</div>
+      <div>
+        <div class="htp-step-title">Watch your net worth grow</div>
+        <div class="htp-step-desc">Your holdings move with the real market — that's what grows your empire.</div>
+      </div>
+    </div>
+    <div class="htp-step">
+      <div class="htp-step-icon">🔓</div>
+      <div>
+        <div class="htp-step-title">Unlock new countries</div>
+        <div class="htp-step-desc">Hit each net worth milestone and a new country — with its own companies to collect — unlocks.</div>
+      </div>
+    </div>
+
+    <button class="btn-htp-close" onclick="closeHowToPlay()">Let's go! 🚀</button>
   </div>
 </div>
 
@@ -529,12 +593,19 @@ async function confirmBuy(){
   await checkUnlocks();
 }
 
+function openHowToPlay(){ document.getElementById('htpOverlay').classList.add('open'); }
+function closeHowToPlay(){
+  document.getElementById('htpOverlay').classList.remove('open');
+  localStorage.setItem('tycoon_seen_intro', '1');
+}
+
 async function init(){
   try {
     await loadPlayer();
     await loadQuotes();
     renderMap();
     await checkUnlocks();
+    if(!localStorage.getItem('tycoon_seen_intro')) openHowToPlay();
   } catch(e){
     document.getElementById('worldWrap').innerHTML = `
       <div class="loading" style="color:#fff">
