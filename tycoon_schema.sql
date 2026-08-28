@@ -33,5 +33,10 @@ ALTER TABLE tycoon_holdings ENABLE ROW LEVEL SECURITY;
 -- Anyone can read/write their own row via the anon key (same public
 -- pattern the rest of Bullpen uses) - guests are identified by
 -- device_id, signed-in users by user_id, matched client-side.
-CREATE POLICY IF NOT EXISTS "tycoon_players_all" ON tycoon_players FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY IF NOT EXISTS "tycoon_holdings_all" ON tycoon_holdings FOR ALL USING (true) WITH CHECK (true);
+-- CREATE POLICY doesn't support IF NOT EXISTS in Postgres, so drop
+-- first to keep this safely re-runnable.
+DROP POLICY IF EXISTS "tycoon_players_all" ON tycoon_players;
+CREATE POLICY "tycoon_players_all" ON tycoon_players FOR ALL USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "tycoon_holdings_all" ON tycoon_holdings;
+CREATE POLICY "tycoon_holdings_all" ON tycoon_holdings FOR ALL USING (true) WITH CHECK (true);
