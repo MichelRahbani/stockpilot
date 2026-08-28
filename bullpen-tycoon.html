@@ -410,10 +410,18 @@ async function confirmBuy(){
 }
 
 async function init(){
-  await loadPlayer();
-  await loadQuotes();
-  render();
-  await checkUnlocks();
+  try {
+    await loadPlayer();
+    await loadQuotes();
+    render();
+    await checkUnlocks();
+  } catch(e){
+    document.getElementById('tvMain').innerHTML = `
+      <div class="loading">
+        Something went wrong loading your empire.<br/><br/>
+        <button class="btn-buy" style="width:auto;padding:12px 28px" onclick="location.reload()">Try Again</button>
+      </div>`;
+  }
 }
 init();
 </script>
