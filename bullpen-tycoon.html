@@ -378,7 +378,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'GOOGL', name:'Alphabet', logo:'/assets/tycoon/icons/magglass.svg'}, {ticker:'TSLA', name:'Tesla', logo:'/assets/tycoon/icons/lightning.svg'},
     ]},
-  { id:'japan', flag:'/assets/tycoon/flags/japan.svg', name:'Japan', threshold:15000, x:86.1, y:35.1, accent:'#bc002d', accent2:'#e8e0d0',
+  { id:'japan', flag:'/assets/tycoon/flags/japan.svg', name:'Japan', threshold:15000, x:90.5, y:39.0, accent:'#bc002d', accent2:'#e8e0d0',
     starterInvestNeeded:1500,
     starters:[
       {ticker:'HMC', name:'Honda', logo:'/assets/tycoon/icons/motorcycle.svg'}, {ticker:'SONY', name:'Sony', logo:'/assets/tycoon/icons/gamepad.svg'},
@@ -386,7 +386,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'TM', name:'Toyota', logo:'/assets/tycoon/icons/car.svg'}, {ticker:'NTDOY', name:'Nintendo', logo:'/assets/tycoon/icons/mushroom.svg'},
     ]},
-  { id:'korea', flag:'/assets/tycoon/flags/korea.svg', name:'South Korea', threshold:25000, x:83.3, y:37.1, accent:'#003478', accent2:'#c60c30',
+  { id:'korea', flag:'/assets/tycoon/flags/korea.svg', name:'South Korea', threshold:25000, x:82.0, y:31.0, accent:'#003478', accent2:'#c60c30',
     starterInvestNeeded:2000,
     starters:[
       {ticker:'SKM', name:'SK Telecom', logo:'/assets/tycoon/icons/satellite.svg'}, {ticker:'PKX', name:'POSCO', logo:'/assets/tycoon/icons/gear.svg'},
@@ -394,7 +394,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'CPNG', name:'Coupang', logo:'/assets/tycoon/icons/phone.svg'}, {ticker:'KB', name:'KB Financial', logo:'/assets/tycoon/icons/bank.svg'},
     ]},
-  { id:'germany', flag:'/assets/tycoon/flags/germany.svg', name:'Germany', threshold:40000, x:48.8, y:31.9, accent:'#000000', accent2:'#dd0000',
+  { id:'germany', flag:'/assets/tycoon/flags/germany.svg', name:'Germany', threshold:40000, x:52.5, y:31.0, accent:'#000000', accent2:'#dd0000',
     starterInvestNeeded:2500,
     starters:[
       {ticker:'BAYRY', name:'Bayer', logo:'/assets/tycoon/icons/pill.svg'}, {ticker:'VWAGY', name:'Volkswagen', logo:'/assets/tycoon/icons/suv.svg'},
@@ -402,7 +402,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'SAP', name:'SAP', logo:'/assets/tycoon/icons/laptop.svg'}, {ticker:'DB', name:'Deutsche Bank', logo:'/assets/tycoon/icons/bank.svg'},
     ]},
-  { id:'uk', flag:'/assets/tycoon/flags/uk.svg', name:'United Kingdom', threshold:60000, x:45.1, y:29.5, accent:'#00247d', accent2:'#cf142b',
+  { id:'uk', flag:'/assets/tycoon/flags/uk.svg', name:'United Kingdom', threshold:60000, x:42.0, y:27.0, accent:'#00247d', accent2:'#cf142b',
     starterInvestNeeded:3000,
     starters:[
       {ticker:'UL', name:'Unilever', logo:'/assets/tycoon/icons/lotion.svg'}, {ticker:'SHEL', name:'Shell', logo:'/assets/tycoon/icons/fuel.svg'},
@@ -410,7 +410,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'HSBC', name:'HSBC', logo:'/assets/tycoon/icons/bank.svg'}, {ticker:'AZN', name:'AstraZeneca', logo:'/assets/tycoon/icons/syringe.svg'},
     ]},
-  { id:'china', flag:'/assets/tycoon/flags/china.svg', name:'China', threshold:100000, x:75.2, y:36.7, accent:'#de2910', accent2:'#ffde00',
+  { id:'china', flag:'/assets/tycoon/flags/china.svg', name:'China', threshold:100000, x:70.0, y:40.0, accent:'#de2910', accent2:'#ffde00',
     starterInvestNeeded:4000,
     starters:[
       {ticker:'JD', name:'JD.com', logo:'/assets/tycoon/icons/box.svg'}, {ticker:'PDD', name:'Pinduoduo', logo:'/assets/tycoon/icons/bags.svg'},
@@ -534,7 +534,7 @@ function renderMap(){
         </div>
         <div class="node-name">${country.name}</div>
         ${!isUnlocked ? (blockedByPrev
-          ? `<div class="node-req">Unlock <img src="${prevCountry.flag}" class="flag-icon" style="vertical-align:-2px"> advanced tier first</div>`
+          ? `<div class="node-req"><img src="${prevCountry.flag}" class="flag-icon" style="vertical-align:-2px"> tier first</div>`
           : `<div class="node-req">$${country.threshold.toLocaleString()}</div>`) : ''}
       </div>`;
   }).join('');
