@@ -88,10 +88,9 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 30%,var(--sky-bot) 55%,var(--ground) 56%,var(--ground-mid) 78%,var(--ground-dark) 100%);
   overflow:hidden;
 }
-.sun{
-  position:absolute;top:3%;right:10%;width:130px;height:130px;border-radius:50%;
-  background:radial-gradient(circle, rgba(255,247,214,0.95) 0%, rgba(255,229,150,0.5) 45%, transparent 72%);
-  filter:blur(1px);
+.sun-img{
+  position:absolute;top:3%;right:10%;width:110px;
+  filter:drop-shadow(0 0 40px rgba(255,229,150,0.8));
 }
 .hills{position:absolute;left:0;right:0;pointer-events:none}
 .ground-texture{
@@ -99,8 +98,8 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   background-image:radial-gradient(circle, rgba(255,255,255,0.15) 1.5px, transparent 1.5px);
   background-size:34px 34px;
 }
-.cloud{position:absolute;filter:drop-shadow(0 3px 2px rgba(58,43,26,0.08))}
-.tree{position:absolute;pointer-events:none;z-index:1}
+.cloud-img{position:absolute;filter:drop-shadow(0 3px 3px rgba(58,43,26,0.12))}
+.tree-img{position:absolute;pointer-events:none;z-index:1;filter:drop-shadow(0 3px 2px rgba(58,43,26,0.15))}
 .map-path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
 .country-node{
@@ -493,16 +492,11 @@ function renderMap(){
   const nextCountry = COUNTRIES.find(c => !unlocked.includes(c.id));
 
   const wrap = document.getElementById('worldWrap');
-  const sun = `<div class="sun"></div>`;
+  const sun = `<img class="sun-img" src="/assets/tycoon/scenery/sun.svg" alt="">`;
 
-  const cloudSvg = (x, y, w, opacity) => `
-    <svg class="cloud" style="left:${x}%;top:${y}%;width:${w}px" viewBox="0 0 120 50" opacity="${opacity}">
-      <ellipse cx="30" cy="34" rx="26" ry="16" fill="#fff"/>
-      <ellipse cx="58" cy="24" rx="30" ry="20" fill="#fff"/>
-      <ellipse cx="88" cy="32" rx="24" ry="15" fill="#fff"/>
-      <rect x="16" y="30" width="88" height="16" rx="8" fill="#fff"/>
-    </svg>`;
-  const clouds = cloudSvg(6,6,110,0.95) + cloudSvg(58,13,80,0.85) + cloudSvg(28,20,130,0.9) + cloudSvg(72,32,90,0.8);
+  const cloudImg = (x, y, w, opacity) => `
+    <img class="cloud-img" style="left:${x}%;top:${y}%;width:${w}px;opacity:${opacity}" src="/assets/tycoon/scenery/cloud.svg" alt="">`;
+  const clouds = cloudImg(6,6,80,0.95) + cloudImg(58,13,60,0.85) + cloudImg(28,20,95,0.9) + cloudImg(72,32,65,0.8);
 
   const hills = `
     <svg class="hills" style="top:50%;height:7%" viewBox="0 0 100 8" preserveAspectRatio="none">
@@ -513,25 +507,12 @@ function renderMap(){
     </svg>`;
   const groundTexture = `<div class="ground-texture"></div>`;
 
-  const treeSvg = (x, y, scale) => `
-    <svg class="tree" style="left:${x}%;top:${y}%;width:${66*scale}px" viewBox="0 0 34 40">
-      <ellipse cx="17" cy="26" rx="6" ry="4" fill="rgba(58,43,26,0.15)"/>
-      <rect x="15" y="22" width="4" height="12" rx="1.5" fill="#8a5a2e"/>
-      <circle cx="17" cy="16" r="12" fill="#4a9a4f"/>
-      <circle cx="10" cy="19" r="8" fill="#3fa851"/>
-      <circle cx="24" cy="19" r="8" fill="#3fa851"/>
-    </svg>`;
-  const bushSvg = (x, y, scale) => `
-    <svg class="tree" style="left:${x}%;top:${y}%;width:${44*scale}px" viewBox="0 0 22 14">
-      <ellipse cx="11" cy="12" rx="9" ry="2.5" fill="rgba(58,43,26,0.12)"/>
-      <circle cx="7" cy="8" r="6" fill="#4a9a4f"/>
-      <circle cx="15" cy="8" r="6" fill="#3fa851"/>
-      <circle cx="11" cy="6" r="6.5" fill="#5cb060"/>
-    </svg>`;
+  const treeImg = (x, y, scale, kind) => `
+    <img class="tree-img" style="left:${x}%;top:${y}%;width:${52*scale}px" src="/assets/tycoon/scenery/${kind}.svg" alt="">`;
   const scenery = [
-    treeSvg(6,66,1.3), treeSvg(88,58,1.1), treeSvg(35,72,1.0), bushSvg(80,88,1.2),
-    treeSvg(90,80,1.2), bushSvg(8,63,1.1), treeSvg(65,95,1.05), bushSvg(45,60,1.0),
-    treeSvg(18,84,1.1), bushSvg(60,70,1.05),
+    treeImg(6,66,1.3,'tree'), treeImg(88,58,1.1,'pine'), treeImg(35,72,1.0,'herb'), treeImg(80,88,1.2,'pine'),
+    treeImg(90,80,1.2,'tree'), treeImg(8,63,1.1,'herb'), treeImg(65,95,1.05,'tree'), treeImg(45,60,1.0,'pine'),
+    treeImg(18,84,1.1,'tree'), treeImg(60,70,1.05,'herb'),
   ].join('');
 
   const pathD = buildPathD();
