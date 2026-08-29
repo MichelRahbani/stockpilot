@@ -135,6 +135,13 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   padding:5px 12px;border-radius:100px;white-space:nowrap;box-shadow:0 3px 0 var(--gold-dark);
   animation:bob 1.4s ease-in-out infinite;
 }
+.tier-toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);z-index:2200;
+  background:var(--card);border:3px solid var(--gold);border-radius:100px;padding:12px 22px;
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;box-shadow:0 6px 16px rgba(58,43,26,0.25);
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;
+}
+.tier-toast.show{transform:translateX(-50%) translateY(0)}
 @keyframes bob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
 
 /* ── Country detail overlay ── */
@@ -198,6 +205,16 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   position:absolute;top:12px;right:-28px;background:var(--green);color:#fff;
   font-size:10px;font-weight:800;padding:4px 32px;transform:rotate(40deg);box-shadow:0 2px 4px rgba(0,0,0,0.15);
 }
+.co-card.locked{cursor:default;opacity:0.6;filter:grayscale(0.7)}
+.co-lock-icon{position:absolute;top:10px;right:10px;font-size:15px}
+.tier-label{
+  font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;margin-bottom:10px;
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+}
+.tier-hint{font-family:'Nunito',sans-serif;font-size:12px;font-weight:600;color:var(--ink-dim)}
+.tier-progress{height:14px;background:var(--card);border:2px solid var(--line);border-radius:100px;overflow:hidden;margin-bottom:6px}
+.tier-progress-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold-dark));border-radius:100px;transition:width 0.4s ease}
+.tier-progress-text{font-size:12px;font-weight:700;color:var(--ink-dim);margin-bottom:14px}
 
 /* ── Buy modal ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(58,43,26,0.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;opacity:0;pointer-events:none;transition:opacity 0.2s}
@@ -266,6 +283,8 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
     <div class="card-grid" id="detailGrid"></div>
   </div>
 </div>
+
+<div class="tier-toast" id="tierToast"></div>
 
 <!-- How to Play -->
 <div class="htp-overlay" id="htpOverlay">
@@ -338,33 +357,64 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
 
 // ── Game data — positions are percentages along the winding map ──
+// Each country has a starter tier (buyable the moment the country
+// unlocks) and an advanced tier (locked until enough is invested in
+// that country's starters). Unlocking a country's advanced tier is
+// part of what unlocks the NEXT country - progression compounds
+// within a country before it carries you forward.
 const COUNTRIES = [
-  { id:'usa', flag:'🇺🇸', name:'United States', threshold:0, x:22, y:92, accent:'#3c5aa6', accent2:'#b22234', companies:[
-    {ticker:'AAPL', name:'Apple', logo:'🍎'}, {ticker:'MSFT', name:'Microsoft', logo:'🪟'},
-    {ticker:'AMZN', name:'Amazon', logo:'📦'}, {ticker:'GOOGL', name:'Alphabet', logo:'🔍'}, {ticker:'TSLA', name:'Tesla', logo:'⚡'},
-  ]},
-  { id:'japan', flag:'🇯🇵', name:'Japan', threshold:15000, x:74, y:76, accent:'#bc002d', accent2:'#e8e0d0', companies:[
-    {ticker:'TM', name:'Toyota', logo:'🚗'}, {ticker:'SONY', name:'Sony', logo:'🎮'},
-    {ticker:'NTDOY', name:'Nintendo', logo:'🍄'}, {ticker:'HMC', name:'Honda', logo:'🏍️'},
-  ]},
-  { id:'korea', flag:'🇰🇷', name:'South Korea', threshold:25000, x:26, y:60, accent:'#003478', accent2:'#c60c30', companies:[
-    {ticker:'CPNG', name:'Coupang', logo:'📱'}, {ticker:'KB', name:'KB Financial', logo:'🏦'},
-    {ticker:'PKX', name:'POSCO', logo:'⚙️'}, {ticker:'SKM', name:'SK Telecom', logo:'📡'},
-  ]},
-  { id:'germany', flag:'🇩🇪', name:'Germany', threshold:40000, x:76, y:44, accent:'#000000', accent2:'#dd0000', companies:[
-    {ticker:'SAP', name:'SAP', logo:'💻'}, {ticker:'DB', name:'Deutsche Bank', logo:'🏦'},
-    {ticker:'VWAGY', name:'Volkswagen', logo:'🚙'}, {ticker:'BAYRY', name:'Bayer', logo:'💊'},
-  ]},
-  { id:'uk', flag:'🇬🇧', name:'United Kingdom', threshold:60000, x:24, y:28, accent:'#00247d', accent2:'#cf142b', companies:[
-    {ticker:'UL', name:'Unilever', logo:'🧴'}, {ticker:'SHEL', name:'Shell', logo:'⛽'},
-    {ticker:'HSBC', name:'HSBC', logo:'🏦'}, {ticker:'AZN', name:'AstraZeneca', logo:'💉'},
-  ]},
-  { id:'china', flag:'🇨🇳', name:'China', threshold:100000, x:72, y:12, accent:'#de2910', accent2:'#ffde00', companies:[
-    {ticker:'BABA', name:'Alibaba', logo:'🛒'}, {ticker:'JD', name:'JD.com', logo:'📦'},
-    {ticker:'PDD', name:'Pinduoduo', logo:'🛍️'}, {ticker:'NIO', name:'NIO', logo:'🔋'},
-  ]},
+  { id:'usa', flag:'🇺🇸', name:'United States', threshold:0, x:22, y:92, accent:'#3c5aa6', accent2:'#b22234',
+    starterInvestNeeded:2000,
+    starters:[
+      {ticker:'AAPL', name:'Apple', logo:'🍎'}, {ticker:'MSFT', name:'Microsoft', logo:'🪟'}, {ticker:'AMZN', name:'Amazon', logo:'📦'},
+    ],
+    advanced:[
+      {ticker:'GOOGL', name:'Alphabet', logo:'🔍'}, {ticker:'TSLA', name:'Tesla', logo:'⚡'},
+    ]},
+  { id:'japan', flag:'🇯🇵', name:'Japan', threshold:15000, x:74, y:76, accent:'#bc002d', accent2:'#e8e0d0',
+    starterInvestNeeded:1500,
+    starters:[
+      {ticker:'HMC', name:'Honda', logo:'🏍️'}, {ticker:'SONY', name:'Sony', logo:'🎮'},
+    ],
+    advanced:[
+      {ticker:'TM', name:'Toyota', logo:'🚗'}, {ticker:'NTDOY', name:'Nintendo', logo:'🍄'},
+    ]},
+  { id:'korea', flag:'🇰🇷', name:'South Korea', threshold:25000, x:26, y:60, accent:'#003478', accent2:'#c60c30',
+    starterInvestNeeded:2000,
+    starters:[
+      {ticker:'SKM', name:'SK Telecom', logo:'📡'}, {ticker:'PKX', name:'POSCO', logo:'⚙️'},
+    ],
+    advanced:[
+      {ticker:'CPNG', name:'Coupang', logo:'📱'}, {ticker:'KB', name:'KB Financial', logo:'🏦'},
+    ]},
+  { id:'germany', flag:'🇩🇪', name:'Germany', threshold:40000, x:76, y:44, accent:'#000000', accent2:'#dd0000',
+    starterInvestNeeded:2500,
+    starters:[
+      {ticker:'BAYRY', name:'Bayer', logo:'💊'}, {ticker:'VWAGY', name:'Volkswagen', logo:'🚙'},
+    ],
+    advanced:[
+      {ticker:'SAP', name:'SAP', logo:'💻'}, {ticker:'DB', name:'Deutsche Bank', logo:'🏦'},
+    ]},
+  { id:'uk', flag:'🇬🇧', name:'United Kingdom', threshold:60000, x:24, y:28, accent:'#00247d', accent2:'#cf142b',
+    starterInvestNeeded:3000,
+    starters:[
+      {ticker:'UL', name:'Unilever', logo:'🧴'}, {ticker:'SHEL', name:'Shell', logo:'⛽'},
+    ],
+    advanced:[
+      {ticker:'HSBC', name:'HSBC', logo:'🏦'}, {ticker:'AZN', name:'AstraZeneca', logo:'💉'},
+    ]},
+  { id:'china', flag:'🇨🇳', name:'China', threshold:100000, x:72, y:12, accent:'#de2910', accent2:'#ffde00',
+    starterInvestNeeded:4000,
+    starters:[
+      {ticker:'JD', name:'JD.com', logo:'📦'}, {ticker:'PDD', name:'Pinduoduo', logo:'🛍️'},
+    ],
+    advanced:[
+      {ticker:'BABA', name:'Alibaba', logo:'🛒'}, {ticker:'NIO', name:'NIO', logo:'🔋'},
+    ]},
 ];
-const ALL_TICKERS = COUNTRIES.flatMap(c => c.companies.map(co => co.ticker));
+// Every company across both tiers, for price fetching and lookups
+function allCompanies(country){ return [...country.starters, ...country.advanced]; }
+const ALL_TICKERS = COUNTRIES.flatMap(c => allCompanies(c).map(co => co.ticker));
 
 function getDeviceId(){
   let id = localStorage.getItem('tycoon_device_id');
@@ -408,6 +458,19 @@ function netWorth(){
   let total = player.cash;
   holdings.forEach(h => { total += (quotes[h.ticker] || h.avg_cost) * h.shares; });
   return total;
+}
+
+// How much is currently invested in a country's starter-tier companies
+// (at cost basis - this is a stable "effort" measure, not swayed by
+// market swings, so a dip doesn't undo progress toward advanced tier).
+function starterInvested(country){
+  return country.starters.reduce((sum, co) => {
+    const h = holdings.find(hold => hold.ticker === co.ticker);
+    return sum + (h ? h.avg_cost * h.shares : 0);
+  }, 0);
+}
+function advancedUnlocked(country){
+  return starterInvested(country) >= country.starterInvestNeeded;
 }
 
 // ── Map rendering ──
@@ -473,9 +536,11 @@ function renderMap(){
       <path d="${pathD}" fill="none" stroke="#fff" stroke-width="0.9" stroke-dasharray="2.2,2.6" stroke-linecap="round" opacity="0.9" vector-effect="non-scaling-stroke"/>
     </svg>`;
 
-  const nodes = COUNTRIES.map(country => {
+  const nodes = COUNTRIES.map((country, i) => {
     const isUnlocked = unlocked.includes(country.id);
     const isNext = nextCountry && nextCountry.id === country.id;
+    const prevCountry = COUNTRIES[i - 1];
+    const blockedByPrev = !isUnlocked && prevCountry && !advancedUnlocked(prevCountry);
     return `
       <div class="country-node ${isUnlocked ? '' : 'locked'}" style="left:${country.x}%;top:${country.y}%" ${isUnlocked ? `onclick="openCountry('${country.id}')"` : ''}>
         ${isNext ? `<div class="node-current">You're here!</div>` : ''}
@@ -484,7 +549,9 @@ function renderMap(){
           ${!isUnlocked ? '<div class="node-lock">🔒</div>' : ''}
         </div>
         <div class="node-name">${country.name}</div>
-        ${!isUnlocked ? `<div class="node-req">$${country.threshold.toLocaleString()}</div>` : ''}
+        ${!isUnlocked ? (blockedByPrev
+          ? `<div class="node-req">Unlock ${prevCountry.flag} advanced tier first</div>`
+          : `<div class="node-req">$${country.threshold.toLocaleString()}</div>`) : ''}
       </div>`;
   }).join('');
 
@@ -492,25 +559,48 @@ function renderMap(){
 }
 
 // ── Country detail ──
+function buildCompanyCard(co, country, locked){
+  const held = holdings.find(h => h.ticker === co.ticker);
+  const price = quotes[co.ticker];
+  return `
+    <div class="co-card ${held ? 'owned' : ''} ${locked ? 'locked' : ''}" style="--co-accent:${country.accent}" ${locked ? '' : `onclick="openBuyModal('${co.ticker}')"`}>
+      ${held ? `<div class="co-owned-badge">${held.shares} sh</div>` : ''}
+      ${locked ? '<div class="co-lock-icon">🔒</div>' : ''}
+      <div class="co-logo">${co.logo}</div>
+      <div class="co-ticker">${co.ticker}</div>
+      <div class="co-name">${co.name}</div>
+      <div class="co-price">${locked ? '' : (price ? '$'+price.toFixed(2) : '...')}</div>
+    </div>`;
+}
+
 function openCountry(countryId){
   const country = COUNTRIES.find(c => c.id === countryId);
   document.getElementById('detailFlag').textContent = country.flag;
   document.getElementById('detailTitle').textContent = country.name;
   document.getElementById('detailView').style.setProperty('--detail-accent', country.accent);
-  const ownedCount = country.companies.filter(co => holdings.some(h => h.ticker === co.ticker)).length;
-  document.getElementById('detailCollected').textContent = ownedCount + ' / ' + country.companies.length + ' collected';
-  document.getElementById('detailGrid').innerHTML = country.companies.map(co => {
-    const held = holdings.find(h => h.ticker === co.ticker);
-    const price = quotes[co.ticker];
-    return `
-      <div class="co-card ${held ? 'owned' : ''}" style="--co-accent:${country.accent}" onclick="openBuyModal('${co.ticker}')">
-        ${held ? `<div class="co-owned-badge">${held.shares} sh</div>` : ''}
-        <div class="co-logo">${co.logo}</div>
-        <div class="co-ticker">${co.ticker}</div>
-        <div class="co-name">${co.name}</div>
-        <div class="co-price">${price ? '$'+price.toFixed(2) : '...'}</div>
-      </div>`;
-  }).join('');
+
+  const all = allCompanies(country);
+  const ownedCount = all.filter(co => holdings.some(h => h.ticker === co.ticker)).length;
+  document.getElementById('detailCollected').textContent = ownedCount + ' / ' + all.length + ' collected';
+
+  const invested = starterInvested(country);
+  const unlocked = advancedUnlocked(country);
+  const pct = Math.min(100, (invested / country.starterInvestNeeded) * 100);
+
+  const advancedSection = unlocked
+    ? `<div class="tier-label">⭐ Advanced</div>
+       <div class="card-grid">${country.advanced.map(co => buildCompanyCard(co, country, false)).join('')}</div>`
+    : `<div class="tier-label">🔒 Advanced <span class="tier-hint">unlocks once you've invested $${country.starterInvestNeeded.toLocaleString()} in starters below</span></div>
+       <div class="tier-progress"><div class="tier-progress-fill" style="width:${pct}%"></div></div>
+       <div class="tier-progress-text">$${invested.toLocaleString(undefined,{maximumFractionDigits:0})} / $${country.starterInvestNeeded.toLocaleString()} invested</div>
+       <div class="card-grid">${country.advanced.map(co => buildCompanyCard(co, country, true)).join('')}</div>`;
+
+  document.getElementById('detailGrid').innerHTML = `
+    <div class="tier-label">🟢 Starters</div>
+    <div class="card-grid">${country.starters.map(co => buildCompanyCard(co, country, false)).join('')}</div>
+    <div style="height:22px"></div>
+    ${advancedSection}
+  `;
   document.getElementById('detailView').classList.add('open');
 }
 function closeDetail(){
@@ -519,8 +609,12 @@ function closeDetail(){
 
 async function checkUnlocks(){
   const nw = netWorth();
-  const next = COUNTRIES.find(c => !player.unlocked_countries.includes(c.id) && nw >= c.threshold);
-  if(next){
+  const nextIndex = COUNTRIES.findIndex(c => !player.unlocked_countries.includes(c.id));
+  if(nextIndex === -1) return;
+  const next = COUNTRIES[nextIndex];
+  const prevCountry = COUNTRIES[nextIndex - 1];
+  const prevReady = !prevCountry || advancedUnlocked(prevCountry);
+  if(nw >= next.threshold && prevReady){
     player.unlocked_countries = [...player.unlocked_countries, next.id];
     await sbPatch('tycoon_players', 'id=eq.'+player.id, { unlocked_countries: player.unlocked_countries });
     showUnlockCelebration(next);
@@ -530,7 +624,7 @@ async function checkUnlocks(){
 function showUnlockCelebration(country){
   document.getElementById('unlockFlag').textContent = country.flag;
   document.getElementById('unlockCountryName').textContent = country.name;
-  document.getElementById('unlockSubtitle').textContent = country.companies.map(c => c.name).join(', ') + ' are now in your collection.';
+  document.getElementById('unlockSubtitle').textContent = country.starters.map(c => c.name).join(', ') + ' are now buyable. Invest enough and unlock the advanced tier here too.';
   document.getElementById('unlockOverlay').classList.add('open');
 }
 function closeUnlockCelebration(){
@@ -542,7 +636,7 @@ function closeUnlockCelebration(){
 let buyingTicker = null;
 function openBuyModal(ticker){
   buyingTicker = ticker;
-  const co = COUNTRIES.flatMap(c => c.companies).find(c => c.ticker === ticker);
+  const co = COUNTRIES.flatMap(c => allCompanies(c)).find(c => c.ticker === ticker);
   document.getElementById('buyLogo').textContent = co.logo;
   document.getElementById('buyName').textContent = co.name + ' (' + co.ticker + ')';
   const price = quotes[ticker];
@@ -569,6 +663,9 @@ async function confirmBuy(){
   const btn = document.getElementById('buyBtn');
   btn.textContent = 'Buying...'; btn.disabled = true;
 
+  const country = COUNTRIES.find(c => allCompanies(c).some(co => co.ticker === buyingTicker));
+  const wasAdvancedUnlocked = advancedUnlocked(country);
+
   const existing = holdings.find(h => h.ticker === buyingTicker);
   const newCash = player.cash - total;
   const cashSaved = await sbPatch('tycoon_players', 'id=eq.'+player.id, { cash: newCash });
@@ -587,10 +684,19 @@ async function confirmBuy(){
 
   btn.textContent = 'Buy →'; btn.disabled = false;
   closeBuyModal();
-  const country = COUNTRIES.find(c => c.companies.some(co => co.ticker === buyingTicker));
   openCountry(country.id); // refresh the card grid with the new ownership state
   renderMap();
+  if(!wasAdvancedUnlocked && advancedUnlocked(country)){
+    showTierToast('⭐ ' + country.name + ' advanced tier unlocked!');
+  }
   await checkUnlocks();
+}
+
+function showTierToast(text){
+  const toast = document.getElementById('tierToast');
+  toast.textContent = text;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
 function openHowToPlay(){ document.getElementById('htpOverlay').classList.add('open'); }
