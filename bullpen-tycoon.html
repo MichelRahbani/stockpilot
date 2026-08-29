@@ -116,6 +116,11 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   box-shadow:0 7px 0 var(--gold-dark), inset 0 -6px 10px rgba(58,43,26,0.08);
   transition:transform 0.15s;position:relative;overflow:hidden;
 }
+.flag-icon{width:22px;border-radius:3px;box-shadow:0 1px 2px rgba(58,43,26,0.3)}
+.flag-icon-lg{width:46px;border-radius:5px;box-shadow:0 2px 4px rgba(58,43,26,0.3)}
+.flag-icon-xl{width:64px;border-radius:6px;box-shadow:0 3px 6px rgba(58,43,26,0.3)}
+.co-logo-icon{width:36px;height:36px}
+.co-logo-icon-lg{width:56px;height:56px}
 .node-badge::after{
   content:'';position:absolute;top:6%;left:14%;width:55%;height:34%;border-radius:50%;
   background:linear-gradient(160deg, rgba(255,255,255,0.85), rgba(255,255,255,0));
@@ -269,6 +274,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 <div class="world-wrap" id="worldWrap">
   <div class="loading" style="color:#fff">Loading your empire...</div>
 </div>
+<div style="text-align:center;padding:10px;font-size:11px;color:var(--ink-dim);background:var(--ground-dark)">Icons by <a href="https://twemoji.twitter.com/" style="color:inherit" target="_blank" rel="noopener">Twemoji</a>, CC-BY 4.0</div>
 
 <!-- Country detail view -->
 <div class="detail-view" id="detailView">
@@ -363,53 +369,53 @@ const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
 // part of what unlocks the NEXT country - progression compounds
 // within a country before it carries you forward.
 const COUNTRIES = [
-  { id:'usa', flag:'🇺🇸', name:'United States', threshold:0, x:22, y:92, accent:'#3c5aa6', accent2:'#b22234',
+  { id:'usa', flag:'/assets/tycoon/flags/usa.svg', name:'United States', threshold:0, x:22, y:92, accent:'#3c5aa6', accent2:'#b22234',
     starterInvestNeeded:2000,
     starters:[
-      {ticker:'AAPL', name:'Apple', logo:'🍎'}, {ticker:'MSFT', name:'Microsoft', logo:'🪟'}, {ticker:'AMZN', name:'Amazon', logo:'📦'},
+      {ticker:'AAPL', name:'Apple', logo:'/assets/tycoon/icons/apple.svg'}, {ticker:'MSFT', name:'Microsoft', logo:'/assets/tycoon/icons/window.svg'}, {ticker:'AMZN', name:'Amazon', logo:'/assets/tycoon/icons/box.svg'},
     ],
     advanced:[
-      {ticker:'GOOGL', name:'Alphabet', logo:'🔍'}, {ticker:'TSLA', name:'Tesla', logo:'⚡'},
+      {ticker:'GOOGL', name:'Alphabet', logo:'/assets/tycoon/icons/magglass.svg'}, {ticker:'TSLA', name:'Tesla', logo:'/assets/tycoon/icons/lightning.svg'},
     ]},
-  { id:'japan', flag:'🇯🇵', name:'Japan', threshold:15000, x:74, y:76, accent:'#bc002d', accent2:'#e8e0d0',
+  { id:'japan', flag:'/assets/tycoon/flags/japan.svg', name:'Japan', threshold:15000, x:74, y:76, accent:'#bc002d', accent2:'#e8e0d0',
     starterInvestNeeded:1500,
     starters:[
-      {ticker:'HMC', name:'Honda', logo:'🏍️'}, {ticker:'SONY', name:'Sony', logo:'🎮'},
+      {ticker:'HMC', name:'Honda', logo:'/assets/tycoon/icons/motorcycle.svg'}, {ticker:'SONY', name:'Sony', logo:'/assets/tycoon/icons/gamepad.svg'},
     ],
     advanced:[
-      {ticker:'TM', name:'Toyota', logo:'🚗'}, {ticker:'NTDOY', name:'Nintendo', logo:'🍄'},
+      {ticker:'TM', name:'Toyota', logo:'/assets/tycoon/icons/car.svg'}, {ticker:'NTDOY', name:'Nintendo', logo:'/assets/tycoon/icons/mushroom.svg'},
     ]},
-  { id:'korea', flag:'🇰🇷', name:'South Korea', threshold:25000, x:26, y:60, accent:'#003478', accent2:'#c60c30',
+  { id:'korea', flag:'/assets/tycoon/flags/korea.svg', name:'South Korea', threshold:25000, x:26, y:60, accent:'#003478', accent2:'#c60c30',
     starterInvestNeeded:2000,
     starters:[
-      {ticker:'SKM', name:'SK Telecom', logo:'📡'}, {ticker:'PKX', name:'POSCO', logo:'⚙️'},
+      {ticker:'SKM', name:'SK Telecom', logo:'/assets/tycoon/icons/satellite.svg'}, {ticker:'PKX', name:'POSCO', logo:'/assets/tycoon/icons/gear.svg'},
     ],
     advanced:[
-      {ticker:'CPNG', name:'Coupang', logo:'📱'}, {ticker:'KB', name:'KB Financial', logo:'🏦'},
+      {ticker:'CPNG', name:'Coupang', logo:'/assets/tycoon/icons/phone.svg'}, {ticker:'KB', name:'KB Financial', logo:'/assets/tycoon/icons/bank.svg'},
     ]},
-  { id:'germany', flag:'🇩🇪', name:'Germany', threshold:40000, x:76, y:44, accent:'#000000', accent2:'#dd0000',
+  { id:'germany', flag:'/assets/tycoon/flags/germany.svg', name:'Germany', threshold:40000, x:76, y:44, accent:'#000000', accent2:'#dd0000',
     starterInvestNeeded:2500,
     starters:[
-      {ticker:'BAYRY', name:'Bayer', logo:'💊'}, {ticker:'VWAGY', name:'Volkswagen', logo:'🚙'},
+      {ticker:'BAYRY', name:'Bayer', logo:'/assets/tycoon/icons/pill.svg'}, {ticker:'VWAGY', name:'Volkswagen', logo:'/assets/tycoon/icons/suv.svg'},
     ],
     advanced:[
-      {ticker:'SAP', name:'SAP', logo:'💻'}, {ticker:'DB', name:'Deutsche Bank', logo:'🏦'},
+      {ticker:'SAP', name:'SAP', logo:'/assets/tycoon/icons/laptop.svg'}, {ticker:'DB', name:'Deutsche Bank', logo:'/assets/tycoon/icons/bank.svg'},
     ]},
-  { id:'uk', flag:'🇬🇧', name:'United Kingdom', threshold:60000, x:24, y:28, accent:'#00247d', accent2:'#cf142b',
+  { id:'uk', flag:'/assets/tycoon/flags/uk.svg', name:'United Kingdom', threshold:60000, x:24, y:28, accent:'#00247d', accent2:'#cf142b',
     starterInvestNeeded:3000,
     starters:[
-      {ticker:'UL', name:'Unilever', logo:'🧴'}, {ticker:'SHEL', name:'Shell', logo:'⛽'},
+      {ticker:'UL', name:'Unilever', logo:'/assets/tycoon/icons/lotion.svg'}, {ticker:'SHEL', name:'Shell', logo:'/assets/tycoon/icons/fuel.svg'},
     ],
     advanced:[
-      {ticker:'HSBC', name:'HSBC', logo:'🏦'}, {ticker:'AZN', name:'AstraZeneca', logo:'💉'},
+      {ticker:'HSBC', name:'HSBC', logo:'/assets/tycoon/icons/bank.svg'}, {ticker:'AZN', name:'AstraZeneca', logo:'/assets/tycoon/icons/syringe.svg'},
     ]},
-  { id:'china', flag:'🇨🇳', name:'China', threshold:100000, x:72, y:12, accent:'#de2910', accent2:'#ffde00',
+  { id:'china', flag:'/assets/tycoon/flags/china.svg', name:'China', threshold:100000, x:72, y:12, accent:'#de2910', accent2:'#ffde00',
     starterInvestNeeded:4000,
     starters:[
-      {ticker:'JD', name:'JD.com', logo:'📦'}, {ticker:'PDD', name:'Pinduoduo', logo:'🛍️'},
+      {ticker:'JD', name:'JD.com', logo:'/assets/tycoon/icons/box.svg'}, {ticker:'PDD', name:'Pinduoduo', logo:'/assets/tycoon/icons/bags.svg'},
     ],
     advanced:[
-      {ticker:'BABA', name:'Alibaba', logo:'🛒'}, {ticker:'NIO', name:'NIO', logo:'🔋'},
+      {ticker:'BABA', name:'Alibaba', logo:'/assets/tycoon/icons/cart.svg'}, {ticker:'NIO', name:'NIO', logo:'/assets/tycoon/icons/battery.svg'},
     ]},
 ];
 // Every company across both tiers, for price fetching and lookups
@@ -545,12 +551,12 @@ function renderMap(){
       <div class="country-node ${isUnlocked ? '' : 'locked'}" style="left:${country.x}%;top:${country.y}%" ${isUnlocked ? `onclick="openCountry('${country.id}')"` : ''}>
         ${isNext ? `<div class="node-current">You're here!</div>` : ''}
         <div class="node-badge">
-          ${country.flag}
+          <img src="${country.flag}" class="flag-icon flag-icon-lg" alt="${country.name}">
           ${!isUnlocked ? '<div class="node-lock">🔒</div>' : ''}
         </div>
         <div class="node-name">${country.name}</div>
         ${!isUnlocked ? (blockedByPrev
-          ? `<div class="node-req">Unlock ${prevCountry.flag} advanced tier first</div>`
+          ? `<div class="node-req">Unlock <img src="${prevCountry.flag}" class="flag-icon" style="vertical-align:-2px"> advanced tier first</div>`
           : `<div class="node-req">$${country.threshold.toLocaleString()}</div>`) : ''}
       </div>`;
   }).join('');
@@ -566,7 +572,7 @@ function buildCompanyCard(co, country, locked){
     <div class="co-card ${held ? 'owned' : ''} ${locked ? 'locked' : ''}" style="--co-accent:${country.accent}" ${locked ? '' : `onclick="openBuyModal('${co.ticker}')"`}>
       ${held ? `<div class="co-owned-badge">${held.shares} sh</div>` : ''}
       ${locked ? '<div class="co-lock-icon">🔒</div>' : ''}
-      <div class="co-logo">${co.logo}</div>
+      <div class="co-logo"><img src="${co.logo}" class="co-logo-icon" alt="${co.name}"></div>
       <div class="co-ticker">${co.ticker}</div>
       <div class="co-name">${co.name}</div>
       <div class="co-price">${locked ? '' : (price ? '$'+price.toFixed(2) : '...')}</div>
@@ -575,7 +581,7 @@ function buildCompanyCard(co, country, locked){
 
 function openCountry(countryId){
   const country = COUNTRIES.find(c => c.id === countryId);
-  document.getElementById('detailFlag').textContent = country.flag;
+  document.getElementById('detailFlag').innerHTML = `<img src="${country.flag}" class="flag-icon flag-icon-xl" alt="${country.name}">`;
   document.getElementById('detailTitle').textContent = country.name;
   document.getElementById('detailView').style.setProperty('--detail-accent', country.accent);
 
@@ -622,7 +628,7 @@ async function checkUnlocks(){
 }
 
 function showUnlockCelebration(country){
-  document.getElementById('unlockFlag').textContent = country.flag;
+  document.getElementById('unlockFlag').innerHTML = `<img src="${country.flag}" class="flag-icon flag-icon-xl" alt="${country.name}">`;
   document.getElementById('unlockCountryName').textContent = country.name;
   document.getElementById('unlockSubtitle').textContent = country.starters.map(c => c.name).join(', ') + ' are now buyable. Invest enough and unlock the advanced tier here too.';
   document.getElementById('unlockOverlay').classList.add('open');
@@ -637,7 +643,7 @@ let buyingTicker = null;
 function openBuyModal(ticker){
   buyingTicker = ticker;
   const co = COUNTRIES.flatMap(c => allCompanies(c)).find(c => c.ticker === ticker);
-  document.getElementById('buyLogo').textContent = co.logo;
+  document.getElementById('buyLogo').innerHTML = `<img src="${co.logo}" class="co-logo-icon-lg" alt="${co.name}">`;
   document.getElementById('buyName').textContent = co.name + ' (' + co.ticker + ')';
   const price = quotes[ticker];
   document.getElementById('buyPrice').textContent = price ? '$' + price.toFixed(2) + '/share' : 'Price unavailable';
