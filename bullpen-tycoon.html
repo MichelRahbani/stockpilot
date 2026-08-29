@@ -84,10 +84,12 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 
 /* ── World map ── */
 .world-wrap{
-  position:relative;min-height:1500px;
-  background:linear-gradient(180deg,var(--sky-top) 0%,var(--sky-mid) 30%,var(--sky-bot) 55%,var(--ground) 56%,var(--ground-mid) 78%,var(--ground-dark) 100%);
+  position:relative;width:100%;aspect-ratio:900/540;
+  background:#a8d8e8;
   overflow:hidden;
 }
+.world-map-svg{position:absolute;inset:0;width:100%;height:100%}
+.world-map-svg path{fill:var(--ground);stroke:var(--ground-dark);stroke-width:0.6}
 .sun-img{
   position:absolute;top:3%;right:10%;width:110px;
   filter:drop-shadow(0 0 40px rgba(255,229,150,0.8));
@@ -108,11 +110,11 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 }
 .country-node.locked{cursor:default}
 .node-badge{
-  width:92px;height:92px;border-radius:50%;
+  width:48px;height:48px;border-radius:50%;
   background:radial-gradient(circle at 35% 30%, #fffdf6 0%, var(--card) 55%, #f2e6c8 100%);
-  border:5px solid var(--gold);
-  display:flex;align-items:center;justify-content:center;font-size:42px;
-  box-shadow:0 7px 0 var(--gold-dark), inset 0 -6px 10px rgba(58,43,26,0.08);
+  border:3px solid var(--gold);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 4px 0 var(--gold-dark), inset 0 -3px 6px rgba(58,43,26,0.08);
   transition:transform 0.15s;position:relative;overflow:hidden;
 }
 .flag-icon{width:22px;border-radius:3px;box-shadow:0 1px 2px rgba(58,43,26,0.3)}
@@ -126,15 +128,15 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   transform:rotate(-18deg);pointer-events:none;
 }
 .country-node:not(.locked) .node-badge:hover{transform:translateY(-3px) scale(1.04)}
-.country-node.locked .node-badge{background:radial-gradient(circle at 35% 30%, #e4ddc9 0%, #d8d0c0 55%, #c4baa0 100%);border-color:#a89a7c;filter:grayscale(1);opacity:0.8;box-shadow:0 7px 0 #8a7d60,inset 0 -6px 10px rgba(58,43,26,0.1)}
-.node-lock{position:absolute;bottom:-6px;right:-6px;background:var(--ink);color:#fff;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;border:3px solid var(--card)}
+.country-node.locked .node-badge{background:radial-gradient(circle at 35% 30%, #e4ddc9 0%, #d8d0c0 55%, #c4baa0 100%);border-color:#a89a7c;filter:grayscale(1);opacity:0.8;box-shadow:0 4px 0 #8a7d60,inset 0 -3px 6px rgba(58,43,26,0.1)}
+.node-lock{position:absolute;bottom:-4px;right:-4px;background:var(--ink);color:#fff;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;border:2px solid var(--card)}
 .node-name{
-  margin-top:10px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px;color:#fff;
-  text-shadow:0 2px 3px rgba(58,43,26,0.5);text-align:center;
+  margin-top:4px;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;color:#fff;
+  text-shadow:0 2px 3px rgba(58,43,26,0.6);text-align:center;white-space:nowrap;
 }
-.node-req{margin-top:2px;font-size:11px;font-weight:800;color:#fff;background:rgba(58,43,26,0.55);padding:3px 10px;border-radius:100px}
+.node-req{margin-top:2px;font-size:8px;font-weight:800;color:#fff;background:rgba(58,43,26,0.65);padding:2px 6px;border-radius:100px;white-space:nowrap}
 .node-current{
-  position:absolute;top:-38px;left:50%;transform:translateX(-50%);
+  position:absolute;top:-24px;left:50%;transform:translateX(-50%);
   background:var(--gold);color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:11px;
   padding:5px 12px;border-radius:100px;white-space:nowrap;box-shadow:0 3px 0 var(--gold-dark);
   animation:bob 1.4s ease-in-out infinite;
@@ -368,7 +370,7 @@ const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
 // part of what unlocks the NEXT country - progression compounds
 // within a country before it carries you forward.
 const COUNTRIES = [
-  { id:'usa', flag:'/assets/tycoon/flags/usa.svg', name:'United States', threshold:0, x:22, y:92, accent:'#3c5aa6', accent2:'#b22234',
+  { id:'usa', flag:'/assets/tycoon/flags/usa.svg', name:'United States', threshold:0, x:14.3, y:25.3, accent:'#3c5aa6', accent2:'#b22234',
     starterInvestNeeded:2000,
     starters:[
       {ticker:'AAPL', name:'Apple', logo:'/assets/tycoon/icons/apple.svg'}, {ticker:'MSFT', name:'Microsoft', logo:'/assets/tycoon/icons/window.svg'}, {ticker:'AMZN', name:'Amazon', logo:'/assets/tycoon/icons/box.svg'},
@@ -376,7 +378,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'GOOGL', name:'Alphabet', logo:'/assets/tycoon/icons/magglass.svg'}, {ticker:'TSLA', name:'Tesla', logo:'/assets/tycoon/icons/lightning.svg'},
     ]},
-  { id:'japan', flag:'/assets/tycoon/flags/japan.svg', name:'Japan', threshold:15000, x:74, y:76, accent:'#bc002d', accent2:'#e8e0d0',
+  { id:'japan', flag:'/assets/tycoon/flags/japan.svg', name:'Japan', threshold:15000, x:86.1, y:35.1, accent:'#bc002d', accent2:'#e8e0d0',
     starterInvestNeeded:1500,
     starters:[
       {ticker:'HMC', name:'Honda', logo:'/assets/tycoon/icons/motorcycle.svg'}, {ticker:'SONY', name:'Sony', logo:'/assets/tycoon/icons/gamepad.svg'},
@@ -384,7 +386,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'TM', name:'Toyota', logo:'/assets/tycoon/icons/car.svg'}, {ticker:'NTDOY', name:'Nintendo', logo:'/assets/tycoon/icons/mushroom.svg'},
     ]},
-  { id:'korea', flag:'/assets/tycoon/flags/korea.svg', name:'South Korea', threshold:25000, x:26, y:60, accent:'#003478', accent2:'#c60c30',
+  { id:'korea', flag:'/assets/tycoon/flags/korea.svg', name:'South Korea', threshold:25000, x:83.3, y:37.1, accent:'#003478', accent2:'#c60c30',
     starterInvestNeeded:2000,
     starters:[
       {ticker:'SKM', name:'SK Telecom', logo:'/assets/tycoon/icons/satellite.svg'}, {ticker:'PKX', name:'POSCO', logo:'/assets/tycoon/icons/gear.svg'},
@@ -392,7 +394,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'CPNG', name:'Coupang', logo:'/assets/tycoon/icons/phone.svg'}, {ticker:'KB', name:'KB Financial', logo:'/assets/tycoon/icons/bank.svg'},
     ]},
-  { id:'germany', flag:'/assets/tycoon/flags/germany.svg', name:'Germany', threshold:40000, x:76, y:44, accent:'#000000', accent2:'#dd0000',
+  { id:'germany', flag:'/assets/tycoon/flags/germany.svg', name:'Germany', threshold:40000, x:48.8, y:31.9, accent:'#000000', accent2:'#dd0000',
     starterInvestNeeded:2500,
     starters:[
       {ticker:'BAYRY', name:'Bayer', logo:'/assets/tycoon/icons/pill.svg'}, {ticker:'VWAGY', name:'Volkswagen', logo:'/assets/tycoon/icons/suv.svg'},
@@ -400,7 +402,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'SAP', name:'SAP', logo:'/assets/tycoon/icons/laptop.svg'}, {ticker:'DB', name:'Deutsche Bank', logo:'/assets/tycoon/icons/bank.svg'},
     ]},
-  { id:'uk', flag:'/assets/tycoon/flags/uk.svg', name:'United Kingdom', threshold:60000, x:24, y:28, accent:'#00247d', accent2:'#cf142b',
+  { id:'uk', flag:'/assets/tycoon/flags/uk.svg', name:'United Kingdom', threshold:60000, x:45.1, y:29.5, accent:'#00247d', accent2:'#cf142b',
     starterInvestNeeded:3000,
     starters:[
       {ticker:'UL', name:'Unilever', logo:'/assets/tycoon/icons/lotion.svg'}, {ticker:'SHEL', name:'Shell', logo:'/assets/tycoon/icons/fuel.svg'},
@@ -408,7 +410,7 @@ const COUNTRIES = [
     advanced:[
       {ticker:'HSBC', name:'HSBC', logo:'/assets/tycoon/icons/bank.svg'}, {ticker:'AZN', name:'AstraZeneca', logo:'/assets/tycoon/icons/syringe.svg'},
     ]},
-  { id:'china', flag:'/assets/tycoon/flags/china.svg', name:'China', threshold:100000, x:72, y:12, accent:'#de2910', accent2:'#ffde00',
+  { id:'china', flag:'/assets/tycoon/flags/china.svg', name:'China', threshold:100000, x:75.2, y:36.7, accent:'#de2910', accent2:'#ffde00',
     starterInvestNeeded:4000,
     starters:[
       {ticker:'JD', name:'JD.com', logo:'/assets/tycoon/icons/box.svg'}, {ticker:'PDD', name:'Pinduoduo', logo:'/assets/tycoon/icons/bags.svg'},
@@ -483,6 +485,17 @@ function buildPathD(){
   return 'M ' + COUNTRIES.map(c => `${c.x} ${c.y}`).join(' L ');
 }
 
+let worldMapSvgContent = null;
+async function loadWorldMapSvg(){
+  if(worldMapSvgContent) return worldMapSvgContent;
+  try {
+    worldMapSvgContent = await fetch('/assets/tycoon/world-map.svg').then(r => r.text());
+  } catch(e){
+    worldMapSvgContent = '';
+  }
+  return worldMapSvgContent;
+}
+
 function renderMap(){
   const nw = netWorth();
   document.getElementById('netWorthDisplay').textContent = '$' + nw.toLocaleString(undefined,{maximumFractionDigits:0});
@@ -492,35 +505,19 @@ function renderMap(){
   const nextCountry = COUNTRIES.find(c => !unlocked.includes(c.id));
 
   const wrap = document.getElementById('worldWrap');
-  const sun = `<img class="sun-img" src="/assets/tycoon/scenery/sun.svg" alt="">`;
+  const mapBg = (worldMapSvgContent || '').replace('<svg ', '<svg class="world-map-svg" ');
 
+  const sun = `<img class="sun-img" src="/assets/tycoon/scenery/sun.svg" alt="">`;
   const cloudImg = (x, y, w, opacity) => `
     <img class="cloud-img" style="left:${x}%;top:${y}%;width:${w}px;opacity:${opacity}" src="/assets/tycoon/scenery/cloud.svg" alt="">`;
-  const clouds = cloudImg(6,6,80,0.95) + cloudImg(58,13,60,0.85) + cloudImg(28,20,95,0.9) + cloudImg(72,32,65,0.8);
-
-  const hills = `
-    <svg class="hills" style="top:50%;height:7%" viewBox="0 0 100 8" preserveAspectRatio="none">
-      <path d="M0,8 L0,5 Q20,1 40,4 T80,3 T100,5 L100,8 Z" fill="var(--ground)" opacity="0.45"/>
-    </svg>
-    <svg class="hills" style="top:52.5%;height:6%" viewBox="0 0 100 8" preserveAspectRatio="none">
-      <path d="M0,8 L0,4 Q15,0 30,3 T60,2 T100,4 L100,8 Z" fill="var(--ground)" opacity="0.7"/>
-    </svg>`;
-  const groundTexture = `<div class="ground-texture"></div>`;
-
-  const treeImg = (x, y, scale, kind) => `
-    <img class="tree-img" style="left:${x}%;top:${y}%;width:${52*scale}px" src="/assets/tycoon/scenery/${kind}.svg" alt="">`;
-  const scenery = [
-    treeImg(6,66,1.3,'tree'), treeImg(88,58,1.1,'pine'), treeImg(35,72,1.0,'herb'), treeImg(80,88,1.2,'pine'),
-    treeImg(90,80,1.2,'tree'), treeImg(8,63,1.1,'herb'), treeImg(65,95,1.05,'tree'), treeImg(45,60,1.0,'pine'),
-    treeImg(18,84,1.1,'tree'), treeImg(60,70,1.05,'herb'),
-  ].join('');
+  const clouds = cloudImg(4,8,70,0.8) + cloudImg(60,6,55,0.7) + cloudImg(92,60,60,0.75);
 
   const pathD = buildPathD();
   const pathSvg = `
     <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <path d="${pathD}" fill="none" stroke="rgba(58,43,26,0.18)" stroke-width="3.4" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-      <path d="${pathD}" fill="none" stroke="var(--path)" stroke-width="2.6" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-      <path d="${pathD}" fill="none" stroke="#fff" stroke-width="0.9" stroke-dasharray="2.2,2.6" stroke-linecap="round" opacity="0.9" vector-effect="non-scaling-stroke"/>
+      <path d="${pathD}" fill="none" stroke="rgba(58,43,26,0.18)" stroke-width="1.3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      <path d="${pathD}" fill="none" stroke="var(--path)" stroke-width="0.9" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      <path d="${pathD}" fill="none" stroke="#fff" stroke-width="0.35" stroke-dasharray="0.9,1.1" stroke-linecap="round" opacity="0.9" vector-effect="non-scaling-stroke"/>
     </svg>`;
 
   const nodes = COUNTRIES.map((country, i) => {
@@ -542,7 +539,7 @@ function renderMap(){
       </div>`;
   }).join('');
 
-  wrap.innerHTML = sun + hills + groundTexture + scenery + clouds + pathSvg + nodes;
+  wrap.innerHTML = mapBg + sun + clouds + pathSvg + nodes;
 }
 
 // ── Country detail ──
@@ -696,6 +693,7 @@ async function init(){
   try {
     await loadPlayer();
     await loadQuotes();
+    await loadWorldMapSvg();
     renderMap();
     await checkUnlocks();
     if(!localStorage.getItem('tycoon_seen_intro')) openHowToPlay();
