@@ -406,6 +406,38 @@ const COUNTRIES = [
     advanced:[
       {ticker:'BABA', name:'Alibaba', logo:'/assets/tycoon/icons/cart.svg'}, {ticker:'NIO', name:'NIO', logo:'/assets/tycoon/icons/battery.svg'},
     ]},
+  { id:'mexico', flag:'/assets/tycoon/flags/mexico.svg', name:'Mexico', threshold:130000, x:15.0, y:46.7, accent:'#006847', accent2:'#ce1126',
+    starterInvestNeeded:4500,
+    starters:[
+      {ticker:'CX', name:'Cemex', logo:'/assets/tycoon/icons/construction.svg'}, {ticker:'FMX', name:'FEMSA', logo:'/assets/tycoon/icons/cup.svg'},
+    ],
+    advanced:[
+      {ticker:'AMX', name:'America Movil', logo:'/assets/tycoon/icons/satellite.svg'}, {ticker:'TV', name:'Grupo Televisa', logo:'/assets/tycoon/icons/tv.svg'},
+    ]},
+  { id:'australia', flag:'/assets/tycoon/flags/australia.svg', name:'Australia', threshold:170000, x:85.9, y:81.3, accent:'#00008b', accent2:'#ff0000',
+    starterInvestNeeded:5000,
+    starters:[
+      {ticker:'AMCR', name:'Amcor', logo:'/assets/tycoon/icons/box.svg'}, {ticker:'TEAM', name:'Atlassian', logo:'/assets/tycoon/icons/laptop.svg'},
+    ],
+    advanced:[
+      {ticker:'BHP', name:'BHP Group', logo:'/assets/tycoon/icons/pick.svg'}, {ticker:'RIO', name:'Rio Tinto', logo:'/assets/tycoon/icons/gem.svg'},
+    ]},
+  { id:'southafrica', flag:'/assets/tycoon/flags/southafrica.svg', name:'South Africa', threshold:220000, x:53.3, y:77.5, accent:'#007a4d', accent2:'#ffb612',
+    starterInvestNeeded:5500,
+    starters:[
+      {ticker:'SBSW', name:'Sibanye Stillwater', logo:'/assets/tycoon/icons/pick.svg'}, {ticker:'GFI', name:'Gold Fields', logo:'/assets/tycoon/icons/coin.svg'},
+    ],
+    advanced:[
+      {ticker:'SSL', name:'Sasol', logo:'/assets/tycoon/icons/fuel.svg'}, {ticker:'AU', name:'AngloGold Ashanti', logo:'/assets/tycoon/icons/gem.svg'},
+    ]},
+  { id:'india', flag:'/assets/tycoon/flags/india.svg', name:'India', threshold:280000, x:71.0, y:49.0, accent:'#ff9933', accent2:'#138808',
+    starterInvestNeeded:6000,
+    starters:[
+      {ticker:'WIT', name:'Wipro', logo:'/assets/tycoon/icons/laptop.svg'}, {ticker:'SIFY', name:'Sify Technologies', logo:'/assets/tycoon/icons/satellite.svg'},
+    ],
+    advanced:[
+      {ticker:'INFY', name:'Infosys', logo:'/assets/tycoon/icons/laptop.svg'}, {ticker:'HDB', name:'HDFC Bank', logo:'/assets/tycoon/icons/bank.svg'},
+    ]},
 ];
 // Every company across both tiers, for price fetching and lookups
 function allCompanies(country){ return [...country.starters, ...country.advanced]; }
