@@ -90,7 +90,6 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 }
 .world-map-svg{position:absolute;inset:0;width:100%;height:100%}
 .world-map-svg path{fill:var(--ground);stroke:var(--ground-dark);stroke-width:0.6;transition:fill 0.2s}
-.map-path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
 .country-node{
   position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;
@@ -501,10 +500,6 @@ function advancedUnlocked(country){
 }
 
 // ── Map rendering ──
-function buildPathD(){
-  return 'M ' + COUNTRIES.map(c => `${c.x} ${c.y}`).join(' L ');
-}
-
 let worldMapSvgContent = null;
 async function loadWorldMapSvg(){
   if(worldMapSvgContent) return worldMapSvgContent;
@@ -527,14 +522,6 @@ function renderMap(){
   const wrap = document.getElementById('worldWrap');
   const mapBg = (worldMapSvgContent || '').replace('<svg ', '<svg class="world-map-svg" ');
 
-  const pathD = buildPathD();
-  const pathSvg = `
-    <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <path d="${pathD}" fill="none" stroke="rgba(58,43,26,0.18)" stroke-width="1.3" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-      <path d="${pathD}" fill="none" stroke="var(--path)" stroke-width="0.9" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
-      <path d="${pathD}" fill="none" stroke="#fff" stroke-width="0.35" stroke-dasharray="0.9,1.1" stroke-linecap="round" opacity="0.9" vector-effect="non-scaling-stroke"/>
-    </svg>`;
-
   const nodes = COUNTRIES.map((country, i) => {
     const isUnlocked = unlocked.includes(country.id);
     const isNext = nextCountry && nextCountry.id === country.id;
@@ -554,7 +541,7 @@ function renderMap(){
       </div>`;
   }).join('');
 
-  wrap.innerHTML = mapBg + pathSvg + nodes;
+  wrap.innerHTML = mapBg + nodes;
 }
 
 // ── Country detail ──
@@ -704,11 +691,18 @@ function closeHowToPlay(){
   localStorage.setItem('tycoon_seen_intro', '1');
 }
 
+function withTimeout(promise, ms){
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms))
+  ]);
+}
+
 async function init(){
   try {
-    await loadPlayer();
-    await loadQuotes();
-    await loadWorldMapSvg();
+    await withTimeout(loadPlayer(), 15000);
+    await withTimeout(loadQuotes(), 15000);
+    await withTimeout(loadWorldMapSvg(), 15000);
     renderMap();
     await checkUnlocks();
     if(!localStorage.getItem('tycoon_seen_intro')) openHowToPlay();
