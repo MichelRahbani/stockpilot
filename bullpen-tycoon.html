@@ -85,23 +85,11 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 /* ── World map ── */
 .world-wrap{
   position:relative;width:100%;aspect-ratio:900/540;
-  background:#a8d8e8;
+  background:radial-gradient(ellipse at 50% 40%, #c3e8f2 0%, #93c9dd 60%, #6fa8c2 100%);
   overflow:hidden;
 }
 .world-map-svg{position:absolute;inset:0;width:100%;height:100%}
-.world-map-svg path{fill:var(--ground);stroke:var(--ground-dark);stroke-width:0.6}
-.sun-img{
-  position:absolute;top:3%;right:10%;width:110px;
-  filter:drop-shadow(0 0 40px rgba(255,229,150,0.8));
-}
-.hills{position:absolute;left:0;right:0;pointer-events:none}
-.ground-texture{
-  position:absolute;left:0;right:0;bottom:0;top:56%;
-  background-image:radial-gradient(circle, rgba(255,255,255,0.15) 1.5px, transparent 1.5px);
-  background-size:34px 34px;
-}
-.cloud-img{position:absolute;filter:drop-shadow(0 3px 3px rgba(58,43,26,0.12))}
-.tree-img{position:absolute;pointer-events:none;z-index:1;filter:drop-shadow(0 3px 2px rgba(58,43,26,0.15))}
+.world-map-svg path{fill:var(--ground);stroke:var(--ground-dark);stroke-width:0.6;transition:fill 0.2s}
 .map-path{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 
 .country-node{
@@ -507,11 +495,6 @@ function renderMap(){
   const wrap = document.getElementById('worldWrap');
   const mapBg = (worldMapSvgContent || '').replace('<svg ', '<svg class="world-map-svg" ');
 
-  const sun = `<img class="sun-img" src="/assets/tycoon/scenery/sun.svg" alt="">`;
-  const cloudImg = (x, y, w, opacity) => `
-    <img class="cloud-img" style="left:${x}%;top:${y}%;width:${w}px;opacity:${opacity}" src="/assets/tycoon/scenery/cloud.svg" alt="">`;
-  const clouds = cloudImg(4,8,70,0.8) + cloudImg(60,6,55,0.7) + cloudImg(92,60,60,0.75);
-
   const pathD = buildPathD();
   const pathSvg = `
     <svg class="map-path" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -539,7 +522,7 @@ function renderMap(){
       </div>`;
   }).join('');
 
-  wrap.innerHTML = mapBg + sun + clouds + pathSvg + nodes;
+  wrap.innerHTML = mapBg + pathSvg + nodes;
 }
 
 // ── Country detail ──
