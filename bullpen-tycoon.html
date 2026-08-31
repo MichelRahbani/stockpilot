@@ -91,6 +91,33 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 .world-map-svg{position:absolute;inset:0;width:100%;height:100%}
 .world-map-svg path{fill:var(--ground);stroke:var(--ground-dark);stroke-width:0.6;transition:fill 0.2s}
 
+/* ── Roadmap section ── */
+.roadmap-section{max-width:760px;margin:0 auto;padding:32px 20px 50px}
+.roadmap-title{font-family:'Baloo 2',sans-serif;font-size:26px;font-weight:700;text-align:center}
+.roadmap-subtitle{text-align:center;color:var(--ink-dim);font-size:14px;margin-bottom:24px}
+.rm-card{
+  background:var(--card);border:3px solid var(--line);border-radius:16px;padding:16px 20px;margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.rm-card.locked{opacity:0.75}
+.rm-head{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.rm-flag{width:28px;border-radius:4px;box-shadow:0 1px 2px rgba(58,43,26,0.3)}
+.rm-name{font-family:'Baloo 2',sans-serif;font-weight:700;font-size:17px}
+.rm-badge{
+  margin-left:auto;font-size:11px;font-weight:800;padding:4px 10px;border-radius:100px;white-space:nowrap;
+}
+.rm-badge.unlocked{background:rgba(63,178,127,0.15);color:var(--green-dark)}
+.rm-badge.locked{background:rgba(58,43,26,0.1);color:var(--ink-dim)}
+.rm-req{font-size:12px;color:var(--ink-dim);margin-bottom:10px;margin-left:38px}
+.rm-tiers{display:flex;gap:24px;margin-left:38px;flex-wrap:wrap}
+.rm-tier-label{font-size:11px;font-weight:800;color:var(--ink-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.rm-companies{display:flex;flex-wrap:wrap;gap:6px}
+.rm-company{
+  display:inline-flex;align-items:center;gap:5px;background:var(--sky-bot);border:1px solid var(--line);
+  border-radius:100px;padding:3px 10px 3px 4px;font-size:12px;font-weight:700;
+}
+.rm-company img{width:16px;height:16px}
+
 .country-node{
   position:absolute;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;
   cursor:pointer;z-index:10;width:120px;
@@ -262,6 +289,13 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 <div class="world-wrap" id="worldWrap">
   <div class="loading" style="color:#fff">Loading your empire...</div>
 </div>
+
+<div class="roadmap-section">
+  <div class="roadmap-title">🗺️ The Full Roadmap</div>
+  <div class="roadmap-subtitle">Every country, every company, every unlock requirement — at a glance.</div>
+  <div id="roadmapList"></div>
+</div>
+
 <div style="text-align:center;padding:10px;font-size:11px;color:var(--ink-dim);background:var(--ground-dark)">Icons by <a href="https://twemoji.twitter.com/" style="color:inherit" target="_blank" rel="noopener">Twemoji</a>, CC-BY 4.0</div>
 
 <!-- Country detail view -->
@@ -544,6 +578,35 @@ function renderMap(){
   wrap.innerHTML = mapBg + nodes;
 }
 
+function renderRoadmap(){
+  const unlocked = player.unlocked_countries;
+  const list = document.getElementById('roadmapList');
+  list.innerHTML = COUNTRIES.map(country => {
+    const isUnlocked = unlocked.includes(country.id);
+    const companyPill = co => `
+      <span class="rm-company"><img src="${co.logo}" alt="">${co.ticker}</span>`;
+    return `
+      <div class="rm-card ${isUnlocked ? '' : 'locked'}">
+        <div class="rm-head">
+          <img src="${country.flag}" class="rm-flag" alt="${country.name}">
+          <div class="rm-name">${country.name}</div>
+          <div class="rm-badge ${isUnlocked ? 'unlocked' : 'locked'}">${isUnlocked ? '✓ Unlocked' : '🔒 Locked'}</div>
+        </div>
+        <div class="rm-req">Unlocks at $${country.threshold.toLocaleString()} net worth</div>
+        <div class="rm-tiers">
+          <div>
+            <div class="rm-tier-label">🟢 Starters</div>
+            <div class="rm-companies">${country.starters.map(companyPill).join('')}</div>
+          </div>
+          <div>
+            <div class="rm-tier-label">⭐ Advanced — invest $${country.starterInvestNeeded.toLocaleString()} in starters</div>
+            <div class="rm-companies">${country.advanced.map(companyPill).join('')}</div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
 // ── Country detail ──
 function buildCompanyCard(co, country, locked){
   const held = holdings.find(h => h.ticker === co.ticker);
@@ -616,6 +679,7 @@ function showUnlockCelebration(country){
 function closeUnlockCelebration(){
   document.getElementById('unlockOverlay').classList.remove('open');
   renderMap();
+  renderRoadmap();
 }
 
 // ── Buying ──
@@ -672,6 +736,7 @@ async function confirmBuy(){
   closeBuyModal();
   openCountry(country.id); // refresh the card grid with the new ownership state
   renderMap();
+  renderRoadmap();
   if(!wasAdvancedUnlocked && advancedUnlocked(country)){
     showTierToast('⭐ ' + country.name + ' advanced tier unlocked!');
   }
@@ -704,6 +769,7 @@ async function init(){
     await withTimeout(loadQuotes(), 15000);
     await withTimeout(loadWorldMapSvg(), 15000);
     renderMap();
+    renderRoadmap();
     await checkUnlocks();
     if(!localStorage.getItem('tycoon_seen_intro')) openHowToPlay();
   } catch(e){
