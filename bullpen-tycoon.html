@@ -14,9 +14,9 @@
   --sky-top:#4fb0e8;
   --sky-mid:#9adcf0;
   --sky-bot:#ffe28a;
-  --ground:#5cc463;
-  --ground-mid:#3fa851;
-  --ground-dark:#2d8a45;
+  --ground:#78bd7b;
+  --ground-mid:#5da362;
+  --ground-dark:#3d8144;
   --ink:#3a2b1a;
   --ink-dim:#8a7455;
   --card:#fffaf0;
@@ -90,6 +90,10 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
 }
 .world-map-svg{position:absolute;inset:0;width:100%;height:100%}
 .world-map-svg path{fill:var(--ground);stroke:var(--ground-dark);stroke-width:0.6;transition:fill 0.2s}
+.world-map-svg path.land-0{fill:#7cbf7f}
+.world-map-svg path.land-1{fill:#72b876}
+.world-map-svg path.land-2{fill:#84c688}
+.world-map-svg path.land-3{fill:#6fae74}
 
 /* ── Roadmap section ── */
 .roadmap-section{max-width:760px;margin:0 auto;padding:32px 20px 50px}
@@ -128,7 +132,7 @@ h1,h2,h3,.display{font-family:'Baloo 2',sans-serif}
   background:radial-gradient(circle at 35% 30%, #fffdf6 0%, var(--card) 55%, #f2e6c8 100%);
   border:3px solid var(--gold);
   display:flex;align-items:center;justify-content:center;font-size:22px;
-  box-shadow:0 4px 0 var(--gold-dark), inset 0 -3px 6px rgba(58,43,26,0.08);
+  box-shadow:0 4px 0 var(--gold-dark), inset 0 -3px 6px rgba(58,43,26,0.08), 0 0 0 4px rgba(242,169,30,0.18);
   transition:transform 0.15s;position:relative;overflow:hidden;
 }
 .flag-icon{width:22px;border-radius:3px;box-shadow:0 1px 2px rgba(58,43,26,0.3)}
@@ -549,7 +553,16 @@ let worldMapSvgContent = null;
 async function loadWorldMapSvg(){
   if(worldMapSvgContent) return worldMapSvgContent;
   try {
-    worldMapSvgContent = await fetch('/assets/tycoon/world-map.svg').then(r => r.text());
+    let svg = await fetch('/assets/tycoon/world-map.svg').then(r => r.text());
+    // Give each country a subtle shade variation (4-color rotation based on
+    // a stable hash of its id) instead of one flat color across all 162
+    // countries - real map games always have some regional variation.
+    svg = svg.replace(/<path id="([a-z]{2})"/g, (match, id) => {
+      let hash = 0;
+      for(let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) % 4;
+      return `<path class="land-${hash}" id="${id}"`;
+    });
+    worldMapSvgContent = svg;
   } catch(e){
     worldMapSvgContent = '';
   }
