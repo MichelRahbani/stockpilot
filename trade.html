@@ -629,6 +629,10 @@ function f(n){
   if(typeof fmtMkt==='function') return fmtMkt(n);
   return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
+function fFund(n){
+  if(n==null||isNaN(n))return '—';
+  return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
 function fs(n){
   if(!n||isNaN(n))return '—';
   if(n>=1e12)return '$'+(n/1e12).toFixed(1)+'T';
@@ -810,6 +814,12 @@ async function search(){
   if(!sym){ toast('Enter a ticker symbol','err'); return; }
   document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>⏳</div>Loading '+sym+'...</div>';
   try{
+    const fundCheck = await getFundBySymbolOrCode(sym);
+    if(fundCheck && activeMarket !== 'us'){
+      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>💱</div>Custom funds are priced in USD. Switch to <strong>US Market</strong> to trade '+fundCheck.ticker+'.</div>';
+      document.getElementById('tradeForm').style.display='none';
+      return;
+    }
     const q=await getQuote(sym);
     if(!q||!q.regularMarketPrice){
       document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>❌</div>Could not find '+sym+'. Try a valid '+mkt.name+' ticker.</div>';
@@ -853,14 +863,15 @@ function explainMove(sym, chg, pct, beta, pe) {
 function showQuote(q){ window._lastSymbol=q.symbol;
   const chg=q.regularMarketChange||0, pct=q.regularMarketChangePercent||0;
   const col=chg>=0?'#86efac':'#fca5a5';
+  const priceFmt = q.isCustomFund ? fFund : f;
   document.getElementById('quoteArea').innerHTML=`
     <div class="q-header">
       <div>
-        <div class="q-sym">${q.symbol}</div>
-        <div class="q-name">${q.longName||q.shortName||q.symbol}</div>
+        <div class="q-sym">${q.symbol}${q.isCustomFund ? ' <span style="font-size:11px;background:#7c3aed;padding:2px 8px;border-radius:100px;vertical-align:middle">CUSTOM FUND</span>' : ''}</div>
+        <div class="q-name">${q.longName||q.shortName||q.symbol}${q.isCustomFund ? ' · Priced in USD regardless of active market' : ''}</div>
       </div>
       <div>
-        <div class="q-price">${f(q.regularMarketPrice)}</div>
+        <div class="q-price">${priceFmt(q.regularMarketPrice)}</div>
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
       </div>
     </div>
