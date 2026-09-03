@@ -864,6 +864,13 @@ function showQuote(q){ window._lastSymbol=q.symbol;
   const chg=q.regularMarketChange||0, pct=q.regularMarketChangePercent||0;
   const col=chg>=0?'#86efac':'#fca5a5';
   const priceFmt = q.isCustomFund ? fFund : f;
+  const fundInfoCard = q.isCustomFund ? `
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,0.6)">
+      <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:6px">🧠 What is this?</div>
+      <div style="margin-bottom:8px">A custom fund built by a user. Its price updates live from its real component stocks, weighted the same way a real index fund works.</div>
+      <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:4px">Holdings</div>
+      <div>${q.fundHoldings.map(h => h.ticker + ' ' + h.weight + '%').join(' · ')}</div>
+    </div>` : '';
   document.getElementById('quoteArea').innerHTML=`
     <div class="q-header">
       <div>
@@ -875,6 +882,7 @@ function showQuote(q){ window._lastSymbol=q.symbol;
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
       </div>
     </div>
+    ${fundInfoCard}
     <div class="chart-wrap" id="priceChartWrap">
       <div class="chart-ranges">
         <button class="chart-range-btn active" onclick="loadChart('${q.symbol}','5d','15m',this)">1W</button>
@@ -1175,7 +1183,14 @@ document.head.appendChild(st);
   <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;position:relative">
     <button onclick="closeFundBuilder()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
     <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:4px">🧺 Build a Fund</div>
-    <div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px">Pick real tickers, set weights, and get a live-priced fund you can trade and share.</div>
+    <div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:14px">Pick real tickers, set weights, and get a live-priced fund you can trade and share.</div>
+
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6">
+      <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:6px">🧠 How this works</div>
+      <div><strong style="color:rgba(255,255,255,0.85)">1. You pick the mix</strong> — real tickers, your weights, must add to 100%.</div>
+      <div><strong style="color:rgba(255,255,255,0.85)">2. Price updates live</strong> — same math real index funds use: your fund moves with its real components, weighted.</div>
+      <div><strong style="color:rgba(255,255,255,0.85)">3. Trade it like any stock</strong> — buy/sell shares, share the code, watch it move.</div>
+    </div>
 
     <div style="display:flex;gap:8px;margin-bottom:18px">
       <button id="fundUniStocks" onclick="setFundUniverse('stocks')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-bg);color:#fff;font-weight:700;cursor:pointer">📈 Stocks / ETFs</button>
