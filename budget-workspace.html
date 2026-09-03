@@ -2198,6 +2198,13 @@ JNJ 20"></textarea>
                 <span>Debt, insurance & stress tests</span>
               </div>
             </button>
+            <button class="duo-subject-card savings-tab" data-savings-tab="afford" type="button" aria-pressed="false">
+              <div class="duo-subject-icon" style="background:#e0f2fe">🏠</div>
+              <div class="duo-subject-info">
+                <strong>Afford</strong>
+                <span>What rent or car can I afford?</span>
+              </div>
+            </button>
             <button class="duo-subject-card savings-tab" data-savings-tab="playbook" type="button" aria-pressed="false">
               <div class="duo-subject-icon" style="background:#fff8e1">📖</div>
               <div class="duo-subject-info">
@@ -2480,6 +2487,47 @@ JNJ 20"></textarea>
                 <article class="lesson-card blue-lesson"><span>Snowball <button class="info-button mini-info" data-term="snowball" type="button" aria-label="Explain snowball method">i</button></span><strong>Smallest balance first</strong><p>Can build motivation by creating quick wins, even if it may cost more interest.</p></article>
               </div>
             </article>
+          </section>
+
+          <section class="savings-panel savings-panel-page" data-savings-panel="afford">
+            <div class="section-title">
+              <div>
+                <h2>What can I afford?</h2>
+                <span class="table-note">A reasonable range for rent and a car payment, based on your income — before you sign anything.</span>
+              </div>
+            </div>
+            <div class="savings-form">
+              <label class="field">
+                <span>Monthly Income <small style="font-weight:400;opacity:0.5;font-size:11px">before tax</small></span>
+                <input id="affordIncome" type="number" min="0" step="50" value="4500" oninput="renderAfford()" />
+              </label>
+              <label class="field">
+                <span>Other Monthly Debt <small style="font-weight:400;opacity:0.5;font-size:11px">student loans, existing car loan, credit cards</small></span>
+                <input id="affordDebt" type="number" min="0" step="25" value="0" oninput="renderAfford()" />
+              </label>
+            </div>
+
+            <div class="savings-metrics" style="margin-top:20px">
+              <article class="savings-panel" style="padding:16px">
+                <div class="section-title"><div><h3 style="margin:0">🏠 Rent</h3></div></div>
+                <p id="affordRentComfortable" style="font-size:22px;font-weight:700;margin:6px 0 2px">—</p>
+                <p style="font-size:12px;opacity:0.55;margin:0">Comfortable — 25% of income</p>
+                <p id="affordRentStretch" style="font-size:15px;font-weight:600;margin:12px 0 2px;opacity:0.75">—</p>
+                <p style="font-size:12px;opacity:0.55;margin:0">The common "30% rule" — the upper edge, not the target</p>
+              </article>
+              <article class="savings-panel" style="padding:16px">
+                <div class="section-title"><div><h3 style="margin:0">🚗 Car Payment</h3></div></div>
+                <p id="affordCarComfortable" style="font-size:22px;font-weight:700;margin:6px 0 2px">—</p>
+                <p style="font-size:12px;opacity:0.55;margin:0">Comfortable — 10% of income</p>
+                <p id="affordCarStretch" style="font-size:15px;font-weight:600;margin:12px 0 2px;opacity:0.75">—</p>
+                <p style="font-size:12px;opacity:0.55;margin:0">Upper edge — 15% of income</p>
+              </article>
+            </div>
+
+            <div class="savings-panel" style="margin-top:16px;padding:16px">
+              <p id="affordDtiNote" style="font-size:13px;line-height:1.6;margin:0"></p>
+            </div>
+            <p style="font-size:11px;opacity:0.4;margin-top:14px">These are general rules of thumb, not a lender's actual approval — real underwriting also looks at credit history, down payment, and loan terms. Educational estimate only.</p>
           </section>
 
           <section class="savings-panel savings-panel-page" data-savings-panel="playbook">
