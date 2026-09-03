@@ -4441,6 +4441,7 @@ const renderAfford = () => {
 
   const income = Number(incomeField.value) || 0;
   const otherDebt = Number(debtField.value) || 0;
+  const roommates = Math.max(0, Number(document.querySelector("#affordRoommates")?.value) || 0);
   const money = (n) => `$${Math.round(n).toLocaleString()}`;
 
   const rentComfortable = income * 0.25;
@@ -4453,6 +4454,7 @@ const renderAfford = () => {
   const carComfortableEl = document.querySelector("#affordCarComfortable");
   const carStretchEl = document.querySelector("#affordCarStretch");
   const dtiNoteEl = document.querySelector("#affordDtiNote");
+  const roommateNoteEl = document.querySelector("#affordRoommateNote");
   if (!rentComfortableEl || !rentStretchEl || !carComfortableEl || !carStretchEl || !dtiNoteEl) return;
 
   if (income <= 0) {
@@ -4461,6 +4463,7 @@ const renderAfford = () => {
     carComfortableEl.textContent = "—";
     carStretchEl.textContent = "—";
     dtiNoteEl.textContent = "Enter a monthly income to see your numbers.";
+    if (roommateNoteEl) roommateNoteEl.style.display = "none";
     return;
   }
 
@@ -4479,6 +4482,71 @@ const renderAfford = () => {
     dtiNoteEl.innerHTML = `With ${money(otherDebt)}/mo in other debt included, renting and financing a car at the upper edge would put your total monthly debt around <strong>${totalStretchPct.toFixed(0)}%</strong> of income. Most lenders get uncomfortable above 36-43%, so treat the "stretch" numbers as a ceiling, not a target — the comfortable numbers leave you room to actually save.`;
   } else {
     dtiNoteEl.innerHTML = `These ranges assume no other debt. If you're carrying student loans, an existing car loan, or credit card balances, add them above — lenders look at <em>all</em> your monthly debt together, not rent or a car payment in isolation.`;
+  }
+
+  // Roommate split - your own comfortable budget times the number of
+  // people sharing the place, so you see the total apartment cost the
+  // group could support, not just your slice of it.
+  if (roommateNoteEl) {
+    if (roommates > 0) {
+      const totalApartment = rentComfortable * (roommates + 1);
+      roommateNoteEl.style.display = "block";
+      roommateNoteEl.innerHTML = `With ${roommates} roommate${roommates > 1 ? "s" : ""} splitting evenly, your group could afford a <strong>${money(totalApartment)}/mo</strong> total apartment.`;
+    } else {
+      roommateNoteEl.style.display = "none";
+    }
+  }
+
+  // Total real cost of living on your own - rent plus the recurring
+  // extras people usually forget to budget for up front.
+  const totalCostEl = document.querySelector("#affordTotalCost");
+  if (totalCostEl) {
+    const utilities = Number(document.querySelector("#affordUtilities")?.value) || 0;
+    const insurance = Number(document.querySelector("#affordInsurance")?.value) || 0;
+    const phone = Number(document.querySelector("#affordPhone")?.value) || 0;
+    const totalCost = rentComfortable + utilities + insurance + phone;
+    totalCostEl.textContent = `${money(totalCost)} / mo`;
+  }
+
+  // Home affordability - rough estimate using the standard 28%
+  // front-end housing ratio, backed into a loan amount via the
+  // standard amortization formula, then grossed up for a 20% down
+  // payment to get an estimated home price.
+  const homePriceEl = document.querySelector("#affordHomePrice");
+  const downNeededEl = document.querySelector("#affordDownNeeded");
+  const downGapEl = document.querySelector("#affordDownGap");
+  if (homePriceEl && downNeededEl && downGapEl) {
+    const downSaved = Number(document.querySelector("#affordDownSaved")?.value) || 0;
+    const annualRate = Number(document.querySelector("#affordRate")?.value) || 0;
+    const termYears = Number(document.querySelector("#affordTerm")?.value) || 30;
+    const maxHousingPayment = income * 0.28;
+    // Roughly a quarter of the housing payment goes to taxes and
+    // insurance, leaving the rest for principal and interest.
+    const piPayment = maxHousingPayment * 0.75;
+    const monthlyRate = annualRate / 100 / 12;
+    const numPayments = termYears * 12;
+    let loanAmount = 0;
+    if (monthlyRate > 0 && piPayment > 0) {
+      loanAmount = piPayment * (Math.pow(1 + monthlyRate, numPayments) - 1) / (monthlyRate * Math.pow(1 + monthlyRate, numPayments));
+    } else if (piPayment > 0) {
+      loanAmount = piPayment * numPayments;
+    }
+    const homePrice = loanAmount / 0.80;
+    const downNeeded = homePrice * 0.20;
+
+    if (income <= 0 || homePrice <= 0) {
+      homePriceEl.textContent = "—";
+      downNeededEl.textContent = "—";
+      downGapEl.textContent = "";
+    } else {
+      homePriceEl.textContent = money(homePrice);
+      downNeededEl.textContent = money(downNeeded);
+      if (downSaved >= downNeeded) {
+        downGapEl.textContent = `You've got enough saved for 20% down at this price.`;
+      } else {
+        downGapEl.textContent = `${money(downNeeded - downSaved)} more to reach 20% down.`;
+      }
+    }
   }
 };
 
