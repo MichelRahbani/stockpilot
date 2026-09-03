@@ -2505,6 +2505,10 @@ JNJ 20"></textarea>
                 <span>Other Monthly Debt <small style="font-weight:400;opacity:0.5;font-size:11px">student loans, existing car loan, credit cards</small></span>
                 <input id="affordDebt" type="number" min="0" step="25" value="0" oninput="renderAfford()" />
               </label>
+              <label class="field">
+                <span>Roommates <small style="font-weight:400;opacity:0.5;font-size:11px">splitting rent evenly</small></span>
+                <input id="affordRoommates" type="number" min="0" max="6" step="1" value="0" oninput="renderAfford()" />
+              </label>
             </div>
 
             <div class="savings-metrics" style="margin-top:20px">
@@ -2514,6 +2518,7 @@ JNJ 20"></textarea>
                 <p style="font-size:12px;opacity:0.55;margin:0">Comfortable — 25% of income</p>
                 <p id="affordRentStretch" style="font-size:15px;font-weight:600;margin:12px 0 2px;opacity:0.75">—</p>
                 <p style="font-size:12px;opacity:0.55;margin:0">The common "30% rule" — the upper edge, not the target</p>
+                <p id="affordRoommateNote" style="font-size:12px;line-height:1.5;margin:12px 0 0;padding-top:10px;border-top:1px solid rgba(0,0,0,0.06);display:none"></p>
               </article>
               <article class="savings-panel" style="padding:16px">
                 <div class="section-title"><div><h3 style="margin:0">🚗 Car Payment</h3></div></div>
@@ -2528,6 +2533,68 @@ JNJ 20"></textarea>
               <p id="affordDtiNote" style="font-size:13px;line-height:1.6;margin:0"></p>
             </div>
             <p style="font-size:11px;opacity:0.4;margin-top:14px">These are general rules of thumb, not a lender's actual approval — real underwriting also looks at credit history, down payment, and loan terms. Educational estimate only.</p>
+
+            <div class="section-title" style="margin-top:32px">
+              <div>
+                <h3>The real cost of living on your own</h3>
+                <span class="table-note">Rent is rarely the whole story. Add the usual extras to see the true monthly number.</span>
+              </div>
+            </div>
+            <div class="savings-form">
+              <label class="field">
+                <span>Utilities <small style="font-weight:400;opacity:0.5;font-size:11px">electric, gas, water, internet</small></span>
+                <input id="affordUtilities" type="number" min="0" step="10" value="150" oninput="renderAfford()" />
+              </label>
+              <label class="field">
+                <span>Renters Insurance</span>
+                <input id="affordInsurance" type="number" min="0" step="5" value="15" oninput="renderAfford()" />
+              </label>
+              <label class="field">
+                <span>Phone</span>
+                <input id="affordPhone" type="number" min="0" step="5" value="50" oninput="renderAfford()" />
+              </label>
+            </div>
+            <div class="savings-panel" style="margin-top:12px;padding:16px">
+              <p style="font-size:12px;opacity:0.55;margin:0 0 4px">True monthly cost of living on your own (comfortable rent + extras above)</p>
+              <p id="affordTotalCost" style="font-size:26px;font-weight:700;margin:0">—</p>
+            </div>
+
+            <button type="button" class="ghost-button small-button" id="affordBuyToggle" onclick="document.getElementById('affordBuySection').style.display = document.getElementById('affordBuySection').style.display === 'none' ? 'block' : 'none'" style="margin-top:28px">🏡 Thinking about buying instead? →</button>
+
+            <div id="affordBuySection" style="display:none;margin-top:16px">
+              <div class="section-title">
+                <div>
+                  <h3>How much house could you afford?</h3>
+                  <span class="table-note">A rough estimate using the standard 28% housing-payment rule. Real mortgage approval depends on your credit, rate, and lender.</span>
+                </div>
+              </div>
+              <div class="savings-form">
+                <label class="field">
+                  <span>Down Payment Saved</span>
+                  <input id="affordDownSaved" type="number" min="0" step="500" value="0" oninput="renderAfford()" />
+                </label>
+                <label class="field">
+                  <span>Assumed Interest Rate <small style="font-weight:400;opacity:0.5;font-size:11px">annual %, adjust to today's rate</small></span>
+                  <input id="affordRate" type="number" min="0" step="0.1" value="6.5" oninput="renderAfford()" />
+                </label>
+                <label class="field">
+                  <span>Loan Term <small style="font-weight:400;opacity:0.5;font-size:11px">years</small></span>
+                  <input id="affordTerm" type="number" min="5" step="5" value="30" oninput="renderAfford()" />
+                </label>
+              </div>
+              <div class="savings-metrics" style="margin-top:12px">
+                <article class="savings-panel" style="padding:16px">
+                  <p style="font-size:12px;opacity:0.55;margin:0 0 4px">Estimated home price you could afford</p>
+                  <p id="affordHomePrice" style="font-size:24px;font-weight:700;margin:0">—</p>
+                </article>
+                <article class="savings-panel" style="padding:16px">
+                  <p style="font-size:12px;opacity:0.55;margin:0 0 4px">20% down payment needed at that price</p>
+                  <p id="affordDownNeeded" style="font-size:24px;font-weight:700;margin:0">—</p>
+                  <p id="affordDownGap" style="font-size:12px;opacity:0.6;margin:8px 0 0"></p>
+                </article>
+              </div>
+              <p style="font-size:11px;opacity:0.4;margin-top:14px">Estimate assumes ~25% of the monthly housing payment goes to property taxes and insurance, with the rest toward principal and interest. Not a preapproval — a real lender will use your actual credit, income documentation, and current rates.</p>
+            </div>
           </section>
 
           <section class="savings-panel savings-panel-page" data-savings-panel="playbook">
