@@ -266,6 +266,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <span id="mktHintText">🇺🇸 NYSE / NASDAQ · $100,000 virtual USD</span>
   <span>Each market has its own separate portfolio</span>
 </div>
+<div style="max-width:1200px;margin:0 auto;padding:0 20px 12px">
+  <button onclick="openFundBuilder()" style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;padding:10px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer">🧺 Build a Fund</button>
+  <button onclick="openFundLookup()" style="background:transparent;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.15);padding:10px 18px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-left:8px">🔎 Find a Fund by Code</button>
+</div>
 <div class="ticker">
   <div class="ticker-inner" id="tickerInner">
     <div class="ti"><strong>AAPL</strong><span id="tick-AAPL">loading...</span></div>
@@ -640,7 +644,165 @@ function toast(msg,type='ok'){
 }
 
 async function getQuote(sym){
+  const fund = await getFundBySymbolOrCode(sym);
+  if(fund) return await computeFundQuote(fund);
   return await fetchQuote(sym);
+}
+
+// ── Custom Funds ──
+async function getFundBySymbolOrCode(sym){
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/custom_funds?or=(ticker.eq.'+encodeURIComponent(sym)+',code.eq.'+encodeURIComponent(sym)+')&limit=1',
+      {headers:{apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY}});
+    const rows = await r.json();
+    return rows && rows[0] ? rows[0] : null;
+  } catch(e){ return null; }
+}
+async function computeFundQuote(fund){
+  const tickers = fund.holdings.map(h => h.ticker);
+  const quotes = await fetchQuotesForFund(tickers);
+  let navRatio = 0;
+  tickers.forEach(t => {
+    const startPrice = fund.starting_prices[t];
+    const curPrice = quotes[t];
+    const weight = fund.holdings.find(h => h.ticker === t).weight / 100;
+    if(startPrice && curPrice) navRatio += weight * (curPrice / startPrice);
+  });
+  const price = fund.starting_nav * (navRatio || 1);
+  const startingFundPrice = fund.starting_nav;
+  const chg = price - startingFundPrice;
+  const pct = startingFundPrice ? (chg / startingFundPrice) * 100 : 0;
+  return {
+    symbol: fund.ticker, longName: fund.name, shortName: fund.name,
+    regularMarketPrice: price, regularMarketChange: chg, regularMarketChangePercent: pct,
+    isCustomFund: true, fundHoldings: fund.holdings, fundCode: fund.code
+  };
+}
+async function fetchQuotesForFund(tickers){
+  try {
+    const r = await fetch(API + '/api/quotes?symbols=' + tickers.map(encodeURIComponent).join(','));
+    const d = await r.json();
+    const out = {};
+    (d?.quoteResponse?.result || []).forEach(q => { out[q.symbol] = q.regularMarketPrice; });
+    return out;
+  } catch(e){ return {}; }
+}
+function genFundCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  return code;
+}
+async function createCustomFund(name, ticker, universe, holdings, creatorName){
+  const tickers = holdings.map(h => h.ticker);
+  const priceMap = await fetchQuotesForFund(tickers);
+  const missing = tickers.filter(t => !priceMap[t]);
+  if(missing.length) return {error: 'Could not find price for: ' + missing.join(', ')};
+  const code = genFundCode();
+  const body = {
+    code, ticker: ticker.toUpperCase(), name, creator_name: creatorName || 'Anonymous',
+    universe, holdings, starting_nav: 100, starting_prices: priceMap
+  };
+  try {
+    const r = await fetch(SUPA_URL+'/rest/v1/custom_funds', {
+      method:'POST',
+      headers:{apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY, 'Content-Type':'application/json', Prefer:'return=representation'},
+      body: JSON.stringify(body)
+    });
+    if(!r.ok) return {error: 'Save failed'};
+    const rows = await r.json();
+    return {fund: rows[0]};
+  } catch(e){ return {error: 'Save failed'}; }
+}
+
+// ── Fund Builder UI ──
+let fundUniverse = 'stocks';
+let fundRowId = 0;
+const FUND_ROW_COLORS = ['#7c3aed','#ec4899','#f59e0b','#10b981','#3b82f6','#ef4444','#14b8a6','#8b5cf6','#f97316','#84cc16'];
+
+function openFundBuilder(){
+  document.getElementById('fundBuilderModal').style.display = 'flex';
+  document.getElementById('fundHoldingsRows').innerHTML = '';
+  fundRowId = 0;
+  addFundRow(); addFundRow();
+  setFundUniverse('stocks');
+}
+function closeFundBuilder(){ document.getElementById('fundBuilderModal').style.display = 'none'; }
+function setFundUniverse(u){
+  fundUniverse = u;
+  const stocksBtn = document.getElementById('fundUniStocks');
+  const cryptoBtn = document.getElementById('fundUniCrypto');
+  const on = 'border:1px solid #7c3aed;background:rgba(124,58,237,0.2);color:#fff;font-weight:700;cursor:pointer;flex:1;padding:10px;border-radius:10px';
+  const off = 'border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;flex:1;padding:10px;border-radius:10px';
+  stocksBtn.style.cssText = u === 'stocks' ? on : off;
+  cryptoBtn.style.cssText = u === 'crypto' ? on : off;
+}
+function addFundRow(){
+  const id = 'frow' + (fundRowId++);
+  const placeholder = fundUniverse === 'crypto' ? 'BTC-USD' : 'AAPL';
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
+  div.innerHTML = `
+    <input class="fund-row-ticker" placeholder="${placeholder}" style="flex:2;padding:9px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:#1a1a1a;color:#fff;text-transform:uppercase;font-family:'DM Sans',sans-serif" oninput="updateFundWeightBar()">
+    <input class="fund-row-weight" type="number" min="0" max="100" placeholder="%" style="width:70px;padding:9px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:#1a1a1a;color:#fff;font-family:'DM Sans',sans-serif" oninput="updateFundWeightBar()">
+    <button onclick="document.getElementById('${id}').remove();updateFundWeightBar()" style="background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:16px;cursor:pointer;padding:4px 8px">✕</button>
+  `;
+  document.getElementById('fundHoldingsRows').appendChild(div);
+  updateFundWeightBar();
+}
+function getFundRows(){
+  return Array.from(document.querySelectorAll('#fundHoldingsRows > div')).map(row => ({
+    ticker: row.querySelector('.fund-row-ticker').value.trim().toUpperCase(),
+    weight: parseFloat(row.querySelector('.fund-row-weight').value) || 0
+  }));
+}
+function updateFundWeightBar(){
+  const rows = getFundRows();
+  const total = rows.reduce((s,r) => s + r.weight, 0);
+  const bar = document.getElementById('fundWeightBar');
+  bar.innerHTML = rows.filter(r => r.weight > 0).map((r,i) =>
+    `<div style="width:${r.weight}%;background:${FUND_ROW_COLORS[i % FUND_ROW_COLORS.length]}" title="${r.ticker}"></div>`
+  ).join('');
+  const totalEl = document.getElementById('fundWeightTotal');
+  totalEl.textContent = 'Total: ' + total.toFixed(0) + '%' + (total !== 100 ? ' (needs to equal 100%)' : ' ✓');
+  totalEl.style.color = total === 100 ? '#86efac' : 'rgba(255,255,255,0.5)';
+}
+async function submitCreateFund(){
+  const name = document.getElementById('fundName').value.trim();
+  const ticker = document.getElementById('fundTicker').value.trim().toUpperCase();
+  const rows = getFundRows().filter(r => r.ticker);
+  const total = rows.reduce((s,r) => s + r.weight, 0);
+  const errEl = document.getElementById('fundBuilderError');
+  errEl.style.display = 'none';
+
+  if(!name || !ticker){ errEl.textContent = 'Enter a fund name and ticker.'; errEl.style.display='block'; return; }
+  if(!/^[A-Z]{3,5}$/.test(ticker)){ errEl.textContent = 'Ticker must be 3-5 letters.'; errEl.style.display='block'; return; }
+  if(rows.length < 2){ errEl.textContent = 'Add at least 2 tickers.'; errEl.style.display='block'; return; }
+  if(Math.round(total) !== 100){ errEl.textContent = 'Weights must add up to 100%.'; errEl.style.display='block'; return; }
+
+  const btn = document.getElementById('fundCreateBtn');
+  btn.textContent = 'Creating...'; btn.disabled = true;
+  const creatorName = (typeof getDisplayName === 'function' && getDisplayName()) || localStorage.getItem('sp_display_name') || 'Anonymous';
+  const result = await createCustomFund(name, ticker, fundUniverse, rows, creatorName);
+  btn.textContent = 'Create Fund →'; btn.disabled = false;
+
+  if(result.error){ errEl.textContent = result.error; errEl.style.display='block'; return; }
+  closeFundBuilder();
+  showToast('Fund created! Code: ' + result.fund.code, 'ok');
+  document.getElementById('symInput').value = result.fund.ticker;
+  search();
+}
+
+// ── Fund Lookup ──
+function openFundLookup(){ document.getElementById('fundLookupModal').style.display = 'flex'; }
+function closeFundLookup(){ document.getElementById('fundLookupModal').style.display = 'none'; }
+function submitFundLookup(){
+  const val = document.getElementById('fundLookupInput').value.trim().toUpperCase();
+  if(!val) return;
+  closeFundLookup();
+  document.getElementById('symInput').value = val;
+  search();
 }
 
 async function search(){
@@ -998,6 +1160,45 @@ document.head.appendChild(st);
 </script>
 
 <!-- Sign In Modal -->
+<div id="fundBuilderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px">
+  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;position:relative">
+    <button onclick="closeFundBuilder()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
+    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:4px">🧺 Build a Fund</div>
+    <div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:20px">Pick real tickers, set weights, and get a live-priced fund you can trade and share.</div>
+
+    <div style="display:flex;gap:8px;margin-bottom:18px">
+      <button id="fundUniStocks" onclick="setFundUniverse('stocks')" style="flex:1;padding:10px;border-radius:10px;border:1px solid #7c3aed;background:rgba(124,58,237,0.2);color:#fff;font-weight:700;cursor:pointer">📈 Stocks / ETFs</button>
+      <button id="fundUniCrypto" onclick="setFundUniverse('crypto')" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer">₿ Crypto</button>
+    </div>
+
+    <label style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700">FUND NAME</label>
+    <input id="fundName" placeholder="e.g. My Tech Basket" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:#1a1a1a;color:#fff;margin:6px 0 14px;font-family:'DM Sans',sans-serif">
+
+    <label style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700">TICKER (3-5 LETTERS)</label>
+    <input id="fundTicker" placeholder="e.g. MYETF" maxlength="5" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:#1a1a1a;color:#fff;margin:6px 0 14px;text-transform:uppercase;font-family:'DM Sans',sans-serif">
+
+    <label style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700">HOLDINGS</label>
+    <div id="fundHoldingsRows" style="margin:8px 0"></div>
+    <button onclick="addFundRow()" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;width:100%">+ Add ticker</button>
+
+    <div id="fundWeightBar" style="height:10px;border-radius:100px;background:#1a1a1a;overflow:hidden;margin:14px 0 4px;display:flex"></div>
+    <div id="fundWeightTotal" style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px">Total: 0%</div>
+
+    <div id="fundBuilderError" style="display:none;color:#fca5a5;font-size:13px;margin-bottom:10px"></div>
+
+    <button id="fundCreateBtn" onclick="submitCreateFund()" style="width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:10px;font-weight:700;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif">Create Fund →</button>
+  </div>
+</div>
+
+<div id="fundLookupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px">
+  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px;width:100%;max-width:380px;position:relative">
+    <button onclick="closeFundLookup()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
+    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:white;margin-bottom:14px">Find a Fund</div>
+    <input id="fundLookupInput" placeholder="Fund code or ticker" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:#1a1a1a;color:#fff;margin-bottom:12px;font-family:'DM Sans',sans-serif">
+    <button onclick="submitFundLookup()" style="width:100%;padding:12px;background:#7c3aed;color:#fff;border:none;border-radius:10px;font-weight:700;cursor:pointer">Search →</button>
+  </div>
+</div>
+
 <div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
   <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
     <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
