@@ -4425,6 +4425,63 @@ const renderSavingsBudget = () => {
   renderCommandCenter();
 };
 
+const renderAfford = () => {
+  const incomeField = document.querySelector("#affordIncome");
+  const debtField = document.querySelector("#affordDebt");
+  if (!incomeField || !debtField) return;
+
+  // Pre-fill from the main budget's income the first time this panel is
+  // opened, so someone who already entered their income doesn't have to
+  // type it twice. A manual edit here afterward is left alone.
+  if (!incomeField.dataset.prefilled) {
+    const mainIncome = readSavingsNumber("monthlyIncome");
+    if (mainIncome > 0) incomeField.value = mainIncome;
+    incomeField.dataset.prefilled = "true";
+  }
+
+  const income = Number(incomeField.value) || 0;
+  const otherDebt = Number(debtField.value) || 0;
+  const money = (n) => `$${Math.round(n).toLocaleString()}`;
+
+  const rentComfortable = income * 0.25;
+  const rentStretch = income * 0.30;
+  const carComfortable = income * 0.10;
+  const carStretch = income * 0.15;
+
+  const rentComfortableEl = document.querySelector("#affordRentComfortable");
+  const rentStretchEl = document.querySelector("#affordRentStretch");
+  const carComfortableEl = document.querySelector("#affordCarComfortable");
+  const carStretchEl = document.querySelector("#affordCarStretch");
+  const dtiNoteEl = document.querySelector("#affordDtiNote");
+  if (!rentComfortableEl || !rentStretchEl || !carComfortableEl || !carStretchEl || !dtiNoteEl) return;
+
+  if (income <= 0) {
+    rentComfortableEl.textContent = "—";
+    rentStretchEl.textContent = "—";
+    carComfortableEl.textContent = "—";
+    carStretchEl.textContent = "—";
+    dtiNoteEl.textContent = "Enter a monthly income to see your numbers.";
+    return;
+  }
+
+  rentComfortableEl.textContent = `${money(rentComfortable)} / mo`;
+  rentStretchEl.textContent = `up to ${money(rentStretch)} / mo`;
+  carComfortableEl.textContent = `${money(carComfortable)} / mo`;
+  carStretchEl.textContent = `up to ${money(carStretch)} / mo`;
+
+  // Lenders generally cap total debt (housing + auto + everything else)
+  // around 36-43% of gross income. Show where this person's stretch
+  // numbers land against that, factoring in whatever other debt they
+  // already carry.
+  const totalStretch = rentStretch + carStretch + otherDebt;
+  const totalStretchPct = (totalStretch / income) * 100;
+  if (otherDebt > 0) {
+    dtiNoteEl.innerHTML = `With ${money(otherDebt)}/mo in other debt included, renting and financing a car at the upper edge would put your total monthly debt around <strong>${totalStretchPct.toFixed(0)}%</strong> of income. Most lenders get uncomfortable above 36-43%, so treat the "stretch" numbers as a ceiling, not a target — the comfortable numbers leave you room to actually save.`;
+  } else {
+    dtiNoteEl.innerHTML = `These ranges assume no other debt. If you're carrying student loans, an existing car loan, or credit card balances, add them above — lenders look at <em>all</em> your monthly debt together, not rent or a car payment in isolation.`;
+  }
+};
+
 const setMoneyMode = (mode) => {
   const isCommand = mode === "command";
   const isPlan = mode === "plan";
@@ -4936,6 +4993,7 @@ const showSavingsPanel = (panel) => {
     section.classList.toggle("active", section.dataset.savingsPanel === activePanel);
   });
   renderSavingsBudget();
+  renderAfford();
   scheduleSaveAppState();
 };
 
