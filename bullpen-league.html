@@ -337,7 +337,7 @@ const leagueCode=params.get('code')||localStorage.getItem('bullpen_my_league')||
 const myMemberId=params.get('mid')||localStorage.getItem('bullpen_my_member_id')||'';
 const myName=localStorage.getItem('bullpen_my_name')||'';
 
-let league=null,members=[],myMember=null,priceMap={};
+let league=null,members=[],myMember=null,priceMap={},currentPriceMap={};
 let activeTab='starters';
 let swapOut=null,swapIn=null,faDropTicker=null,faPickup=null;
 
@@ -407,20 +407,22 @@ async function updateScores(){
   try{
     const res=await fetch(`${BACKEND}/api/quotes?symbols=${[...allTickers].join(',')}`);
     const data=await res.json();
-    (data?.quoteResponse?.result||[]).forEach(q=>{priceMap[q.symbol]=q.regularMarketChangePercent||0;});
+    (data?.quoteResponse?.result||[]).forEach(q=>{priceMap[q.symbol]=q.regularMarketChangePercent||0;currentPriceMap[q.symbol]=q.regularMarketPrice||0;});
     for(const m of members){
       if(!m.starters||!m.starters.length)continue;
       m.score=parseFloat(m.starters.reduce((s,t)=>s+(priceMap[t]||0),0).toFixed(2));
       sbPatch('bullpen_members',`id=eq.${m.id}`,{score:m.score});
     }
     // Calculate weekly scores
-    // If no baseline exists for a member, set it now from current prices
+    // If no baseline exists for a member, set it now from current prices.
+    // The baseline must be an actual price (not a daily % change) - it's
+    // the reference point everything since is measured against.
     const membersNeedingBaseline = members.filter(m => m.starters?.length > 0 && (!m.week_baseline || Object.keys(m.week_baseline).length === 0));
     for(const m of membersNeedingBaseline){
       const baseline = {};
-      // We don't have actual prices from draft day, so use current as starting point
-      // Score will accumulate from this point forward
-      m.starters.forEach(t => { if(priceMap[t] !== undefined) baseline[t] = priceMap[t]; });
+      // We don't have actual prices from draft day, so use current as starting point.
+      // Score will accumulate from this point forward.
+      m.starters.forEach(t => { if(currentPriceMap[t]) baseline[t] = currentPriceMap[t]; });
       m.week_baseline = baseline;
       sbPatch('bullpen_members', `id=eq.${m.id}`, {week_baseline: baseline});
     }
@@ -429,17 +431,19 @@ async function updateScores(){
       if(!m.starters||!m.starters.length) continue;
       const baseline = m.week_baseline || {};
       let weekScore = 0;
-      let hasBaseline = false;
       m.starters.forEach(t => {
-        const chg = priceMap[t] || 0;
         const basePrice = baseline[t];
-        if(basePrice && basePrice > 0){
-          hasBaseline = true;
-          // Use actual price change from baseline
-          // priceMap stores % change today, not price — use cumulative approach
-          weekScore += chg;
+        const curPrice = currentPriceMap[t];
+        if(basePrice && basePrice > 0 && curPrice){
+          // Real cumulative return since the baseline was set: how much
+          // this pick has actually moved since the member drafted it,
+          // not just how much it moved today.
+          weekScore += ((curPrice - basePrice) / basePrice) * 100;
         } else {
-          weekScore += chg;
+          // No usable baseline yet (e.g. baseline was just set this run,
+          // or a quote is temporarily missing) - fall back to today's
+          // move so the score isn't left blank.
+          weekScore += priceMap[t] || 0;
         }
       });
       m.weekly_score = parseFloat(weekScore.toFixed(2));
