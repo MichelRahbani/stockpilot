@@ -12,7 +12,7 @@
   const STEPS=[
     {number:1,emoji:'🔍',title:'Pick a stock',body:'Search any ticker above — try <strong>AAPL</strong>, <strong>TSLA</strong>, or <strong>SPY</strong>. Or click a stock card below.',target:'symInput',cta:"Got it, I'll search",completionEvent:'sp:stockLoaded',autoAdvance:true},
     {number:2,emoji:'📈',title:'Make your first trade',body:'Enter how many shares and hit <strong>Buy</strong>. You have $100,000 virtual cash — zero real money.',target:'execBtn',cta:"Got it, I'll trade",completionEvent:'sp:tradeExecuted',autoAdvance:true},
-    {number:3,emoji:'🎓',title:'Check a lesson',body:'Head to <strong>Portfolio → Learning</strong> to understand what you just did. 42 free lessons.',target:null,cta:'Take me there →',ctaAction:()=>{window.location.href='/app#learning';},completionEvent:null,autoAdvance:false}
+    {number:3,emoji:'🎓',title:'Check a lesson',body:'Head to <strong>Learn</strong> in the nav to understand what you just did. 42 free lessons.',target:null,cta:'Take me there →',ctaAction:()=>{window.location.href='/learn';},completionEvent:null,autoAdvance:false}
   ];
   let currentStep=parseInt(localStorage.getItem(STEP_KEY)||'0',10);
   let overlay,card,spotlight;
