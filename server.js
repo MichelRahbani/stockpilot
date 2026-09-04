@@ -648,6 +648,126 @@ const server = http.createServer(async (req, res) => {
         return send(res, 500, { error: e.message });
       }
     }
+
+    if (reqUrl.pathname === "/api/bullpen-weekly") {
+      // Awards weekly points and resets baselines for any Bullpen league
+      // whose week is 7+ days old. This was previously written as a
+      // standalone file (api/bullpen-weekly.js) in the repo but was never
+      // actually wired into this server's routing, so it has never been
+      // reachable - the whole weekly scoring feature was silently dead.
+      try {
+        const supaKey = SUPABASE_SERVICE_KEY || SUPABASE_ANON_KEY;
+        const now = new Date();
+        const today = now.toISOString().split("T")[0];
+
+        const leagues = await fetch(`${SUPABASE_URL}/rest/v1/bullpen_leagues?select=*&order=created_at.desc`, {
+          headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}` }
+        }).then(r => r.json());
+        if (!Array.isArray(leagues)) return send(res, 200, { message: "No leagues found", leagues });
+
+        const results = [];
+
+        for (const league of leagues) {
+          const weekStart = league.week_start_date ? new Date(league.week_start_date) : now;
+          const daysSince = Math.floor((now - weekStart) / 86400000);
+          if (daysSince < 7) {
+            results.push({ league: league.code, status: "not_due", days: daysSince });
+            continue;
+          }
+
+          const members = await fetch(`${SUPABASE_URL}/rest/v1/bullpen_members?league_code=eq.${league.code}&order=joined_at.asc`, {
+            headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}` }
+          }).then(r => r.json());
+          if (!Array.isArray(members) || !members.length) continue;
+
+          const allTickers = new Set();
+          members.forEach(m => (m.starters || []).forEach(t => allTickers.add(t)));
+
+          const changeMap = {}, priceMap = {};
+          if (allTickers.size) {
+            const quotes = await getQuotePayload([...allTickers]).catch(() => ({ quoteResponse: { result: [] } }));
+            (quotes?.quoteResponse?.result || []).forEach(q => {
+              changeMap[q.symbol] = q.regularMarketChangePercent || 0;
+              priceMap[q.symbol] = q.regularMarketPrice || 0;
+            });
+          }
+
+          // Real cumulative return since the baseline (an actual price)
+          // was set, not today's daily change.
+          for (const m of members) {
+            if (!m.starters || !m.starters.length) continue;
+            const baseline = m.week_baseline || {};
+            let weekScore = 0;
+            m.starters.forEach(t => {
+              const curr = priceMap[t];
+              const base = baseline[t];
+              if (base && base > 0 && curr) {
+                weekScore += ((curr - base) / base) * 100;
+              } else {
+                weekScore += changeMap[t] || 0;
+              }
+            });
+            m._weekScore = parseFloat(weekScore.toFixed(2));
+          }
+
+          const ranked = [...members].sort((a, b) => (b._weekScore || 0) - (a._weekScore || 0));
+          const weekNum = league.current_week || 1;
+          const n = ranked.length;
+
+          for (let i = 0; i < ranked.length; i++) {
+            const m = ranked[i];
+            const pts = n - i;
+            const newSeasonPts = (m.season_points || 0) + pts;
+
+            const newBaseline = {};
+            (m.starters || []).forEach(t => { if (priceMap[t]) newBaseline[t] = priceMap[t]; });
+
+            await fetch(`${SUPABASE_URL}/rest/v1/bullpen_weekly_scores`, {
+              method: "POST",
+              headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}`, "Content-Type": "application/json", Prefer: "return=representation" },
+              body: JSON.stringify({
+                league_code: league.code, member_id: m.id, member_name: m.name,
+                week_number: weekNum, week_start: league.week_start_date, week_end: today,
+                score: m._weekScore || 0, season_points: pts
+              })
+            });
+
+            await fetch(`${SUPABASE_URL}/rest/v1/bullpen_members?id=eq.${m.id}`, {
+              method: "PATCH",
+              headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+              body: JSON.stringify({ weekly_score: 0, season_points: newSeasonPts, week_baseline: newBaseline, trades_left: 2, fa_moves: 2 })
+            });
+          }
+
+          await fetch(`${SUPABASE_URL}/rest/v1/bullpen_leagues?code=eq.${league.code}`, {
+            method: "PATCH",
+            headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+            body: JSON.stringify({ current_week: weekNum + 1, week_start_date: today })
+          });
+
+          const winner = ranked[0];
+          await fetch(`${SUPABASE_URL}/rest/v1/bullpen_leagues?code=eq.${league.code}`, {
+            method: "PATCH",
+            headers: { apikey: supaKey, Authorization: `Bearer ${supaKey}`, "Content-Type": "application/json", Prefer: "return=minimal" },
+            body: JSON.stringify({
+              last_recap: JSON.stringify({
+                week: weekNum, winner: winner?.name || "—", winnerScore: winner?._weekScore || 0,
+                resetAt: today, topStocks: [...allTickers].slice(0, 3)
+              })
+            })
+          });
+
+          results.push({
+            league: league.code, leagueName: league.name, status: "reset",
+            week: weekNum, winner: winner?.name, winnerScore: winner?._weekScore, membersReset: ranked.length
+          });
+        }
+
+        return send(res, 200, { success: true, timestamp: now.toISOString(), processed: results.length, results });
+      } catch (e) {
+        return send(res, 500, { error: e.message });
+      }
+    }
     if (req.method === "GET" && reqUrl.pathname === "/") {
       return sendStaticFile(res, "landing.html");
     }
