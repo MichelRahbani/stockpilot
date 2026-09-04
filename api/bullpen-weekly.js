@@ -44,13 +44,14 @@ async function getQuotes(symbols) {
         try {
           const json = JSON.parse(data);
           const quotes = json?.quoteResponse?.result || [];
-          const map = {};
-          quotes.forEach(q => { map[q.symbol] = q.regularMarketChangePercent || 0; });
-          resolve(map);
-        } catch(e) { resolve({}); }
+          const changeMap = {};
+          const priceMap = {};
+          quotes.forEach(q => { changeMap[q.symbol] = q.regularMarketChangePercent || 0; priceMap[q.symbol] = q.regularMarketPrice || 0; });
+          resolve({ changeMap, priceMap });
+        } catch(e) { resolve({ changeMap: {}, priceMap: {} }); }
       });
     });
-    req.on('error', () => resolve({}));
+    req.on('error', () => resolve({ changeMap: {}, priceMap: {} }));
   });
 }
 
@@ -92,20 +93,21 @@ module.exports = async (req, res) => {
       });
 
       // Get prices
-      const priceMap = allTickers.size > 0 ? await getQuotes([...allTickers]) : {};
+      const { changeMap, priceMap } = allTickers.size > 0 ? await getQuotes([...allTickers]) : { changeMap: {}, priceMap: {} };
 
-      // Calculate weekly scores
+      // Calculate weekly scores - real cumulative return since the
+      // baseline (an actual price) was set, not today's daily change.
       for (const m of members) {
         if (!m.starters || !m.starters.length) continue;
         const baseline = m.week_baseline || {};
         let weekScore = 0;
         m.starters.forEach(t => {
-          const curr = priceMap[t] || 0;
+          const curr = priceMap[t];
           const base = baseline[t];
-          if (base && base > 0) {
+          if (base && base > 0 && curr) {
             weekScore += ((curr - base) / base) * 100;
           } else {
-            weekScore += curr; // fallback to daily change
+            weekScore += changeMap[t] || 0; // fallback to today's change if no baseline yet
           }
         });
         m._weekScore = parseFloat(weekScore.toFixed(2));
@@ -125,7 +127,7 @@ module.exports = async (req, res) => {
         // New baseline from current prices
         const newBaseline = {};
         (m.starters || []).forEach(t => {
-          if (priceMap[t] !== undefined) newBaseline[t] = priceMap[t];
+          if (priceMap[t]) newBaseline[t] = priceMap[t];
         });
 
         // Save weekly score history
