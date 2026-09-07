@@ -352,7 +352,7 @@ footer a:hover{color:var(--text)}
       </div>
     </div>
 
-    <a href="/my-account.html" id="navAccountLink" class="btn-ghost" style="text-decoration:none;display:inline-flex;align-items:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">👤 Sign In</a>
+    <a href="/my-account.html" id="navAccountLink" class="btn-ghost" onclick="if(!localStorage.getItem('supabase_token')){event.preventDefault();openSignin();}" style="text-decoration:none;display:inline-flex;align-items:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">👤 Sign In</a>
     <button class="btn-ghost" onclick="requireAuth(openJoin)">Join League</button>
     <button class="btn-primary" onclick="requireAuth(openCreate)">Create League</button>
   </div>
