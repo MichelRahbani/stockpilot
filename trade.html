@@ -1228,27 +1228,67 @@ document.head.appendChild(st);
 <div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
   <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
     <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
-    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:6px">Welcome back</div>
-    <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">Sign in to your StockPilot account</div>
+    <div id="siTitle" style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:6px">Welcome back</div>
+    <div id="siSubtitle" style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">Sign in to your StockPilot account</div>
     <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
-    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Your Name</div>
-    <input id="siName" type="text" placeholder="What should we call you?" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
-    <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Your Name</div>
-    <input id="siName" type="text" placeholder="What should we call you?" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+    <div id="siNameField" style="display:none">
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Your Name</div>
+      <input id="siName" type="text" placeholder="What should we call you?" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+    </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
     <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
     <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
-    <button onclick="doSignin()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
-    <div style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">Don't have an account? <a href="/app" style="color:#2ecc9a;text-decoration:none">Create one in the app</a></div>
+    <button id="siSubmitBtn" onclick="doSignin()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
+    <div id="siToggleRow" style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">Don't have an account? <span onclick="toggleSignupMode()" style="color:#2ecc9a;text-decoration:none;cursor:pointer">Create one</span></div>
     <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
   </div>
 </div>
 <script>
 const SUPA_URL="https://xkfxofcmrmpazfjviatq.supabase.co";
 const SUPA_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q";
+let _siSignupMode=false;
+function toggleSignupMode(){
+  _siSignupMode=!_siSignupMode;
+  document.getElementById('siTitle').textContent=_siSignupMode?'Create your account':'Welcome back';
+  document.getElementById('siSubtitle').textContent=_siSignupMode?'Free forever. No credit card.':'Sign in to your StockPilot account';
+  document.getElementById('siNameField').style.display=_siSignupMode?'block':'none';
+  document.getElementById('siSubmitBtn').textContent=_siSignupMode?'Create Account':'Sign In';
+  document.getElementById('siSubmitBtn').setAttribute('onclick',_siSignupMode?'doSignup()':'doSignin()');
+  document.getElementById('siToggleRow').innerHTML=_siSignupMode
+    ?'Already have an account? <span onclick="toggleSignupMode()" style="color:#2ecc9a;text-decoration:none;cursor:pointer">Sign in</span>'
+    :'Don\'t have an account? <span onclick="toggleSignupMode()" style="color:#2ecc9a;text-decoration:none;cursor:pointer">Create one</span>';
+  document.getElementById('signinMsg').style.display='none';
+}
+async function doSignup(){
+  const name=document.getElementById('siName').value.trim();
+  const email=document.getElementById('siEmail').value.trim();
+  const pass=document.getElementById('siPass').value;
+  if(!name||!email||!pass){showSiMsg('Enter your name, email, and password.',false);return;}
+  if(pass.length<6){showSiMsg('Password must be at least 6 characters.',false);return;}
+  showSiMsg('Creating your account...',true);
+  try{
+    const r=await fetch(SUPA_URL+'/auth/v1/signup',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY},body:JSON.stringify({email,password:pass,data:{full_name:name}})});
+    const d=await r.json();
+    if(!d.access_token && !d.id){showSiMsg(d.msg||d.error_description||'Could not create account. Try a different email.',false);return;}
+    if(d.access_token){
+      localStorage.setItem('supabase_token',d.access_token);
+      localStorage.setItem('supabase_email',email);
+      localStorage.setItem('supabase_name',name);
+      const uid=d.user?.id||d.id;
+      if(uid){
+        await fetch(SUPA_URL+'/rest/v1/profiles',{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPA_KEY,'Authorization':'Bearer '+d.access_token,'Prefer':'resolution=merge-duplicates'},body:JSON.stringify({id:uid,full_name:name})}).catch(()=>{});
+      }
+      showSiMsg('Account created! Redirecting...',true);
+      setTimeout(async()=>{closeSignin();if(typeof showNavUser==='function')showNavUser(name);localStorage.removeItem('vport');port={cash:mkt.start,pos:{},trades:[]};const loaded=await loadPortfolioFromCloud();if(loaded){renderPort();renderTrades();updatePortStats();}},1200);
+    } else {
+      showSiMsg('Account created! Check your email to confirm, then sign in.',true);
+      setTimeout(toggleSignupMode,2000);
+    }
+  }catch(e){showSiMsg('Error creating account. Try again.',false);}
+}
 function openSignin(){document.getElementById('signinModal').style.display='flex';}
-function closeSignin(){document.getElementById('signinModal').style.display='none';}
+function closeSignin(){document.getElementById('signinModal').style.display='none';if(_siSignupMode)toggleSignupMode();}
 function showSiMsg(msg,ok){const el=document.getElementById('signinMsg');el.textContent=msg;el.style.display='block';el.style.background=ok?'rgba(22,163,74,0.15)':'rgba(220,38,38,0.15)';el.style.color=ok?'#86efac':'#fca5a5';el.style.border='1px solid '+(ok?'rgba(22,163,74,0.3)':'rgba(220,38,38,0.3)');}
 async function doSignin(){
   const email=document.getElementById('siEmail').value.trim();
@@ -1341,7 +1381,7 @@ document.addEventListener("DOMContentLoaded", function() {
         <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Want to compete?</div>
         <div style="font-size:12px;color:var(--dim);margin-bottom:16px">Sign in to join the leaderboard!</div>
         <button onclick="openSignin()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">Sign In</button>
-        <a href="/app" style="display:block;font-size:12px;color:var(--dim);text-decoration:none">No account? Create one →</a>
+        <a href="javascript:void(0)" onclick="openSignin();toggleSignupMode()" style="display:block;font-size:12px;color:var(--dim);text-decoration:none">No account? Create one →</a>
       </div>
       <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
         <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">📨 Invite Friends</div>
