@@ -577,6 +577,7 @@ const STOCKPILOT_SAME_ORIGIN = Boolean(
   )
 );
 let stockPilotApiOnline = false;
+let stockPilotApiOfflineSince = 0;
 let stockPilotProviderStatus = null;
 let stockPilotApiError = "";
 const NEWS_SOURCES = [
@@ -9896,7 +9897,14 @@ const apiGatewayUrlFor = (url, type = "json") => {
 };
 
 const fetchJsonWithFallback = async (url) => {
-  const apiUrl = stockPilotApiOnline ? apiGatewayUrlFor(url, "json") : "";
+  // If we previously marked the gateway offline, don't skip it forever -
+  // a burst of concurrent requests (e.g. loading a 5-asset portfolio at
+  // once) can exhaust the retry budget on a purely transient blip even
+  // though the gateway is fine again moments later. Give it another shot
+  // after a short cooldown instead of leaving the whole session stuck on
+  // fallback data.
+  const shouldTryGateway = stockPilotApiOnline || (stockPilotApiOfflineSince && Date.now() - stockPilotApiOfflineSince > 30000);
+  const apiUrl = shouldTryGateway ? apiGatewayUrlFor(url, "json") : "";
   if (apiUrl) {
     // A single transient hiccup (Railway momentarily busy, one request
     // among many concurrent ones during a bulk portfolio load) shouldn't
@@ -9906,10 +9914,17 @@ const fetchJsonWithFallback = async (url) => {
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`StockPilot API failed with ${response.status}`);
-        return await response.json();
+        const result = await response.json();
+        if (!stockPilotApiOnline) {
+          stockPilotApiOnline = true;
+          stockPilotApiOfflineSince = 0;
+          updateDataSourceStatus();
+        }
+        return result;
       } catch (error) {
         if (attempt === 1) {
           stockPilotApiOnline = false;
+          stockPilotApiOfflineSince = Date.now();
           updateDataSourceStatus();
         }
       }
@@ -9928,16 +9943,24 @@ const fetchJsonWithFallback = async (url) => {
 };
 
 const fetchTextWithFallback = async (url) => {
-  const apiUrl = stockPilotApiOnline ? apiGatewayUrlFor(url, "text") : "";
+  const shouldTryGateway = stockPilotApiOnline || (stockPilotApiOfflineSince && Date.now() - stockPilotApiOfflineSince > 30000);
+  const apiUrl = shouldTryGateway ? apiGatewayUrlFor(url, "text") : "";
   if (apiUrl) {
     for (let attempt = 0; attempt < 2; attempt += 1) {
       try {
         const response = await fetch(apiUrl);
         if (!response.ok) throw new Error(`StockPilot API failed with ${response.status}`);
-        return await response.text();
+        const result = await response.text();
+        if (!stockPilotApiOnline) {
+          stockPilotApiOnline = true;
+          stockPilotApiOfflineSince = 0;
+          updateDataSourceStatus();
+        }
+        return result;
       } catch (error) {
         if (attempt === 1) {
           stockPilotApiOnline = false;
+          stockPilotApiOfflineSince = Date.now();
           updateDataSourceStatus();
         }
       }
