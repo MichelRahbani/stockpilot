@@ -23,6 +23,15 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
 .bp-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
 .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:3px;font-size:13px;cursor:pointer;font-family:'IBM Plex Sans',sans-serif}
 .btn-ghost:hover{border-color:var(--purple);color:var(--purple)}
+.bp-hamburger{display:none;background:transparent;border:none;cursor:pointer;padding:6px;color:var(--text)}
+@media(max-width:640px){
+  .bp-nav-desktop{display:none !important}
+  .bp-hamburger{display:block}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .stat-grid .stat-box:nth-child(3){grid-column:1 / -1}
+  .stat-box{padding:12px}
+  .stat-box .v{font-size:18px}
+}
 
 .wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
 .t-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:24px}
@@ -108,11 +117,41 @@ body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-ser
     <img src="/logo.jpg" alt="StockPilot" style="height:36px;width:36px;border-radius:3px;object-fit:cover"/>
     <div><div class="bp-logo-text">STOCKPILOT</div><div class="bp-logo-sub">Bullpen Madness</div></div>
   </a>
-  <div style="display:flex;align-items:center;gap:10px">
+  <div class="bp-nav-desktop" style="display:flex;align-items:center;gap:10px">
     <a href="/bullpen-madness.html" class="btn-ghost" style="text-decoration:none">← All Tournaments</a>
     <a href="/my-account.html" class="btn-ghost" style="text-decoration:none">👤 My Account</a>
   </div>
+  <button class="bp-hamburger" id="bpHamburger" onclick="toggleBpMenu()" aria-label="Menu">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <rect y="4" width="22" height="2" rx="1" fill="currentColor"/>
+      <rect y="10" width="22" height="2" rx="1" fill="currentColor"/>
+      <rect y="16" width="22" height="2" rx="1" fill="currentColor"/>
+    </svg>
+  </button>
 </nav>
+
+<div id="bpMobileMenu" style="display:none;position:fixed;top:60px;left:0;right:0;background:rgba(8,12,16,0.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:16px;z-index:999;flex-direction:column;gap:10px">
+  <a href="/my-account.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:6px;font-size:14px;font-weight:600;text-align:center;text-decoration:none;font-family:'IBM Plex Sans',sans-serif;box-sizing:border-box">👤 My Account</a>
+  <a href="/bullpen-madness.html" style="display:block;text-align:center;font-size:13px;color:var(--muted);text-decoration:none;padding:8px">← All Tournaments</a>
+</div>
+
+<script>
+function toggleBpMenu(){
+  const menu=document.getElementById('bpMobileMenu');
+  const isOpen=menu.style.display==='flex';
+  menu.style.display=isOpen?'none':'flex';
+}
+function closeBpMenu(){
+  document.getElementById('bpMobileMenu').style.display='none';
+}
+document.addEventListener('click',function(e){
+  const menu=document.getElementById('bpMobileMenu');
+  const btn=document.getElementById('bpHamburger');
+  if(menu && menu.style.display==='flex' && !menu.contains(e.target) && e.target!==btn && !btn.contains(e.target)){
+    menu.style.display='none';
+  }
+});
+</script>
 
 <div class="wrap" id="app">
   <div class="loading">Loading tournament...</div>
