@@ -56,6 +56,11 @@ body::before{
 .btn-ghost:hover{border-color:var(--amber);color:var(--amber)}
 .btn-primary{background:var(--amber);border:none;color:#160f00;padding:9px 20px;border-radius:3px;font-size:13px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif;transition:all 0.15s}
 .btn-primary:hover{background:#5c94ff;transform:translateY(-1px)}
+.bp-hamburger{display:none;background:transparent;border:none;cursor:pointer;padding:6px;color:var(--chalk)}
+@media(max-width:640px){
+  .bp-nav-desktop{display:none !important}
+  .bp-hamburger{display:block}
+}
 
 /* ── Hero ── */
 .hero{
@@ -148,12 +153,26 @@ body::before{
       <div class="bp-logo-sub">Bullpen Showdown</div>
     </div>
   </a>
-  <div class="bp-nav-right">
+  <div class="bp-nav-right bp-nav-desktop">
     <a href="/bullpen.html" class="btn-ghost" style="text-decoration:none">← Bullpen</a>
-    <a href="/my-account.html" class="btn-ghost" style="text-decoration:none">👤 My Account</a>
+    <a href="/my-account.html" class="btn-ghost" onclick="if(!localStorage.getItem('supabase_token')){event.preventDefault();document.getElementById('signinModal').classList.add('open');}" style="text-decoration:none">👤 My Account</a>
     <button class="btn-primary" onclick="requireAuth(openCreate)">+ Create Showdown</button>
   </div>
+  <button class="bp-hamburger" id="bpHamburger" onclick="toggleBpMenu()" aria-label="Menu">
+    <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+      <rect y="4" width="22" height="2" rx="1" fill="currentColor"/>
+      <rect y="10" width="22" height="2" rx="1" fill="currentColor"/>
+      <rect y="16" width="22" height="2" rx="1" fill="currentColor"/>
+    </svg>
+  </button>
 </nav>
+
+<div id="bpMobileMenu" style="display:none;position:fixed;top:60px;left:0;right:0;background:rgba(11,16,12,0.98);backdrop-filter:blur(16px);border-bottom:1px solid var(--line);padding:16px;z-index:999;flex-direction:column;gap:10px">
+  <button onclick="closeBpMenu();requireAuth(openCreate)" style="width:100%;padding:13px;background:var(--amber);color:#160f00;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;font-family:'IBM Plex Sans',sans-serif">+ Create Showdown</button>
+  <button onclick="closeBpMenu();requireAuth(openJoin)" style="width:100%;padding:13px;background:transparent;color:var(--chalk);border:1px solid var(--line);border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;font-family:'IBM Plex Sans',sans-serif">Join with Code</button>
+  <a href="/my-account.html" onclick="closeBpMenu();if(!localStorage.getItem('supabase_token')){event.preventDefault();document.getElementById('signinModal').classList.add('open');}" style="display:block;width:100%;padding:13px;background:transparent;color:var(--chalk-dim);border:1px solid var(--line);border-radius:6px;font-size:14px;font-weight:600;text-align:center;text-decoration:none;font-family:'IBM Plex Sans',sans-serif;box-sizing:border-box">👤 My Account</a>
+  <a href="/bullpen.html" style="display:block;text-align:center;font-size:13px;color:var(--chalk-dim);text-decoration:none;padding:8px">← Back to Bullpen</a>
+</div>
 
 <section class="hero">
   <div class="hero-glow"></div>
@@ -316,6 +335,21 @@ function closeSigninModal(){
   document.getElementById('signinModal').classList.remove('open');
   _pendingAction = null;
 }
+function toggleBpMenu(){
+  const menu=document.getElementById('bpMobileMenu');
+  const isOpen=menu.style.display==='flex';
+  menu.style.display=isOpen?'none':'flex';
+}
+function closeBpMenu(){
+  document.getElementById('bpMobileMenu').style.display='none';
+}
+document.addEventListener('click',function(e){
+  const menu=document.getElementById('bpMobileMenu');
+  const btn=document.getElementById('bpHamburger');
+  if(menu && menu.style.display==='flex' && !menu.contains(e.target) && e.target!==btn && !btn.contains(e.target)){
+    menu.style.display='none';
+  }
+});
 
 function setSiMode(mode){
   siMode = mode;
