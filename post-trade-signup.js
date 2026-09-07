@@ -61,11 +61,9 @@
 
     document.getElementById('sp-pts-cta').addEventListener('click',()=>{
       overlay.remove();
-      const btn=document.getElementById('signInNavBtn')||document.querySelector('[onclick*="signin"],[onclick*="signIn"]');
-      if(btn){btn.click();}
-      else{
-        const modal=document.getElementById('signinModal');
-        if(modal){modal.style.display='flex';const msg=document.getElementById('signinMsg');if(msg)msg.textContent='Create a free account to save your portfolio.';}
+      if(typeof openSignin==='function'){
+        openSignin();
+        if(typeof toggleSignupMode==='function') toggleSignupMode();
       }
     });
     const close=()=>overlay.remove();
