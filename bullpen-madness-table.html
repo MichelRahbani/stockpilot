@@ -201,8 +201,27 @@ async function load(){
   myEntry = entries.find(e => (myUid && e.user_id === myUid) || e.nickname === myName) || null;
 
   if(tournament.status === 'open') renderLobby();
-  else if(tournament.status === 'in_progress') await renderInProgress();
+  else if(tournament.status === 'in_progress'){ await renderInProgress(); showRoundRecap(); }
   else renderCompleted();
+}
+
+// ── Round recap banner - shown once per member per round, reading from
+// the database so it's reliable regardless of who closed the round ──
+function showRoundRecap(){
+  const recap = tournament.last_round_recap;
+  if(!recap || !recap.round) return;
+  const seenKey = 'madness_recap_seen_'+tournament.id+'_r'+recap.round;
+  if(localStorage.getItem(seenKey)) return;
+  const banner = document.createElement('div');
+  banner.style.cssText = 'background:linear-gradient(135deg,rgba(255,176,32,0.12),rgba(255,176,32,0.03));border:1px solid rgba(255,176,32,0.3);border-radius:8px;padding:16px 20px;margin-bottom:16px;position:relative';
+  banner.innerHTML = `
+    <button onclick="this.parentElement.remove();localStorage.setItem('${seenKey}','1')" style="position:absolute;top:12px;right:14px;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:16px">✕</button>
+    <div style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--amber);font-weight:700;margin-bottom:4px">🏟️ Round ${recap.round} Recap</div>
+    <div style="font-family:'Anton',sans-serif;font-size:20px;letter-spacing:0.5px">🔥 ${escapeHtml(recap.bestPerformer)} had the best round</div>
+    <div style="font-size:13px;color:var(--muted);margin-top:2px">with ${recap.bestReturn>=0?'+':''}${recap.bestReturn.toFixed(2)}% · ${recap.advancedCount} advanced, ${recap.eliminatedCount} eliminated</div>
+  `;
+  const app = document.getElementById('app');
+  app.parentElement.insertBefore(banner, app);
 }
 
 function isCommissioner(){
@@ -577,6 +596,7 @@ async function closeRoundAndAdvance(){
 
   const winnersAdvancing = [], losersAdvancing = [];
   let winnersChampionEntry = null, losersChampionEntry = null;
+  let roundBestPerformer = null, roundBestReturn = -Infinity, roundEliminatedCount = 0, roundAdvancedCount = 0;
 
   for(const table of allTables){
     const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+table.id);
@@ -595,22 +615,39 @@ async function closeRoundAndAdvance(){
       await sbPatch('bullpen_madness_table_members', 'id=eq.'+r.id, {
         ending_value: r.ending_value, pct_return: r.pct_return, placement: r.placement, advanced: r.advanced
       });
+      if(r.pct_return > roundBestReturn){ roundBestReturn = r.pct_return; roundBestPerformer = r.entry?.nickname; }
       if(r.bracketChampion){
         if(table.bracket === 'winners') winnersChampionEntry = r.entry;
         else losersChampionEntry = r.entry;
         await sbPatch('bullpen_madness_entries', 'id=eq.'+r.entry.id, {status: 'champion'});
       } else if(r.advanced){
         (table.bracket === 'winners' ? winnersAdvancing : losersAdvancing).push(r.entry);
+        roundAdvancedCount++;
       } else if(r.eliminated){
         await sbPatch('bullpen_madness_entries', 'id=eq.'+r.entry.id, {status: 'eliminated', eliminated_round: tournament.current_round});
+        roundEliminatedCount++;
       } else {
         // dropped from winners to losers
         await sbPatch('bullpen_madness_entries', 'id=eq.'+r.entry.id, {bracket: 'losers'});
         losersAdvancing.push({...r.entry, bracket: 'losers'});
+        roundAdvancedCount++;
       }
     }
     await sbPatch('bullpen_madness_tables', 'id=eq.'+table.id, {status: 'completed'});
   }
+
+  // Save a recap of the round that just closed so every member sees it on
+  // their next visit, not just whoever happened to click "close round".
+  await sbPatch('bullpen_madness_tournaments', 'id=eq.'+tournament.id, {
+    last_round_recap: {
+      round: tournament.current_round,
+      bestPerformer: roundBestPerformer || '—',
+      bestReturn: roundBestReturn > -Infinity ? roundBestReturn : 0,
+      eliminatedCount: roundEliminatedCount,
+      advancedCount: roundAdvancedCount,
+      closedAt: new Date().toISOString().split('T')[0]
+    }
+  });
 
   // Carry byes from this round into next round's advancing pool
   for(const bye of byeEntriesThisRound){
