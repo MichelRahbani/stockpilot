@@ -257,7 +257,17 @@ const fetchYahooChartQuote = async (symbol) => {
     fiftyTwoWeekLow: meta.fiftyTwoWeekLow || meta.regularMarketPrice,
     regularMarketDayHigh: meta.regularMarketDayHigh || meta.regularMarketPrice,
     regularMarketDayLow: meta.regularMarketDayLow || meta.regularMarketPrice,
-    marketCap: meta.marketCap || null
+    marketCap: meta.marketCap || null,
+    // Real trading-session boundaries and after-hours pricing, when Yahoo
+    // has them for this symbol - previously fetched but silently dropped.
+    hasPrePostMarketData: Boolean(meta.hasPrePostMarketData),
+    currentTradingPeriod: meta.currentTradingPeriod || null,
+    preMarketPrice: meta.preMarketPrice ?? null,
+    preMarketChange: meta.preMarketChange ?? null,
+    preMarketChangePercent: meta.preMarketChangePercent ?? null,
+    postMarketPrice: meta.postMarketPrice ?? null,
+    postMarketChange: meta.postMarketChange ?? null,
+    postMarketChangePercent: meta.postMarketChangePercent ?? null
   };
 };
 
