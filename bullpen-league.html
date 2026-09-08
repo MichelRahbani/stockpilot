@@ -236,7 +236,10 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <div class="card">
         <div class="card-head">
           <div class="card-title">🏆 Leaderboard</div>
-          <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="loadData()">↻ Refresh</button>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="exportLeagueCsv()">⬇ Export CSV</button>
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="loadData()">↻ Refresh</button>
+          </div>
         </div>
         <div id="leaderboard"><div style="padding:32px;text-align:center;color:var(--muted)">Loading...</div></div>
       </div>
@@ -582,6 +585,38 @@ function renderLeaderboard(){
       <div style="text-align:right"><div class="lb-score ${sc}">${ss}</div><div style="font-size:10px;color:var(--gold);font-family:'DM Mono',monospace">${seasonPts}pts</div></div>
     </div>`;
   }).join('');
+}
+
+// ── Export leaderboard to CSV (opens directly in Excel) ──
+function csvEscape(val){
+  const s = String(val ?? '');
+  return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+}
+function exportLeagueCsv(){
+  if(!members.length){ showToast('Nothing to export yet','err'); return; }
+  const ranked = [...members].sort((a,b) => (b.season_points||0) - (a.season_points||0) || (b.weekly_score||0) - (a.weekly_score||0));
+  const headers = ['Rank','Name','This Week Return %','Season Points','Starters','Bench'];
+  const rows = ranked.map((m,i) => [
+    i+1,
+    m.name,
+    (m.weekly_score||0).toFixed(2),
+    m.season_points||0,
+    (m.starters||[]).join('; '),
+    (m.bench||[]).join('; ')
+  ]);
+  const csv = [headers, ...rows].map(row => row.map(csvEscape).join(',')).join('\r\n');
+  const blob = new Blob(['\ufeff' + csv], {type: 'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = new Date().toISOString().split('T')[0];
+  const safeName = (league?.name || 'bullpen-league').replace(/[^a-z0-9]+/gi, '-').toLowerCase();
+  a.href = url;
+  a.download = `${safeName}-standings-${dateStr}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('Exported!', 'ok');
 }
 
 // ── Render members ──
