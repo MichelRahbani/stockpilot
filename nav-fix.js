@@ -26,7 +26,7 @@
       '#sp-mobile-menu { display:none; position:fixed; top:56px; left:0; right:0; background:' + (isDark?'#0d1117':'#fff') + '; padding:12px 16px; z-index:999; flex-direction:column; gap:4px; box-shadow:0 4px 20px rgba(0,0,0,0.3); border-bottom:1px solid rgba(255,255,255,0.08); }',
       '#sp-mobile-menu a { font-size:15px; font-weight:500; color:' + ac + '; text-decoration:none; padding:12px 14px; border-radius:8px; display:block; }',
       '#sp-mobile-menu a:hover { background:' + ab + '; }',
-      '@media (max-width: 768px) {',
+      '@media (max-width: 1500px) {',
       '  #sp-nav-center { display:none !important; }',
       '  #sp-hamburger { display:flex !important; align-items:center; justify-content:center; }',
       /* On trade page — hide right side buttons on mobile, hamburger handles them */
