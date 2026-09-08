@@ -641,8 +641,9 @@ async function savePortfolioToCloud(){
 }
 async function loadPortfolioFromCloud(){
   const t=getToken();if(!t)return false;
+  const uid=(JSON.parse(atob(t.split('.')[1])).sub);
   try{
-    const r=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?select=portfolio&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
+    const r=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?user_id=eq.'+uid+'&select=*&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
     const data=await r.json();
     if(data&&data[0]&&data[0][mkt.cloudField]){port=data[0][mkt.cloudField];save();return true;}
   }catch(e){}
