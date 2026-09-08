@@ -4549,6 +4549,75 @@ const renderAfford = () => {
       }
     }
   }
+
+  // Credit score estimator - same 5 factors and general weights real
+  // scores use (payment history 35%, utilization 30%, length 15%, mix
+  // 10%, new credit 10%), applied to self-reported inputs. This is a
+  // rough educational estimate, not a real score.
+  const scoreEl = document.querySelector("#affordCreditScore");
+  const bandEl = document.querySelector("#affordCreditBand");
+  const tipEl = document.querySelector("#affordCreditTip");
+  if (scoreEl && bandEl && tipEl) {
+    const paymentChoice = document.querySelector("#affordCreditPayment")?.value || "always";
+    const utilization = Number(document.querySelector("#affordCreditUtil")?.value) || 0;
+    const lengthYears = Number(document.querySelector("#affordCreditLength")?.value) || 0;
+    const mixCount = Number(document.querySelector("#affordCreditMix")?.value) || 0;
+    const inquiries = Number(document.querySelector("#affordCreditInquiries")?.value) || 0;
+
+    const paymentScore = { always: 100, occasionally: 60, often: 20 }[paymentChoice] ?? 100;
+
+    let utilScore;
+    if (utilization <= 10) utilScore = 100;
+    else if (utilization <= 30) utilScore = 80;
+    else if (utilization <= 50) utilScore = 60;
+    else if (utilization <= 75) utilScore = 35;
+    else utilScore = 15;
+
+    let lengthScore;
+    if (lengthYears < 1) lengthScore = 20;
+    else if (lengthYears < 3) lengthScore = 40;
+    else if (lengthYears < 7) lengthScore = 65;
+    else if (lengthYears < 15) lengthScore = 85;
+    else lengthScore = 100;
+
+    let mixScore;
+    if (mixCount <= 1) mixScore = 40;
+    else if (mixCount === 2) mixScore = 65;
+    else mixScore = 90;
+
+    let inquiryScore;
+    if (inquiries === 0) inquiryScore = 100;
+    else if (inquiries <= 2) inquiryScore = 75;
+    else if (inquiries <= 4) inquiryScore = 50;
+    else inquiryScore = 25;
+
+    const weighted = paymentScore * 0.35 + utilScore * 0.30 + lengthScore * 0.15 + mixScore * 0.10 + inquiryScore * 0.10;
+    const estimated = Math.round(300 + (weighted / 100) * (850 - 300));
+    const rangeLow = Math.max(300, estimated - 20);
+    const rangeHigh = Math.min(850, estimated + 20);
+
+    let band, bandColor;
+    if (estimated >= 800) { band = "Exceptional"; bandColor = "#86efac"; }
+    else if (estimated >= 740) { band = "Very Good"; bandColor = "#86efac"; }
+    else if (estimated >= 670) { band = "Good"; bandColor = "#fde68a"; }
+    else if (estimated >= 580) { band = "Fair"; bandColor = "#fdba74"; }
+    else { band = "Poor"; bandColor = "#fca5a5"; }
+
+    scoreEl.textContent = `${rangeLow}-${rangeHigh}`;
+    bandEl.textContent = band;
+    bandEl.style.color = bandColor;
+
+    // Point to whichever factor is dragging the estimate down the most.
+    const factors = [
+      { name: "payment history", score: paymentScore, weight: 0.35, tip: "Late payments hurt more than anything else in a score. Even a couple of days late can matter - autopay for at least the minimum due is the single highest-leverage fix here." },
+      { name: "credit utilization", score: utilScore, weight: 0.30, tip: "Using a lot of your available credit signals risk, even if you pay it off in full every month. Getting utilization under 30%, and ideally under 10%, tends to move a score the most after payment history." },
+      { name: "length of credit history", score: lengthScore, weight: 0.15, tip: "This one just takes time - the main thing you control is not closing your oldest account, since that shortens your average history." },
+      { name: "credit mix", score: mixScore, weight: 0.10, tip: "Having a mix of credit types (revolving credit like a card, plus an installment loan) helps a little, but it's the smallest factor - not worth taking on debt you don't need just to diversify." },
+      { name: "new credit", score: inquiryScore, weight: 0.10, tip: "Each new hard inquiry or account can ding a score a bit, especially in a short window. Space out new applications when you can." }
+    ];
+    const weakest = factors.reduce((worst, f) => (f.score < worst.score ? f : worst), factors[0]);
+    tipEl.innerHTML = `Right now <strong>${weakest.name}</strong> looks like the biggest drag on your estimate. ${weakest.tip}`;
+  }
 };
 
 const setMoneyMode = (mode) => {
