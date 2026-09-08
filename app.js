@@ -4617,6 +4617,50 @@ const renderAfford = () => {
     ];
     const weakest = factors.reduce((worst, f) => (f.score < worst.score ? f : worst), factors[0]);
     tipEl.innerHTML = `Right now <strong>${weakest.name}</strong> looks like the biggest drag on your estimate. ${weakest.tip}`;
+
+    // What this range typically means in practice - general, well-known
+    // patterns for each tier, not quotes or guarantees.
+    const impactByBand = {
+      Poor: {
+        auto: "Loans are usually still possible, but expect a high APR (often 15%+) or needing a cosigner. Subprime lenders may be the realistic option.",
+        card: "Secured cards (you put down a refundable deposit) are usually the realistic starting point - unsecured approval is unlikely without a cosigner.",
+        phone: "Expect a larger down payment (sometimes 30-50%+) or a required deposit. Promotional 0% financing is usually out of reach.",
+        rent: "Landlords may ask for a cosigner, a bigger security deposit, or several months' rent paid upfront."
+      },
+      Fair: {
+        auto: "Approval is common, but APR tends to run high (roughly 10-15%). Shopping multiple lenders matters a lot at this tier.",
+        card: "Basic unsecured cards become realistic, usually with a lower limit and a higher-than-average APR.",
+        phone: "A moderate down payment is common (roughly 10-30%). 0% promotional financing may still be out of reach.",
+        rent: "Approval is possible, but a cosigner or an extra deposit is still fairly common."
+      },
+      Good: {
+        auto: "APR is typically in a moderate range (roughly 6-10%). Most mainstream lenders will work with you.",
+        card: "Standard rewards cards open up, with a more competitive APR and higher limits than the tiers below.",
+        phone: "Little to no down payment is typical, and you start qualifying for promotional 0% financing offers.",
+        rent: "Standard approval with a normal security deposit is typical."
+      },
+      "Very Good": {
+        auto: "APR drops meaningfully (roughly 4-6%). You'll likely qualify for most lenders' standard advertised rates.",
+        card: "Most premium and rewards cards become realistic, with better APR and stronger perks.",
+        phone: "$0 down and 0% APR promotional financing are typically available to you.",
+        rent: "Approval is usually straightforward, sometimes with a reduced deposit requirement."
+      },
+      Exceptional: {
+        auto: "You're in range for the best advertised rates lenders offer (often 3-5%, or promotional 0% deals).",
+        card: "You qualify for top-tier cards - the best rewards, highest limits, and lowest APR available.",
+        phone: "$0 down and 0% APR promotional financing are typically available to you.",
+        rent: "Approval is usually straightforward, sometimes with a reduced deposit requirement."
+      }
+    };
+    const impact = impactByBand[band];
+    const autoEl = document.querySelector("#affordCreditAuto");
+    const cardEl = document.querySelector("#affordCreditCard");
+    const phoneEl = document.querySelector("#affordCreditPhone");
+    const rentEl = document.querySelector("#affordCreditRent");
+    if (autoEl) autoEl.textContent = impact.auto;
+    if (cardEl) cardEl.textContent = impact.card;
+    if (phoneEl) phoneEl.textContent = impact.phone;
+    if (rentEl) rentEl.textContent = impact.rent;
   }
 };
 
