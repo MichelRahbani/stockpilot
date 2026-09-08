@@ -331,6 +331,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
           <button class="ttab buy on" id="tabBuy">BUY</button>
           <button class="ttab sell" id="tabSell">SELL</button>
         </div>
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button class="ttab" id="orderTypeMarket" onclick="setOrderType('market')" style="flex:1;font-size:12px;padding:8px">Market</button>
+          <button class="ttab" id="orderTypeLimit" onclick="setOrderType('limit')" style="flex:1;font-size:12px;padding:8px">Limit</button>
+        </div>
+        <div id="limitPriceRow" style="display:none;margin-bottom:14px">
+          <div class="inp-label">Limit Price <small style="font-weight:400;opacity:0.55;font-size:11px" id="limitPriceHint"></small></div>
+          <input class="inp" type="number" id="limitPriceInp" placeholder="Price to trigger at" min="0.01" step="0.01"/>
+        </div>
         <div class="inp-label">Number of Shares</div>
         <input class="inp" type="number" id="sharesInp" placeholder="Enter number of shares" min="1" step="1"/>
         <div class="summary">
@@ -340,6 +348,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
           <div class="sum-row"><span>Cash available</span><strong id="sumCash">—</strong></div>
         </div>
         <button class="exec-btn buy" id="execBtn">Select shares to trade</button>
+        <div id="protectRow" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)">
+          <div style="font-size:12px;color:var(--dim);font-weight:600;margin-bottom:10px">🛡️ Protect this position <small style="font-weight:400;opacity:0.6">(optional)</small></div>
+          <div style="display:flex;gap:8px">
+            <div style="flex:1">
+              <div class="inp-label" style="font-size:11px">Stop Loss</div>
+              <input class="inp" type="number" id="stopLossInp" placeholder="Sell if drops to" min="0.01" step="0.01" style="font-size:13px;padding:8px 10px"/>
+            </div>
+            <div style="flex:1">
+              <div class="inp-label" style="font-size:11px">Take Profit</div>
+              <input class="inp" type="number" id="takeProfitInp" placeholder="Sell if rises to" min="0.01" step="0.01" style="font-size:13px;padding:8px 10px"/>
+            </div>
+          </div>
+          <button class="exec-btn" id="protectBtn" onclick="addProtection()" style="margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--text);font-size:13px;padding:9px">Set Protection</button>
+        </div>
       </div>
       <div id="noStock" style="text-align:center;padding:40px;color:var(--muted);font-size:14px">
         <div style="font-size:32px;margin-bottom:12px">📈</div>
@@ -357,6 +379,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     </div>
     <div class="panel-head" style="border-top:1px solid var(--border)">Positions</div>
     <div id="positions"><div class="no-pos"><div>📭</div>No positions yet</div></div>
+    <div id="pendingOrdersWrap" style="display:none;padding:16px 20px;border-top:1px solid var(--border)"></div>
     <div class="panel-head" style="border-top:1px solid var(--border)">Recent Trades</div>
     <div id="tradeHist"><div class="no-pos"><div>📋</div>No trades yet</div></div>
   </div>
@@ -449,8 +472,8 @@ async function fetchQuotes(syms) {
 function loadForMarket(id) {
   const k = MARKETS[id].key;
   const s = MARKETS[id].start;
-  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) return d; } catch(e) {}
-  return {cash: s, pos: {}, trades: []};
+  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; return d; } } catch(e) {}
+  return {cash: s, pos: {}, trades: [], orders: []};
 }
 
 function showToast(msg, type){
@@ -488,6 +511,7 @@ function switchMarket(id) {
   // Load market portfolio
   port = loadForMarket(id);
   renderPort(); renderTrades(); updatePortStats();
+  renderPendingOrders();
   // Reload watchlist + ticker
   loadWatchlist();
   rebuildTicker(id);
@@ -512,6 +536,7 @@ function rebuildTicker(id) {
 let port = loadForMarket(activeMarket);
 let current = null;
 let side = 'buy';
+let orderType = 'market';
 
 
 async function loadStockNews(sym) {
@@ -828,6 +853,10 @@ async function search(){
     current=q;
     showQuote(q);
     document.getElementById('tradeForm').style.display='block';
+    setOrderType('market');
+    document.getElementById('limitPriceInp').value='';
+    document.getElementById('stopLossInp').value='';
+    document.getElementById('takeProfitInp').value='';
   setTimeout(function(){ loadChart(q.symbol,'5d','15m',document.querySelector('.chart-range-btn')); },150);
   setTimeout(function(){ loadChart(window._lastSymbol,'5d','15m',document.querySelector('.chart-range-btn')); }, 200);
     document.getElementById('noStock').style.display='none';
@@ -880,6 +909,7 @@ function showQuote(q){ window._lastSymbol=q.symbol;
       <div>
         <div class="q-price">${priceFmt(q.regularMarketPrice)}</div>
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
+        <div id="marketStatusBadge" style="display:none;font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;background:rgba(255,255,255,0.06);margin-top:4px"></div>
       </div>
     </div>
     ${fundInfoCard}
@@ -903,6 +933,7 @@ function showQuote(q){ window._lastSymbol=q.symbol;
       <div class="qm"><div class="qm-l">Beta</div><div class="qm-v">${q.beta?q.beta.toFixed(2):'—'}</div></div>
     </div>
   `;
+  renderMarketStatusBadge(q);
   var _explain = explainMove(q.symbol, chg, pct, q.beta, q.trailingPE);
   var _card = document.getElementById('explainCard');
   if(_card && _explain) _card.innerHTML = '<h4>Why is this moving?</h4><p>' + _explain + '</p>';
@@ -917,17 +948,75 @@ function setSide(s){
   updateSummary();
 }
 
+// ── After-hours: real trading session detection using Yahoo's own
+// session boundaries, not a guessed/hardcoded schedule ──
+function getMarketStatus(q){
+  if(!q?.currentTradingPeriod) return 'regular'; // no session data (e.g. crypto) - always tradeable
+  const nowSec = Date.now()/1000;
+  const p = q.currentTradingPeriod;
+  if(p.pre && nowSec >= p.pre.start && nowSec < p.pre.end) return 'pre';
+  if(p.regular && nowSec >= p.regular.start && nowSec < p.regular.end) return 'regular';
+  if(p.post && nowSec >= p.post.start && nowSec < p.post.end) return 'post';
+  return 'closed';
+}
+function getEffectivePrice(q){
+  if(!q) return 0;
+  const status = getMarketStatus(q);
+  if(status==='post' && q.postMarketPrice) return q.postMarketPrice;
+  if(status==='pre' && q.preMarketPrice) return q.preMarketPrice;
+  return q.regularMarketPrice;
+}
+function renderMarketStatusBadge(q){
+  const el = document.getElementById('marketStatusBadge');
+  if(!el) return;
+  const status = getMarketStatus(q);
+  if(status==='regular' || !q?.currentTradingPeriod){ el.style.display='none'; return; }
+  const labels = {pre:'🌅 Pre-Market', post:'🌙 After Hours', closed:'⏸ Market Closed'};
+  const chg = status==='post' ? q.postMarketChange : status==='pre' ? q.preMarketChange : null;
+  const pct = status==='post' ? q.postMarketChangePercent : status==='pre' ? q.preMarketChangePercent : null;
+  el.style.display='inline-flex';
+  el.textContent = labels[status] + (chg!=null ? ` · ${chg>=0?'+':''}${f(chg)} (${pct>=0?'+':''}${pct.toFixed(2)}%)` : '');
+  el.style.color = status==='closed' ? 'rgba(255,255,255,0.4)' : (chg>=0 ? '#86efac' : '#fca5a5');
+}
+
+function setOrderType(t){
+  orderType=t;
+  document.getElementById('orderTypeMarket').className='ttab'+(t==='market'?' on':'');
+  document.getElementById('orderTypeLimit').className='ttab'+(t==='limit'?' on':'');
+  document.getElementById('limitPriceRow').style.display = t==='limit' ? 'block' : 'none';
+  updateSummary();
+}
+
 function updateSummary(){
   if(!current)return;
   const shares=parseInt(document.getElementById('sharesInp').value)||0;
-  const price=current.regularMarketPrice;
+  const marketPrice=getEffectivePrice(current);
+  const limitPrice=parseFloat(document.getElementById('limitPriceInp').value)||0;
+  const price = orderType==='limit' && limitPrice>0 ? limitPrice : marketPrice;
   const total=shares*price;
   const btn=document.getElementById('execBtn');
+  document.getElementById('limitPriceHint').textContent = 'current: '+f(marketPrice);
   document.getElementById('sumPrice').textContent=f(price);
   document.getElementById('sumShares').textContent=shares;
   document.getElementById('sumTotal').textContent=f(total);
   document.getElementById('sumCash').textContent=f(port.cash);
   btn.className='exec-btn '+side;
+
+  // Stop loss / take profit only make sense for a position you already own
+  const ownedPos = port.pos[current.symbol];
+  document.getElementById('protectRow').style.display = (side==='sell' && ownedPos) ? 'block' : 'none';
+
+  if(orderType==='limit'){
+    if(shares<=0){ btn.disabled=true; btn.textContent='Enter number of shares'; return; }
+    if(limitPrice<=0){ btn.disabled=true; btn.textContent='Enter a limit price'; return; }
+    if(side==='sell'){
+      if(!ownedPos||ownedPos.qty<shares){ btn.disabled=true; btn.textContent='Not enough shares to sell'; return; }
+    }
+    btn.disabled=false;
+    btn.textContent = (side==='buy'?'Place Limit Buy — ':'Place Limit Sell — ') + shares + ' @ ' + f(limitPrice);
+    return;
+  }
+
   if(shares<=0){
     btn.disabled=true; btn.textContent='Enter number of shares';
   } else if(side==='buy'&&total>port.cash){
@@ -945,7 +1034,30 @@ function execute(){
   if(!current)return;
   const shares=parseInt(document.getElementById('sharesInp').value)||0;
   if(shares<=0)return;
-  const price=current.regularMarketPrice;
+
+  if(orderType==='limit'){
+    const limitPrice=parseFloat(document.getElementById('limitPriceInp').value)||0;
+    if(limitPrice<=0){ toast('Enter a limit price','err'); return; }
+    const sym=current.symbol;
+    if(side==='sell'){
+      const p=port.pos[sym];
+      if(!p||p.qty<shares){ toast('Not enough shares!','err'); return; }
+    }
+    port.orders.push({
+      id: 'ord_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      type: 'limit', side, symbol: sym, name: current.longName||current.shortName||sym,
+      shares, triggerPrice: limitPrice, createdAt: new Date().toISOString()
+    });
+    save();
+    toast('📋 Limit '+side+' order placed: '+shares+' '+sym+' @ '+f(limitPrice));
+    document.getElementById('sharesInp').value='';
+    document.getElementById('limitPriceInp').value='';
+    updateSummary();
+    renderPendingOrders();
+    return;
+  }
+
+  const price=getEffectivePrice(current);
   const sym=current.symbol;
   const total=shares*price;
 
@@ -976,6 +1088,120 @@ function execute(){
   renderPort();
   renderTrades();
   updatePortStats();
+}
+
+function addProtection(){
+  if(!current) return;
+  const sym=current.symbol;
+  const p=port.pos[sym];
+  if(!p){ toast('You need to own shares first','err'); return; }
+  const stopLoss=parseFloat(document.getElementById('stopLossInp').value)||0;
+  const takeProfit=parseFloat(document.getElementById('takeProfitInp').value)||0;
+  if(stopLoss<=0 && takeProfit<=0){ toast('Enter a stop loss or take profit price','err'); return; }
+  const currentPrice=getEffectivePrice(current);
+  if(stopLoss>0 && stopLoss>=currentPrice){ toast('Stop loss should be below the current price','err'); return; }
+  if(takeProfit>0 && takeProfit<=currentPrice){ toast('Take profit should be above the current price','err'); return; }
+  let added=0;
+  if(stopLoss>0){
+    port.orders.push({id:'ord_'+Date.now()+'_sl','type':'stop_loss',side:'sell',symbol:sym,name:p.name||sym,shares:p.qty,triggerPrice:stopLoss,createdAt:new Date().toISOString()});
+    added++;
+  }
+  if(takeProfit>0){
+    port.orders.push({id:'ord_'+Date.now()+'_tp','type':'take_profit',side:'sell',symbol:sym,name:p.name||sym,shares:p.qty,triggerPrice:takeProfit,createdAt:new Date().toISOString()});
+    added++;
+  }
+  save();
+  toast('🛡️ Protection set for your '+sym+' position');
+  document.getElementById('stopLossInp').value='';
+  document.getElementById('takeProfitInp').value='';
+  renderPendingOrders();
+}
+
+function cancelOrder(id){
+  port.orders = port.orders.filter(o => o.id !== id);
+  save();
+  renderPendingOrders();
+  toast('Order cancelled');
+}
+
+function renderPendingOrders(){
+  const wrap = document.getElementById('pendingOrdersWrap');
+  if(!wrap) return;
+  if(!port.orders || !port.orders.length){ wrap.innerHTML=''; wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  const typeLabel = {limit:'Limit', stop_loss:'Stop Loss', take_profit:'Take Profit'};
+  wrap.innerHTML = `
+    <div class="card-title" style="margin-bottom:10px">📋 Pending Orders (${port.orders.length})</div>
+    ${port.orders.map(o => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:8px">
+        <div>
+          <div style="font-size:13px;font-weight:600">${o.side==='buy'?'Buy':'Sell'} ${o.shares} ${o.symbol} <span style="font-size:11px;opacity:0.5;font-weight:400">${typeLabel[o.type]||o.type}</span></div>
+          <div style="font-size:12px;opacity:0.6;margin-top:2px">Triggers at ${f(o.triggerPrice)}</div>
+        </div>
+        <button onclick="cancelOrder('${o.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">Cancel</button>
+      </div>`).join('')}
+  `;
+}
+
+// ── Check pending orders against live prices, execute when triggered.
+// Runs on the same 30s cycle as the rest of the page's price refresh. ──
+async function checkPendingOrders(){
+  if(!port.orders || !port.orders.length) return;
+  const symbols = [...new Set(port.orders.map(o => o.symbol))];
+  let quotes;
+  try { quotes = await fetchQuotes(symbols); } catch(e) { return; }
+  const priceMap = {};
+  (quotes||[]).forEach(q => { priceMap[q.symbol] = getEffectivePrice(q); });
+
+  const remaining = [];
+  let anyFilled = false;
+  for(const o of port.orders){
+    const price = priceMap[o.symbol];
+    if(!price){ remaining.push(o); continue; }
+    let triggered = false;
+    if(o.type==='limit' && o.side==='buy') triggered = price <= o.triggerPrice;
+    else if(o.type==='limit' && o.side==='sell') triggered = price >= o.triggerPrice;
+    else if(o.type==='stop_loss') triggered = price <= o.triggerPrice;
+    else if(o.type==='take_profit') triggered = price >= o.triggerPrice;
+
+    if(!triggered){ remaining.push(o); continue; }
+
+    const total = o.shares * price;
+    if(o.side==='buy'){
+      if(total > port.cash){ remaining.push(o); continue; } // can't afford it yet, keep waiting
+      port.cash -= total;
+      if(!port.pos[o.symbol]) port.pos[o.symbol] = {qty:0, avg:0, name:o.name};
+      const p = port.pos[o.symbol];
+      const old = p.qty*p.avg;
+      p.qty += o.shares;
+      p.avg = (old+total)/p.qty;
+      port.trades.unshift({side:'buy', sym:o.symbol, shares:o.shares, price, total, date:new Date().toISOString(), orderType:o.type});
+    } else {
+      const p = port.pos[o.symbol];
+      if(!p || p.qty < o.shares){ continue; } // position changed since order was placed - drop it rather than oversell
+      port.cash += total;
+      p.qty -= o.shares;
+      if(p.qty===0) delete port.pos[o.symbol];
+      port.trades.unshift({side:'sell', sym:o.symbol, shares:o.shares, price, total, date:new Date().toISOString(), orderType:o.type});
+      // A filled stop-loss/take-profit should cancel any sibling order on
+      // the same position, since the shares it was covering are gone.
+      if(o.type==='stop_loss' || o.type==='take_profit'){
+        for(let i=remaining.length-1; i>=0; i--){
+          if(remaining[i].symbol===o.symbol && (remaining[i].type==='stop_loss'||remaining[i].type==='take_profit')) remaining.splice(i,1);
+        }
+      }
+    }
+    anyFilled = true;
+    const typeLabel = {limit:'Limit order', stop_loss:'Stop loss', take_profit:'Take profit'}[o.type]||'Order';
+    toast(`✅ ${typeLabel} filled: ${o.side} ${o.shares} ${o.symbol} @ ${f(price)}`);
+  }
+  port.orders = remaining;
+  if(anyFilled){
+    save();
+    renderPort(); renderTrades(); updatePortStats();
+    if(current) updateSummary();
+  }
+  renderPendingOrders();
 }
 
 async function saveTradeToCloud(ticker, action, shares, price, total){
@@ -1149,6 +1375,7 @@ document.getElementById('symInput').addEventListener('keydown', e=>{ if(e.key===
 document.getElementById('tabBuy').addEventListener('click', ()=>setSide('buy'));
 document.getElementById('tabSell').addEventListener('click', ()=>setSide('sell'));
 document.getElementById('sharesInp').addEventListener('input', updateSummary);
+document.getElementById('limitPriceInp').addEventListener('input', updateSummary);
 document.getElementById('execBtn').addEventListener('click', execute);
 document.getElementById('resetBtn').addEventListener('click', reset);
 
@@ -1157,6 +1384,7 @@ renderPort();
 renderTrades();
 updatePortStats();
 loadWatchlist();
+renderPendingOrders();
 
 // Auto-refresh every 30 seconds
 setInterval(async()=>{
@@ -1164,6 +1392,7 @@ setInterval(async()=>{
   await renderPort();
   await updatePortStats();
   if(current){try{const q=await getQuote(current.symbol);if(q){current=q;showQuote(q);updateSummary();}}catch(e){}}
+  await checkPendingOrders();
   autoUpdateLeaderboard();
 },30000);
 
