@@ -24,6 +24,23 @@
     });
     var tabs = document.querySelectorAll('.graphs-subtab');
     tabs.forEach(function(t, i){ t.classList.toggle('active', i === current); });
+    updateBarVisibility();
+  }
+
+  // The bar's own visibility can't be tied to any single section (each
+  // one toggles active/inactive as sub-tabs switch, which would hide the
+  // bar along with it - the original bug). Instead, show the bar
+  // whenever ANY of the four sections is currently active, and hide it
+  // only when the user has left Graphs entirely for another top-level
+  // tab (Portfolio, Research, etc.).
+  function updateBarVisibility(){
+    var bar = document.getElementById('graphsSubtabBar');
+    if(!bar) return;
+    var anyActive = sections.some(function(s){
+      var el = document.querySelector(s.selector);
+      return el && el.classList.contains('active');
+    });
+    bar.style.display = anyActive ? 'flex' : 'none';
   }
 
   function showOnly(index){
@@ -49,12 +66,12 @@
       bar.appendChild(btn);
     });
 
-    // Insert the bar INSIDE the first section (as its first child),
-    // not as a sibling before it — so the bar automatically hides along
-    // with the section when app.js switches to a different top-level tab.
-    // A sibling bar has no visibility tie to that state and would stay
-    // permanently visible once built.
-    first.insertBefore(bar, first.firstChild);
+    // Insert as a SIBLING immediately before the first section, not as
+    // its child - a child's visibility is tied to that one section's
+    // own active/inactive state, which toggles independently as
+    // sub-tabs switch (the bug this fixes). As a sibling, the bar's
+    // visibility is instead controlled explicitly by updateBarVisibility().
+    first.parentElement.insertBefore(bar, first);
 
     var style = document.createElement('style');
     style.textContent = '.graphs-subtab.active{background:#1a9e6e!important;border-color:#1a9e6e!important;color:#fff!important}.graphs-subtab:hover:not(.active){border-color:#1a9e6e!important;color:#1a9e6e!important}';
@@ -68,9 +85,18 @@
     mainTab.addEventListener('click', function(){ setTimeout(enforce, 50); });
   }
 
+  function wireOtherTabClicks(){
+    document.querySelectorAll('.invest-tab').forEach(function(tab){
+      if(tab.dataset.subtabWired) return;
+      tab.dataset.subtabWired = '1';
+      tab.addEventListener('click', function(){ setTimeout(updateBarVisibility, 50); });
+    });
+  }
+
   function apply(){
     buildTabBar();
     wireMainTabClick();
+    wireOtherTabClicks();
     if(document.getElementById('graphsSubtabBar')) enforce();
   }
 
