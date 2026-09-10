@@ -5,10 +5,8 @@
 //
 // app.js controls top-level panel visibility by toggling an "active"
 // class. When the user clicks the main "Research" tab, app.js adds
-// "active" to all five sections at once — so right after that click,
-// we remove "active" from the four we don't want showing. This listens
-// for that click directly instead of watching for class mutations,
-// which is simpler and avoids any risk of an observer/mutation loop.
+// "active" to all five sections at once - so right after that click,
+// we remove "active" from the four we don't want showing.
 (function(){
   var sections = [
     { selector: '.intel-section', label: 'Company Intel' },
@@ -28,6 +26,23 @@
     });
     var tabs = document.querySelectorAll('.research-subtab');
     tabs.forEach(function(t, i){ t.classList.toggle('active', i === current); });
+    updateBarVisibility();
+  }
+
+  // The bar's own visibility can't be tied to any single research section
+  // (that section toggles active/inactive as sub-tabs are switched, which
+  // would hide the bar along with it - the original bug). Instead, show
+  // the bar whenever ANY research section is currently active, and hide
+  // it only when the user has left Research entirely for another
+  // top-level tab (Portfolio, Graphs, etc.).
+  function updateBarVisibility(){
+    var bar = document.getElementById('researchSubtabBar');
+    if(!bar) return;
+    var anyActive = sections.some(function(s){
+      var el = document.querySelector(s.selector);
+      return el && el.classList.contains('active');
+    });
+    bar.style.display = anyActive ? 'flex' : 'none';
   }
 
   function showOnly(index){
@@ -53,12 +68,14 @@
       bar.appendChild(btn);
     });
 
-    // Insert the bar INSIDE the first section (as its first child),
-    // not as a sibling before it — so the bar automatically hides along
-    // with the section when app.js switches to a different top-level tab.
-    // A sibling bar has no visibility tie to that state and would stay
-    // permanently visible once built.
-    first.insertBefore(bar, first.firstChild);
+    // Insert as a SIBLING immediately before the first research section,
+    // not as its child - a child's visibility is tied to that one
+    // section's own active/inactive state, which toggles independently
+    // as sub-tabs switch. That was the bug: switching to Macro correctly
+    // hid the Company Intel section, and the bar (living inside it)
+    // disappeared along with it. As a sibling, the bar's visibility is
+    // instead controlled explicitly by updateBarVisibility() above.
+    first.parentElement.insertBefore(bar, first);
 
     var style = document.createElement('style');
     style.textContent = '.research-subtab.active{background:#1a9e6e!important;border-color:#1a9e6e!important;color:#fff!important}.research-subtab:hover:not(.active){border-color:#1a9e6e!important;color:#1a9e6e!important}';
@@ -74,9 +91,21 @@
     mainTab.addEventListener('click', function(){ setTimeout(enforce, 50); });
   }
 
+  // Also re-check visibility whenever ANY other top-level investing tab
+  // is clicked, since navigating away from Research should hide the bar
+  // too (it's a sibling now, not automatically tied to any section).
+  function wireOtherTabClicks(){
+    document.querySelectorAll('.invest-tab').forEach(function(tab){
+      if(tab.dataset.subtabWired) return;
+      tab.dataset.subtabWired = '1';
+      tab.addEventListener('click', function(){ setTimeout(updateBarVisibility, 50); });
+    });
+  }
+
   function apply(){
     buildTabBar();
     wireMainTabClick();
+    wireOtherTabClicks();
     if(document.getElementById('researchSubtabBar')) enforce();
   }
 
