@@ -219,7 +219,7 @@ nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid v
 const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
 
-async function saveBudgetChallengeResult(scenarioId, score, savingsRate, leftover, badges){
+async function saveBudgetChallengeResult(scenarioId, score, savingsRate, leftover, badges, breakdown){
   try {
     const token = localStorage.getItem('supabase_token');
     if(!token) return; // not signed in — game still works, just isn't graded
@@ -248,7 +248,18 @@ async function saveBudgetChallengeResult(scenarioId, score, savingsRate, leftove
         user_id: uid,
         class_id: classId,
         nickname,
-        scenario_id: scenarioId,
+        challenge_id: scenarioId,
+        monthly_income: breakdown.income,
+        housing: breakdown.housing,
+        food: breakdown.food,
+        transport: breakdown.transport,
+        utilities: breakdown.utilities,
+        entertainment: breakdown.entertainment,
+        savings: breakdown.savings,
+        debt_payment: breakdown.debt,
+        emergency_fund: breakdown.emergency,
+        other: breakdown.other,
+        total_expenses: breakdown.total,
         score,
         savings_rate: savingsRate,
         leftover,
@@ -508,7 +519,19 @@ function showResults(){
   score+=entPct<=0.15?10:Math.round((1-entPct)*10);
   score=Math.max(0,Math.min(100,score));
 
-  saveBudgetChallengeResult(s.id, score, savRate, leftover, earnedBadges);
+  saveBudgetChallengeResult(s.id, score, savRate, leftover, earnedBadges, {
+    income: s.income,
+    housing: v('bHousing'),
+    food: v('bFood'),
+    transport: v('bTransport'),
+    utilities: v('bUtilities'),
+    entertainment: v('bEntertain'),
+    savings: v('bSavings'),
+    debt: v('bDebt'),
+    emergency: v('bEmergency'),
+    other: v('bOther'),
+    total
+  });
 
   document.getElementById('gameSection').style.display='none';
   document.getElementById('resultsSection').style.display='block';
