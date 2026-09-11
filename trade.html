@@ -329,6 +329,12 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     </div>
     <div class="trade-area">
       <div id="tradeForm" style="display:none">
+        <div style="display:flex;gap:8px;margin-bottom:14px">
+          <button class="ttab" id="assetModeStock" onclick="setAssetMode('stock')" style="flex:1;font-size:12px;padding:8px">📈 Stock</button>
+          <button class="ttab" id="assetModeOptions" onclick="setAssetMode('options')" style="flex:1;font-size:12px;padding:8px">🎯 Options</button>
+        </div>
+
+        <div id="stockModeWrap">
         <div class="trade-tabs">
           <button class="ttab buy on" id="tabBuy">BUY</button>
           <button class="ttab sell" id="tabSell">SELL</button>
@@ -362,7 +368,40 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
               <input class="inp" type="number" id="takeProfitInp" placeholder="Sell if rises to" min="0.01" step="0.01" style="font-size:13px;padding:8px 10px"/>
             </div>
           </div>
+          <div style="margin-top:8px">
+            <div class="inp-label" style="font-size:11px">Trailing Stop <small style="font-weight:400;opacity:0.6">— follows the price up, locks in gains</small></div>
+            <input class="inp" type="number" id="trailingStopInp" placeholder="Trail by % (e.g. 5 for 5%)" min="0.1" max="50" step="0.1" style="font-size:13px;padding:8px 10px"/>
+          </div>
           <button class="exec-btn" id="protectBtn" onclick="addProtection()" style="margin-top:10px;background:transparent;border:1px solid rgba(255,255,255,0.15);color:var(--text);font-size:13px;padding:9px">Set Protection</button>
+        </div>
+        </div>
+
+        <div id="optionsModeWrap" style="display:none">
+          <div class="trade-tabs">
+            <button class="ttab buy on" id="tabCall" onclick="setOptionType('call')">CALL</button>
+            <button class="ttab sell" id="tabPut" onclick="setOptionType('put')">PUT</button>
+          </div>
+          <div class="inp-label">Strike Price <small style="font-weight:400;opacity:0.55;font-size:11px" id="optCurrentPriceHint"></small></div>
+          <input class="inp" type="number" id="optStrikeInp" placeholder="Strike price" min="0.01" step="0.5"/>
+          <div class="inp-label" style="margin-top:12px">Expiration</div>
+          <select class="inp" id="optExpirySelect" style="width:100%">
+            <option value="7">1 Week Out</option>
+            <option value="14">2 Weeks Out</option>
+            <option value="30" selected>1 Month Out</option>
+            <option value="90">3 Months Out</option>
+          </select>
+          <div class="inp-label" style="margin-top:12px">Contracts <small style="font-weight:400;opacity:0.55;font-size:11px">1 contract = 100 shares</small></div>
+          <input class="inp" type="number" id="optContractsInp" placeholder="Number of contracts" min="1" step="1" value="1"/>
+          <div class="summary" style="margin-top:14px">
+            <div class="sum-row"><span>Premium per share</span><strong id="optPremiumDisplay">—</strong></div>
+            <div class="sum-row"><span>Cost per contract</span><strong id="optContractCostDisplay">—</strong></div>
+            <div class="sum-row"><span>Total cost</span><strong id="optTotalCostDisplay">$0.00</strong></div>
+            <div class="sum-row"><span>Cash available</span><strong id="optCashDisplay">—</strong></div>
+          </div>
+          <p style="font-size:11px;opacity:0.45;margin-top:10px;line-height:1.5">Priced with Black-Scholes using this stock's real current price, its real historical volatility, and the real current 10-Year Treasury yield as the risk-free rate. There's no live options market to quote against here, so this is a genuine theoretical value from real data, not a live bid/ask.</p>
+          <button class="exec-btn buy" id="optExecBtn" onclick="executeOption()" style="margin-top:14px">Select a strike price</button>
+
+          <div id="myOptionsWrap" style="margin-top:20px"></div>
         </div>
       </div>
       <div id="noStock" style="text-align:center;padding:40px;color:var(--muted);font-size:14px">
@@ -484,8 +523,8 @@ async function fetchQuotes(syms) {
 function loadForMarket(id) {
   const k = MARKETS[id].key;
   const s = MARKETS[id].start;
-  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; return d; } } catch(e) {}
-  return {cash: s, pos: {}, trades: [], orders: []};
+  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; if(!d.options) d.options = []; return d; } } catch(e) {}
+  return {cash: s, pos: {}, trades: [], orders: [], options: []};
 }
 
 function showToast(msg, type){
@@ -867,9 +906,12 @@ async function search(){
     showQuote(q);
     document.getElementById('tradeForm').style.display='block';
     setOrderType('market');
+    setAssetMode('stock');
     document.getElementById('limitPriceInp').value='';
     document.getElementById('stopLossInp').value='';
     document.getElementById('takeProfitInp').value='';
+    document.getElementById('trailingStopInp').value='';
+    document.getElementById('optStrikeInp').value='';
   setTimeout(function(){ loadChart(q.symbol,'5d','15m',document.querySelector('.chart-range-btn')); },150);
   setTimeout(function(){ loadChart(window._lastSymbol,'5d','15m',document.querySelector('.chart-range-btn')); }, 200);
     document.getElementById('noStock').style.display='none';
@@ -979,6 +1021,82 @@ function getEffectivePrice(q){
   if(status==='pre' && q.preMarketPrice) return q.preMarketPrice;
   return q.regularMarketPrice;
 }
+
+// ── Options pricing (Black-Scholes) ──
+// Real inputs throughout: the stock's real current price, its real
+// historical volatility computed from actual daily closes, and the
+// real current 10-Year Treasury yield as the risk-free rate. There's
+// no live options-chain market maker to quote against (that requires
+// an authenticated Yahoo session we don't have), so the premium is a
+// genuine theoretical value from real market data, not a fabricated one.
+let riskFreeRateCache = null, riskFreeRateCacheTime = 0;
+async function getRiskFreeRate(){
+  if(riskFreeRateCache !== null && Date.now() - riskFreeRateCacheTime < 3600000) return riskFreeRateCache;
+  try{
+    const res = await fetch(`${API}/api/macro`);
+    const data = await res.json();
+    const dgs10 = data?.series?.find(s => s.id === 'DGS10');
+    riskFreeRateCache = dgs10?.latest?.value ? dgs10.latest.value / 100 : 0.045;
+  }catch(e){ riskFreeRateCache = 0.045; } // fallback: a reasonable long-run average, only used if the real rate can't be fetched
+  riskFreeRateCacheTime = Date.now();
+  return riskFreeRateCache;
+}
+
+let volatilityCache = {};
+async function getHistoricalVolatility(symbol){
+  if(volatilityCache[symbol] !== undefined) return volatilityCache[symbol];
+  try{
+    const res = await fetch(`${API}/api/history?symbol=${symbol}&range=3mo&interval=1d`);
+    const data = await res.json();
+    const closes = (data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || []).filter(c => c != null);
+    if(closes.length < 10){ volatilityCache[symbol] = 0.35; return 0.35; } // not enough history - fall back to a typical-stock estimate
+    const logReturns = [];
+    for(let i=1;i<closes.length;i++) logReturns.push(Math.log(closes[i]/closes[i-1]));
+    const mean = logReturns.reduce((a,b)=>a+b,0) / logReturns.length;
+    const variance = logReturns.reduce((a,b)=>a+(b-mean)*(b-mean),0) / (logReturns.length-1);
+    const dailyVol = Math.sqrt(variance);
+    const annualizedVol = dailyVol * Math.sqrt(252); // 252 trading days/year, standard convention
+    volatilityCache[symbol] = annualizedVol;
+    return annualizedVol;
+  }catch(e){ volatilityCache[symbol] = 0.35; return 0.35; }
+}
+
+// Standard normal cumulative distribution function (Abramowitz & Stegun
+// approximation - accurate to ~7 decimal places, the standard choice
+// when a real erf() isn't built into the language).
+function normCDF(x){
+  const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x) / Math.sqrt(2);
+  const t = 1/(1+p*x);
+  const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return 0.5*(1+sign*y);
+}
+
+// S=spot price, K=strike, T=years to expiration, r=risk-free rate, sigma=volatility
+function blackScholes(S, K, T, r, sigma, type){
+  if(T <= 0){
+    // At/past expiration, an option is worth exactly its intrinsic value
+    return type==='call' ? Math.max(0, S-K) : Math.max(0, K-S);
+  }
+  const d1 = (Math.log(S/K) + (r + sigma*sigma/2)*T) / (sigma*Math.sqrt(T));
+  const d2 = d1 - sigma*Math.sqrt(T);
+  if(type === 'call'){
+    return S*normCDF(d1) - K*Math.exp(-r*T)*normCDF(d2);
+  } else {
+    return K*Math.exp(-r*T)*normCDF(-d2) - S*normCDF(-d1);
+  }
+}
+
+async function getOptionPremium(symbol, spotPrice, strike, expirationDate, type){
+  const now = new Date();
+  const exp = new Date(expirationDate+'T16:00:00');
+  const T = Math.max(0, (exp - now) / (365.25*24*60*60*1000));
+  const [r, sigma] = await Promise.all([getRiskFreeRate(), getHistoricalVolatility(symbol)]);
+  const premium = blackScholes(spotPrice, strike, T, r, sigma, type);
+  return {premium: Math.max(0.01, premium), T, r, sigma};
+}
+
 function renderMarketStatusBadge(q){
   const el = document.getElementById('marketStatusBadge');
   if(!el) return;
@@ -991,6 +1109,168 @@ function renderMarketStatusBadge(q){
   el.textContent = labels[status] + (chg!=null ? ` · ${chg>=0?'+':''}${f(chg)} (${pct>=0?'+':''}${pct.toFixed(2)}%)` : '');
   el.style.color = status==='closed' ? 'rgba(255,255,255,0.4)' : (chg>=0 ? '#86efac' : '#fca5a5');
 }
+
+let assetMode = 'stock';
+let optionType = 'call';
+
+function setAssetMode(mode){
+  assetMode = mode;
+  document.getElementById('assetModeStock').className = 'ttab' + (mode==='stock' ? ' on' : '');
+  document.getElementById('assetModeOptions').className = 'ttab' + (mode==='options' ? ' on' : '');
+  document.getElementById('stockModeWrap').style.display = mode==='stock' ? 'block' : 'none';
+  document.getElementById('optionsModeWrap').style.display = mode==='options' ? 'block' : 'none';
+  if(mode==='options' && current) updateOptionSummary();
+}
+
+function setOptionType(t){
+  optionType = t;
+  document.getElementById('tabCall').className = 'ttab buy' + (t==='call' ? ' on' : '');
+  document.getElementById('tabPut').className = 'ttab sell' + (t==='put' ? ' on' : '');
+  updateOptionSummary();
+}
+
+let optionPremiumDebounce = null;
+async function updateOptionSummary(){
+  if(!current) return;
+  const marketPrice = getEffectivePrice(current);
+  document.getElementById('optCurrentPriceHint').textContent = 'current: '+f(marketPrice);
+  document.getElementById('optCashDisplay').textContent = f(port.cash);
+
+  const strike = parseFloat(document.getElementById('optStrikeInp').value);
+  const days = parseInt(document.getElementById('optExpirySelect').value);
+  const contracts = parseInt(document.getElementById('optContractsInp').value) || 0;
+  const btn = document.getElementById('optExecBtn');
+
+  if(!strike || strike <= 0){
+    document.getElementById('optPremiumDisplay').textContent = '—';
+    document.getElementById('optContractCostDisplay').textContent = '—';
+    document.getElementById('optTotalCostDisplay').textContent = '$0.00';
+    btn.disabled = true; btn.textContent = 'Enter a strike price';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Calculating premium…';
+  clearTimeout(optionPremiumDebounce);
+  optionPremiumDebounce = setTimeout(async () => {
+    const expDate = new Date(Date.now() + days*86400000).toISOString().split('T')[0];
+    const {premium} = await getOptionPremium(current.symbol, marketPrice, strike, expDate, optionType);
+    const perContract = premium * 100;
+    const total = perContract * contracts;
+    document.getElementById('optPremiumDisplay').textContent = f(premium);
+    document.getElementById('optContractCostDisplay').textContent = f(perContract);
+    document.getElementById('optTotalCostDisplay').textContent = f(total);
+    if(contracts <= 0){ btn.disabled = true; btn.textContent = 'Enter number of contracts'; return; }
+    if(total > port.cash){ btn.disabled = true; btn.textContent = 'Not enough cash'; return; }
+    btn.disabled = false;
+    btn.textContent = `Buy ${contracts} ${optionType==='call'?'Call':'Put'} contract${contracts>1?'s':''} — ${f(total)}`;
+  }, 300);
+}
+
+async function executeOption(){
+  if(!current) return;
+  const strike = parseFloat(document.getElementById('optStrikeInp').value);
+  const days = parseInt(document.getElementById('optExpirySelect').value);
+  const contracts = parseInt(document.getElementById('optContractsInp').value) || 0;
+  if(!strike || strike <= 0 || contracts <= 0) return;
+
+  const marketPrice = getEffectivePrice(current);
+  const expDate = new Date(Date.now() + days*86400000).toISOString().split('T')[0];
+  const {premium} = await getOptionPremium(current.symbol, marketPrice, strike, expDate, optionType);
+  const total = premium * 100 * contracts;
+  if(total > port.cash){ toast('Not enough cash for that trade.', 'err'); return; }
+
+  port.cash -= total;
+  port.options.push({
+    id: 'opt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    symbol: current.symbol, name: current.longName||current.shortName||current.symbol,
+    type: optionType, strike, expirationDate: expDate, contracts,
+    premiumPaid: premium, purchasedAt: new Date().toISOString(), status: 'open'
+  });
+  save();
+  toast(`✅ Bought ${contracts} ${current.symbol} ${optionType} @ ${strike} exp ${expDate}`);
+  document.getElementById('optStrikeInp').value = '';
+  document.getElementById('optContractsInp').value = '1';
+  updateOptionSummary();
+  await renderMyOptions();
+}
+
+async function renderMyOptions(){
+  const wrap = document.getElementById('myOptionsWrap');
+  if(!wrap) return;
+  const openOptions = (port.options||[]).filter(o => o.status==='open');
+  if(!openOptions.length){ wrap.innerHTML=''; return; }
+
+  const rows = await Promise.all(openOptions.map(async o => {
+    const q = await getQuote(o.symbol).catch(()=>null);
+    const spot = q ? getEffectivePrice(q) : 0;
+    const daysLeft = Math.max(0, (new Date(o.expirationDate+'T16:00:00') - Date.now()) / 86400000);
+    const T = daysLeft / 365.25;
+    const [r, sigma] = await Promise.all([getRiskFreeRate(), getHistoricalVolatility(o.symbol)]);
+    const currentValue = spot ? blackScholes(spot, o.strike, T, r, sigma, o.type) : o.premiumPaid;
+    const pnl = (currentValue - o.premiumPaid) * 100 * o.contracts;
+    const pnlPct = o.premiumPaid > 0 ? ((currentValue - o.premiumPaid) / o.premiumPaid) * 100 : 0;
+    const cls = pnl >= 0 ? 'pos' : 'neg';
+    const sign = pnl >= 0 ? '+' : '';
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:8px">
+      <div>
+        <div style="font-size:13px;font-weight:600">${o.symbol} ${o.strike} ${o.type.toUpperCase()} <span style="font-size:11px;opacity:0.5;font-weight:400">${o.contracts}x · exp ${o.expirationDate}</span></div>
+        <div style="font-size:12px;margin-top:2px" class="${cls}">${sign}${f(pnl)} (${sign}${pnlPct.toFixed(1)}%) · ${Math.round(daysLeft)}d left</div>
+      </div>
+      <button onclick="closeOption('${o.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">Close</button>
+    </div>`;
+  }));
+  wrap.innerHTML = `<div class="card-title" style="margin-bottom:10px">🎯 My Options (${openOptions.length})</div>` + rows.join('');
+}
+
+async function closeOption(id){
+  const opt = port.options.find(o => o.id === id && o.status==='open');
+  if(!opt) return;
+  const q = await getQuote(opt.symbol).catch(()=>null);
+  const spot = q ? getEffectivePrice(q) : 0;
+  const daysLeft = Math.max(0, (new Date(opt.expirationDate+'T16:00:00') - Date.now()) / 86400000);
+  const T = daysLeft / 365.25;
+  const [r, sigma] = await Promise.all([getRiskFreeRate(), getHistoricalVolatility(opt.symbol)]);
+  const currentValue = spot ? blackScholes(spot, opt.strike, T, r, sigma, opt.type) : 0;
+  const proceeds = currentValue * 100 * opt.contracts;
+  port.cash += proceeds;
+  opt.status = 'closed';
+  opt.closedAt = new Date().toISOString();
+  opt.closedValue = currentValue;
+  save();
+  toast(`Closed for ${f(proceeds)}`);
+  await renderMyOptions();
+  updateSummary();
+}
+
+// Checks every open option against today's date - past expiration, it
+// settles automatically: pays out real intrinsic value if in the money,
+// expires worthless if not. Runs on the same 30s cycle as everything else.
+async function checkOptionExpirations(){
+  if(!port.options || !port.options.length) return;
+  let anySettled = false;
+  for(const o of port.options){
+    if(o.status !== 'open') continue;
+    if(new Date(o.expirationDate+'T16:00:00') > new Date()) continue;
+    const q = await getQuote(o.symbol).catch(()=>null);
+    const spot = q ? getEffectivePrice(q) : 0;
+    const intrinsic = o.type==='call' ? Math.max(0, spot-o.strike) : Math.max(0, o.strike-spot);
+    const payout = intrinsic * 100 * o.contracts;
+    port.cash += payout;
+    o.status = 'expired';
+    o.closedAt = new Date().toISOString();
+    o.closedValue = intrinsic;
+    anySettled = true;
+    toast(payout > 0
+      ? `📈 ${o.symbol} ${o.strike} ${o.type} expired in the money — ${f(payout)} paid out`
+      : `${o.symbol} ${o.strike} ${o.type} expired worthless`);
+  }
+  if(anySettled){ save(); await renderMyOptions(); updateSummary(); }
+}
+
+['optStrikeInp','optExpirySelect','optContractsInp'].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener('input', updateOptionSummary);
+});
 
 function setOrderType(t){
   orderType=t;
@@ -1110,10 +1390,12 @@ function addProtection(){
   if(!p){ toast('You need to own shares first','err'); return; }
   const stopLoss=parseFloat(document.getElementById('stopLossInp').value)||0;
   const takeProfit=parseFloat(document.getElementById('takeProfitInp').value)||0;
-  if(stopLoss<=0 && takeProfit<=0){ toast('Enter a stop loss or take profit price','err'); return; }
+  const trailPct=parseFloat(document.getElementById('trailingStopInp').value)||0;
+  if(stopLoss<=0 && takeProfit<=0 && trailPct<=0){ toast('Enter a stop loss, take profit, or trailing stop','err'); return; }
   const currentPrice=getEffectivePrice(current);
   if(stopLoss>0 && stopLoss>=currentPrice){ toast('Stop loss should be below the current price','err'); return; }
   if(takeProfit>0 && takeProfit<=currentPrice){ toast('Take profit should be above the current price','err'); return; }
+  if(trailPct>0 && trailPct>=100){ toast('Trailing stop % should be under 100','err'); return; }
   let added=0;
   if(stopLoss>0){
     port.orders.push({id:'ord_'+Date.now()+'_sl','type':'stop_loss',side:'sell',symbol:sym,name:p.name||sym,shares:p.qty,triggerPrice:stopLoss,createdAt:new Date().toISOString()});
@@ -1123,10 +1405,19 @@ function addProtection(){
     port.orders.push({id:'ord_'+Date.now()+'_tp','type':'take_profit',side:'sell',symbol:sym,name:p.name||sym,shares:p.qty,triggerPrice:takeProfit,createdAt:new Date().toISOString()});
     added++;
   }
+  if(trailPct>0){
+    // High water mark starts at today's current price - the trigger
+    // trails behind it and only ever moves up, never down, as the
+    // price rises. checkPendingOrders() updates the high water mark
+    // and recomputes the trigger every 30s.
+    port.orders.push({id:'ord_'+Date.now()+'_ts','type':'trailing_stop',side:'sell',symbol:sym,name:p.name||sym,shares:p.qty,trailPercent:trailPct,highWaterMark:currentPrice,triggerPrice:currentPrice*(1-trailPct/100),createdAt:new Date().toISOString()});
+    added++;
+  }
   save();
   toast('🛡️ Protection set for your '+sym+' position');
   document.getElementById('stopLossInp').value='';
   document.getElementById('takeProfitInp').value='';
+  document.getElementById('trailingStopInp').value='';
   renderPendingOrders();
 }
 
@@ -1142,7 +1433,7 @@ function renderPendingOrders(){
   if(!wrap) return;
   if(!port.orders || !port.orders.length){ wrap.innerHTML=''; wrap.style.display='none'; return; }
   wrap.style.display='block';
-  const typeLabel = {limit:'Limit', stop_loss:'Stop Loss', take_profit:'Take Profit'};
+  const typeLabel = {limit:'Limit', stop_loss:'Stop Loss', take_profit:'Take Profit', trailing_stop:'Trailing Stop'};
   wrap.innerHTML = `
     <div class="card-title" style="margin-bottom:10px">📋 Pending Orders (${port.orders.length})</div>
     ${port.orders.map(o => `
@@ -1171,11 +1462,21 @@ async function checkPendingOrders(){
   for(const o of port.orders){
     const price = priceMap[o.symbol];
     if(!price){ remaining.push(o); continue; }
+
+    // Trailing stops update their high water mark and trigger price
+    // every check, even when not triggered - the trigger only ever
+    // moves up as the price rises, never down.
+    if(o.type==='trailing_stop' && price > o.highWaterMark){
+      o.highWaterMark = price;
+      o.triggerPrice = price * (1 - o.trailPercent/100);
+    }
+
     let triggered = false;
     if(o.type==='limit' && o.side==='buy') triggered = price <= o.triggerPrice;
     else if(o.type==='limit' && o.side==='sell') triggered = price >= o.triggerPrice;
     else if(o.type==='stop_loss') triggered = price <= o.triggerPrice;
     else if(o.type==='take_profit') triggered = price >= o.triggerPrice;
+    else if(o.type==='trailing_stop') triggered = price <= o.triggerPrice;
 
     if(!triggered){ remaining.push(o); continue; }
 
@@ -1196,16 +1497,18 @@ async function checkPendingOrders(){
       p.qty -= o.shares;
       if(p.qty===0) delete port.pos[o.symbol];
       port.trades.unshift({side:'sell', sym:o.symbol, shares:o.shares, price, total, date:new Date().toISOString(), orderType:o.type});
-      // A filled stop-loss/take-profit should cancel any sibling order on
-      // the same position, since the shares it was covering are gone.
-      if(o.type==='stop_loss' || o.type==='take_profit'){
+      // A filled stop-loss/take-profit/trailing-stop should cancel any
+      // sibling protective order on the same position, since the shares
+      // it was covering are gone.
+      const protectiveTypes = ['stop_loss','take_profit','trailing_stop'];
+      if(protectiveTypes.includes(o.type)){
         for(let i=remaining.length-1; i>=0; i--){
-          if(remaining[i].symbol===o.symbol && (remaining[i].type==='stop_loss'||remaining[i].type==='take_profit')) remaining.splice(i,1);
+          if(remaining[i].symbol===o.symbol && protectiveTypes.includes(remaining[i].type)) remaining.splice(i,1);
         }
       }
     }
     anyFilled = true;
-    const typeLabel = {limit:'Limit order', stop_loss:'Stop loss', take_profit:'Take profit'}[o.type]||'Order';
+    const typeLabel = {limit:'Limit order', stop_loss:'Stop loss', take_profit:'Take profit', trailing_stop:'Trailing stop'}[o.type]||'Order';
     toast(`✅ ${typeLabel} filled: ${o.side} ${o.shares} ${o.symbol} @ ${f(price)}`);
   }
   port.orders = remaining;
@@ -1398,14 +1701,17 @@ renderTrades();
 updatePortStats();
 loadWatchlist();
 renderPendingOrders();
+renderMyOptions();
 
 // Auto-refresh every 30 seconds
 setInterval(async()=>{
   await loadWatchlist();
   await renderPort();
   await updatePortStats();
-  if(current){try{const q=await getQuote(current.symbol);if(q){current=q;showQuote(q);updateSummary();}}catch(e){}}
+  if(current){try{const q=await getQuote(current.symbol);if(q){current=q;showQuote(q);updateSummary();if(assetMode==='options')updateOptionSummary();}}catch(e){}}
   await checkPendingOrders();
+  await checkOptionExpirations();
+  if(assetMode==='options') await renderMyOptions();
   autoUpdateLeaderboard();
 },30000);
 
