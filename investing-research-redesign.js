@@ -86,8 +86,8 @@
   // the only time app.js re-shows all five sections at once.
   function wireMainTabClick(){
     var mainTab = document.querySelector('.invest-tab[data-view="research"]');
-    if(!mainTab || mainTab.dataset.subtabWired) return;
-    mainTab.dataset.subtabWired = '1';
+    if(!mainTab || mainTab.dataset.subtabWiredResearch) return;
+    mainTab.dataset.subtabWiredResearch = '1';
     mainTab.addEventListener('click', function(){ setTimeout(enforce, 50); });
   }
 
@@ -96,8 +96,8 @@
   // too (it's a sibling now, not automatically tied to any section).
   function wireOtherTabClicks(){
     document.querySelectorAll('.invest-tab').forEach(function(tab){
-      if(tab.dataset.subtabWired) return;
-      tab.dataset.subtabWired = '1';
+      if(tab.dataset.subtabWiredResearch) return;
+      tab.dataset.subtabWiredResearch = '1';
       tab.addEventListener('click', function(){ setTimeout(updateBarVisibility, 50); });
     });
   }
