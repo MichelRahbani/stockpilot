@@ -74,15 +74,15 @@
 
   function wireMainTabClick(){
     var mainTab = document.querySelector('.invest-tab[data-view="records"]');
-    if(!mainTab || mainTab.dataset.subtabWired) return;
-    mainTab.dataset.subtabWired = '1';
+    if(!mainTab || mainTab.dataset.subtabWiredReports) return;
+    mainTab.dataset.subtabWiredReports = '1';
     mainTab.addEventListener('click', function(){ setTimeout(enforce, 50); });
   }
 
   function wireOtherTabClicks(){
     document.querySelectorAll('.invest-tab').forEach(function(tab){
-      if(tab.dataset.subtabWired) return;
-      tab.dataset.subtabWired = '1';
+      if(tab.dataset.subtabWiredReports) return;
+      tab.dataset.subtabWiredReports = '1';
       tab.addEventListener('click', function(){ setTimeout(updateBarVisibility, 50); });
     });
   }
