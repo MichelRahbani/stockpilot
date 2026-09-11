@@ -7460,6 +7460,17 @@ const renderCommandCenter = () => {
 };
 
 const renderHoldingsTable = () => {
+  if (!holdings.length) {
+    holdingsBody.innerHTML = `
+      <tr>
+        <td colspan="11" style="text-align:center;padding:32px 16px;color:var(--muted,#6b7280)">
+          <strong style="display:block;font-size:14px;margin-bottom:4px;color:inherit">No holdings yet</strong>
+          <span style="font-size:13px">Add tickers above and click Load Data, or use Quick Load for a fast equal-weight portfolio.</span>
+        </td>
+      </tr>
+    `;
+    return;
+  }
   holdingsBody.innerHTML = holdings
     .map(
       (holding) => `
@@ -10311,6 +10322,20 @@ const loadRealStocks = async () => {
 
   fetchRealStocksButton.disabled = true;
   fetchStatus.textContent = `Loading ${symbols.length} assets from ${stockPilotApiOnline ? "StockPilot API gateway" : "browser fallback data"}...`;
+  // Real market data + SEC filings can mean several sequential lookups
+  // per ticker, so this genuinely can take a few seconds - show that
+  // directly in the table itself, not just the small status line above
+  // it, so it doesn't look frozen while it's working.
+  if (holdingsBody) {
+    holdingsBody.innerHTML = `
+      <tr>
+        <td colspan="11" style="text-align:center;padding:32px 16px;color:var(--muted,#6b7280)">
+          <strong style="display:block;font-size:14px;margin-bottom:4px;color:inherit">Loading ${symbols.length} asset${symbols.length > 1 ? "s" : ""}…</strong>
+          <span style="font-size:13px">Pulling real prices and fundamentals - this can take a few seconds per ticker.</span>
+        </td>
+      </tr>
+    `;
+  }
   activeScenario = "";
   updateScenarioButtons();
 
