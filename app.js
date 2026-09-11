@@ -10294,6 +10294,7 @@ const fetchWithLimit = async (symbols, limit = 4, allocations = {}) => {
   const results = [];
   const quoteMap = await fetchYahooQuotes(symbols).catch(() => ({}));
   let nextIndex = 0;
+  let completedCount = 0;
 
   const worker = async () => {
     while (nextIndex < symbols.length) {
@@ -10305,6 +10306,11 @@ const fetchWithLimit = async (symbols, limit = 4, allocations = {}) => {
         results[currentIndex] = await fetchRealStock(symbol, allocations[symbol] ?? 100 / symbols.length, quoteMap[symbol] ?? {});
       } catch (error) {
         results[currentIndex] = { error, symbol };
+      }
+      completedCount += 1;
+      if (holdingsBody && holdings.length === 0) {
+        const loadingRow = holdingsBody.querySelector("[data-loading-progress]");
+        if (loadingRow) loadingRow.textContent = `${completedCount} of ${symbols.length} loaded so far…`;
       }
     }
   };
@@ -10331,7 +10337,7 @@ const loadRealStocks = async () => {
       <tr>
         <td colspan="11" style="text-align:center;padding:32px 16px;color:var(--muted,#6b7280)">
           <strong style="display:block;font-size:14px;margin-bottom:4px;color:inherit">Loading ${symbols.length} asset${symbols.length > 1 ? "s" : ""}…</strong>
-          <span style="font-size:13px">Pulling real prices and fundamentals - this can take a few seconds per ticker.</span>
+          <span style="font-size:13px" data-loading-progress>Pulling real prices and fundamentals - this can take a few seconds per ticker.</span>
         </td>
       </tr>
     `;
@@ -10381,6 +10387,16 @@ const loadPortfolioBuilderStocks = async () => {
 
   importPortfolioButton.disabled = true;
   fetchStatus.textContent = `Loading ${symbols.length} portfolio holdings from ${stockPilotApiOnline ? "StockPilot API gateway" : "browser fallback data"}...`;
+  if (holdingsBody) {
+    holdingsBody.innerHTML = `
+      <tr>
+        <td colspan="11" style="text-align:center;padding:32px 16px;color:var(--muted,#6b7280)">
+          <strong style="display:block;font-size:14px;margin-bottom:4px;color:inherit">Loading ${symbols.length} holding${symbols.length > 1 ? "s" : ""}…</strong>
+          <span style="font-size:13px" data-loading-progress>Pulling real prices and fundamentals - this can take a few seconds per ticker.</span>
+        </td>
+      </tr>
+    `;
+  }
   activeScenario = "";
   updateScenarioButtons();
 
