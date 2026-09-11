@@ -1973,12 +1973,18 @@ function loadLeaderboard(){
   .catch(function(){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first! 🚀</div>'; });
 }
 function joinLeaderboard(){
+  // The leaderboard has no market/currency column - it was built
+  // assuming only the US market existed. Submitting a non-US market's
+  // raw local-currency figure (e.g. Saudi's 375,000 SAR) here corrupts
+  // it, since it displays with a flat "$" as if it were USD. Restrict
+  // to the US market until a real cross-currency version exists.
+  if(activeMarket !== 'us'){ alert('The leaderboard currently only tracks the US Market portfolio. Switch to US Market to join.'); return; }
   var t=localStorage.getItem('supabase_token');
   if(!t){ alert('Sign in first!'); return; }
   var nickname=document.getElementById('lbNickname').value.trim();
   if(!nickname){ document.getElementById('lbJoinMsg').textContent='Enter a nickname first!'; return; }
   var uid=JSON.parse(atob(t.split('.')[1])).sub;
-  var val=port.cash||mkt.start;
+  var val=(typeof port.cash==='number' && isFinite(port.cash))?port.cash:mkt.start;
   var pos=port.pos||{};
   Object.keys(pos).forEach(function(sym){ var p=pos[sym]; var cp=(window.latestPrices&&window.latestPrices[sym])||p.avg; val+=p.qty*cp; });
   var ret=Math.round(((val-mkt.start)/mkt.start)*10000)/100;
@@ -2001,10 +2007,12 @@ function copyInviteLink(){
   });
 }
 function autoUpdateLeaderboard(){
+  // Same guard as joinLeaderboard() - only ever submit US-market figures.
+  if(activeMarket !== 'us') return;
   var t=localStorage.getItem('supabase_token');
   if(!t) return;
   var uid=JSON.parse(atob(t.split('.')[1])).sub;
-  var val=port.cash||mkt.start;
+  var val=(typeof port.cash==='number' && isFinite(port.cash))?port.cash:mkt.start;
   var pos=port.pos||{};
   Object.keys(pos).forEach(function(sym){ var p=pos[sym]; var cp=(window.latestPrices&&window.latestPrices[sym])||p.avg; val+=p.qty*cp; });
   var ret=Math.round(((val-mkt.start)/mkt.start)*10000)/100;
