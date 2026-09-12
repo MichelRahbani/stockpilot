@@ -10159,6 +10159,13 @@ const fetchYahooQuotes = async (symbols) => {
 };
 
 const fetchSecCompanyFacts = async (symbol) => {
+  // Don't permanently give up just because stockPilotApiOnline was false
+  // from some earlier, possibly unrelated failure - actually try to
+  // reconnect first, the same way fetchMacroData() already does. Without
+  // this, one hiccup anywhere in the app would silently skip SEC lookups
+  // for the rest of the session, with no way to recover short of a full
+  // page refresh.
+  if (!stockPilotApiOnline) await checkStockPilotApi();
   if (!stockPilotApiOnline) return null;
   try {
     const apiUrl = new URL(`${stockPilotApiBaseUrl}/api/sec/company`);
