@@ -2138,6 +2138,51 @@ JNJ 20"></textarea>
             <section class="calculator-panel">
               <div class="section-title">
                 <div>
+                  <h2>Treasury Ladder Builder <button class="info-button" data-term="treasuryLadder" type="button" aria-label="Explain Treasury ladder">i</button></h2>
+                  <span class="table-note">Spread an investment across real Treasury yields at staggered maturities, so some cash frees up on a regular schedule.</span>
+                </div>
+              </div>
+              <div class="calc-form">
+                <label class="field">
+                  <span>Total to Invest</span>
+                  <input id="ladderAmount" type="number" step="100" value="50000" />
+                </label>
+                <label class="field">
+                  <span>Number of Rungs</span>
+                  <input id="ladderRungs" type="number" step="1" min="2" max="10" value="5" />
+                </label>
+                <label class="field">
+                  <span>Shortest Maturity</span>
+                  <select id="ladderMinMaturity">
+                    <option value="DGS1MO">1 Month</option>
+                    <option value="DGS3MO">3 Months</option>
+                    <option value="DGS6MO">6 Months</option>
+                    <option value="DGS1" selected>1 Year</option>
+                    <option value="DGS2">2 Years</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Longest Maturity</span>
+                  <select id="ladderMaxMaturity">
+                    <option value="DGS2">2 Years</option>
+                    <option value="DGS3">3 Years</option>
+                    <option value="DGS5" selected>5 Years</option>
+                    <option value="DGS7">7 Years</option>
+                    <option value="DGS10">10 Years</option>
+                    <option value="DGS20">20 Years</option>
+                    <option value="DGS30">30 Years</option>
+                  </select>
+                </label>
+              </div>
+              <button class="primary-button small-button" id="buildLadderButton" type="button" style="margin-top:8px">Build Ladder</button>
+              <div id="ladderStatus" class="table-note" style="margin-top:8px"></div>
+              <div id="ladderResults" style="margin-top:14px"></div>
+              <p style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5">Uses the real current Treasury yield curve (FRED, updated daily). Maturity value assumes the yield compounds annually to maturity - a simplification of how real Treasury notes/bonds actually pay semi-annual coupons, but a reasonable estimate of what you'd end up with either way.</p>
+            </section>
+
+            <section class="calculator-panel">
+              <div class="section-title">
+                <div>
                   <h2>Geometric Average <button class="info-button" data-term="geometricAverage" type="button" aria-label="Explain geometric average">i</button></h2>
                   <span class="table-note">Calculate compound average return from a list of period returns.</span>
                 </div>
