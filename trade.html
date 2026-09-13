@@ -332,6 +332,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         <div style="display:flex;gap:8px;margin-bottom:14px">
           <button class="ttab" id="assetModeStock" onclick="setAssetMode('stock')" style="flex:1;font-size:12px;padding:8px">📈 Stock</button>
           <button class="ttab" id="assetModeOptions" onclick="setAssetMode('options')" style="flex:1;font-size:12px;padding:8px">🎯 Options</button>
+          <button class="ttab" id="assetModeAlert" onclick="setAssetMode('alert')" style="flex:1;font-size:12px;padding:8px">🔔 Alert</button>
         </div>
 
         <div id="stockModeWrap">
@@ -402,6 +403,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
           <button class="exec-btn buy" id="optExecBtn" onclick="executeOption()" style="margin-top:14px">Select a strike price</button>
 
           <div id="myOptionsWrap" style="margin-top:20px"></div>
+        </div>
+
+        <div id="alertModeWrap" style="display:none">
+          <div class="inp-label">Alert me when price is <small style="font-weight:400;opacity:0.55;font-size:11px" id="alertCurrentPriceHint"></small></div>
+          <div style="display:flex;gap:8px;margin-bottom:14px">
+            <button class="ttab buy on" id="alertDirAbove" onclick="setAlertDirection('above')" style="flex:1;font-size:13px;padding:9px">Above</button>
+            <button class="ttab sell" id="alertDirBelow" onclick="setAlertDirection('below')" style="flex:1;font-size:13px;padding:9px">Below</button>
+          </div>
+          <input class="inp" type="number" id="alertPriceInp" placeholder="Target price" min="0.01" step="0.01"/>
+          <p style="font-size:11px;opacity:0.45;margin-top:10px;line-height:1.5">Just a notification - no trade happens automatically. You'll get a toast next time you have the app open and the price crosses your target. Doesn't require owning the stock.</p>
+          <button class="exec-btn buy" id="alertExecBtn" onclick="createPriceAlert()" style="margin-top:14px">Enter a target price</button>
+
+          <div id="myAlertsWrap" style="margin-top:20px"></div>
         </div>
       </div>
       <div id="noStock" style="text-align:center;padding:40px;color:var(--muted);font-size:14px">
@@ -523,8 +537,8 @@ async function fetchQuotes(syms) {
 function loadForMarket(id) {
   const k = MARKETS[id].key;
   const s = MARKETS[id].start;
-  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; if(!d.options) d.options = []; if(!d.dividendsPaid) d.dividendsPaid = {}; return d; } } catch(e) {}
-  return {cash: s, pos: {}, trades: [], orders: [], options: [], dividendsPaid: {}};
+  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; if(!d.options) d.options = []; if(!d.dividendsPaid) d.dividendsPaid = {}; if(!d.priceAlerts) d.priceAlerts = []; return d; } } catch(e) {}
+  return {cash: s, pos: {}, trades: [], orders: [], options: [], dividendsPaid: {}, priceAlerts: []};
 }
 
 function showToast(msg, type){
@@ -912,6 +926,8 @@ async function search(){
     document.getElementById('takeProfitInp').value='';
     document.getElementById('trailingStopInp').value='';
     document.getElementById('optStrikeInp').value='';
+    document.getElementById('alertPriceInp').value='';
+    renderMyAlerts();
   setTimeout(function(){ loadChart(q.symbol,'5d','15m',document.querySelector('.chart-range-btn')); },150);
   setTimeout(function(){ loadChart(window._lastSymbol,'5d','15m',document.querySelector('.chart-range-btn')); }, 200);
     document.getElementById('noStock').style.display='none';
@@ -1117,9 +1133,12 @@ function setAssetMode(mode){
   assetMode = mode;
   document.getElementById('assetModeStock').className = 'ttab' + (mode==='stock' ? ' on' : '');
   document.getElementById('assetModeOptions').className = 'ttab' + (mode==='options' ? ' on' : '');
+  document.getElementById('assetModeAlert').className = 'ttab' + (mode==='alert' ? ' on' : '');
   document.getElementById('stockModeWrap').style.display = mode==='stock' ? 'block' : 'none';
   document.getElementById('optionsModeWrap').style.display = mode==='options' ? 'block' : 'none';
+  document.getElementById('alertModeWrap').style.display = mode==='alert' ? 'block' : 'none';
   if(mode==='options' && current) updateOptionSummary();
+  if(mode==='alert' && current) updateAlertSummary();
 }
 
 function setOptionType(t){
@@ -1292,6 +1311,94 @@ async function checkDividends(){
   if(anyPaid){ save(); renderPort(); renderTrades(); updatePortStats(); }
 }
 
+// ── Price Alerts ──
+// Pure notifications - no trade happens. Doesn't require owning the
+// stock, unlike stop-loss/take-profit which protect an existing
+// position. Stored separately from port.orders since these never
+// touch cash or shares.
+let alertDirection = 'above';
+
+function setAlertDirection(dir){
+  alertDirection = dir;
+  document.getElementById('alertDirAbove').className = 'ttab buy' + (dir==='above' ? ' on' : '');
+  document.getElementById('alertDirBelow').className = 'ttab sell' + (dir==='below' ? ' on' : '');
+  updateAlertSummary();
+}
+
+function updateAlertSummary(){
+  if(!current) return;
+  const marketPrice = getEffectivePrice(current);
+  document.getElementById('alertCurrentPriceHint').textContent = 'current: '+f(marketPrice);
+  const target = parseFloat(document.getElementById('alertPriceInp').value);
+  const btn = document.getElementById('alertExecBtn');
+  if(!target || target <= 0){
+    btn.disabled = true; btn.textContent = 'Enter a target price';
+    return;
+  }
+  btn.disabled = false;
+  btn.textContent = `Alert me when ${current.symbol} goes ${alertDirection} ${f(target)}`;
+}
+
+function createPriceAlert(){
+  if(!current) return;
+  const target = parseFloat(document.getElementById('alertPriceInp').value);
+  if(!target || target <= 0){ toast('Enter a target price', 'err'); return; }
+  if(!port.priceAlerts) port.priceAlerts = [];
+  port.priceAlerts.push({
+    id: 'alert_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    symbol: current.symbol, name: current.longName||current.shortName||current.symbol,
+    direction: alertDirection, targetPrice: target, createdAt: new Date().toISOString()
+  });
+  save();
+  toast(`🔔 Alert set for ${current.symbol} ${alertDirection} ${f(target)}`);
+  document.getElementById('alertPriceInp').value = '';
+  updateAlertSummary();
+  renderMyAlerts();
+}
+
+function cancelPriceAlert(id){
+  port.priceAlerts = (port.priceAlerts||[]).filter(a => a.id !== id);
+  save();
+  renderMyAlerts();
+  toast('Alert cancelled');
+}
+
+function renderMyAlerts(){
+  const wrap = document.getElementById('myAlertsWrap');
+  if(!wrap) return;
+  const alerts = port.priceAlerts || [];
+  if(!alerts.length){ wrap.innerHTML=''; return; }
+  wrap.innerHTML = `<div class="card-title" style="margin-bottom:10px">🔔 My Alerts (${alerts.length})</div>` +
+    alerts.map(a => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:600">${a.symbol} ${a.direction} ${f(a.targetPrice)}</div>
+        <button onclick="cancelPriceAlert('${a.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">Cancel</button>
+      </div>`).join('');
+}
+
+async function checkPriceAlerts(){
+  const alerts = port.priceAlerts || [];
+  if(!alerts.length) return;
+  const symbols = [...new Set(alerts.map(a => a.symbol))];
+  let quotes;
+  try{ quotes = await fetchQuotes(symbols); }catch(e){ return; }
+  const priceMap = {};
+  (quotes||[]).forEach(q => { priceMap[q.symbol] = getEffectivePrice(q); });
+
+  const remaining = [];
+  let anyFired = false;
+  for(const a of alerts){
+    const price = priceMap[a.symbol];
+    if(!price){ remaining.push(a); continue; }
+    const triggered = a.direction==='above' ? price >= a.targetPrice : price <= a.targetPrice;
+    if(!triggered){ remaining.push(a); continue; }
+    toast(`🔔 ${a.symbol} is now ${a.direction==='above'?'above':'below'} ${f(a.targetPrice)} — currently ${f(price)}`);
+    anyFired = true;
+  }
+  port.priceAlerts = remaining;
+  if(anyFired){ save(); renderMyAlerts(); }
+}
+
 async function checkOptionExpirations(){
   if(!port.options || !port.options.length) return;
   let anySettled = false;
@@ -1318,6 +1425,7 @@ async function checkOptionExpirations(){
   const el = document.getElementById(id);
   if(el) el.addEventListener('input', updateOptionSummary);
 });
+document.getElementById('alertPriceInp')?.addEventListener('input', updateAlertSummary);
 
 function setOrderType(t){
   orderType=t;
@@ -1749,6 +1857,7 @@ updatePortStats();
 loadWatchlist();
 renderPendingOrders();
 renderMyOptions();
+renderMyAlerts();
 checkDividends();
 
 // Auto-refresh every 30 seconds
@@ -1756,9 +1865,10 @@ setInterval(async()=>{
   await loadWatchlist();
   await renderPort();
   await updatePortStats();
-  if(current){try{const q=await getQuote(current.symbol);if(q){current=q;showQuote(q);updateSummary();if(assetMode==='options')updateOptionSummary();}}catch(e){}}
+  if(current){try{const q=await getQuote(current.symbol);if(q){current=q;showQuote(q);updateSummary();if(assetMode==='options')updateOptionSummary();if(assetMode==='alert')updateAlertSummary();}}catch(e){}}
   await checkPendingOrders();
   await checkOptionExpirations();
+  await checkPriceAlerts();
   if(assetMode==='options') await renderMyOptions();
   autoUpdateLeaderboard();
 },30000);
