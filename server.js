@@ -76,17 +76,25 @@ const finiteNumber = (value) => {
   return Number.isFinite(number) ? number : null;
 };
 
-const cachedFetch = async (url, type = "json") => {
+const cachedFetch = async (url, type = "json", timeoutMs = 8000) => {
   const key = `${type}:${url}`;
   const cached = cache.get(key);
   if (cached && Date.now() - cached.time < CACHE_TTL_MS) return cached.value;
 
-  const response = await fetch(url, {
-    headers: {
-      "User-Agent": url.includes("sec.gov") ? SEC_USER_AGENT : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-      "Accept": type === "json" ? "application/json,text/plain,*/*" : "application/rss+xml,text/xml,text/plain,*/*"
-    }
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  let response;
+  try {
+    response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        "User-Agent": url.includes("sec.gov") ? SEC_USER_AGENT : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+        "Accept": type === "json" ? "application/json,text/plain,*/*" : "application/rss+xml,text/xml,text/plain,*/*"
+      }
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
   if (!response.ok) throw new Error(`Provider returned ${response.status}`);
   const value = type === "json" ? await response.json() : await response.text();
   cache.set(key, { time: Date.now(), value });
@@ -393,7 +401,17 @@ const readPublicUrl = async (publicUrl, type) => {
 
 const FRED_SERIES = {
   FEDFUNDS: { label: "Fed Funds Rate", unit: "%" },
+  DGS1MO: { label: "1-Month Treasury Yield", unit: "%" },
+  DGS3MO: { label: "3-Month Treasury Yield", unit: "%" },
+  DGS6MO: { label: "6-Month Treasury Yield", unit: "%" },
+  DGS1: { label: "1-Year Treasury Yield", unit: "%" },
+  DGS2: { label: "2-Year Treasury Yield", unit: "%" },
+  DGS3: { label: "3-Year Treasury Yield", unit: "%" },
+  DGS5: { label: "5-Year Treasury Yield", unit: "%" },
+  DGS7: { label: "7-Year Treasury Yield", unit: "%" },
   DGS10: { label: "10-Year Treasury Yield", unit: "%" },
+  DGS20: { label: "20-Year Treasury Yield", unit: "%" },
+  DGS30: { label: "30-Year Treasury Yield", unit: "%" },
   CPIAUCSL: { label: "CPI Index", unit: "index" },
   UNRATE: { label: "Unemployment Rate", unit: "%" },
   MORTGAGE30US: { label: "30-Year Mortgage Rate", unit: "%" }
@@ -424,7 +442,7 @@ const parseFredCsv = (csv, id) => {
 };
 
 const getMacroPayload = async () => {
-  const series = await Promise.all(
+  const results = await Promise.allSettled(
     Object.keys(FRED_SERIES).map(async (id) => {
       const url = new URL(FRED_GRAPH_URL);
       url.searchParams.set("id", id);
@@ -432,12 +450,18 @@ const getMacroPayload = async () => {
       return parseFredCsv(csv, id);
     })
   );
+  // One slow or failed series (FRED rate-limiting, a bad symbol, a
+  // timeout) shouldn't take the whole endpoint down - return whatever
+  // genuinely succeeded rather than failing everything over one bad one.
+  const series = results.filter((r) => r.status === "fulfilled").map((r) => r.value);
+  const failed = results.filter((r) => r.status === "rejected").length;
   return {
     series,
     stockPilotMeta: {
       source: "FRED public CSV via Federal Reserve Bank of St. Louis",
       updatedAt: new Date().toISOString(),
-      note: "Official macro series can publish with delays and revisions."
+      note: "Official macro series can publish with delays and revisions.",
+      ...(failed ? { partialFailure: `${failed} of ${Object.keys(FRED_SERIES).length} series could not be fetched this time.` } : {})
     }
   };
 };
