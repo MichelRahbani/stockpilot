@@ -523,8 +523,8 @@ async function fetchQuotes(syms) {
 function loadForMarket(id) {
   const k = MARKETS[id].key;
   const s = MARKETS[id].start;
-  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; if(!d.options) d.options = []; return d; } } catch(e) {}
-  return {cash: s, pos: {}, trades: [], orders: [], options: []};
+  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; if(!d.options) d.options = []; if(!d.dividendsPaid) d.dividendsPaid = {}; return d; } } catch(e) {}
+  return {cash: s, pos: {}, trades: [], orders: [], options: [], dividendsPaid: {}};
 }
 
 function showToast(msg, type){
@@ -1245,6 +1245,53 @@ async function closeOption(id){
 // Checks every open option against today's date - past expiration, it
 // settles automatically: pays out real intrinsic value if in the money,
 // expires worthless if not. Runs on the same 30s cycle as everything else.
+// ── Dividends ──
+// Checks each held stock position for real, recently-declared dividends
+// and pays them out (shares held x dividend per share), the same way a
+// real brokerage would on the ex-dividend date. Only looks at dividends
+// declared in the last 21 days - a position doesn't retroactively earn
+// dividends from before it's reasonable to assume the user held it,
+// since exact per-lot purchase timestamps aren't tracked. Each dividend
+// is keyed by symbol+ex-date and recorded once paid, so the same
+// dividend can never be paid out twice even if checked repeatedly.
+async function checkDividends(){
+  const symbols = Object.keys(port.pos || {});
+  if(!symbols.length) return;
+  let anyPaid = false;
+  const cutoff = Date.now() - 21*86400000;
+
+  for(const symbol of symbols){
+    const pos = port.pos[symbol];
+    if(!pos || pos.qty <= 0) continue;
+    let dividends;
+    try{
+      const res = await fetch(`${API}/api/history?symbol=${symbol}&range=1mo&interval=1d&events=div`);
+      const data = await res.json();
+      dividends = data?.chart?.result?.[0]?.events?.dividends;
+    }catch(e){ continue; }
+    if(!dividends) continue;
+
+    for(const div of Object.values(dividends)){
+      const exDateMs = div.date * 1000;
+      if(exDateMs < cutoff || exDateMs > Date.now()) continue; // too old, or not yet effective
+      const key = symbol + '_' + div.date;
+      if(port.dividendsPaid[key]) continue; // already paid this one
+
+      const payout = pos.qty * div.amount;
+      port.cash += payout;
+      port.dividendsPaid[key] = true;
+      port.trades.unshift({
+        side:'dividend', sym:symbol, shares:pos.qty, price:div.amount, total:payout,
+        date:new Date().toISOString(), orderType:'dividend'
+      });
+      anyPaid = true;
+      toast(`💰 Dividend: ${symbol} paid ${f(div.amount)}/share × ${pos.qty} = ${f(payout)}`);
+    }
+  }
+
+  if(anyPaid){ save(); renderPort(); renderTrades(); updatePortStats(); }
+}
+
 async function checkOptionExpirations(){
   if(!port.options || !port.options.length) return;
   let anySettled = false;
@@ -1702,6 +1749,7 @@ updatePortStats();
 loadWatchlist();
 renderPendingOrders();
 renderMyOptions();
+checkDividends();
 
 // Auto-refresh every 30 seconds
 setInterval(async()=>{
