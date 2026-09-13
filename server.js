@@ -325,12 +325,13 @@ const getQuotePayload = async (symbols) => {
   };
 };
 
-const getHistoryPayload = async (symbol, range = "1y", interval = "1d") => {
+const getHistoryPayload = async (symbol, range = "1y", interval = "1d", includeEvents = false) => {
   const clean = cleanSymbol(symbol);
   if (!clean) throw new Error("Missing symbol");
   const url = new URL(`${YAHOO_CHART_BASE_URL}${encodeURIComponent(clean)}`);
   url.searchParams.set("range", range || "1y");
   url.searchParams.set("interval", interval || "1d");
+  if (includeEvents) url.searchParams.set("events", "div");
   try {
     const payload = await cachedFetch(url.toString(), "json");
     return {
@@ -953,7 +954,8 @@ const server = http.createServer(async (req, res) => {
         await getHistoryPayload(
           reqUrl.searchParams.get("symbol"),
           reqUrl.searchParams.get("range") || "1y",
-          reqUrl.searchParams.get("interval") || "1d"
+          reqUrl.searchParams.get("interval") || "1d",
+          reqUrl.searchParams.get("events") === "div"
         )
       );
     }
