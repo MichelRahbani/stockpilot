@@ -3139,6 +3139,123 @@ const updateGeometricAverageCalculator = () => {
   document.querySelector("#geoDetail").textContent = `${formatNumber(result.total, 2)}% total compound return across ${result.periods} period${result.periods === 1 ? "" : "s"}.`;
 };
 
+// Real maturity, in years, for each FRED Treasury series this ladder
+// builder can use. Only real data points from the actual yield curve -
+// never interpolated or fabricated for a maturity that isn't one of
+// these.
+const TREASURY_MATURITY_YEARS = {
+  DGS1MO: 1 / 12, DGS3MO: 3 / 12, DGS6MO: 6 / 12,
+  DGS1: 1, DGS2: 2, DGS3: 3, DGS5: 5, DGS7: 7, DGS10: 10, DGS20: 20, DGS30: 30
+};
+const TREASURY_MATURITY_LABELS = {
+  DGS1MO: "1 Month", DGS3MO: "3 Months", DGS6MO: "6 Months",
+  DGS1: "1 Year", DGS2: "2 Years", DGS3: "3 Years", DGS5: "5 Years",
+  DGS7: "7 Years", DGS10: "10 Years", DGS20: "20 Years", DGS30: "30 Years"
+};
+const TREASURY_ORDER = ["DGS1MO", "DGS3MO", "DGS6MO", "DGS1", "DGS2", "DGS3", "DGS5", "DGS7", "DGS10", "DGS20", "DGS30"];
+
+const buildTreasuryLadder = async () => {
+  const button = document.querySelector("#buildLadderButton");
+  const statusEl = document.querySelector("#ladderStatus");
+  const resultsEl = document.querySelector("#ladderResults");
+  const amount = Number(document.querySelector("#ladderAmount")?.value) || 0;
+  const maxRungs = Math.max(2, Math.min(10, Number(document.querySelector("#ladderRungs")?.value) || 5));
+  const minId = document.querySelector("#ladderMinMaturity")?.value;
+  const maxId = document.querySelector("#ladderMaxMaturity")?.value;
+
+  if (amount <= 0) {
+    statusEl.textContent = "Enter an amount to invest.";
+    return;
+  }
+  const minYears = TREASURY_MATURITY_YEARS[minId];
+  const maxYears = TREASURY_MATURITY_YEARS[maxId];
+  if (maxYears <= minYears) {
+    statusEl.textContent = "Longest maturity needs to be after the shortest.";
+    return;
+  }
+
+  const availableIds = TREASURY_ORDER.filter((id) => TREASURY_MATURITY_YEARS[id] >= minYears && TREASURY_MATURITY_YEARS[id] <= maxYears);
+  if (availableIds.length < 2) {
+    statusEl.textContent = "Not enough real maturities in that range to build a ladder - try widening it.";
+    return;
+  }
+
+  let rungIds = availableIds;
+  if (availableIds.length > maxRungs) {
+    rungIds = [];
+    for (let i = 0; i < maxRungs; i++) {
+      const idx = Math.round((i * (availableIds.length - 1)) / (maxRungs - 1));
+      if (!rungIds.includes(availableIds[idx])) rungIds.push(availableIds[idx]);
+    }
+  }
+
+  if (button) { button.disabled = true; button.textContent = "Fetching real yields…"; }
+  statusEl.textContent = "";
+  resultsEl.innerHTML = "";
+
+  try {
+    const res = await fetch(`${stockPilotApiBaseUrl}/api/macro`);
+    if (!res.ok) throw new Error(`Macro request failed (${res.status})`);
+    const data = await res.json();
+    const seriesById = {};
+    (data.series || []).forEach((s) => { seriesById[s.id] = s; });
+
+    const missing = rungIds.filter((id) => !seriesById[id]?.latest?.value);
+    const usableIds = rungIds.filter((id) => seriesById[id]?.latest?.value);
+    if (usableIds.length < 2) {
+      statusEl.textContent = "Couldn't fetch enough real yield data right now - try again in a moment.";
+      button.disabled = false; button.textContent = "Build Ladder";
+      return;
+    }
+
+    const perRung = amount / usableIds.length;
+    const today = new Date();
+    let totalMaturityValue = 0;
+    let weightedYieldSum = 0;
+
+    const rows = usableIds.map((id) => {
+      const yieldPct = seriesById[id].latest.value;
+      const years = TREASURY_MATURITY_YEARS[id];
+      const maturityValue = perRung * Math.pow(1 + yieldPct / 100, years);
+      totalMaturityValue += maturityValue;
+      weightedYieldSum += yieldPct * perRung;
+      const maturityDate = new Date(today.getTime() + years * 365.25 * 86400000);
+      return { id, label: TREASURY_MATURITY_LABELS[id], yieldPct, years, principal: perRung, maturityValue, maturityDate };
+    });
+
+    const weightedAvgYield = weightedYieldSum / amount;
+    const totalGain = totalMaturityValue - amount;
+
+    resultsEl.innerHTML = `
+      <div class="calc-result" style="margin-bottom:12px">
+        <p class="label">Weighted Average Yield</p>
+        <strong>${formatNumber(weightedAvgYield, 2)}%</strong>
+        <span>Real current yields as of ${data.series.find((s) => rungIds.includes(s.id))?.latest?.date || "today"}. Total value at maturity across all rungs: ${currency(totalMaturityValue)} (+${currency(totalGain)}).</span>
+      </div>
+      <table class="data-table">
+        <thead><tr><th>Maturity</th><th>Real Yield</th><th>Principal</th><th>Matures</th><th>Maturity Value</th></tr></thead>
+        <tbody>
+          ${rows.map((r) => `
+            <tr>
+              <td>${r.label}</td>
+              <td>${formatNumber(r.yieldPct, 2)}%</td>
+              <td>${currency(r.principal)}</td>
+              <td>${r.maturityDate.toLocaleDateString("en-US", { month: "short", year: "numeric" })}</td>
+              <td>${currency(r.maturityValue)}</td>
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+      ${missing.length ? `<p style="font-size:11px;color:var(--muted);margin-top:8px">Skipped ${missing.length} maturit${missing.length === 1 ? "y" : "ies"} - real data wasn't available for ${missing.map((id) => TREASURY_MATURITY_LABELS[id]).join(", ")} just now.</p>` : ""}
+    `;
+    statusEl.textContent = `Ladder built with ${usableIds.length} real rung${usableIds.length === 1 ? "" : "s"}.`;
+  } catch (error) {
+    statusEl.textContent = "Couldn't fetch real Treasury yields right now - try again in a moment.";
+  } finally {
+    if (button) { button.disabled = false; button.textContent = "Build Ladder"; }
+  }
+};
+
 const updateCalculators = () => {
   updateTvmCalculator();
   updateIntrinsicValueCalculator();
@@ -11112,6 +11229,7 @@ reopenOnboardingButton.addEventListener("click", () => {
   if (onboardingOverlay) onboardingOverlay.hidden = false;
 });
 document.querySelector("#tvmSolveFor").addEventListener("change", updateCalculators);
+document.querySelector("#buildLadderButton")?.addEventListener("click", buildTreasuryLadder);
 exportReportButton.addEventListener("click", exportReport);
 exportReportButtonSecondary.addEventListener("click", exportReport);
 tabButtons.forEach((button) => button.addEventListener("click", () => switchView(button.dataset.view)));
