@@ -393,17 +393,7 @@ const readPublicUrl = async (publicUrl, type) => {
 
 const FRED_SERIES = {
   FEDFUNDS: { label: "Fed Funds Rate", unit: "%" },
-  DGS1MO: { label: "1-Month Treasury Yield", unit: "%" },
-  DGS3MO: { label: "3-Month Treasury Yield", unit: "%" },
-  DGS6MO: { label: "6-Month Treasury Yield", unit: "%" },
-  DGS1: { label: "1-Year Treasury Yield", unit: "%" },
-  DGS2: { label: "2-Year Treasury Yield", unit: "%" },
-  DGS3: { label: "3-Year Treasury Yield", unit: "%" },
-  DGS5: { label: "5-Year Treasury Yield", unit: "%" },
-  DGS7: { label: "7-Year Treasury Yield", unit: "%" },
   DGS10: { label: "10-Year Treasury Yield", unit: "%" },
-  DGS20: { label: "20-Year Treasury Yield", unit: "%" },
-  DGS30: { label: "30-Year Treasury Yield", unit: "%" },
   CPIAUCSL: { label: "CPI Index", unit: "index" },
   UNRATE: { label: "Unemployment Rate", unit: "%" },
   MORTGAGE30US: { label: "30-Year Mortgage Rate", unit: "%" }
