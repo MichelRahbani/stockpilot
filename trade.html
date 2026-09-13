@@ -1450,14 +1450,18 @@ function updateSummary(){
   document.getElementById('sumCash').textContent=f(port.cash);
   btn.className='exec-btn '+side;
 
-  // Stop loss / take profit only make sense for a position you already own
+  // Stop loss / take profit only make sense for a LONG position you
+  // already own - protecting a short would need its own buy-side
+  // trigger logic, out of scope for this pass.
   const ownedPos = port.pos[current.symbol];
-  document.getElementById('protectRow').style.display = (side==='sell' && ownedPos) ? 'block' : 'none';
+  document.getElementById('protectRow').style.display = (side==='sell' && ownedPos && ownedPos.qty > 0) ? 'block' : 'none';
 
   if(orderType==='limit'){
     if(shares<=0){ btn.disabled=true; btn.textContent='Enter number of shares'; return; }
     if(limitPrice<=0){ btn.disabled=true; btn.textContent='Enter a limit price'; return; }
     if(side==='sell'){
+      // Limit orders stay restricted to existing long holdings - shorting
+      // is only available via market sell for now.
       if(!ownedPos||ownedPos.qty<shares){ btn.disabled=true; btn.textContent='Not enough shares to sell'; return; }
     }
     btn.disabled=false;
@@ -1470,9 +1474,18 @@ function updateSummary(){
   } else if(side==='buy'&&total>port.cash){
     btn.disabled=true; btn.textContent='Not enough cash';
   } else if(side==='sell'){
-    const pos=port.pos[current.symbol];
-    if(!pos||pos.qty<shares){ btn.disabled=true; btn.textContent='Not enough shares to sell'; }
-    else{ btn.disabled=false; btn.textContent='Sell '+shares+' share'+(shares>1?'s':'')+' — '+f(total); }
+    const currentQty = ownedPos ? ownedPos.qty : 0;
+    if(shares <= currentQty){
+      btn.disabled=false; btn.textContent='Sell '+shares+' share'+(shares>1?'s':'')+' — '+f(total);
+    } else {
+      const shortShares = shares - Math.max(0, currentQty);
+      const shortExposure = shortShares * marketPrice;
+      if(shortExposure > mkt.start * 2){
+        btn.disabled=true; btn.textContent='Short too large — capped at 2x starting cash';
+      } else {
+        btn.disabled=false; btn.textContent='🔻 Short '+shortShares+' share'+(shortShares>1?'s':'')+' — '+f(total);
+      }
+    }
   } else {
     btn.disabled=false; btn.textContent='Buy '+shares+' share'+(shares>1?'s':'')+' — '+f(total);
   }
@@ -1511,22 +1524,64 @@ function execute(){
 
   if(side==='buy'){
     if(total>port.cash){ toast('Not enough cash!','err'); return; }
-    port.cash-=total;
-    if(!port.pos[sym]) port.pos[sym]={qty:0,avg:0,name:current.longName||current.shortName||sym};
-    const p=port.pos[sym];
-    const old=p.qty*p.avg;
-    p.qty+=shares;
-    p.avg=(old+total)/p.qty;
+    const p = port.pos[sym] || {qty:0, avg:0, name: current.longName||current.shortName||sym};
+    if(p.qty >= 0){
+      // Normal buy - adding to (or opening) a long position, weighted avg cost
+      port.cash-=total;
+      const old=p.qty*p.avg;
+      p.qty+=shares;
+      p.avg=(old+total)/p.qty;
+      port.pos[sym]=p;
+    } else {
+      // Currently short - this buy covers some or all of it
+      const shortQty = Math.abs(p.qty);
+      port.cash-=total;
+      if(shares <= shortQty){
+        // Partial or full cover. The avg entry price of whatever short
+        // remains doesn't change - you're buying back at today's price,
+        // not re-pricing the position you originally sold short.
+        p.qty += shares;
+        if(p.qty === 0) delete port.pos[sym];
+        else port.pos[sym]=p;
+      } else {
+        // Covers the entire short and flips to a new long for the excess
+        const longShares = shares - shortQty;
+        p.qty = longShares;
+        p.avg = price;
+        p.name = current.longName||current.shortName||sym;
+        port.pos[sym]=p;
+      }
+    }
     port.trades.unshift({side:'buy',sym,shares,price,total,date:new Date().toISOString()});
     toast('✅ Bought '+shares+' '+sym+' @ '+f(price));
   } else {
-    const p=port.pos[sym];
-    if(!p||p.qty<shares){ toast('Not enough shares!','err'); return; }
-    port.cash+=total;
-    p.qty-=shares;
-    if(p.qty===0) delete port.pos[sym];
+    const p = port.pos[sym] || {qty:0, avg:0, name: current.longName||current.shortName||sym};
+    const currentQty = p.qty;
+    if(shares <= currentQty){
+      // Normal sell - reduce an existing long, avg cost unchanged
+      port.cash+=total;
+      p.qty-=shares;
+      if(p.qty===0) delete port.pos[sym];
+      else port.pos[sym]=p;
+    } else {
+      // Selling more than owned - closes any existing long and opens a
+      // short for the excess. Full proceeds credited either way, same
+      // as a normal sell - shorting means borrowing shares to sell now
+      // and buying them back later, so cash comes in up front.
+      const shortShares = shares - Math.max(0, currentQty);
+      const shortExposure = shortShares * price;
+      if(shortExposure > mkt.start * 2){
+        toast('That short position would be too large — capped at 2x starting cash.','err');
+        return;
+      }
+      port.cash+=total;
+      p.qty = -shortShares;
+      p.avg = price;
+      p.name = current.longName||current.shortName||sym;
+      port.pos[sym]=p;
+    }
     port.trades.unshift({side:'sell',sym,shares,price,total,date:new Date().toISOString()});
-    toast('✅ Sold '+shares+' '+sym+' @ '+f(price));
+    toast((shares > currentQty && currentQty >= 0) ? '🔻 Shorted '+(shares-Math.max(0,currentQty))+' '+sym+' @ '+f(price) : '✅ Sold '+shares+' '+sym+' @ '+f(price));
   }
   save();
   // Save trade to Supabase for class tracking
