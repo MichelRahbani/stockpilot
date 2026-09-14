@@ -907,6 +907,11 @@ function submitFundLookup(){
   search();
 }
 
+function toggleQuoteInfo(){
+  const card = document.getElementById('quoteInfoCard');
+  if(card) card.style.display = card.style.display === 'none' ? 'block' : 'none';
+}
+
 async function search(){
   const sym=(document.getElementById('symInput').value||'').trim().toUpperCase();
   if(!sym){ toast('Enter a ticker symbol','err'); return; }
@@ -981,7 +986,7 @@ function showQuote(q){ window._lastSymbol=q.symbol;
   document.getElementById('quoteArea').innerHTML=`
     <div class="q-header">
       <div>
-        <div class="q-sym">${q.symbol}${q.isCustomFund ? ' <span style="font-size:11px;background:var(--accent);padding:2px 8px;border-radius:100px;vertical-align:middle">CUSTOM FUND</span>' : ''}</div>
+        <div class="q-sym">${q.symbol}${q.isCustomFund ? ' <span style="font-size:11px;background:var(--accent);padding:2px 8px;border-radius:100px;vertical-align:middle">CUSTOM FUND</span>' : ''} <button onclick="toggleQuoteInfo()" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;vertical-align:middle;line-height:1" aria-label="What is a stock quote?">i</button></div>
         <div class="q-name">${q.longName||q.shortName||q.symbol}${q.isCustomFund ? ' · Priced in USD regardless of active market' : ''}</div>
       </div>
       <div>
@@ -989,6 +994,9 @@ function showQuote(q){ window._lastSymbol=q.symbol;
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
         <div id="marketStatusBadge" style="display:none;font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;background:rgba(255,255,255,0.06);margin-top:4px"></div>
       </div>
+    </div>
+    <div id="quoteInfoCard" style="display:none;background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.5;color:rgba(255,255,255,0.85)">
+      <strong>What's a stock quote?</strong> It's a snapshot of what this asset is worth right now, its latest traded price, and how much that's moved since yesterday's close. The price above (${priceFmt(q.regularMarketPrice)}) and the change beneath it (${chg>=0?'+':''}${chg.toFixed(2)}, ${pct>=0?'+':''}${pct.toFixed(2)}%) together are the quote.
     </div>
     ${fundInfoCard}
     <div class="chart-wrap" id="priceChartWrap">
