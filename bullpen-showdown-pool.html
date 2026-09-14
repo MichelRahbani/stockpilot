@@ -500,7 +500,7 @@ async function executeShowdownOption(){
   myEntry.options = options;
   showToast(`✅ Bought ${contracts} ${ticker} ${showdownOptionType} @ ${strike}`);
   document.getElementById('optStrike').value = '';
-  await renderMyShowdownOptions();
+  await load();
 }
 
 async function checkShowdownOptionExpirations(){
@@ -522,7 +522,7 @@ async function checkShowdownOptionExpirations(){
   if(anySettled){
     await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {cash, options});
     myEntry.cash = cash;
-    await renderMyShowdownOptions();
+    await load();
   }
 }
 
