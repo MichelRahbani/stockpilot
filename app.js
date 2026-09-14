@@ -285,7 +285,7 @@ const termSimple = document.querySelector("#termSimple");
 const termExample = document.querySelector("#termExample");
 const termClose = document.querySelector("#termClose");
 const calculatorInputs = document.querySelectorAll(
-  "#tvmSolveFor, #tvmPresent, #tvmFuture, #tvmRate, #tvmYears, #tvmPayment, #ivFcf, #ivGrowth, #ivTerminalGrowth, #ivDiscount, #ivYears, #ivPrice, #geoReturns"
+  "#tvmSolveFor, #tvmPresent, #tvmFuture, #tvmRate, #tvmYears, #tvmPayment, #ivFcf, #ivGrowth, #ivTerminalGrowth, #ivDiscount, #ivYears, #ivPrice, #geoReturns, #retContribution, #retMatchPct, #retMatchCap, #retReturn, #retYears, #retTaxNow, #retTaxLater"
 );
 const simulatorInputs = document.querySelectorAll("#simMarketDrop, #simHighBetaDrop, #simLargestDrop, #simCustomDrop");
 const modeButtons = document.querySelectorAll("[data-mode]");
@@ -3256,10 +3256,75 @@ const buildTreasuryLadder = async () => {
   }
 };
 
+const updateRetirementSimulator = () => {
+  const resultsEl = document.querySelector("#retResults");
+  if (!resultsEl) return;
+
+  const contribution = Number(document.querySelector("#retContribution")?.value) || 0;
+  const matchPct = Number(document.querySelector("#retMatchPct")?.value) || 0;
+  const matchCapPct = Number(document.querySelector("#retMatchCap")?.value) || 0;
+  const returnPct = Number(document.querySelector("#retReturn")?.value) || 0;
+  const years = Number(document.querySelector("#retYears")?.value) || 0;
+  const taxNow = Number(document.querySelector("#retTaxNow")?.value) || 0;
+  const taxLater = Number(document.querySelector("#retTaxLater")?.value) || 0;
+
+  if (contribution <= 0 || years <= 0 || returnPct <= 0) {
+    resultsEl.innerHTML = "";
+    return;
+  }
+
+  const r = returnPct / 100;
+  // Employer match is capped at a percentage of the contribution itself
+  // (a simplification since salary isn't collected separately here),
+  // then the match rate applies within that cap.
+  const matchEligible = contribution * (matchCapPct / 100);
+  const employerMatch = matchEligible * (matchPct / 100);
+
+  // Future value of an ordinary annuity - a fixed amount added at the
+  // end of each year, compounding at a constant rate. Real markets
+  // don't return the same amount every year; this is the long-run
+  // average outcome, not a guarantee, and the UI says so.
+  const annuityFactor = ((Math.pow(1 + r, years) - 1) / r);
+  const employeeFV = contribution * annuityFactor;
+  const matchFV = employerMatch * annuityFactor;
+  const totalFV = employeeFV + matchFV;
+
+  // Employer match is always pre-tax money regardless of whether the
+  // employee's own contribution is Traditional or Roth - that's a real
+  // 401(k) rule, not a simplification, and it's the whole reason this
+  // comparison is more interesting than "just don't tax the Roth part".
+  const traditionalAfterTax = totalFV * (1 - taxLater / 100);
+  const rothAfterTax = employeeFV + matchFV * (1 - taxLater / 100);
+
+  const traditionalCostToday = contribution * (1 - taxNow / 100);
+  const rothCostToday = contribution;
+
+  const totalContributed = contribution * years;
+  const totalMatch = employerMatch * years;
+
+  resultsEl.innerHTML = `
+    <div class="calc-result" style="margin-bottom:12px">
+      <p class="label">Employer Match (Annual)</p>
+      <strong>${currency(employerMatch)}</strong>
+      <span>Over ${years} years: ${currency(totalContributed)} of your own contributions, plus ${currency(totalMatch)} in employer match.</span>
+    </div>
+    <table class="data-table">
+      <thead><tr><th></th><th>Traditional (Pre-Tax)</th><th>Roth (Post-Tax)</th></tr></thead>
+      <tbody>
+        <tr><td>Take-home cost per year</td><td>${currency(traditionalCostToday)}</td><td>${currency(rothCostToday)}</td></tr>
+        <tr><td>Balance at retirement (pre-tax)</td><td>${currency(totalFV)}</td><td>${currency(totalFV)}</td></tr>
+        <tr><td>After-tax value at withdrawal</td><td><strong>${currency(traditionalAfterTax)}</strong></td><td><strong>${currency(rothAfterTax)}</strong></td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:11px;color:var(--muted);margin-top:8px">Your own contribution grows tax-free under Roth, but the employer match is always pre-tax money and gets taxed at withdrawal either way - that's a real 401(k) rule, not a simplification.</p>
+  `;
+};
+
 const updateCalculators = () => {
   updateTvmCalculator();
   updateIntrinsicValueCalculator();
   updateGeometricAverageCalculator();
+  updateRetirementSimulator();
 };
 
 const readSavingsNumber = (id) => Number(document.querySelector(`#${id}`)?.value) || 0;
