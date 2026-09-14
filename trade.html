@@ -340,6 +340,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
           <button class="ttab buy on" id="tabBuy">BUY</button>
           <button class="ttab sell" id="tabSell">SELL</button>
         </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:8px 10px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px">
+          <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer">
+            <input type="checkbox" id="marginToggle" onchange="toggleMargin()" style="cursor:pointer">
+            📊 Trade on margin <small style="opacity:0.55">(2x buying power, real risk)</small>
+          </label>
+        </div>
+        <div id="marginStatus" style="display:none;font-size:11px;padding:8px 10px;margin-bottom:12px;border-radius:8px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.25);color:#ffc107"></div>
         <div style="display:flex;gap:8px;margin-bottom:14px">
           <button class="ttab" id="orderTypeMarket" onclick="setOrderType('market')" style="flex:1;font-size:12px;padding:8px">Market</button>
           <button class="ttab" id="orderTypeLimit" onclick="setOrderType('limit')" style="flex:1;font-size:12px;padding:8px">Limit</button>
@@ -537,8 +544,8 @@ async function fetchQuotes(syms) {
 function loadForMarket(id) {
   const k = MARKETS[id].key;
   const s = MARKETS[id].start;
-  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; if(!d.options) d.options = []; if(!d.dividendsPaid) d.dividendsPaid = {}; if(!d.priceAlerts) d.priceAlerts = []; return d; } } catch(e) {}
-  return {cash: s, pos: {}, trades: [], orders: [], options: [], dividendsPaid: {}, priceAlerts: []};
+  try { const d = JSON.parse(localStorage.getItem(k)); if (d && d.cash !== undefined) { if(!d.orders) d.orders = []; if(!d.options) d.options = []; if(!d.dividendsPaid) d.dividendsPaid = {}; if(!d.priceAlerts) d.priceAlerts = []; if(d.marginEnabled === undefined) d.marginEnabled = false; if(d.lastKnownEquity === undefined) d.lastKnownEquity = d.cash; return d; } } catch(e) {}
+  return {cash: s, pos: {}, trades: [], orders: [], options: [], dividendsPaid: {}, priceAlerts: [], marginEnabled: false, lastKnownEquity: s};
 }
 
 function showToast(msg, type){
@@ -1427,6 +1434,35 @@ async function checkOptionExpirations(){
 });
 document.getElementById('alertPriceInp')?.addEventListener('input', updateAlertSummary);
 
+function toggleMargin(){
+  port.marginEnabled = document.getElementById('marginToggle').checked;
+  save();
+  if(port.marginEnabled){
+    toast('⚠️ Margin trading enabled - you can now buy beyond your cash, but losses are magnified and you can owe more than you have.', 'err');
+  }
+  updateMarginStatus();
+  updateSummary();
+}
+
+function getBuyingPower(){
+  // Reg T standard: 50% initial margin, i.e. up to 2x equity in
+  // position value. Uses the last known equity from the periodic
+  // portfolio check, not a fresh fetch, since this needs to run
+  // synchronously on every keystroke.
+  const equity = port.lastKnownEquity !== undefined ? port.lastKnownEquity : port.cash;
+  return port.marginEnabled ? Math.max(port.cash, equity * 2) : port.cash;
+}
+
+function updateMarginStatus(){
+  const el = document.getElementById('marginStatus');
+  if(!port.marginEnabled){ el.style.display = 'none'; return; }
+  const equity = port.lastKnownEquity !== undefined ? port.lastKnownEquity : port.cash;
+  const buyingPower = getBuyingPower();
+  const marginUsed = Math.max(0, -port.cash);
+  el.style.display = 'block';
+  el.innerHTML = `Equity: ${f(equity)} · Buying power: ${f(buyingPower)}` + (marginUsed > 0 ? ` · <strong>Margin used: ${f(marginUsed)}</strong>` : '');
+}
+
 function setOrderType(t){
   orderType=t;
   document.getElementById('orderTypeMarket').className='ttab'+(t==='market'?' on':'');
@@ -1437,6 +1473,7 @@ function setOrderType(t){
 
 function updateSummary(){
   if(!current)return;
+  updateMarginStatus();
   const shares=parseInt(document.getElementById('sharesInp').value)||0;
   const marketPrice=getEffectivePrice(current);
   const limitPrice=parseFloat(document.getElementById('limitPriceInp').value)||0;
@@ -1471,8 +1508,10 @@ function updateSummary(){
 
   if(shares<=0){
     btn.disabled=true; btn.textContent='Enter number of shares';
-  } else if(side==='buy'&&total>port.cash){
-    btn.disabled=true; btn.textContent='Not enough cash';
+  } else if(side==='buy'&&total>getBuyingPower()){
+    btn.disabled=true; btn.textContent = port.marginEnabled ? 'Exceeds buying power' : 'Not enough cash';
+  } else if(side==='buy'&&port.marginEnabled&&total>port.cash){
+    btn.disabled=false; btn.textContent='📊 Buy '+shares+' share'+(shares>1?'s':'')+' on margin — '+f(total);
   } else if(side==='sell'){
     const currentQty = ownedPos ? ownedPos.qty : 0;
     if(shares <= currentQty){
@@ -1523,7 +1562,7 @@ function execute(){
   const total=shares*price;
 
   if(side==='buy'){
-    if(total>port.cash){ toast('Not enough cash!','err'); return; }
+    if(total>getBuyingPower()){ toast(port.marginEnabled ? 'Exceeds your buying power!' : 'Not enough cash!','err'); return; }
     const p = port.pos[sym] || {qty:0, avg:0, name: current.longName||current.shortName||sym};
     if(p.qty >= 0){
       // Normal buy - adding to (or opening) a long position, weighted avg cost
@@ -1821,6 +1860,7 @@ async function updatePortStats(){
     }catch(e){ syms.forEach(s=>{ posVal+=port.pos[s].qty*port.pos[s].avg; }); }
   }
   const total=port.cash+posVal;
+  port.lastKnownEquity = total;
   const pnl=total-startVal;
   const pct=(pnl/startVal)*100;
   const col=pnl>=0?'#86efac':'#fca5a5';
@@ -1914,12 +1954,32 @@ renderPendingOrders();
 renderMyOptions();
 renderMyAlerts();
 checkDividends();
+if(document.getElementById('marginToggle')) document.getElementById('marginToggle').checked = !!port.marginEnabled;
+
+// Warns (never auto-liquidates) when equity falls below the standard
+// 25% maintenance margin requirement relative to total position value.
+// A real broker would force-sell here; this stays a warning by design,
+// since an automated forced-sell is real money-moving logic with real
+// risk of a bug doing the wrong thing to someone's portfolio.
+let lastMarginCallWarning = 0;
+function checkMarginCall(){
+  if(!port.marginEnabled || port.cash >= 0) return;
+  const equity = port.lastKnownEquity;
+  const positionValue = equity - port.cash; // back out the leveraged position value
+  if(positionValue <= 0) return;
+  const maintenanceRatio = equity / positionValue;
+  if(maintenanceRatio < 0.25 && Date.now() - lastMarginCallWarning > 60000){
+    toast('🚨 MARGIN CALL: your equity ('+f(equity)+') has fallen below the 25% maintenance requirement on your position. Add cash or reduce positions.', 'err');
+    lastMarginCallWarning = Date.now();
+  }
+}
 
 // Auto-refresh every 30 seconds
 setInterval(async()=>{
   await loadWatchlist();
   await renderPort();
   await updatePortStats();
+  checkMarginCall();
   if(current){try{const q=await getQuote(current.symbol);if(q){current=q;showQuote(q);updateSummary();if(assetMode==='options')updateOptionSummary();if(assetMode==='alert')updateAlertSummary();}}catch(e){}}
   await checkPendingOrders();
   await checkOptionExpirations();
