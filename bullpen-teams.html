@@ -580,17 +580,30 @@ async function doTrade(action){
   const total = price * shares;
   const holdings = {...(myMember.holdings || {})};
   let cash = myMember.cash;
+  let wasShortSale = false;
 
   if(action === 'buy'){
     if(total > cash){ showToast('Not enough cash for that trade.', 'error'); return; }
     holdings[ticker] = (holdings[ticker] || 0) + shares;
     cash -= total;
   } else {
+    // Selling more than you own opens (or adds to) a short position -
+    // same formula either way, just with a risk cap on shorts, matching
+    // the same pattern already proven live in Bullpen Showdown.
     const currentHolding = holdings[ticker] || 0;
-    if(currentHolding < shares){ showToast('You don\'t own that many shares to sell.', 'error'); return; }
-    holdings[ticker] = currentHolding - shares;
+    const newHolding = currentHolding - shares;
+    const isNowShort = newHolding < 0;
+    if(isNowShort){
+      const shortExposure = Math.abs(newHolding) * price;
+      if(shortExposure > myMember.starting_cash * 2){
+        showToast('That short position would be too large - capped at 2x your starting cash.', 'error');
+        return;
+      }
+    }
+    holdings[ticker] = newHolding;
     if(holdings[ticker] === 0) delete holdings[ticker];
     cash += total;
+    wasShortSale = isNowShort;
   }
 
   await sbPatch('bullpen_team_members', 'id=eq.'+myMember.id, {cash, holdings});
@@ -599,7 +612,7 @@ async function doTrade(action){
   document.getElementById('tradeTicker').value = '';
   document.getElementById('tradeShares').value = '';
   updateCashDisplay();
-  showToast(`${action==='buy'?'Bought':'Sold'} ${shares} ${ticker} @ $${price.toFixed(2)}`);
+  showToast(`${action==='buy' ? 'Bought' : (wasShortSale ? 'Shorted' : 'Sold')} ${shares} ${ticker} @ $${price.toFixed(2)}`);
   await renderRoster();
 }
 
