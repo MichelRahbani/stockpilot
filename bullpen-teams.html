@@ -546,6 +546,7 @@ async function loadTeam(){
   if(myMember){
     updateCashDisplay();
     await checkTeamOptionExpirations();
+    await checkTeamDividends();
     await renderMyTeamOptions();
   }
 }
@@ -712,6 +713,48 @@ async function executeTeamOption(){
   showToast(`✅ Bought ${contracts} ${ticker} ${teamOptionType} @ ${strike}`);
   await renderMyTeamOptions();
   await renderRoster();
+}
+
+// ── Dividends ──
+async function checkTeamDividends(){
+  const holdings = myMember.holdings || {};
+  const symbols = Object.keys(holdings).filter(s => holdings[s] > 0);
+  if(!symbols.length) return;
+  const dividendsPaid = {...(myMember.dividends_paid || {})};
+  let cash = myMember.cash;
+  let anyPaid = false;
+  const cutoff = Date.now() - 21*86400000;
+
+  for(const symbol of symbols){
+    let dividends;
+    try{
+      const res = await fetch(`${BACKEND}/api/history?symbol=${symbol}&range=1mo&interval=1d&events=div`);
+      const data = await res.json();
+      dividends = data?.chart?.result?.[0]?.events?.dividends;
+    }catch(e){ continue; }
+    if(!dividends) continue;
+
+    for(const div of Object.values(dividends)){
+      const exDateMs = div.date * 1000;
+      if(exDateMs < cutoff || exDateMs > Date.now()) continue;
+      const key = symbol + '_' + div.date;
+      if(dividendsPaid[key]) continue;
+
+      const payout = holdings[symbol] * div.amount;
+      cash += payout;
+      dividendsPaid[key] = true;
+      anyPaid = true;
+      showToast(`💰 Dividend: ${symbol} paid $${div.amount.toFixed(2)}/share × ${holdings[symbol]} = $${payout.toFixed(2)}`);
+    }
+  }
+
+  if(anyPaid){
+    await sbPatch('bullpen_team_members', 'id=eq.'+myMember.id, {cash, dividends_paid: dividendsPaid});
+    myMember.cash = cash;
+    myMember.dividends_paid = dividendsPaid;
+    updateCashDisplay();
+    await renderRoster();
+  }
 }
 
 async function checkTeamOptionExpirations(){
