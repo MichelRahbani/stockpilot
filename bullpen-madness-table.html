@@ -177,7 +177,7 @@ const token = localStorage.getItem('supabase_token');
 const myUid = token ? JSON.parse(atob(token.split('.')[1])).sub : null;
 const myName = localStorage.getItem('bmadness_my_name') || localStorage.getItem('supabase_name') || '';
 
-let tournament = null, entries = [], myEntry = null;
+let tournament = null, entries = [], myEntry = null, myMember = null;
 let priceCache = {};
 
 async function getPrice(ticker){
@@ -324,7 +324,7 @@ async function renderInProgress(){
 
   const tables = await sbGet('bullpen_madness_tables', 'tournament_id=eq.'+tournament.id+'&round_number=eq.'+tournament.current_round+'&status=eq.active');
   const myTable = tables.find(async t => true); // placeholder, resolved below
-  let foundTable = null, myMember = null;
+  let foundTable = null;
   for(const t of tables){
     const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+t.id);
     const mine = members.find(m => m.entry_id === myEntry.id);
@@ -420,6 +420,26 @@ async function renderInProgress(){
     </div>
 
     <div class="card">
+      <h2>🎯 Options</h2>
+      <input type="text" id="optTicker" placeholder="Ticker, e.g. AAPL" style="text-transform:uppercase;width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:10px">
+      <div class="trade-row" style="grid-template-columns:1fr 1fr">
+        <button class="btn-buy" id="optTypeCall" onclick="setMadnessOptionType('call')">Call</button>
+        <button class="btn-sell" id="optTypePut" onclick="setMadnessOptionType('put')" style="opacity:0.5">Put</button>
+      </div>
+      <input type="number" id="optStrike" placeholder="Strike price" min="0.01" step="0.5" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin:10px 0">
+      <select id="optExpiry" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:10px">
+        <option value="7">1 Week Out</option>
+        <option value="14">2 Weeks Out</option>
+        <option value="30" selected>1 Month Out</option>
+      </select>
+      <input type="number" id="optContracts" placeholder="Contracts (1 = 100 shares)" min="1" step="1" value="1" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:10px">
+      <div id="optPremiumInfo" style="font-size:12px;color:var(--muted);margin-bottom:10px"></div>
+      <button class="btn-buy" id="optExecBtn" onclick="executeMadnessOption()" style="width:100%">Enter ticker and strike</button>
+      <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">Priced with Black-Scholes using real volatility and the real current 10-Year Treasury rate.</p>
+      <div id="myMadnessOptions" style="margin-top:14px"></div>
+    </div>
+
+    <div class="card">
       <h2>📜 Table Trades</h2>
       <div id="recentTradesFeed"><div style="color:var(--muted);font-size:13px">Loading...</div></div>
     </div>
@@ -434,6 +454,9 @@ async function renderInProgress(){
 
   document.getElementById('tradeTicker').addEventListener('blur', updateQuotePreview);
   loadRecentTrades(withEntries);
+  await checkMadnessOptionExpirations();
+  await checkMadnessDividends();
+  await renderMyMadnessOptions();
 }
 
 async function getHistory(ticker){
@@ -532,13 +555,216 @@ function showToast(msg, type){
   }, 3200);
 }
 
+// ── Options (Black-Scholes) ──
+let madnessOptionType = 'call';
+let riskFreeRateCache = null, riskFreeRateCacheTime = 0;
+async function getRiskFreeRate(){
+  if(riskFreeRateCache !== null && Date.now() - riskFreeRateCacheTime < 3600000) return riskFreeRateCache;
+  try{
+    const res = await fetch(`${BACKEND}/api/macro`);
+    const data = await res.json();
+    const dgs10 = data?.series?.find(s => s.id === 'DGS10');
+    riskFreeRateCache = dgs10?.latest?.value ? dgs10.latest.value / 100 : 0.045;
+  }catch(e){ riskFreeRateCache = 0.045; }
+  riskFreeRateCacheTime = Date.now();
+  return riskFreeRateCache;
+}
+let volatilityCache = {};
+async function getHistoricalVolatility(symbol){
+  if(volatilityCache[symbol] !== undefined) return volatilityCache[symbol];
+  try{
+    const res = await fetch(`${BACKEND}/api/history?symbol=${symbol}&range=3mo&interval=1d`);
+    const data = await res.json();
+    const closes = (data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || []).filter(c => c != null);
+    if(closes.length < 10){ volatilityCache[symbol] = 0.35; return 0.35; }
+    const logReturns = [];
+    for(let i=1;i<closes.length;i++) logReturns.push(Math.log(closes[i]/closes[i-1]));
+    const mean = logReturns.reduce((a,b)=>a+b,0) / logReturns.length;
+    const variance = logReturns.reduce((a,b)=>a+(b-mean)*(b-mean),0) / (logReturns.length-1);
+    const annualizedVol = Math.sqrt(variance) * Math.sqrt(252);
+    volatilityCache[symbol] = annualizedVol;
+    return annualizedVol;
+  }catch(e){ volatilityCache[symbol] = 0.35; return 0.35; }
+}
+function normCDF(x){
+  const a1=0.254829592, a2=-0.284496736, a3=1.421413741, a4=-1.453152027, a5=1.061405429, p=0.3275911;
+  const sign = x < 0 ? -1 : 1;
+  x = Math.abs(x) / Math.sqrt(2);
+  const t = 1/(1+p*x);
+  const y = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return 0.5*(1+sign*y);
+}
+function blackScholes(S, K, T, r, sigma, type){
+  if(T <= 0) return type==='call' ? Math.max(0, S-K) : Math.max(0, K-S);
+  const d1 = (Math.log(S/K) + (r + sigma*sigma/2)*T) / (sigma*Math.sqrt(T));
+  const d2 = d1 - sigma*Math.sqrt(T);
+  if(type === 'call') return S*normCDF(d1) - K*Math.exp(-r*T)*normCDF(d2);
+  return K*Math.exp(-r*T)*normCDF(-d2) - S*normCDF(-d1);
+}
+async function getOptionPremium(symbol, spotPrice, strike, expirationDate, type){
+  const now = new Date();
+  const exp = new Date(expirationDate+'T16:00:00');
+  const T = Math.max(0, (exp - now) / (365.25*24*60*60*1000));
+  const [r, sigma] = await Promise.all([getRiskFreeRate(), getHistoricalVolatility(symbol)]);
+  return {premium: Math.max(0.01, blackScholes(spotPrice, strike, T, r, sigma, type)), T, r, sigma};
+}
+
+function setMadnessOptionType(t){
+  madnessOptionType = t;
+  document.getElementById('optTypeCall').style.opacity = t==='call' ? '1' : '0.5';
+  document.getElementById('optTypePut').style.opacity = t==='put' ? '1' : '0.5';
+  updateMadnessOptionSummary();
+}
+
+let madnessOptDebounce = null;
+async function updateMadnessOptionSummary(){
+  const ticker = document.getElementById('optTicker').value.trim().toUpperCase();
+  const strike = parseFloat(document.getElementById('optStrike').value);
+  const days = parseInt(document.getElementById('optExpiry').value);
+  const contracts = parseInt(document.getElementById('optContracts').value) || 0;
+  const btn = document.getElementById('optExecBtn');
+  const info = document.getElementById('optPremiumInfo');
+  if(!ticker || !strike || strike <= 0){ btn.disabled = true; btn.textContent = 'Enter ticker and strike'; info.textContent=''; return; }
+  const spot = await getPrice(ticker);
+  if(!spot){ btn.disabled = true; btn.textContent = 'Could not find that ticker'; return; }
+  info.textContent = 'Current price: $'+spot.toFixed(2)+' — calculating…';
+  clearTimeout(madnessOptDebounce);
+  madnessOptDebounce = setTimeout(async () => {
+    const expDate = new Date(Date.now() + days*86400000).toISOString().split('T')[0];
+    const {premium} = await getOptionPremium(ticker, spot, strike, expDate, madnessOptionType);
+    const total = premium * 100 * contracts;
+    info.textContent = `Current price: $${spot.toFixed(2)} — premium: $${premium.toFixed(2)}/share`;
+    if(contracts <= 0){ btn.disabled = true; btn.textContent = 'Enter number of contracts'; return; }
+    if(!myMember || total > myMember.cash){ btn.disabled = true; btn.textContent = 'Not enough cash'; return; }
+    btn.disabled = false;
+    btn.textContent = `Buy ${contracts} ${madnessOptionType==='call'?'Call':'Put'} — $${total.toFixed(2)}`;
+  }, 300);
+}
+['optTicker','optStrike','optExpiry','optContracts'].forEach(id => {
+  document.addEventListener('input', (e) => { if(e.target.id === id) updateMadnessOptionSummary(); });
+});
+
+async function executeMadnessOption(){
+  if(!myMember) return;
+  const ticker = document.getElementById('optTicker').value.trim().toUpperCase();
+  const strike = parseFloat(document.getElementById('optStrike').value);
+  const days = parseInt(document.getElementById('optExpiry').value);
+  const contracts = parseInt(document.getElementById('optContracts').value) || 0;
+  if(!ticker || !strike || strike <= 0 || contracts <= 0) return;
+  const spot = await getPrice(ticker);
+  if(!spot) return;
+  const expDate = new Date(Date.now() + days*86400000).toISOString().split('T')[0];
+  const {premium} = await getOptionPremium(ticker, spot, strike, expDate, madnessOptionType);
+  const total = premium * 100 * contracts;
+  if(total > myMember.cash){ showToast('Not enough cash for that trade.', 'error'); return; }
+
+  const options = [...(myMember.options || [])];
+  options.push({
+    id: 'opt_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    symbol: ticker, type: madnessOptionType, strike, expirationDate: expDate, contracts,
+    premiumPaid: premium, purchasedAt: new Date().toISOString(), status: 'open'
+  });
+  const cash = myMember.cash - total;
+  await sbPatch('bullpen_madness_table_members', 'id=eq.'+myMember.id, {cash, options});
+  myMember.cash = cash;
+  myMember.options = options;
+  document.getElementById('optStrike').value = '';
+  showToast(`✅ Bought ${contracts} ${ticker} ${madnessOptionType} @ ${strike}`);
+  await renderInProgress();
+}
+
+async function checkMadnessOptionExpirations(){
+  if(!myMember) return;
+  const options = myMember.options || [];
+  if(!options.length) return;
+  let anySettled = false, cash = myMember.cash;
+  for(const o of options){
+    if(o.status !== 'open') continue;
+    if(new Date(o.expirationDate+'T16:00:00') > new Date()) continue;
+    const spot = await getPrice(o.symbol).catch(()=>0);
+    const intrinsic = o.type==='call' ? Math.max(0, spot-o.strike) : Math.max(0, o.strike-spot);
+    const payout = intrinsic * 100 * o.contracts;
+    cash += payout;
+    o.status = 'expired';
+    o.closedValue = intrinsic;
+    anySettled = true;
+    showToast(payout > 0 ? `📈 ${o.symbol} ${o.strike} ${o.type} expired in the money — $${payout.toFixed(2)} paid out` : `${o.symbol} ${o.strike} ${o.type} expired worthless`);
+  }
+  if(anySettled){
+    await sbPatch('bullpen_madness_table_members', 'id=eq.'+myMember.id, {cash, options});
+    myMember.cash = cash;
+  }
+}
+
+async function renderMyMadnessOptions(){
+  const wrap = document.getElementById('myMadnessOptions');
+  if(!wrap || !myMember) return;
+  const open = (myMember.options || []).filter(o => o.status === 'open');
+  if(!open.length){ wrap.innerHTML=''; return; }
+  const rows = await Promise.all(open.map(async o => {
+    const spot = await getPrice(o.symbol).catch(()=>0);
+    const daysLeft = Math.max(0, (new Date(o.expirationDate+'T16:00:00') - Date.now()) / 86400000);
+    const T = daysLeft / 365.25;
+    const [r, sigma] = await Promise.all([getRiskFreeRate(), getHistoricalVolatility(o.symbol)]);
+    const currentValue = spot ? blackScholes(spot, o.strike, T, r, sigma, o.type) : o.premiumPaid;
+    const pnl = (currentValue - o.premiumPaid) * 100 * o.contracts;
+    const cls = pnl >= 0 ? 'var(--green)' : 'var(--red)';
+    return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px">
+      <span>${o.symbol} ${o.strike} ${o.type.toUpperCase()} · ${o.contracts}x</span>
+      <span style="color:${cls}">${pnl>=0?'+':''}$${pnl.toFixed(2)}</span>
+    </div>`;
+  }));
+  wrap.innerHTML = `<h2 style="font-size:14px">My Options (${open.length})</h2>` + rows.join('');
+}
+
+// ── Dividends ──
+async function checkMadnessDividends(){
+  if(!myMember) return;
+  const holdings = myMember.holdings || {};
+  const symbols = Object.keys(holdings).filter(s => holdings[s] > 0);
+  if(!symbols.length) return;
+  const dividendsPaid = {...(myMember.dividends_paid || {})};
+  let cash = myMember.cash;
+  let anyPaid = false;
+  const cutoff = Date.now() - 21*86400000;
+
+  for(const symbol of symbols){
+    let dividends;
+    try{
+      const res = await fetch(`${BACKEND}/api/history?symbol=${symbol}&range=1mo&interval=1d&events=div`);
+      const data = await res.json();
+      dividends = data?.chart?.result?.[0]?.events?.dividends;
+    }catch(e){ continue; }
+    if(!dividends) continue;
+
+    for(const div of Object.values(dividends)){
+      const exDateMs = div.date * 1000;
+      if(exDateMs < cutoff || exDateMs > Date.now()) continue;
+      const key = symbol + '_' + div.date;
+      if(dividendsPaid[key]) continue;
+
+      const payout = holdings[symbol] * div.amount;
+      cash += payout;
+      dividendsPaid[key] = true;
+      anyPaid = true;
+      showToast(`💰 Dividend: ${symbol} paid $${div.amount.toFixed(2)}/share × ${holdings[symbol]} = $${payout.toFixed(2)}`);
+    }
+  }
+
+  if(anyPaid){
+    await sbPatch('bullpen_madness_table_members', 'id=eq.'+myMember.id, {cash, dividends_paid: dividendsPaid});
+    myMember.cash = cash;
+    myMember.dividends_paid = dividendsPaid;
+  }
+}
+
 async function doTrade(action){
   const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
   const shares = parseFloat(document.getElementById('tradeShares').value);
   if(!ticker || !shares || shares <= 0){ showToast('Enter a ticker and a positive number of shares.', 'error'); return; }
 
   const tables = await sbGet('bullpen_madness_tables', 'tournament_id=eq.'+tournament.id+'&round_number=eq.'+tournament.current_round+'&status=eq.active');
-  let foundTable = null, myMember = null;
+  let foundTable = null;
   for(const t of tables){
     const members = await sbGet('bullpen_madness_table_members', 'table_id=eq.'+t.id);
     const mine = members.find(m => m.entry_id === myEntry.id);
