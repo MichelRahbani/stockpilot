@@ -57,6 +57,21 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 .stock-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px;cursor:pointer;transition:all 0.15s;position:relative}
 .stock-card:hover{border-color:rgba(0,230,118,0.4);transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,230,118,0.1)}
 .stock-card.mine{border-color:rgba(0,230,118,0.5);background:rgba(0,230,118,0.06)}
+
+/* Pick reveal card */
+#pickReveal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;align-items:center;justify-content:center}
+#pickReveal.open{display:flex}
+.reveal-card{background:linear-gradient(160deg,#111,#0a0a0a);border:2px solid rgba(0,230,118,0.5);border-radius:20px;padding:32px;width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,230,118,0.15);animation:revealPop 0.4s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes revealPop{0%{transform:scale(0.6) rotate(-4deg);opacity:0}60%{transform:scale(1.05) rotate(1deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+.reveal-logo{width:88px;height:88px;border-radius:16px;background:#fff;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;overflow:hidden;font-size:32px;font-weight:800;color:#111}
+.reveal-logo img{width:100%;height:100%;object-fit:contain;padding:10px}
+.reveal-ticker{font-size:13px;font-weight:700;color:var(--green);letter-spacing:1px;margin-bottom:4px}
+.reveal-name{font-size:20px;font-weight:800;margin-bottom:18px}
+.reveal-facts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.reveal-fact{background:rgba(255,255,255,0.04);border-radius:10px;padding:10px}
+.reveal-fact-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px}
+.reveal-fact-value{font-size:14px;font-weight:700}
+.reveal-continue{background:var(--green);color:#000;border:none;border-radius:10px;padding:12px 28px;font-weight:700;font-size:14px;cursor:pointer;width:100%}
 .stock-card.mine::after{content:'✓ DRAFTED';position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;color:var(--green);letter-spacing:0.5px}
 .card-ticker{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:2px}
 .card-name{font-size:11px;color:var(--muted);margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -87,6 +102,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
 </style>
 </head>
 <body>
+<div id="pickReveal">
+  <div class="reveal-card">
+    <div class="reveal-logo" id="revealLogo"></div>
+    <div class="reveal-ticker" id="revealTicker"></div>
+    <div class="reveal-name" id="revealName"></div>
+    <div class="reveal-facts" id="revealFacts"></div>
+    <button class="reveal-continue" onclick="finalizePick();closeReveal()">Add to Roster →</button>
+  </div>
+</div>
 <nav class="nav">
   <div class="nav-logo">BULL<span>PEN</span></div>
   <div class="league-info">
@@ -139,6 +163,19 @@ const myName=urlParams.get('name')||localStorage.getItem('bullpen_my_name')||loc
 
 let starters=[],bench=[];
 const POPULAR=['AAPL','NVDA','TSLA','MSFT','META','AMZN','GOOGL','SPY','AMD','COIN','PLTR','ARM','JPM','V','BRK-B'];
+const quoteCache={}; // ticker -> full quote object, populated as cards load, used for the pick-reveal card
+const TICKER_DOMAINS={
+  AAPL:'apple.com',NVDA:'nvidia.com',TSLA:'tesla.com',MSFT:'microsoft.com',META:'meta.com',
+  AMZN:'amazon.com',GOOGL:'google.com',GOOG:'google.com',AMD:'amd.com',COIN:'coinbase.com',
+  PLTR:'palantir.com',ARM:'arm.com',JPM:'jpmorganchase.com',V:'visa.com','BRK-B':'berkshirehathaway.com',
+  NFLX:'netflix.com',DIS:'disney.com',KO:'coca-cola.com',PEP:'pepsico.com',NKE:'nike.com',
+  SBUX:'starbucks.com',MCD:'mcdonalds.com',WMT:'walmart.com',COST:'costco.com',HD:'homedepot.com',
+  BA:'boeing.com',INTC:'intel.com',ORCL:'oracle.com',CRM:'salesforce.com',ADBE:'adobe.com',
+  UBER:'uber.com',ABNB:'airbnb.com',SNAP:'snap.com',PYPL:'paypal.com',SQ:'squareup.com',
+  F:'ford.com',GM:'gm.com',T:'att.com',VZ:'verizon.com',XOM:'exxonmobil.com',CVX:'chevron.com',
+  JNJ:'jnj.com',PFE:'pfizer.com',UNH:'unitedhealthgroup.com',GS:'goldmansachs.com',MS:'morganstanley.com',
+  BAC:'bankofamerica.com',WFC:'wellsfargo.com',SPOT:'spotify.com',SHOP:'shopify.com',RBLX:'roblox.com'
+};
 
 // ── Init ──
 async function init(){
@@ -219,6 +256,7 @@ async function loadPopularStocks(){
     if(!quotes.length){renderFallback();return;}
     grid.innerHTML='';
     quotes.forEach(q=>{
+      quoteCache[q.symbol]=q;
       const chg=q.regularMarketChangePercent||0;const up=chg>=0;
       const isMine=starters.some(s=>s.ticker===q.symbol)||bench.some(s=>s.ticker===q.symbol);
       const card=document.createElement('div');
@@ -272,7 +310,7 @@ async function doSearch(){
     const tickers=results.map(x=>x.symbol).join(',');
     const qr=await fetch(BACKEND+'/api/quotes?symbols='+tickers);
     const qdata=await qr.json();
-    const pm={};(qdata?.quoteResponse?.result||[]).forEach(q=>{pm[q.symbol]=q;});
+    const pm={};(qdata?.quoteResponse?.result||[]).forEach(q=>{pm[q.symbol]=q;quoteCache[q.symbol]=q;});
     grid.innerHTML='';
     results.forEach(r=>{
       const q=pm[r.symbol]||{};const chg=q.regularMarketChangePercent||0;const up=chg>=0;
@@ -290,8 +328,58 @@ async function doSearch(){
   }catch(e){grid.innerHTML='<div class="loading" style="grid-column:1/-1">Search failed</div>';}
 }
 
+function formatMarketCap(n){
+  if(!n) return null;
+  if(n>=1e12) return '$'+(n/1e12).toFixed(2)+'T';
+  if(n>=1e9) return '$'+(n/1e9).toFixed(1)+'B';
+  if(n>=1e6) return '$'+(n/1e6).toFixed(0)+'M';
+  return '$'+n.toLocaleString();
+}
+
+function showPickReveal(ticker,name){
+  const q=quoteCache[ticker]||{};
+  const domain=TICKER_DOMAINS[ticker];
+  const logoEl=document.getElementById('revealLogo');
+  if(domain){
+    logoEl.innerHTML=`<img src="https://logo.clearbit.com/${domain}" onerror="this.parentElement.textContent='${ticker.charAt(0)}'">`;
+  }else{
+    logoEl.textContent=ticker.charAt(0);
+  }
+  document.getElementById('revealTicker').textContent=ticker;
+  document.getElementById('revealName').textContent=name||q.shortName||q.longName||ticker;
+
+  // Only real facts that are actually present in the quote data - never
+  // a fabricated placeholder for a field that's missing.
+  const facts=[];
+  if(q.sector) facts.push({label:'Sector',value:q.sector});
+  else if(q.quoteType) facts.push({label:'Type',value:q.quoteType});
+  const cap=formatMarketCap(q.marketCap);
+  if(cap) facts.push({label:'Market Cap',value:cap});
+  if(q.fiftyTwoWeekLow && q.fiftyTwoWeekHigh) facts.push({label:'52-Week Range',value:'$'+q.fiftyTwoWeekLow.toFixed(0)+' - $'+q.fiftyTwoWeekHigh.toFixed(0)});
+  if(q.regularMarketPrice) facts.push({label:'Price Today',value:'$'+q.regularMarketPrice.toFixed(2)});
+
+  document.getElementById('revealFacts').innerHTML = facts.length
+    ? facts.map(f=>`<div class="reveal-fact"><div class="reveal-fact-label">${f.label}</div><div class="reveal-fact-value">${f.value}</div></div>`).join('')
+    : '<div style="grid-column:1/-1;color:var(--muted);font-size:12px">Live details not available right now</div>';
+
+  document.getElementById('pickReveal').classList.add('open');
+}
+function closeReveal(){
+  document.getElementById('pickReveal').classList.remove('open');
+}
+
+let pendingPick=null;
 function pickStock(ticker,name){
   if(starters.some(s=>s.ticker===ticker)||bench.some(s=>s.ticker===ticker)){showToast('Already in your roster','error');return;}
+  if(starters.length>=7 && bench.length>=3){showToast('Roster full! Remove a stock first','error');return;}
+  pendingPick={ticker,name};
+  showPickReveal(ticker,name);
+}
+
+function finalizePick(){
+  if(!pendingPick) return;
+  const {ticker,name}=pendingPick;
+  pendingPick=null;
   if(starters.length<7){starters.push({ticker,name});showToast(ticker+' added to starters ⚡','success');}
   else if(bench.length<3){bench.push({ticker,name});showToast(ticker+' added to bench 🪑','success');}
   else{showToast('Roster full! Remove a stock first','error');return;}
