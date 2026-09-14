@@ -293,6 +293,7 @@ async function renderActive(){
   document.getElementById('tradeTicker').addEventListener('blur', updateQuotePreview);
   loadRecentTrades();
   checkShowdownOptionExpirations();
+  checkShowdownDividends();
   renderMyShowdownOptions();
 }
 
@@ -501,6 +502,51 @@ async function executeShowdownOption(){
   showToast(`✅ Bought ${contracts} ${ticker} ${showdownOptionType} @ ${strike}`);
   document.getElementById('optStrike').value = '';
   await load();
+}
+
+// ── Dividends ──
+// Same real-data pattern as trade.html: checks each held stock for a
+// real dividend declared in the last 21 days, pays out shares held x
+// dividend per share, and tracks paid dividends by symbol+ex-date so
+// the same one can never be paid twice.
+async function checkShowdownDividends(){
+  const holdings = myEntry.holdings || {};
+  const symbols = Object.keys(holdings).filter(s => holdings[s] > 0); // only long positions earn dividends, not shorts
+  if(!symbols.length) return;
+  const dividendsPaid = {...(myEntry.dividends_paid || {})};
+  let cash = myEntry.cash;
+  let anyPaid = false;
+  const cutoff = Date.now() - 21*86400000;
+
+  for(const symbol of symbols){
+    let dividends;
+    try{
+      const res = await fetch(`${BACKEND}/api/history?symbol=${symbol}&range=1mo&interval=1d&events=div`);
+      const data = await res.json();
+      dividends = data?.chart?.result?.[0]?.events?.dividends;
+    }catch(e){ continue; }
+    if(!dividends) continue;
+
+    for(const div of Object.values(dividends)){
+      const exDateMs = div.date * 1000;
+      if(exDateMs < cutoff || exDateMs > Date.now()) continue;
+      const key = symbol + '_' + div.date;
+      if(dividendsPaid[key]) continue;
+
+      const payout = holdings[symbol] * div.amount;
+      cash += payout;
+      dividendsPaid[key] = true;
+      anyPaid = true;
+      showToast(`💰 Dividend: ${symbol} paid $${div.amount.toFixed(2)}/share × ${holdings[symbol]} = $${payout.toFixed(2)}`);
+    }
+  }
+
+  if(anyPaid){
+    await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {cash, dividends_paid: dividendsPaid});
+    myEntry.cash = cash;
+    myEntry.dividends_paid = dividendsPaid;
+    await load();
+  }
 }
 
 async function checkShowdownOptionExpirations(){
