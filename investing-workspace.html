@@ -2183,6 +2183,47 @@ JNJ 20"></textarea>
             <section class="calculator-panel">
               <div class="section-title">
                 <div>
+                  <h2>Retirement Simulator <button class="info-button" data-term="retirementSim" type="button" aria-label="Explain retirement simulator">i</button></h2>
+                  <span class="table-note">Project a 401(k) or IRA balance, and compare what Traditional vs Roth actually means for your take-home pay and your withdrawal.</span>
+                </div>
+              </div>
+              <div class="calc-form">
+                <label class="field">
+                  <span>Annual Contribution</span>
+                  <input id="retContribution" type="number" step="100" value="6000" />
+                </label>
+                <label class="field">
+                  <span>Employer Match %</span>
+                  <input id="retMatchPct" type="number" step="1" min="0" max="100" value="50" />
+                </label>
+                <label class="field">
+                  <span>Match Cap (% of contribution)</span>
+                  <input id="retMatchCap" type="number" step="1" min="0" max="100" value="6" />
+                </label>
+                <label class="field">
+                  <span>Expected Annual Return %</span>
+                  <input id="retReturn" type="number" step="0.1" value="7" />
+                </label>
+                <label class="field">
+                  <span>Years Until Retirement</span>
+                  <input id="retYears" type="number" step="1" min="1" max="60" value="30" />
+                </label>
+                <label class="field">
+                  <span>Your Tax Rate Now %</span>
+                  <input id="retTaxNow" type="number" step="1" min="0" max="60" value="22" />
+                </label>
+                <label class="field">
+                  <span>Your Tax Rate at Retirement %</span>
+                  <input id="retTaxLater" type="number" step="1" min="0" max="60" value="15" />
+                </label>
+              </div>
+              <div id="retResults" style="margin-top:14px"></div>
+              <p style="font-size:11px;color:var(--muted);margin-top:12px;line-height:1.5">Assumes a fixed annual contribution and a constant return, compounded annually - real markets don't return the same amount every year, this shows the long-run average outcome, not a guarantee. Not financial or tax advice.</p>
+            </section>
+
+            <section class="calculator-panel">
+              <div class="section-title">
+                <div>
                   <h2>Geometric Average <button class="info-button" data-term="geometricAverage" type="button" aria-label="Explain geometric average">i</button></h2>
                   <span class="table-note">Calculate compound average return from a list of period returns.</span>
                 </div>
