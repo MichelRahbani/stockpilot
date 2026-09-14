@@ -1277,6 +1277,12 @@ const LEARNING_MISSIONS = [
   }
 ];
 const TERM_HELP = {
+  stockQuote: {
+    title: "Stock Quote",
+    meaning: "A stock quote is the current price information for a stock or other asset, including the latest traded price and how much it has moved today.",
+    simple: "It is a snapshot of what an asset is worth right now, and whether that is up or down from yesterday.",
+    example: "If AAPL shows $333.08 and +0.24% today, that is its quote. It means the last trade was at $333.08, up 0.24% from yesterday's close."
+  },
   beginnerGuide: {
     title: "Term Guide",
     meaning: "This app has clickable beginner explanations for the important finance terms.",
