@@ -141,6 +141,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
       <input type="text" class="search-input" placeholder="Search S&amp;P 500 stocks — AAPL, TSLA, NVDA..." id="searchInput" onkeydown="if(event.key==='Enter')doSearch()"/>
       <button class="search-btn" onclick="doSearch()">Search</button>
     </div>
+    <div class="sector-filter-row" id="sectorFilterRow" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
     <div class="stocks-grid" id="stocksGrid">
       <div class="loading" style="grid-column:1/-1"><div class="spinner"></div><div>Loading popular stocks...</div></div>
     </div>
@@ -356,6 +357,7 @@ async function init(){
   }catch(e){console.log('Init error',e);}
 
   renderRoster();
+  renderSectorFilterPills();
   loadPopularStocks();
 }
 
@@ -403,6 +405,65 @@ function renderMembers(members){
       <div class="m-status ${isMe?'drafting':hasDraft?'done':'waiting'}">${isMe?'You':hasDraft?'Done':'Waiting'}</div>
     </div>`;
   }).join('')||'<div style="padding:16px;text-align:center;color:var(--muted)">No members yet</div>';
+}
+
+function renderSectorFilterPills(){
+  const row = document.getElementById('sectorFilterRow');
+  if(!row) return;
+  const sectors = [...new Set(Object.values(SP500_SECTORS))].sort();
+  let html = `<button class="sector-pill active" data-sector="all" onclick="filterBySector('all')" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;font-size:11px;font-weight:700;padding:6px 12px;border-radius:100px;cursor:pointer">All</button>`;
+  sectors.forEach(s => {
+    const abbrev = SECTOR_ABBREV[s] || s.slice(0,4).toUpperCase();
+    const color = SECTOR_COLOR[abbrev] || '#64748b';
+    html += `<button class="sector-pill" data-sector="${s}" onclick="filterBySector('${s}')" style="background:transparent;border:1px solid ${color};color:${color};font-size:11px;font-weight:700;padding:6px 12px;border-radius:100px;cursor:pointer" title="${s}">${abbrev}</button>`;
+  });
+  row.innerHTML = html;
+}
+
+function setActiveSectorPill(sector){
+  document.querySelectorAll('.sector-pill').forEach(btn => {
+    const isActive = btn.dataset.sector === sector;
+    btn.classList.toggle('active', isActive);
+    if(isActive){
+      btn.style.background = btn.dataset.sector === 'all' ? 'rgba(255,255,255,0.08)' : btn.style.borderColor;
+      btn.style.color = '#000';
+    } else {
+      const color = btn.dataset.sector === 'all' ? '#fff' : btn.style.borderColor;
+      btn.style.background = btn.dataset.sector === 'all' ? 'rgba(255,255,255,0.08)' : 'transparent';
+      btn.style.color = btn.dataset.sector === 'all' ? '#fff' : color;
+    }
+  });
+}
+
+async function filterBySector(sector){
+  setActiveSectorPill(sector);
+  const grid=document.getElementById('stocksGrid');
+  if(sector === 'all'){ loadPopularStocks(); return; }
+  grid.innerHTML='<div class="loading" style="grid-column:1/-1"><div class="spinner"></div><div>Loading '+sector+' stocks...</div></div>';
+  // Real S&P 500 tickers in this sector, capped at 30 so the grid stays
+  // manageable and the quote request stays a reasonable size.
+  const tickers = Object.keys(SP500_SECTORS).filter(t => SP500_SECTORS[t] === sector).sort().slice(0, 30);
+  try{
+    const res=await fetch(BACKEND+'/api/quotes?symbols='+tickers.join(','));
+    const data=await res.json();
+    const quotes=data?.quoteResponse?.result||[];
+    if(!quotes.length){ grid.innerHTML='<div class="loading" style="grid-column:1/-1">Could not load '+sector+' stocks right now</div>'; return; }
+    grid.innerHTML='';
+    quotes.forEach(q=>{
+      quoteCache[q.symbol]=q;
+      const chg=q.regularMarketChangePercent||0;const up=chg>=0;
+      const isMine=starters.some(s=>s.ticker===q.symbol)||bench.some(s=>s.ticker===q.symbol);
+      const card=document.createElement('div');
+      card.className='stock-card'+(isMine?' mine':'');
+      card.id='card_'+q.symbol;
+      card.innerHTML=`<div class="card-ticker">${q.symbol}${sectorBadge(q.symbol)}</div>
+        <div class="card-name">${q.shortName||q.longName||q.symbol}</div>
+        <div class="card-price">$${(q.regularMarketPrice||0).toFixed(2)}</div>
+        <div class="card-change ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}% today</div>
+        ${!isMine?`<button class="card-pick-btn" onclick="pickStock('${q.symbol}','${(q.shortName||q.symbol).replace(/'/g,'').substring(0,20)}')">+ Draft</button>`:''}`;
+      grid.appendChild(card);
+    });
+  }catch(e){ grid.innerHTML='<div class="loading" style="grid-column:1/-1">Could not load '+sector+' stocks right now</div>'; }
 }
 
 async function loadPopularStocks(){
