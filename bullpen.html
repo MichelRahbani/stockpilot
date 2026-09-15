@@ -1185,7 +1185,7 @@ updateMobileAuth();
   if(lbTitle) lbTitle.textContent = '🏆 Season ' + seasonNum + ' Standings';
 
   const select = document.getElementById('seasonSelect');
-  if(select) select.innerHTML = '<option>Season ' + seasonNum + ' (Live Now)</option>';
+  if(select) select.value = seasonNum;
 
   const ctaText = document.getElementById('ctaSeasonText');
   if(ctaText) ctaText.textContent = 'Season ' + seasonNum + ' is live. Draft opens now.';
