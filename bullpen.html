@@ -353,6 +353,7 @@ footer a:hover{color:var(--text)}
       </div>
     </div>
 
+    <button class="btn-ghost" id="myLeaguesBtn" onclick="openMyLeagues()" style="display:none">🏟️ My Leagues</button>
     <a href="/my-account.html" id="navAccountLink" class="btn-ghost" onclick="if(!localStorage.getItem('supabase_token')){event.preventDefault();openSignin();}" style="text-decoration:none;display:inline-flex;align-items:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">👤 Sign In</a>
     <button class="btn-ghost" onclick="requireAuth(openJoin)">Join League</button>
     <button class="btn-primary" onclick="requireAuth(openCreate)">Create League</button>
@@ -650,6 +651,20 @@ footer a:hover{color:var(--text)}
 </footer>
 
 <!-- CREATE LEAGUE MODAL -->
+<div class="modal-overlay" id="myLeaguesModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🏟️ My Leagues &amp; Tournaments</div>
+      <button class="modal-close" onclick="closeMyLeagues()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="myLeaguesList" style="max-height:60vh;overflow-y:auto">
+        <div style="text-align:center;padding:30px;color:var(--muted)">Loading your competitions...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="createModal">
   <div class="modal">
     <div class="modal-header">
@@ -781,6 +796,74 @@ function selectFormat(fmt) {
 }
 
 // ── Modals ──
+async function openMyLeagues(){
+  const modal = document.getElementById('myLeaguesModal');
+  const list = document.getElementById('myLeaguesList');
+  modal.classList.add('open');
+  list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Loading your competitions...</div>';
+
+  const token = localStorage.getItem('supabase_token');
+  const uid = token ? JSON.parse(atob(token.split('.')[1])).sub : null;
+  if(!uid){ list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Sign in to see your competitions.</div>'; return; }
+
+  const SU = SUPA_URL, SK = SUPA_KEY;
+  const hdr = {apikey:SK, Authorization:'Bearer '+SK};
+  const items = [];
+
+  try{
+    // League
+    const memberships = await fetch(SU+'/rest/v1/bullpen_members?user_id=eq.'+uid, {headers:hdr}).then(r=>r.json());
+    for(const m of memberships){
+      const league = await fetch(SU+'/rest/v1/bullpen_leagues?code=eq.'+m.league_code, {headers:hdr}).then(r=>r.json());
+      if(league[0]) items.push({type:'League', icon:'🏈', name:league[0].name, code:league[0].code, url:'/bullpen-league.html?code='+league[0].code});
+    }
+
+    // Team Mode
+    const teamMemberships = await fetch(SU+'/rest/v1/bullpen_team_members?user_id=eq.'+uid, {headers:hdr}).then(r=>r.json());
+    for(const m of teamMemberships){
+      const team = await fetch(SU+'/rest/v1/bullpen_teams?id=eq.'+m.team_id, {headers:hdr}).then(r=>r.json());
+      if(team[0]){
+        const comp = await fetch(SU+'/rest/v1/bullpen_team_competitions?id=eq.'+team[0].competition_id, {headers:hdr}).then(r=>r.json());
+        items.push({type:'Team', icon:'🛡️', name:(comp[0]?.name||'Team Competition')+' · '+team[0].name, code:comp[0]?.code||team[0].code, url:'/bullpen-teams.html?code='+(comp[0]?.code||'')+'&team='+team[0].code});
+      }
+    }
+
+    // Showdown
+    const showdownEntries = await fetch(SU+'/rest/v1/bullpen_showdown_entries?user_id=eq.'+uid, {headers:hdr}).then(r=>r.json());
+    for(const e of showdownEntries){
+      const t = await fetch(SU+'/rest/v1/bullpen_showdown_tournaments?id=eq.'+e.tournament_id, {headers:hdr}).then(r=>r.json());
+      if(t[0]) items.push({type: t[0].game_type==='h2h' ? '1v1' : 'Showdown', icon: t[0].game_type==='h2h' ? '⚔️' : '📈', name:t[0].name, code:t[0].code, url:'/bullpen-showdown-pool.html?code='+t[0].code});
+    }
+
+    // Madness
+    const madnessEntries = await fetch(SU+'/rest/v1/bullpen_madness_entries?user_id=eq.'+uid, {headers:hdr}).then(r=>r.json());
+    for(const e of madnessEntries){
+      const t = await fetch(SU+'/rest/v1/bullpen_madness_tournaments?id=eq.'+e.tournament_id, {headers:hdr}).then(r=>r.json());
+      if(t[0]) items.push({type:'Madness', icon:'🏆', name:t[0].name, code:t[0].code, url:'/bullpen-madness-table.html?code='+t[0].code});
+    }
+  }catch(err){
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Could not load your competitions right now.</div>';
+    return;
+  }
+
+  if(!items.length){
+    list.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">You haven\'t joined any leagues or tournaments yet.</div>';
+    return;
+  }
+
+  list.innerHTML = items.map(it => `
+    <a href="${it.url}" style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;text-decoration:none;color:var(--text)">
+      <div style="font-size:22px">${it.icon}</div>
+      <div style="flex:1">
+        <div style="font-weight:700;font-size:14px">${it.name}</div>
+        <div style="font-size:12px;color:var(--muted)">${it.type} · Code: ${it.code}</div>
+      </div>
+      <div style="color:var(--muted)">→</div>
+    </a>
+  `).join('');
+}
+function closeMyLeagues(){ document.getElementById('myLeaguesModal').classList.remove('open'); }
+
 function openCreate() { document.getElementById('createModal').classList.add('open'); }
 function closeCreate() { document.getElementById('createModal').classList.remove('open'); }
 function openJoin() { document.getElementById('joinModal').classList.add('open'); }
@@ -1101,6 +1184,8 @@ function updateMobileAuth(){
 function updateNavAuth(){
   const name=localStorage.getItem('supabase_name');
   const link=document.getElementById('navAccountLink');
+  const myLeaguesBtn=document.getElementById('myLeaguesBtn');
+  if(myLeaguesBtn) myLeaguesBtn.style.display = name ? 'inline-flex' : 'none';
   if(link){
     if(name){
       // Long generated usernames (e.g. test accounts) shouldn't be able
