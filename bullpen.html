@@ -660,14 +660,28 @@ footer a:hover{color:var(--text)}
         <div class="form-group" style="margin:0">
           <label class="form-label">Max Players</label>
           <select class="form-input" id="maxPlayers">
-            <option>5</option><option>8</option><option selected>10</option><option>12</option><option>15</option>
+            <option>5</option><option>8</option><option selected>10</option><option>12</option><option>15</option><option>20</option><option>25</option><option>30</option><option>40</option><option>50</option>
           </select>
         </div>
         <div class="form-group" style="margin:0">
           <label class="form-label">Season</label>
-          <select class="form-input" id="seasonSelect">
-            <option>Season 1 (Live Now)</option>
+          <select class="form-input" id="seasonSelect" onchange="toggleCustomSeasonDates()">
+            <option value="1" data-start="2026-05-26" data-end="2026-07-04">Season 1 (May 26 – Jul 4, 2026)</option>
+            <option value="2" data-start="2026-07-04" data-end="2026-09-07">Season 2 (Jul 4 – Labor Day 2026)</option>
+            <option value="3" data-start="2026-09-07" data-end="2026-11-26" selected>Season 3 (Labor Day – Thanksgiving 2026)</option>
+            <option value="4" data-start="2026-11-26" data-end="2027-01-01">Season 4 (Thanksgiving – New Year 2027)</option>
+            <option value="custom">Custom Dates…</option>
           </select>
+        </div>
+      </div>
+      <div class="form-group" id="customSeasonDatesRow" style="display:none;grid-template-columns:1fr 1fr;gap:12px;display:none">
+        <div>
+          <label class="form-label">Start Date</label>
+          <input type="date" class="form-input" id="customSeasonStart"/>
+        </div>
+        <div>
+          <label class="form-label">End Date</label>
+          <input type="date" class="form-input" id="customSeasonEnd"/>
         </div>
       </div>
       <div class="form-group">
@@ -763,6 +777,12 @@ function closeSuccess() { document.getElementById('successModal').classList.remo
 });
 
 // ── Generate league code ──
+function toggleCustomSeasonDates(){
+  const select = document.getElementById('seasonSelect');
+  const row = document.getElementById('customSeasonDatesRow');
+  row.style.display = select.value === 'custom' ? 'grid' : 'none';
+}
+
 function genCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   return Array.from({length:6}, () => chars[Math.floor(Math.random()*chars.length)]).join('');
@@ -784,9 +804,36 @@ async function createLeague() {
   const token = localStorage.getItem('supabase_token');
   const uid = token ? JSON.parse(atob(token.split('.')[1])).sub : null;
 
+  // Resolve the real season number and date range - either from the
+  // selected preset (already carries its own real dates) or from the
+  // custom date inputs. This used to just hardcode season:1 regardless
+  // of what was actually selected in the dropdown.
+  const seasonSelect = document.getElementById('seasonSelect');
+  const seasonOption = seasonSelect.options[seasonSelect.selectedIndex];
+  let seasonNum, seasonStart, seasonEnd;
+  if(seasonOption.value === 'custom'){
+    seasonStart = document.getElementById('customSeasonStart').value;
+    seasonEnd = document.getElementById('customSeasonEnd').value;
+    if(!seasonStart || !seasonEnd){
+      btn.textContent = 'Create League'; btn.disabled = false;
+      alert('Pick both a start and end date for your custom season.');
+      return;
+    }
+    if(new Date(seasonEnd) <= new Date(seasonStart)){
+      btn.textContent = 'Create League'; btn.disabled = false;
+      alert('The end date needs to be after the start date.');
+      return;
+    }
+    seasonNum = 0; // 0 marks a custom, non-preset season
+  } else {
+    seasonNum = parseInt(seasonOption.value);
+    seasonStart = seasonOption.dataset.start;
+    seasonEnd = seasonOption.dataset.end;
+  }
+
   try {
     // Create league in Supabase
-    await sbPost('bullpen_leagues', { code: currentCode, name, format: selectedFormat, max_players: parseInt(document.getElementById('maxPlayers').value), season: 1, commissioner_name: manager, current_week: 1, week_start_date: new Date().toISOString().split('T')[0] });
+    await sbPost('bullpen_leagues', { code: currentCode, name, format: selectedFormat, max_players: parseInt(document.getElementById('maxPlayers').value), season: seasonNum, season_start: seasonStart, season_end: seasonEnd, commissioner_name: manager, current_week: 1, week_start_date: new Date().toISOString().split('T')[0] });
     // Add creator as first member
     const member = await sbPost('bullpen_members', { league_code: currentCode, name: manager, user_id: uid, starters: [], bench: [], score: 0, trades_left: 2 });
     
