@@ -115,6 +115,11 @@ async function load(){
       <div class="section-title">⚾ Bullpen League</div>
       <div id="leagueList"><div class="loading" style="padding:20px">Loading...</div></div>
     </div>
+
+    <div class="section">
+      <div class="section-title">🛡️ Bullpen Team Mode</div>
+      <div id="teamsList"><div class="loading" style="padding:20px">Loading...</div></div>
+    </div>
   `;
 
   loadClasses(uid);
@@ -122,6 +127,7 @@ async function load(){
   loadShowdown(uid);
   loadH2H(uid);
   loadLeague(uid);
+  loadTeams(uid);
 }
 
 async function loadClasses(uid){
@@ -264,6 +270,35 @@ async function loadLeague(uid){
     }).join('') || '<div class="empty">You haven\'t joined or created a Bullpen League yet.</div>';
   } catch(e){
     el.innerHTML = '<div class="empty">Could not load your leagues.</div>';
+  }
+}
+
+async function loadTeams(uid){
+  const el = document.getElementById('teamsList');
+  try {
+    const members = await sbGet('bullpen_team_members', 'user_id=eq.'+uid);
+    if(!members.length){ el.innerHTML = '<div class="empty">You haven\'t joined or created a Bullpen Team yet.</div>'; return; }
+
+    const teamIds = [...new Set(members.map(m => m.team_id))];
+    const teams = await sbGet('bullpen_teams', 'id=in.('+teamIds.join(',')+')');
+    const compIds = [...new Set(teams.map(t => t.competition_id).filter(Boolean))];
+    const comps = compIds.length ? await sbGet('bullpen_team_competitions', 'id=in.('+compIds.join(',')+')') : [];
+
+    el.innerHTML = members.map(m => {
+      const t = teams.find(t => t.id === m.team_id);
+      if(!t) return '';
+      const comp = comps.find(c => c.id === t.competition_id);
+      return `
+        <a href="/bullpen-teams.html?code=${comp ? comp.code : ''}&team=${t.code}" class="item-card">
+          <div>
+            <div class="item-name">${escapeHtml(t.name)}${comp ? ' · ' + escapeHtml(comp.name) : ''}</div>
+            <div class="item-meta">Team Code: ${t.code}</div>
+          </div>
+          <span class="item-pill pill-league">Team</span>
+        </a>`;
+    }).join('') || '<div class="empty">You haven\'t joined or created a Bullpen Team yet.</div>';
+  } catch(e){
+    el.innerHTML = '<div class="empty">Could not load your teams.</div>';
   }
 }
 
