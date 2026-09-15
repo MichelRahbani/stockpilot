@@ -358,6 +358,28 @@ const getHistoryPayload = async (symbol, range = "1y", interval = "1d", includeE
   }
 };
 
+// Real annualized historical volatility for a symbol, used to
+// risk-adjust Bullpen League's weekly scoring so a stock that's
+// simply more explosive by nature doesn't dominate the standings
+// just because its raw percentage swings are bigger. Reuses
+// getHistoryPayload directly (already benefits from the same
+// timeout + cache as every other history call) instead of making a
+// wasteful HTTP round-trip to this server's own /api/history route.
+const getVolatility = async (symbol) => {
+  try {
+    const data = await getHistoryPayload(symbol, "3mo", "1d", false);
+    const closes = (data?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || []).filter(c => c != null);
+    if (closes.length < 10) return 0.35; // not enough real data - a reasonable market-average fallback
+    const logReturns = [];
+    for (let i = 1; i < closes.length; i++) logReturns.push(Math.log(closes[i] / closes[i - 1]));
+    const mean = logReturns.reduce((a, b) => a + b, 0) / logReturns.length;
+    const variance = logReturns.reduce((a, b) => a + (b - mean) * (b - mean), 0) / (logReturns.length - 1);
+    return Math.sqrt(variance) * Math.sqrt(252);
+  } catch (e) {
+    return 0.35;
+  }
+};
+
 const getSearchPayload = async (query) => {
   const cleanQuery = String(query || "").trim().slice(0, 80);
   if (!cleanQuery) return { quotes: [], stockPilotMeta: { source: "Yahoo Finance public search endpoint" } };
@@ -718,17 +740,30 @@ const server = http.createServer(async (req, res) => {
           const allTickers = new Set();
           members.forEach(m => (m.starters || []).forEach(t => allTickers.add(t)));
 
-          const changeMap = {}, priceMap = {};
+          const changeMap = {}, priceMap = {}, volMap = {};
           if (allTickers.size) {
             const quotes = await getQuotePayload([...allTickers]).catch(() => ({ quoteResponse: { result: [] } }));
             (quotes?.quoteResponse?.result || []).forEach(q => {
               changeMap[q.symbol] = q.regularMarketChangePercent || 0;
               priceMap[q.symbol] = q.regularMarketPrice || 0;
             });
+            // Real volatility per ticker, fetched in parallel - used to
+            // risk-adjust the weekly score below.
+            const tickerList = [...allTickers];
+            const vols = await Promise.all(tickerList.map(t => getVolatility(t)));
+            tickerList.forEach((t, i) => { volMap[t] = vols[i]; });
           }
 
           // Real cumulative return since the baseline (an actual price)
-          // was set, not today's daily change.
+          // was set, not today's daily change. Each stock's return is
+          // risk-adjusted against a 20% market-average volatility
+          // baseline, so a naturally explosive stock's move counts for
+          // less and a naturally calm stock's same move counts for
+          // more - this is what actually stops one stock from
+          // dominating the ranking just by being more volatile by
+          // nature, rather than a market-cap label that wouldn't even
+          // catch a stock like NVDA (large-cap AND high-volatility).
+          const MARKET_AVG_VOLATILITY = 0.20;
           for (const m of members) {
             if (!m.starters || !m.starters.length) continue;
             const baseline = m.week_baseline || {};
@@ -736,11 +771,10 @@ const server = http.createServer(async (req, res) => {
             m.starters.forEach(t => {
               const curr = priceMap[t];
               const base = baseline[t];
-              if (base && base > 0 && curr) {
-                weekScore += ((curr - base) / base) * 100;
-              } else {
-                weekScore += changeMap[t] || 0;
-              }
+              const rawReturn = (base && base > 0 && curr) ? ((curr - base) / base) * 100 : (changeMap[t] || 0);
+              const vol = volMap[t] || MARKET_AVG_VOLATILITY;
+              const volAdjustFactor = MARKET_AVG_VOLATILITY / vol;
+              weekScore += rawReturn * volAdjustFactor;
             });
             m._weekScore = parseFloat(weekScore.toFixed(2));
           }
