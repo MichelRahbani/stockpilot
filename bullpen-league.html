@@ -221,7 +221,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
         <div style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--muted);cursor:pointer;font-weight:700" onmouseenter="document.getElementById('ptsTooltip').style.display='block'" onmouseleave="document.getElementById('ptsTooltip').style.display='none'" onclick="document.getElementById('ptsTooltip').style.display=document.getElementById('ptsTooltip').style.display==='none'?'block':'none'">?</div>
         <div id="ptsTooltip" style="display:none;position:absolute;left:24px;top:-8px;background:#1a1f2e;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:12px 14px;width:220px;z-index:100;font-size:12px;color:var(--text);line-height:1.6">
           <div style="font-weight:700;margin-bottom:6px;color:var(--gold)">How points work</div>
-          <div>Every Monday, points are awarded based on your weekly rank:</div>
+          <div>Each stock's weekly move is adjusted three ways before it counts:</div>
+          <div style="margin-top:6px;line-height:1.5">
+            <strong>Volatility</strong> — wild stocks count for less, calm stocks count for more<br>
+            <strong>Alpha</strong> — bonus for beating the real S&P 500 that week<br>
+            <strong>Diversification</strong> — bonus for spreading picks across industries
+          </div>
+          <div style="margin-top:8px">Every Monday, season points are awarded based on your rank from that adjusted score:</div>
           <div style="margin-top:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted)" id="ptsBreakdown"></div>
           <div style="margin-top:8px;color:var(--muted)">Season winner = most points by July 4th 🏆</div>
         </div>
@@ -426,6 +432,41 @@ const SP500_SECTORS = {
   'WSM':'Consumer Discretionary','WMB':'Energy','WTW':'Financials','WDAY':'Information Technology','WYNN':'Consumer Discretionary','XEL':'Utilities',
   'XYL':'Industrials','YUM':'Consumer Discretionary','ZBRA':'Information Technology','ZBH':'Health Care','ZTS':'Health Care',
 };
+
+const SECTOR_ABBREV = {
+  'Information Technology':'TECH',
+  'Health Care':'HLTH',
+  'Financials':'FIN',
+  'Consumer Discretionary':'CD',
+  'Communication Services':'COMM',
+  'Industrials':'IND',
+  'Consumer Staples':'CS',
+  'Energy':'ENGY',
+  'Utilities':'UTIL',
+  'Real Estate':'RE',
+  'Materials':'MATL',
+};
+const SECTOR_COLOR = {
+  'TECH':'#3b82f6',
+  'HLTH':'#10b981',
+  'FIN':'#eab308',
+  'CD':'#f97316',
+  'COMM':'#a855f7',
+  'IND':'#64748b',
+  'CS':'#ec4899',
+  'ENGY':'#ef4444',
+  'UTIL':'#06b6d4',
+  'RE':'#84cc16',
+  'MATL':'#78716c',
+};
+
+function sectorBadge(ticker){
+  const sector = SP500_SECTORS[ticker];
+  if(!sector) return '';
+  const abbrev = SECTOR_ABBREV[sector] || sector.slice(0,4).toUpperCase();
+  const color = SECTOR_COLOR[abbrev] || '#64748b';
+  return `<span class="sector-badge" style="display:inline-block;font-size:9px;font-weight:800;letter-spacing:0.5px;padding:2px 6px;border-radius:4px;color:#fff;margin-left:6px;vertical-align:middle;background:${color}" title="${sector}">${abbrev}</span>`;
+}
 
 const _volCache = {};
 async function getVolatilityClient(symbol){
@@ -841,7 +882,7 @@ function renderRoster(){
       const up=chg>=0;
       html+=`<div class="rslot ${slotClass}">
         <span class="rs-num">${activeTab==='starters'?(i+1):'B'+(i+1)}</span>
-        <span class="rs-ticker">${t}</span>
+        <span class="rs-ticker">${t}${sectorBadge(t)}</span>
         <span class="rs-name"></span>
         <span class="rs-chg ${up?'chg-up':'chg-down'}">${up?'+':''}${chg.toFixed(2)}%</span>
         <button class="rs-btn" onclick="quickSwap('${t}')">⇄</button>
