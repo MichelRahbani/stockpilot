@@ -523,7 +523,8 @@ const FRED_SERIES = {
   DGS30: { label: "30-Year Treasury Yield", unit: "%" },
   CPIAUCSL: { label: "CPI Index", unit: "index" },
   UNRATE: { label: "Unemployment Rate", unit: "%" },
-  MORTGAGE30US: { label: "30-Year Mortgage Rate", unit: "%" }
+  MORTGAGE30US: { label: "30-Year Mortgage Rate", unit: "%" },
+  MTSDS133FMS: { label: "Federal Surplus or Deficit (Monthly)", unit: "$M" }
 };
 
 const parseFredCsv = (csv, id) => {
@@ -571,6 +572,57 @@ const getMacroPayload = async () => {
       updatedAt: new Date().toISOString(),
       note: "Official macro series can publish with delays and revisions.",
       ...(failed ? { partialFailure: `${failed} of ${Object.keys(FRED_SERIES).length} series could not be fetched this time.` } : {})
+    }
+  };
+};
+
+// Real, well-documented Fed rate cycles - dates and rate changes are
+// public record (FOMC meeting actions), not modeled or estimated.
+// Real S&P 500 (via SPY) performance for each cycle is computed fresh
+// below from real historical prices, never hardcoded, so it stays
+// accurate as more data becomes available.
+const FED_CYCLES = [
+  { name: "2015-2018 Tightening", type: "hike", start: "2015-12-16", end: "2018-12-19", rateChange: "0% \u2192 2.25-2.50%", context: "First hike since the 2008 financial crisis, raised gradually over 3 years as the economy recovered." },
+  { name: "2019 Easing", type: "cut", start: "2019-07-31", end: "2019-10-30", rateChange: "2.25-2.50% \u2192 1.50-1.75%", context: "Three \"insurance cuts\" as growth slowed, ahead of the COVID-19 pandemic." },
+  { name: "2020 COVID Emergency Cut", type: "cut", start: "2020-03-03", end: "2020-03-16", rateChange: "1.50-1.75% \u2192 0-0.25%", context: "Emergency cuts to near-zero as the pandemic began, the fastest cut in Fed history." },
+  { name: "2022-2023 Tightening", type: "hike", start: "2022-03-16", end: "2023-07-26", rateChange: "0-0.25% \u2192 5.25-5.50%", context: "The fastest hiking cycle since the early 1980s, in response to the highest inflation in four decades." }
+];
+
+const getFedCyclesPayload = async () => {
+  const spyHistory = await getHistoryPayload("SPY", "10y", "1d", false);
+  const closes = spyHistory?.chart?.result?.[0]?.indicators?.quote?.[0]?.close || [];
+  const timestamps = spyHistory?.chart?.result?.[0]?.timestamp || [];
+
+  const closestClose = (targetDate) => {
+    const targetMs = new Date(targetDate).getTime();
+    let closestIdx = 0, closestDiff = Infinity;
+    timestamps.forEach((ts, i) => {
+      const diff = Math.abs(ts * 1000 - targetMs);
+      if (diff < closestDiff && closes[i] != null) { closestDiff = diff; closestIdx = i; }
+    });
+    return { price: closes[closestIdx], matchedDate: new Date(timestamps[closestIdx] * 1000).toISOString().split("T")[0] };
+  };
+
+  const cycles = FED_CYCLES.map((cycle) => {
+    const startPoint = closestClose(cycle.start);
+    const endPoint = closestClose(cycle.end);
+    const sp500Return = (startPoint.price && endPoint.price)
+      ? ((endPoint.price - startPoint.price) / startPoint.price) * 100
+      : null;
+    return {
+      ...cycle,
+      sp500Return: sp500Return != null ? parseFloat(sp500Return.toFixed(2)) : null,
+      sp500StartPrice: startPoint.price ? parseFloat(startPoint.price.toFixed(2)) : null,
+      sp500EndPrice: endPoint.price ? parseFloat(endPoint.price.toFixed(2)) : null
+    };
+  });
+
+  return {
+    cycles,
+    stockPilotMeta: {
+      source: "Fed cycle dates are public FOMC record; S&P 500 returns computed from real SPY historical prices",
+      updatedAt: new Date().toISOString(),
+      note: "Real historical precedent, not a prediction or simulation of what any policy choice would do in the future."
     }
   };
 };
@@ -1157,6 +1209,10 @@ const server = http.createServer(async (req, res) => {
 
     if (reqUrl.pathname === "/api/macro") {
       return send(res, 200, await getMacroPayload());
+    }
+
+    if (reqUrl.pathname === "/api/fed-cycles") {
+      return send(res, 200, await getFedCyclesPayload());
     }
 
     if (reqUrl.pathname === "/api/sec/company") {
