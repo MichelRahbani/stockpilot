@@ -1277,6 +1277,12 @@ const LEARNING_MISSIONS = [
   }
 ];
 const TERM_HELP = {
+  fedCycles: {
+    title: "Fed Rate Cycles",
+    meaning: "A rate cycle is a stretch of time where the Federal Reserve consistently raises (hiking) or lowers (easing) interest rates to influence the economy.",
+    simple: "Real historical periods when the Fed pushed rates up or down, shown with what actually happened to the S&P 500 during that exact real period.",
+    example: "In the 2022-2023 hiking cycle, the Fed raised rates from near 0% to over 5% to fight inflation. This section shows the real S&P 500 return over that real period, not a guess."
+  },
   stockQuote: {
     title: "Stock Quote",
     meaning: "A stock quote is the current price information for a stock or other asset, including the latest traded price and how much it has moved today.",
@@ -4058,6 +4064,46 @@ const renderMacroDashboard = () => {
       `
     )
     .join("");
+};
+
+let fedCyclesData = null;
+const renderFedCycles = () => {
+  const grid = document.getElementById("fedCyclesGrid");
+  if (!grid) return;
+  if (!fedCyclesData?.cycles?.length) {
+    grid.innerHTML = `<p class="helper-text">Fed cycle data unavailable right now.</p>`;
+    return;
+  }
+  grid.innerHTML = fedCyclesData.cycles.map((c) => {
+    const tone = c.type === "hike" ? "warn" : "good";
+    const returnKnown = c.sp500Return != null;
+    const returnColor = returnKnown ? (c.sp500Return >= 0 ? "#1f9d55" : "#c0392b") : "inherit";
+    return `
+      <article class="macro-impact-card ${tone}" style="padding:14px">
+        <span style="font-weight:700">${escapeHtml(c.name)}</span>
+        <p style="margin:4px 0">${escapeHtml(c.rateChange)}</p>
+        <p style="font-size:13px;color:var(--text-muted,#666);margin:4px 0">${escapeHtml(c.context)}</p>
+        <p style="margin-top:8px;font-weight:700;color:${returnColor}">
+          S&amp;P 500 over this real period: ${returnKnown ? (c.sp500Return >= 0 ? "+" : "") + c.sp500Return + "%" : "unavailable"}
+        </p>
+      </article>
+    `;
+  }).join("");
+};
+
+const fetchFedCycles = async () => {
+  try {
+    if (!stockPilotApiOnline) await checkStockPilotApi();
+    if (stockPilotApiOnline) {
+      const response = await fetch(`${stockPilotApiBaseUrl}/api/fed-cycles`);
+      if (!response.ok) throw new Error(`Fed cycles request failed (${response.status})`);
+      fedCyclesData = await response.json();
+    }
+  } catch (error) {
+    fedCyclesData = null;
+  } finally {
+    renderFedCycles();
+  }
 };
 
 const fetchMacroData = async () => {
@@ -11480,6 +11526,7 @@ checkStockPilotApi().then(() => {
 });
 renderMacroDashboard();
 setTimeout(fetchMacroData, 0);
+setTimeout(fetchFedCycles, 0);
 updateCalculators();
 renderSavingsBudget();
 renderLearningCharts();
