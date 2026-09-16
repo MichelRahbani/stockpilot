@@ -1544,6 +1544,37 @@ BTC-USD 15</textarea>
             </div>
             <div id="fedCyclesGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1rem"></div>
           </div>
+
+          <div style="margin-top:24px">
+            <div class="section-title">
+              <div>
+                <h2>Policy Precedent Finder <button class="info-button" data-term="policyPrecedent" type="button" aria-label="Explain the precedent finder">i</button></h2>
+                <span class="table-note">Pick a situation and a policy response. This finds the closest real historical match among real Fed cycles, not a prediction of what would happen today.</span>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:1rem">
+              <label class="field">
+                <span>Economic situation</span>
+                <select id="precedentSituation">
+                  <option value="recovering">Recovering economy, low inflation</option>
+                  <option value="slowing">Slowing growth, moderate concern</option>
+                  <option value="crisis">Sudden crisis or recession risk</option>
+                  <option value="inflation">High inflation, strong labor market</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>Policy response</span>
+                <select id="precedentResponse">
+                  <option value="gradual">Raise rates gradually</option>
+                  <option value="preemptive">Small preemptive cuts</option>
+                  <option value="emergency">Emergency rapid cuts</option>
+                  <option value="aggressive">Raise rates aggressively</option>
+                </select>
+              </label>
+            </div>
+            <button class="primary-button" id="findPrecedentButton" type="button" style="margin-top:12px">Find Real Precedent</button>
+            <div id="precedentResult" style="margin-top:16px"></div>
+          </div>
         </section>
 
         <section class="watchlist-section app-view" data-view-panel="research">
