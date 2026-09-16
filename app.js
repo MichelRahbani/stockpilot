@@ -1277,6 +1277,12 @@ const LEARNING_MISSIONS = [
   }
 ];
 const TERM_HELP = {
+  policyPrecedent: {
+    title: "Policy Precedent Finder",
+    meaning: "Rather than predicting an imaginary future, this tool finds the real historical Fed cycle that most closely matches the situation and policy response you pick.",
+    simple: "You're not getting a simulation of the future, you're getting the closest real match from actual history, honestly scored so you can see how strong or weak the match really is.",
+    example: "Pick \"high inflation\" and \"raise rates aggressively,\" and it matches you to the real 2022-2023 hiking cycle, showing what genuinely happened to the market during that real period."
+  },
   fedCycles: {
     title: "Fed Rate Cycles",
     meaning: "A rate cycle is a stretch of time where the Federal Reserve consistently raises (hiking) or lowers (easing) interest rates to influence the economy.",
@@ -4105,6 +4111,52 @@ const fetchFedCycles = async () => {
     renderFedCycles();
   }
 };
+
+const findPrecedent = async () => {
+  const resultEl = document.getElementById("precedentResult");
+  const btn = document.getElementById("findPrecedentButton");
+  const situation = document.getElementById("precedentSituation").value;
+  const response = document.getElementById("precedentResponse").value;
+  if (!resultEl) return;
+  btn.disabled = true;
+  btn.textContent = "Searching real history...";
+  resultEl.innerHTML = "";
+  try {
+    if (!stockPilotApiOnline) await checkStockPilotApi();
+    if (!stockPilotApiOnline) throw new Error("Gateway offline");
+    const res = await fetch(`${stockPilotApiBaseUrl}/api/fed-precedent?situation=${situation}&response=${response}`);
+    if (!res.ok) throw new Error(`Precedent request failed (${res.status})`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+
+    const match = data.bestMatch;
+    const matchQuality = data.matchScore >= 4 ? "Strong match" : data.matchScore >= 2 ? "Partial match" : "Weakest available match";
+    const matchColor = data.matchScore >= 4 ? "#1f9d55" : data.matchScore >= 2 ? "#b8860b" : "#c0392b";
+    const returnKnown = match.sp500Return != null;
+    const returnColor = returnKnown ? (match.sp500Return >= 0 ? "#1f9d55" : "#c0392b") : "inherit";
+
+    resultEl.innerHTML = `
+      <article class="macro-impact-card" style="padding:16px;border-left:4px solid ${matchColor}">
+        <span style="font-size:12px;font-weight:700;color:${matchColor};text-transform:uppercase">${escapeHtml(matchQuality)} (${data.matchScore}/${data.matchMax})</span>
+        <p style="font-weight:700;font-size:16px;margin:6px 0 2px">${escapeHtml(match.name)}</p>
+        <p style="margin:2px 0">${escapeHtml(match.rateChange)} &middot; ${escapeHtml(match.start)} to ${escapeHtml(match.end)}</p>
+        <p style="font-size:13px;color:var(--text-muted,#666);margin:8px 0">${escapeHtml(match.context)}</p>
+        <p style="margin-top:8px;font-weight:700;color:${returnColor}">
+          Real S&amp;P 500 return over this real period: ${returnKnown ? (match.sp500Return >= 0 ? "+" : "") + match.sp500Return + "%" : "unavailable"}
+        </p>
+        <p style="font-size:12px;color:var(--text-muted,#666);margin-top:10px">This is the closest real historical precedent to your choices among the real cycles on record, not a prediction of what this exact combination would do today.</p>
+      </article>
+    `;
+  } catch (error) {
+    resultEl.innerHTML = `<p class="helper-text">Could not find a precedent right now. Try again in a moment.</p>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Find Real Precedent";
+  }
+};
+if (document.getElementById("findPrecedentButton")) {
+  document.getElementById("findPrecedentButton").addEventListener("click", findPrecedent);
+}
 
 const fetchMacroData = async () => {
   if (refreshMacroButton) {
