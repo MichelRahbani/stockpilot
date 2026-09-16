@@ -231,6 +231,9 @@ body::before{
       <button class="trade-btn buy" onclick="doTrade('buy')">Buy</button>
       <button class="trade-btn sell" onclick="doTrade('sell')">Sell</button>
     </div>
+    <div style="font-size:11px;color:var(--chalk-dim);margin:8px 0 10px">Sell more than you own to open a short position.</div>
+    <div style="font-weight:600;font-size:13px;margin-bottom:6px">Your Holdings</div>
+    <div id="myHoldingsList"><div style="color:var(--chalk-dim);font-size:13px">No holdings yet</div></div>
   </div>
 
   <div class="card" id="myOptionsCard" style="display:none">
@@ -545,6 +548,7 @@ async function loadTeam(){
   await renderRoster();
   if(myMember){
     updateCashDisplay();
+    renderMyHoldings();
     await checkTeamOptionExpirations();
     await checkTeamDividends();
     await renderMyTeamOptions();
@@ -594,6 +598,21 @@ async function joinThisTeam(){
 
 function updateCashDisplay(){
   document.getElementById('myCashDisplay').textContent = 'Cash: $'+Math.round(myMember.cash).toLocaleString();
+}
+
+async function renderMyHoldings(){
+  const el = document.getElementById('myHoldingsList');
+  if(!el || !myMember) return;
+  const entries = Object.entries(myMember.holdings || {});
+  if(!entries.length){ el.innerHTML = '<div style="color:var(--chalk-dim);font-size:13px">No holdings yet</div>'; return; }
+  const rows = await Promise.all(entries.map(async ([ticker, shares]) => {
+    const price = await getPrice(ticker).catch(() => 0);
+    const isShort = shares < 0;
+    const label = isShort ? `${ticker} · SHORT ${Math.abs(shares)} sh` : `${ticker} · ${shares} sh`;
+    const color = isShort ? 'var(--red)' : 'inherit';
+    return `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><span style="color:${color}">${label}</span><span style="color:${color}">$${(shares*price).toFixed(2)}</span></div>`;
+  }));
+  el.innerHTML = rows.join('');
 }
 
 // ── Options (Black-Scholes) ──
@@ -710,6 +729,7 @@ async function executeTeamOption(){
   myMember.options = options;
   document.getElementById('optStrike').value = '';
   updateCashDisplay();
+  renderMyHoldings();
   showToast(`✅ Bought ${contracts} ${ticker} ${teamOptionType} @ ${strike}`);
   await renderMyTeamOptions();
   await renderRoster();
@@ -753,6 +773,7 @@ async function checkTeamDividends(){
     myMember.cash = cash;
     myMember.dividends_paid = dividendsPaid;
     updateCashDisplay();
+    renderMyHoldings();
     await renderRoster();
   }
 }
@@ -777,6 +798,7 @@ async function checkTeamOptionExpirations(){
     await sbPatch('bullpen_team_members', 'id=eq.'+myMember.id, {cash, options});
     myMember.cash = cash;
     updateCashDisplay();
+    renderMyHoldings();
     await renderMyTeamOptions();
     await renderRoster();
   }
@@ -846,6 +868,7 @@ async function doTrade(action){
   document.getElementById('tradeTicker').value = '';
   document.getElementById('tradeShares').value = '';
   updateCashDisplay();
+  renderMyHoldings();
   showToast(`${action==='buy' ? 'Bought' : (wasShortSale ? 'Shorted' : 'Sold')} ${shares} ${ticker} @ $${price.toFixed(2)}`);
   await renderRoster();
 }
