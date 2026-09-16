@@ -1535,6 +1535,15 @@ BTC-USD 15</textarea>
           <p class="helper-text" id="macroStatus">Uses the StockPilot API gateway for FRED public macro series when available.</p>
           <div class="macro-grid" id="macroGrid"></div>
           <div class="macro-impact-grid" id="macroImpactGrid"></div>
+          <div style="margin-top:24px">
+            <div class="section-title">
+              <div>
+                <h2>Fed Rate Cycles <button class="info-button" data-term="fedCycles" type="button" aria-label="Explain Fed rate cycles">i</button></h2>
+                <span class="table-note">Real historical Fed tightening and easing cycles, with the S&amp;P 500's real return computed over each real date range. Not a prediction, real precedent from real history.</span>
+              </div>
+            </div>
+            <div id="fedCyclesGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-top:1rem"></div>
+          </div>
         </section>
 
         <section class="watchlist-section app-view" data-view-panel="research">
