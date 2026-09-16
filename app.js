@@ -11469,7 +11469,15 @@ updateBulkStatus();
 updateNewsScopeButtons();
 loadSavedWatchlist();
 updateDataSourceStatus();
-checkStockPilotApi();
+checkStockPilotApi().then(() => {
+  // A cold-started backend can still be waking up even after the initial
+  // check's own retries gave up. One more attempt after a real pause
+  // catches that case, rather than leaving the whole session stuck on
+  // Fallback Data for a backend that's actually fine a few seconds later.
+  if (!stockPilotApiOnline) {
+    setTimeout(() => { checkStockPilotApi(); }, 15000);
+  }
+});
 renderMacroDashboard();
 setTimeout(fetchMacroData, 0);
 updateCalculators();
