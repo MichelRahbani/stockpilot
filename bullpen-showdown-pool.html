@@ -155,6 +155,62 @@ async function computeLiveValues(){
   return withValues;
 }
 
+async function getMyEquity(){
+  let value = myEntry.cash;
+  for(const [ticker, shares] of Object.entries(myEntry.holdings || {})){
+    value += shares * await getPrice(ticker);
+  }
+  return value;
+}
+
+// Reg T standard: 50% initial margin, i.e. up to 2x equity in
+// position value - same rule as the proven Virtual Market
+// implementation this was ported from.
+async function getShowdownBuyingPower(){
+  if(!myEntry.margin_enabled) return myEntry.cash;
+  const equity = await getMyEquity();
+  return Math.max(myEntry.cash, equity * 2);
+}
+
+function toggleShowdownMargin(){
+  myEntry.margin_enabled = document.getElementById('showdownMarginToggle').checked;
+  sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {margin_enabled: myEntry.margin_enabled});
+  if(myEntry.margin_enabled){
+    showToast('⚠️ Margin trading enabled - you can now buy beyond your cash, but losses are magnified and you can owe more than you have.', 'error');
+  }
+  updateShowdownMarginStatus();
+}
+
+async function updateShowdownMarginStatus(){
+  const el = document.getElementById('showdownMarginStatus');
+  if(!el) return;
+  if(!myEntry.margin_enabled){ el.style.display = 'none'; return; }
+  const equity = await getMyEquity();
+  const buyingPower = await getShowdownBuyingPower();
+  const marginUsed = Math.max(0, -myEntry.cash);
+  el.style.display = 'block';
+  el.innerHTML = `Equity: $${equity.toFixed(2)} · Buying power: $${buyingPower.toFixed(2)}` + (marginUsed > 0 ? ` · <strong>Margin used: $${marginUsed.toFixed(2)}</strong>` : '');
+}
+
+// Warns (never auto-liquidates) when equity falls below the standard
+// 25% maintenance margin requirement relative to total position
+// value - same deliberate design as Virtual Market: an automated
+// forced-sell is real money-moving logic with real risk of a bug
+// doing the wrong thing to someone's portfolio, so this stays a
+// warning by design.
+let lastShowdownMarginWarning = 0;
+async function checkShowdownMarginCall(){
+  if(!myEntry.margin_enabled || myEntry.cash >= 0) return;
+  const equity = await getMyEquity();
+  const positionValue = equity - myEntry.cash;
+  if(positionValue <= 0) return;
+  const maintenanceRatio = equity / positionValue;
+  if(maintenanceRatio < 0.25 && Date.now() - lastShowdownMarginWarning > 60000){
+    showToast('🚨 MARGIN CALL: your equity ($'+equity.toFixed(2)+') has fallen below the 25% maintenance requirement on your position. Add cash or reduce positions.', 'error');
+    lastShowdownMarginWarning = Date.now();
+  }
+}
+
 // A showdown with exactly 2 entries is a 1v1 duel (created via
 // bullpen-h2h.html, which caps joins at 2) - show a genuine head-to-head
 // comparison instead of a leaderboard table built for an open pool.
@@ -248,6 +304,13 @@ async function renderActive(){
       <h2>💹 Trade</h2>
       <input type="text" id="tradeTicker" placeholder="Ticker, e.g. AAPL" style="text-transform:uppercase;width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:10px">
       <div id="tickerInfo"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer">
+          <input type="checkbox" id="showdownMarginToggle" onchange="toggleShowdownMargin()" style="cursor:pointer">
+          📊 Trade on margin <small style="opacity:0.55">(2x buying power, real risk)</small>
+        </label>
+      </div>
+      <div id="showdownMarginStatus" style="display:none;font-size:11px;padding:8px 10px;margin-bottom:10px;border-radius:8px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.25);color:#ffc107"></div>
       <div class="trade-row" style="grid-template-columns:1fr auto auto">
         <input type="number" id="tradeShares" placeholder="Shares" min="1">
         <button class="btn-buy" onclick="doTrade('buy')">Buy</button>
@@ -291,6 +354,10 @@ async function renderActive(){
   `;
 
   document.getElementById('tradeTicker').addEventListener('blur', updateQuotePreview);
+  const marginToggleEl = document.getElementById('showdownMarginToggle');
+  if(marginToggleEl) marginToggleEl.checked = !!myEntry.margin_enabled;
+  updateShowdownMarginStatus();
+  checkShowdownMarginCall();
   loadRecentTrades();
   checkShowdownOptionExpirations();
   checkShowdownDividends();
@@ -606,7 +673,8 @@ async function doTrade(action){
   let cash = myEntry.cash;
 
   if(action === 'buy'){
-    if(total > cash){ showToast('Not enough cash for that trade.', 'error'); return; }
+    const buyingPower = await getShowdownBuyingPower();
+    if(total > buyingPower){ showToast(myEntry.margin_enabled ? 'Exceeds your buying power.' : 'Not enough cash for that trade.', 'error'); return; }
     holdings[ticker] = (holdings[ticker] || 0) + shares;
     cash -= total;
   } else {
