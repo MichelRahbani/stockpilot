@@ -719,24 +719,26 @@ const getSp500TiersPayload = async (forceRefresh = false) => {
   // (getFinnhubSnapshot) and reliably includes real market cap, so
   // that's the real source here. Throttled in small batches since
   // 503 simultaneous calls would hit Finnhub's free-tier rate limit.
-  // Calling Finnhub's profile2 endpoint directly here rather than
-  // going through getFinnhubSnapshot, which fetches 2 other endpoints
-  // (quote, metrics) this computation doesn't need. That was burning
-  // 3x the rate-limit budget for data this feature never uses -
-  // confirmed as the real bottleneck (a smaller batch even with a
-  // pause between them was still only getting a fraction of 503
-  // priced). One endpoint per symbol triples effective throughput.
+  // Reusing getFinnhubQuoteMap here - the same function /api/quotes
+  // already uses successfully for real market cap data, confirmed
+  // directly (20 tickers via /api/quotes all came back with real
+  // marketCap from Finnhub). The real constraint is Finnhub's rate
+  // limit across 503 sequential tickers in one run, not the function
+  // itself, so results accumulate into the existing cache across
+  // refresh cycles instead of resetting to zero each time - each
+  // hourly refresh adds newly-priced tickers on top of what's
+  // already known, so coverage grows toward complete over a few
+  // cycles rather than needing one run to somehow price all 503.
+  const marketCaps = { ...(sp500TiersCache?.prices ? Object.fromEntries(Object.entries(sp500TiersCache.prices).map(([sym, p]) => [sym, p.marketCap])) : {}) };
   const batchSize = 20;
-  const marketCaps = {};
   for (let i = 0; i < SP500_TIER_TICKERS.length; i += batchSize) {
     const batch = SP500_TIER_TICKERS.slice(i, i + batchSize);
-    const results = await Promise.allSettled(batch.map((symbol) => fetchFinnhubJson("/stock/profile2", { symbol })));
-    results.forEach((result, idx) => {
-      if (result.status === "fulfilled") {
-        const cap = finiteNumber(result.value?.marketCapitalization);
-        if (cap) marketCaps[batch[idx]] = cap * 1_000_000;
-      }
-    });
+    try {
+      const map = await getFinnhubQuoteMap(batch);
+      Object.entries(map).forEach(([symbol, q]) => {
+        if (q?.marketCap) marketCaps[symbol] = q.marketCap;
+      });
+    } catch (e) { /* this batch failed - those tickers keep whatever price (if any) they already had */ }
     await new Promise((resolve) => setTimeout(resolve, 1100));
   }
 
