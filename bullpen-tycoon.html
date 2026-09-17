@@ -515,7 +515,7 @@ async function loadPlayer(){
   if(rows.length){
     player = rows[0];
   } else {
-    const created = await sbPost('tycoon_players', { user_id: uid, device_id: deviceId, starting_cash: 10000, cash: 10000, unlocked_countries: ['usa'] });
+    const created = await sbPost('tycoon_players', { user_id: uid, device_id: deviceId, starting_cash: 10000, cash: 10000, unlocked_countries: ['usa'], advanced_unlocked: [] });
     player = created[0];
   }
   holdings = await sbGet('tycoon_holdings', 'player_id=eq.'+player.id);
@@ -536,16 +536,56 @@ function netWorth(){
 }
 
 // How much is currently invested in a country's starter-tier companies
-// (at cost basis - this is a stable "effort" measure, not swayed by
-// market swings, so a dip doesn't undo progress toward advanced tier).
+// (at cost basis - used only to show "how much you've put in" in the
+// UI, no longer what unlocks Advanced tier by itself).
 function starterInvested(country){
   return country.starters.reduce((sum, co) => {
     const h = holdings.find(hold => hold.ticker === co.ticker);
     return sum + (h ? h.avg_cost * h.shares : 0);
   }, 0);
 }
+
+// Real market value of a country's starter-tier holdings right now -
+// this is what has to actually grow, not just the amount spent.
+function starterMarketValue(country){
+  return country.starters.reduce((sum, co) => {
+    const h = holdings.find(hold => hold.ticker === co.ticker);
+    if(!h) return sum;
+    return sum + (quotes[co.ticker] || h.avg_cost) * h.shares;
+  }, 0);
+}
+
+// Advanced tier requires the starter picks to have actually gained
+// real ground, not just be funded - previously this only checked
+// cost basis, so dumping the required amount into any starter and
+// walking away unlocked it instantly regardless of performance. Once
+// the gain threshold is hit it's remembered permanently (persisted
+// to advanced_unlocked), so a normal dip afterward never re-locks
+// progress a player already earned.
+const ADVANCED_TIER_REQUIRED_GAIN = 0.10; // 10% real gain on starter investment
 function advancedUnlocked(country){
-  return starterInvested(country) >= country.starterInvestNeeded;
+  if(player.advanced_unlocked && player.advanced_unlocked.includes(country.id)) return true;
+  const invested = starterInvested(country);
+  if(invested < country.starterInvestNeeded) return false;
+  const marketValue = starterMarketValue(country);
+  const target = country.starterInvestNeeded * (1 + ADVANCED_TIER_REQUIRED_GAIN);
+  return marketValue >= target;
+}
+
+async function checkAndPersistAdvancedUnlocks(){
+  if(!player.advanced_unlocked) player.advanced_unlocked = [];
+  let changed = false;
+  for(const country of COUNTRIES){
+    if(player.advanced_unlocked.includes(country.id)) continue;
+    if(advancedUnlocked(country)){
+      player.advanced_unlocked = [...player.advanced_unlocked, country.id];
+      changed = true;
+      showTierToast(`⭐ ${country.name} Advanced tier unlocked! Your starter picks are up ${(ADVANCED_TIER_REQUIRED_GAIN*100).toFixed(0)}%+.`);
+    }
+  }
+  if(changed){
+    await sbPatch('tycoon_players', 'id=eq.'+player.id, { advanced_unlocked: player.advanced_unlocked });
+  }
 }
 
 // ── Map rendering ──
@@ -594,7 +634,7 @@ function renderMap(){
         </div>
         <div class="node-name">${country.name}</div>
         ${!isUnlocked ? (blockedByPrev
-          ? `<div class="node-req"><img src="${prevCountry.flag}" class="flag-icon" style="vertical-align:-2px"> tier first</div>`
+          ? `<div class="node-req">Finish ${prevCountry.name}'s Advanced tier first</div>`
           : `<div class="node-req">$${country.threshold.toLocaleString()}</div>`) : ''}
       </div>`;
   }).join('');
@@ -623,7 +663,7 @@ function renderRoadmap(){
             <div class="rm-companies">${country.starters.map(companyPill).join('')}</div>
           </div>
           <div>
-            <div class="rm-tier-label">⭐ Advanced — invest $${country.starterInvestNeeded.toLocaleString()} in starters</div>
+            <div class="rm-tier-label">⭐ Advanced — invest $${country.starterInvestNeeded.toLocaleString()}, then grow it ${(ADVANCED_TIER_REQUIRED_GAIN*100).toFixed(0)}%</div>
             <div class="rm-companies">${country.advanced.map(companyPill).join('')}</div>
           </div>
         </div>
@@ -657,15 +697,22 @@ function openCountry(countryId){
   document.getElementById('detailCollected').textContent = ownedCount + ' / ' + all.length + ' collected';
 
   const invested = starterInvested(country);
+  const marketValue = starterMarketValue(country);
   const unlocked = advancedUnlocked(country);
-  const pct = Math.min(100, (invested / country.starterInvestNeeded) * 100);
+  const target = country.starterInvestNeeded * (1 + ADVANCED_TIER_REQUIRED_GAIN);
+  const pct = invested < country.starterInvestNeeded
+    ? Math.min(100, (invested / country.starterInvestNeeded) * 100) * 0.5 // funding stage is the first half of the bar
+    : 50 + Math.min(100, Math.max(0, (marketValue - country.starterInvestNeeded) / (target - country.starterInvestNeeded) * 100)) * 0.5;
+  const stageLabel = invested < country.starterInvestNeeded
+    ? `Step 1: invest $${country.starterInvestNeeded.toLocaleString()} in starters ($${invested.toLocaleString(undefined,{maximumFractionDigits:0})} so far)`
+    : `Step 2: grow it ${(ADVANCED_TIER_REQUIRED_GAIN*100).toFixed(0)}% to $${target.toLocaleString(undefined,{maximumFractionDigits:0})} (worth $${marketValue.toLocaleString(undefined,{maximumFractionDigits:0})} now)`;
 
   const advancedSection = unlocked
     ? `<div class="tier-label">⭐ Advanced</div>
        <div class="card-grid">${country.advanced.map(co => buildCompanyCard(co, country, false)).join('')}</div>`
-    : `<div class="tier-label">🔒 Advanced <span class="tier-hint">unlocks once you've invested $${country.starterInvestNeeded.toLocaleString()} in starters below</span></div>
+    : `<div class="tier-label">🔒 Advanced <span class="tier-hint">unlocks once your starter picks are up ${(ADVANCED_TIER_REQUIRED_GAIN*100).toFixed(0)}% for real, not just funded</span></div>
        <div class="tier-progress"><div class="tier-progress-fill" style="width:${pct}%"></div></div>
-       <div class="tier-progress-text">$${invested.toLocaleString(undefined,{maximumFractionDigits:0})} / $${country.starterInvestNeeded.toLocaleString()} invested</div>
+       <div class="tier-progress-text">${stageLabel}</div>
        <div class="card-grid">${country.advanced.map(co => buildCompanyCard(co, country, true)).join('')}</div>`;
 
   document.getElementById('detailGrid').innerHTML = `
@@ -738,7 +785,6 @@ async function confirmBuy(){
   btn.textContent = 'Buying...'; btn.disabled = true;
 
   const country = COUNTRIES.find(c => allCompanies(c).some(co => co.ticker === buyingTicker));
-  const wasAdvancedUnlocked = advancedUnlocked(country);
 
   const existing = holdings.find(h => h.ticker === buyingTicker);
   const newCash = player.cash - total;
@@ -761,9 +807,7 @@ async function confirmBuy(){
   openCountry(country.id); // refresh the card grid with the new ownership state
   renderMap();
   renderRoadmap();
-  if(!wasAdvancedUnlocked && advancedUnlocked(country)){
-    showTierToast('⭐ ' + country.name + ' advanced tier unlocked!');
-  }
+  await checkAndPersistAdvancedUnlocks();
   await checkUnlocks();
 }
 
@@ -795,6 +839,7 @@ async function init(){
     renderMap();
     renderRoadmap();
     await checkUnlocks();
+    await checkAndPersistAdvancedUnlocks();
     if(!localStorage.getItem('tycoon_seen_intro')) openHowToPlay();
   } catch(e){
     document.getElementById('worldWrap').innerHTML = `
