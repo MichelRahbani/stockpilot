@@ -705,8 +705,8 @@ let sp500TiersCacheTime = 0;
 const SP500_TIER_CACHE_MS = 60 * 60 * 1000;
 const TIER_PRICES = [18, 14, 10, 6, 3]; // tier 1 (largest) through tier 5 (smallest)
 
-const getSp500TiersPayload = async () => {
-  if (sp500TiersCache && (Date.now() - sp500TiersCacheTime) < SP500_TIER_CACHE_MS) {
+const getSp500TiersPayload = async (forceRefresh = false) => {
+  if (!forceRefresh && sp500TiersCache && (Date.now() - sp500TiersCacheTime) < SP500_TIER_CACHE_MS) {
     return sp500TiersCache;
   }
 
@@ -1389,7 +1389,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (reqUrl.pathname === "/api/sp500-tiers") {
-      return send(res, 200, await getSp500TiersPayload());
+      return send(res, 200, await getSp500TiersPayload(reqUrl.searchParams.get("refresh") === "1"));
     }
 
     if (reqUrl.pathname === "/api/sec/company") {
