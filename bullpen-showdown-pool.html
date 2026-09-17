@@ -211,9 +211,115 @@ async function checkShowdownMarginCall(){
   }
 }
 
-// A showdown with exactly 2 entries is a 1v1 duel (created via
-// bullpen-h2h.html, which caps joins at 2) - show a genuine head-to-head
-// comparison instead of a leaderboard table built for an open pool.
+// Ported from Virtual Market's checkPendingOrders, adapted for
+// Showdown's simpler holdings model (a flat {ticker: shares} object
+// rather than a position object with avg cost - Showdown doesn't
+// track cost basis, so this stays lean).
+async function checkShowdownPendingOrders(){
+  if(!myEntry.orders || !myEntry.orders.length) return;
+  const remaining = [];
+  let anyFilled = false;
+  let holdings = {...(myEntry.holdings || {})};
+  let cash = myEntry.cash;
+
+  for(const o of myEntry.orders){
+    const price = await getPrice(o.ticker).catch(() => null);
+    if(!price){ remaining.push(o); continue; }
+
+    let triggered = false;
+    if(o.type === 'limit' && o.side === 'buy') triggered = price <= o.triggerPrice;
+    else if(o.type === 'limit' && o.side === 'sell') triggered = price >= o.triggerPrice;
+    else if(o.type === 'stop_loss') triggered = price <= o.triggerPrice;
+    else if(o.type === 'take_profit') triggered = price >= o.triggerPrice;
+
+    if(!triggered){ remaining.push(o); continue; }
+
+    const total = o.shares * price;
+    if(o.side === 'buy'){
+      if(total > cash){ remaining.push(o); continue; } // can't afford it yet, keep waiting
+      cash -= total;
+      holdings[o.ticker] = (holdings[o.ticker] || 0) + o.shares;
+    } else {
+      const currentHolding = holdings[o.ticker] || 0;
+      if(currentHolding < o.shares){ continue; } // position changed since order was placed - drop it rather than oversell
+      holdings[o.ticker] = currentHolding - o.shares;
+      if(holdings[o.ticker] === 0) delete holdings[o.ticker];
+      cash += total;
+      // A filled stop-loss/take-profit should cancel any sibling
+      // protective order on the same ticker, since the shares it was
+      // covering are gone.
+      if(o.type === 'stop_loss' || o.type === 'take_profit'){
+        for(let i = remaining.length - 1; i >= 0; i--){
+          if(remaining[i].ticker === o.ticker && (remaining[i].type === 'stop_loss' || remaining[i].type === 'take_profit')) remaining.splice(i, 1);
+        }
+      }
+    }
+    anyFilled = true;
+    const typeLabel = {limit: 'Limit order', stop_loss: 'Stop loss', take_profit: 'Take profit'}[o.type] || 'Order';
+    showToast(`✅ ${typeLabel} filled: ${o.side} ${o.shares} ${o.ticker} @ $${price.toFixed(2)}`, 'success');
+  }
+
+  if(anyFilled){
+    await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {cash, holdings, orders: remaining});
+    myEntry.cash = cash; myEntry.holdings = holdings; myEntry.orders = remaining;
+    renderShowdownPendingOrders();
+  } else if(remaining.length !== myEntry.orders.length){
+    myEntry.orders = remaining;
+  }
+}
+
+async function cancelShowdownOrder(orderId){
+  const orders = (myEntry.orders || []).filter(o => o.id !== orderId);
+  await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {orders});
+  myEntry.orders = orders;
+  showToast('Order cancelled', 'success');
+  renderShowdownPendingOrders();
+}
+
+function renderShowdownPendingOrders(){
+  const el = document.getElementById('showdownPendingOrders');
+  if(!el) return;
+  const orders = myEntry.orders || [];
+  if(!orders.length){ el.innerHTML = ''; return; }
+  const typeLabel = {limit: 'Limit', stop_loss: 'Stop Loss', take_profit: 'Take Profit'};
+  el.innerHTML = `<div style="margin-bottom:14px">
+    <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px">⏳ Pending Orders</div>
+    ${orders.map(o => `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:12px">
+        <span>${o.side === 'buy' ? '🟢' : '🔴'} ${typeLabel[o.type] || o.type} · ${o.shares} ${escapeHtml(o.ticker)} @ $${o.triggerPrice.toFixed(2)}</span>
+        <button onclick="cancelShowdownOrder('${o.id}')" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:3px 8px;cursor:pointer;font-size:11px">Cancel</button>
+      </div>
+    `).join('')}
+  </div>`;
+}
+
+function populateShowdownProtectDropdown(){
+  const sel = document.getElementById('showdownProtectTicker');
+  if(!sel) return;
+  const tickers = Object.keys(myEntry.holdings || {}).filter(t => myEntry.holdings[t] > 0);
+  if(!tickers.length){ document.getElementById('showdownProtectRow').style.display = 'none'; return; }
+  document.getElementById('showdownProtectRow').style.display = 'block';
+  sel.innerHTML = tickers.map(t => `<option value="${t}">${t} (${myEntry.holdings[t]} sh)</option>`).join('');
+}
+
+async function setShowdownProtection(){
+  const ticker = document.getElementById('showdownProtectTicker').value;
+  const stopLoss = parseFloat(document.getElementById('showdownStopLoss').value) || 0;
+  const takeProfit = parseFloat(document.getElementById('showdownTakeProfit').value) || 0;
+  if(!ticker){ showToast('No position selected.', 'error'); return; }
+  if(stopLoss <= 0 && takeProfit <= 0){ showToast('Enter a stop loss or take profit price.', 'error'); return; }
+  const shares = myEntry.holdings[ticker];
+  const orders = [...(myEntry.orders || [])];
+  if(stopLoss > 0) orders.push({id: 'ord_'+Date.now()+'_sl', type: 'stop_loss', side: 'sell', ticker, shares, triggerPrice: stopLoss, createdAt: new Date().toISOString()});
+  if(takeProfit > 0) orders.push({id: 'ord_'+Date.now()+'_tp', type: 'take_profit', side: 'sell', ticker, shares, triggerPrice: takeProfit, createdAt: new Date().toISOString()});
+  await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {orders});
+  myEntry.orders = orders;
+  showToast('Protection set for '+ticker, 'success');
+  document.getElementById('showdownStopLoss').value = '';
+  document.getElementById('showdownTakeProfit').value = '';
+  renderShowdownPendingOrders();
+}
+
 function buildStandingsCard(withValues, myEntryId, opts){
   opts = opts || {};
   const listHeading = opts.listHeading || '🏆 Leaderboard';
@@ -311,6 +417,13 @@ async function renderActive(){
         </label>
       </div>
       <div id="showdownMarginStatus" style="display:none;font-size:11px;padding:8px 10px;margin-bottom:10px;border-radius:8px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.25);color:#ffc107"></div>
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="pct-btn" id="showdownOrderTypeMarket" onclick="setShowdownOrderType('market')" style="flex:1;background:var(--bg3);border-color:var(--green)">Market</button>
+        <button class="pct-btn" id="showdownOrderTypeLimit" onclick="setShowdownOrderType('limit')" style="flex:1">Limit</button>
+      </div>
+      <div id="showdownLimitPriceRow" style="display:none;margin-bottom:10px">
+        <input type="number" id="showdownLimitPrice" placeholder="Trigger price" min="0.01" step="0.01" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif">
+      </div>
       <div class="trade-row" style="grid-template-columns:1fr auto auto">
         <input type="number" id="tradeShares" placeholder="Shares" min="1">
         <button class="btn-buy" onclick="doTrade('buy')">Buy</button>
@@ -322,7 +435,17 @@ async function renderActive(){
         <button class="pct-btn" onclick="setPct(100)">100%</button>
         <span style="font-size:11px;color:var(--muted);align-self:center;margin-left:4px">of buying power</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin:10px 0 14px">Sell more than you own to open a short position.</div>
+      <div style="font-size:11px;color:var(--muted);margin:10px 0 14px">Sell more than you own to open a short position. A limit order waits and fills automatically once the price crosses your trigger.</div>
+      <div id="showdownProtectRow" style="display:none;margin-bottom:14px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">🛡️ Protect a position</div>
+        <select id="showdownProtectTicker" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;margin-bottom:8px"></select>
+        <div style="display:flex;gap:8px">
+          <input type="number" id="showdownStopLoss" placeholder="Stop loss (sell if drops to)" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+          <input type="number" id="showdownTakeProfit" placeholder="Take profit (sell if rises to)" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+        </div>
+        <button class="btn-buy" onclick="setShowdownProtection()" style="width:100%;margin-top:8px;font-size:13px">Set Protection</button>
+      </div>
+      <div id="showdownPendingOrders"></div>
       <h2 style="font-size:15px;margin-top:4px">Your Holdings</h2>
       ${holdingsHtml.join('')}
     </div>
@@ -358,6 +481,9 @@ async function renderActive(){
   if(marginToggleEl) marginToggleEl.checked = !!myEntry.margin_enabled;
   updateShowdownMarginStatus();
   checkShowdownMarginCall();
+  populateShowdownProtectDropdown();
+  renderShowdownPendingOrders();
+  checkShowdownPendingOrders();
   loadRecentTrades();
   checkShowdownOptionExpirations();
   checkShowdownDividends();
@@ -660,11 +786,33 @@ async function renderMyShowdownOptions(){
   wrap.innerHTML = `<h2 style="font-size:14px">My Options (${open.length})</h2>` + rows.join('');
 }
 
+let showdownOrderType = 'market';
+function setShowdownOrderType(t){
+  showdownOrderType = t;
+  document.getElementById('showdownOrderTypeMarket').style.background = t === 'market' ? 'var(--bg3)' : 'transparent';
+  document.getElementById('showdownOrderTypeMarket').style.borderColor = t === 'market' ? 'var(--green)' : 'var(--border)';
+  document.getElementById('showdownOrderTypeLimit').style.background = t === 'limit' ? 'var(--bg3)' : 'transparent';
+  document.getElementById('showdownOrderTypeLimit').style.borderColor = t === 'limit' ? 'var(--green)' : 'var(--border)';
+  document.getElementById('showdownLimitPriceRow').style.display = t === 'limit' ? 'block' : 'none';
+}
+
 async function doTrade(action){
   if(isPastEndDate()){ showToast('This showdown has ended — no more trading.', 'error'); setTimeout(()=>location.reload(), 1200); return; }
   const ticker = document.getElementById('tradeTicker').value.trim().toUpperCase();
   const shares = parseFloat(document.getElementById('tradeShares').value);
   if(!ticker || !shares || shares <= 0){ showToast('Enter a ticker and a positive number of shares.', 'error'); return; }
+
+  if(showdownOrderType === 'limit'){
+    const limitPrice = parseFloat(document.getElementById('showdownLimitPrice').value);
+    if(!limitPrice || limitPrice <= 0){ showToast('Enter a limit price.', 'error'); return; }
+    const orders = [...(myEntry.orders || [])];
+    orders.push({id: 'ord_'+Date.now(), type: 'limit', side: action, ticker, shares, triggerPrice: limitPrice, createdAt: new Date().toISOString()});
+    await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {orders});
+    myEntry.orders = orders;
+    showToast(`Limit ${action} order placed: ${shares} ${ticker} @ $${limitPrice.toFixed(2)}`, 'success');
+    renderShowdownPendingOrders();
+    return;
+  }
 
   const price = await getPrice(ticker);
   if(!price){ showToast('Could not get a price for that ticker.', 'error'); return; }
@@ -728,6 +876,7 @@ async function renderCompleted(){
 }
 
 load();
+setInterval(() => { if(myEntry) checkShowdownPendingOrders(); }, 30000);
 </script>
 </body>
 </html>
