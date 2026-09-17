@@ -651,6 +651,103 @@ const getCyclesWithReturns = async () => {
   });
 };
 
+const SP500_TIER_TICKERS = [
+  'MMM','AOS','ABT','ABBV','ACN','ADBE','AMD','AES','AFL','A','APD','ABNB',
+  'AKAM','ALB','ARE','ALGN','ALLE','LNT','ALL','GOOGL','GOOG','MO','AMZN','AMCR',
+  'AEE','AEP','AXP','AIG','AMT','AWK','AMP','AME','AMGN','APH','ADI','AON',
+  'APA','APO','AAPL','AMAT','APP','APTV','ACGL','ADM','ARES','ANET','AJG','AIZ',
+  'T','ATO','ADSK','ADP','AZO','AVY','AXON','BKR','BALL','BAC','BAX','BDX',
+  'BRK.B','BBY','TECH','BIIB','BLK','BX','XYZ','BNY','BA','BKNG','BSX','BMY',
+  'AVGO','BR','BRO','BF.B','BLDR','BG','BXP','CHRW','CDNS','CPT','COF','CAH',
+  'CCL','CARR','CVNA','CASY','CAT','CBOE','CBRE','CDW','COR','CNC','CNP','CF',
+  'CRL','SCHW','CHTR','CVX','CMG','CB','CHD','CIEN','CI','CINF','CTAS','CSCO',
+  'C','CFG','CLX','CME','CMS','KO','CTSH','COHR','COIN','CL','CMCSA','FIX',
+  'COP','ED','STZ','CEG','COO','CPRT','GLW','CPAY','CTVA','CSGP','COST','CRH',
+  'CRWD','CCI','CSX','CMI','CVS','DHR','DRI','DDOG','DVA','DECK','DE','DELL',
+  'DAL','DVN','DXCM','FANG','DLR','DG','DLTR','D','DPZ','DASH','DOV','DOW',
+  'DHI','DTE','DUK','DD','ETN','EBAY','ECHO','ECL','EIX','EW','ELV','EME',
+  'EMR','ETR','EOG','EQT','EFX','EQIX','ERIE','ESS','EL','EG','EVRG','ES',
+  'EXC','EXE','EXPE','EXPD','EXR','XOM','FFIV','FDS','FICO','FAST','FRT','FDX',
+  'FDXF','FERG','FIS','FITB','FSLR','FE','FISV','FLEX','F','FTNT','FTV','FOXA',
+  'FOX','BEN','FCX','GRMN','IT','GE','GEHC','GEV','GEN','GNRC','GD','GIS',
+  'GM','GPC','GILD','GPN','GL','GDDY','GS','HAL','HIG','HAS','HCA','DOC',
+  'HSIC','HSY','HPE','HLT','HD','HONA','HON','HRL','HST','HWM','HPQ','HUBB',
+  'HUM','HBAN','HII','IBM','IEX','IDXX','ITW','INCY','IR','PODD','INTC','IBKR',
+  'ICE','IFF','IP','INTU','ISRG','IVZ','INVH','IQV','IRM','JBHT','JBL','JKHY',
+  'J','JNJ','JCI','JPM','KVUE','KDP','KEY','KEYS','KMB','KIM','KMI','KKR',
+  'KLAC','KHC','KR','LHX','LH','LRCX','LVS','LDOS','LEN','LII','LLY','LIN',
+  'LYV','LMT','L','LOW','LULU','LITE','LYB','MTB','MPC','MAR','MRSH','MLM',
+  'MRVL','MAS','MA','MKC','MCD','MCK','MDT','MRK','META','MET','MTD','MGM',
+  'MCHP','MU','MSFT','MAA','MRNA','TAP','MDLZ','MPWR','MNST','MCO','MS','MOS',
+  'MSI','MSCI','NDAQ','NTAP','NFLX','NEM','NWSA','NWS','NEE','NKE','NI','NDSN',
+  'NSC','NTRS','NOC','NCLH','NRG','NUE','NVDA','NVR','NXPI','ORLY','OXY','ODFL',
+  'OMC','ON','OKE','ORCL','OTIS','PCAR','PKG','PLTR','PANW','PSKY','PH','PAYX',
+  'PYPL','PNR','PEP','PFE','PCG','PM','PSX','PNW','PNC','PPG','PPL','PFG',
+  'PG','PGR','PLD','PRU','PEG','PTC','PSA','PHM','PWR','QCOM','DGX','Q',
+  'RL','RJF','RDDT','RTX','O','REG','REGN','RF','RSG','RMD','RVTY','HOOD',
+  'ROK','ROL','ROP','ROST','RCL','SPGI','CRM','SNDK','SBAC','SLB','STX','SRE',
+  'NOW','SHW','SPG','SWKS','SJM','SW','SNA','SOLV','SO','LUV','SWK','SBUX',
+  'STT','STLD','STE','SYK','SMCI','SYF','SNPS','SYY','TMUS','TROW','TTWO','TPR',
+  'TRGP','TGT','TEL','TDY','TER','TSLA','TXN','TPL','TXT','TMO','TJX','TKO',
+  'TTD','TSCO','TT','TDG','TRV','TRMB','TFC','TYL','TSN','USB','UBER','UDR',
+  'ULTA','UNP','UAL','UPS','URI','UNH','UHS','VLO','VEEV','VTR','VLTO','VRSN',
+  'VRSK','VZ','VRTX','VRT','VTRS','VICI','V','VST','VMRK','VMC','WRB','GWW',
+  'WAB','WMT','DIS','WBD','WM','WAT','WEC','WFC','WELL','WST','WDC','WY',
+  'WSM','WMB','WTW','WDAY','WYNN','XEL','XYL','YUM','ZBRA','ZBH','ZTS',
+];
+
+// Real market-cap-based tiers for FPL-style League draft pricing.
+// Cached for an hour (this needs ~7 batched quote calls across 503
+// tickers, expensive to recompute on every request, and market caps
+// don't meaningfully shift minute to minute).
+let sp500TiersCache = null;
+let sp500TiersCacheTime = 0;
+const SP500_TIER_CACHE_MS = 60 * 60 * 1000;
+const TIER_PRICES = [18, 14, 10, 6, 3]; // tier 1 (largest) through tier 5 (smallest)
+
+const getSp500TiersPayload = async () => {
+  if (sp500TiersCache && (Date.now() - sp500TiersCacheTime) < SP500_TIER_CACHE_MS) {
+    return sp500TiersCache;
+  }
+
+  const batchSize = 80;
+  const marketCaps = {};
+  for (let i = 0; i < SP500_TIER_TICKERS.length; i += batchSize) {
+    const batch = SP500_TIER_TICKERS.slice(i, i + batchSize);
+    try {
+      const payload = await getQuotePayload(batch);
+      (payload?.quoteResponse?.result || []).forEach((q) => {
+        if (q.symbol && q.marketCap) marketCaps[q.symbol] = q.marketCap;
+      });
+    } catch (e) { /* this batch failed - those tickers just won't get a real price below */ }
+  }
+
+  // Real ranking by real market cap, only for tickers we actually got
+  // a real number for. Anything missing a market cap this run simply
+  // isn't priced rather than guessed.
+  const ranked = Object.entries(marketCaps).sort((a, b) => b[1] - a[1]);
+  const tierSize = Math.ceil(ranked.length / 5);
+  const tickerPrices = {};
+  ranked.forEach(([symbol, cap], i) => {
+    const tier = Math.min(5, Math.floor(i / tierSize) + 1);
+    tickerPrices[symbol] = { tier, price: TIER_PRICES[tier - 1], marketCap: cap };
+  });
+
+  sp500TiersCache = {
+    prices: tickerPrices,
+    tierPrices: TIER_PRICES,
+    pricedCount: ranked.length,
+    totalTickers: SP500_TIER_TICKERS.length,
+    stockPilotMeta: {
+      source: "Real market cap from Yahoo Finance quotes, ranked into 5 tiers - not modeled or estimated",
+      updatedAt: new Date().toISOString(),
+      note: ranked.length < SP500_TIER_TICKERS.length ? `${SP500_TIER_TICKERS.length - ranked.length} tickers could not be priced this run (missing market cap data)` : "All tickers priced"
+    }
+  };
+  sp500TiersCacheTime = Date.now();
+  return sp500TiersCache;
+};
+
 const getFedCyclesPayload = async () => {
   const cycles = await getCyclesWithReturns();
   return {
@@ -1277,6 +1374,10 @@ const server = http.createServer(async (req, res) => {
 
     if (reqUrl.pathname === "/api/fed-precedent") {
       return send(res, 200, await getFedPrecedentPayload(reqUrl.searchParams.get("situation"), reqUrl.searchParams.get("response")));
+    }
+
+    if (reqUrl.pathname === "/api/sp500-tiers") {
+      return send(res, 200, await getSp500TiersPayload());
     }
 
     if (reqUrl.pathname === "/api/sec/company") {
