@@ -710,28 +710,27 @@ const getSp500TiersPayload = async (forceRefresh = false) => {
     return sp500TiersCache;
   }
 
-  // Deliberately calling the v7 bulk quote endpoint directly here,
-  // not the shared getQuotePayload helper - that helper prefers the
-  // chart-based quote method, which mostly does NOT include
-  // marketCap (confirmed by testing real, common tickers like KO and
-  // JPM directly), only falling back to this v7 endpoint per-symbol
-  // when the chart method throws. That meant most of the 503
-  // tickers were silently going unpriced. Calling v7 directly and in
-  // batch is the reliable path for market cap specifically.
-  const batchSize = 80;
+  // Yahoo's v8/chart endpoint (the reliable, no-auth path used
+  // elsewhere in this file) does not include market cap at all, and
+  // v7/quote genuinely requires crumb+cookie auth this app doesn't
+  // have (confirmed directly - a real request came back
+  // "Unauthorized" even with browser-style headers). Finnhub is
+  // already integrated and authenticated elsewhere in this file
+  // (getFinnhubSnapshot) and reliably includes real market cap, so
+  // that's the real source here. Throttled in small batches since
+  // 503 simultaneous calls would hit Finnhub's free-tier rate limit.
+  const batchSize = 20;
   const marketCaps = {};
   for (let i = 0; i < SP500_TIER_TICKERS.length; i += batchSize) {
     const batch = SP500_TIER_TICKERS.slice(i, i + batchSize);
     try {
-      const url = new URL(YAHOO_QUOTE_URL);
-      url.searchParams.set("symbols", batch.join(","));
-      const r = await fetch(url.toString(), { headers: YAHOO_BROWSER_HEADERS });
-      if (!r.ok) throw new Error(`Provider returned ${r.status}`);
-      const data = await r.json();
-      (data?.quoteResponse?.result || []).forEach((q) => {
-        if (q.symbol && q.marketCap) marketCaps[q.symbol] = q.marketCap;
+      const map = await getFinnhubQuoteMap(batch);
+      Object.entries(map).forEach(([symbol, q]) => {
+        if (q?.marketCap) marketCaps[symbol] = q.marketCap;
       });
     } catch (e) { /* this batch failed - those tickers just won't get a real price below */ }
+    // Brief pause between batches to stay well under Finnhub's free-tier rate limit.
+    await new Promise((resolve) => setTimeout(resolve, 1100));
   }
 
   // Real ranking by real market cap, only for tickers we actually got
