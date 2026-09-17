@@ -51,7 +51,7 @@
 
     var bar = document.createElement('div');
     bar.id = 'calculatorsSubtabBar';
-    bar.style.cssText = 'display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px';
+    bar.style.cssText = 'display:flex;gap:6px;overflow-x:auto;margin-bottom:16px;padding-bottom:2px;grid-column:1/-1;align-self:start;height:fit-content';
 
     sections.forEach(function(s, i){
       var btn = document.createElement('button');
