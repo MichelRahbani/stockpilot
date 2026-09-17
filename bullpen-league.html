@@ -1207,6 +1207,17 @@ async function startNflDraft(){
     [order[i], order[j]] = [order[j], order[i]];
   }
   await sbPatch('bullpen_leagues', `code=eq.${leagueCode}`, { draft_order: order, draft_status: 'active', draft_current_pick: 0, drafted_tickers: {} });
+
+  // sbPatch alone can't tell us whether this actually took effect - a
+  // write blocked by a database permission rule still comes back with
+  // a normal success status, just with nothing changed. Re-fetch and
+  // check the real result before telling the commissioner it worked.
+  const check = await sbGet('bullpen_leagues', `code=eq.${leagueCode}`);
+  if(!check || !check[0] || check[0].draft_status !== 'active'){
+    showToast('Could not start the draft - the league record did not update. This needs a database permissions fix, not a retry.', 'error');
+    return;
+  }
+
   showToast('Draft started! Redirecting to the draft room...', 'ok');
   setTimeout(() => { window.location.href = `/bullpen-draft.html?code=${leagueCode}&mid=${myMemberId}`; }, 1200);
 }
