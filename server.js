@@ -719,17 +719,24 @@ const getSp500TiersPayload = async (forceRefresh = false) => {
   // (getFinnhubSnapshot) and reliably includes real market cap, so
   // that's the real source here. Throttled in small batches since
   // 503 simultaneous calls would hit Finnhub's free-tier rate limit.
+  // Calling Finnhub's profile2 endpoint directly here rather than
+  // going through getFinnhubSnapshot, which fetches 2 other endpoints
+  // (quote, metrics) this computation doesn't need. That was burning
+  // 3x the rate-limit budget for data this feature never uses -
+  // confirmed as the real bottleneck (a smaller batch even with a
+  // pause between them was still only getting a fraction of 503
+  // priced). One endpoint per symbol triples effective throughput.
   const batchSize = 20;
   const marketCaps = {};
   for (let i = 0; i < SP500_TIER_TICKERS.length; i += batchSize) {
     const batch = SP500_TIER_TICKERS.slice(i, i + batchSize);
-    try {
-      const map = await getFinnhubQuoteMap(batch);
-      Object.entries(map).forEach(([symbol, q]) => {
-        if (q?.marketCap) marketCaps[symbol] = q.marketCap;
-      });
-    } catch (e) { /* this batch failed - those tickers just won't get a real price below */ }
-    // Brief pause between batches to stay well under Finnhub's free-tier rate limit.
+    const results = await Promise.allSettled(batch.map((symbol) => fetchFinnhubJson("/stock/profile2", { symbol })));
+    results.forEach((result, idx) => {
+      if (result.status === "fulfilled") {
+        const cap = finiteNumber(result.value?.marketCapitalization);
+        if (cap) marketCaps[batch[idx]] = cap * 1_000_000;
+      }
+    });
     await new Promise((resolve) => setTimeout(resolve, 1100));
   }
 
