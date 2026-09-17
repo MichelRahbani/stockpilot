@@ -710,13 +710,25 @@ const getSp500TiersPayload = async () => {
     return sp500TiersCache;
   }
 
+  // Deliberately calling the v7 bulk quote endpoint directly here,
+  // not the shared getQuotePayload helper - that helper prefers the
+  // chart-based quote method, which mostly does NOT include
+  // marketCap (confirmed by testing real, common tickers like KO and
+  // JPM directly), only falling back to this v7 endpoint per-symbol
+  // when the chart method throws. That meant most of the 503
+  // tickers were silently going unpriced. Calling v7 directly and in
+  // batch is the reliable path for market cap specifically.
   const batchSize = 80;
   const marketCaps = {};
   for (let i = 0; i < SP500_TIER_TICKERS.length; i += batchSize) {
     const batch = SP500_TIER_TICKERS.slice(i, i + batchSize);
     try {
-      const payload = await getQuotePayload(batch);
-      (payload?.quoteResponse?.result || []).forEach((q) => {
+      const url = new URL(YAHOO_QUOTE_URL);
+      url.searchParams.set("symbols", batch.join(","));
+      const r = await fetch(url.toString(), { headers: YAHOO_BROWSER_HEADERS });
+      if (!r.ok) throw new Error(`Provider returned ${r.status}`);
+      const data = await r.json();
+      (data?.quoteResponse?.result || []).forEach((q) => {
         if (q.symbol && q.marketCap) marketCaps[q.symbol] = q.marketCap;
       });
     } catch (e) { /* this batch failed - those tickers just won't get a real price below */ }
