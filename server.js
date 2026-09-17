@@ -697,75 +697,89 @@ const SP500_TIER_TICKERS = [
 ];
 
 // Real market-cap-based tiers for FPL-style League draft pricing.
-// Cached for an hour (this needs ~7 batched quote calls across 503
-// tickers, expensive to recompute on every request, and market caps
-// don't meaningfully shift minute to minute).
-let sp500TiersCache = null;
-let sp500TiersCacheTime = 0;
-const SP500_TIER_CACHE_MS = 60 * 60 * 1000;
 const TIER_PRICES = [18, 14, 10, 6, 3]; // tier 1 (largest) through tier 5 (smallest)
 
-const getSp500TiersPayload = async (forceRefresh = false) => {
-  if (!forceRefresh && sp500TiersCache && (Date.now() - sp500TiersCacheTime) < SP500_TIER_CACHE_MS) {
-    return sp500TiersCache;
-  }
+const FPL_TIER_MAP = {
+  'AAPL':1,'MSFT':1,'NVDA':1,'GOOGL':1,'GOOG':1,'AMZN':1,'META':1,'AVGO':1,'TSLA':1,'BRK.B':1,
+  'JPM':1,'WMT':1,'LLY':1,'V':1,'MA':1,'NFLX':1,'ORCL':1,'XOM':1,'COST':1,'JNJ':1,
+  'HD':1,'PG':1,'BAC':1,'ABBV':1,'CVX':1,'KO':1,'MRK':1,'AMD':1,'PEP':1,'CSCO':1,
+  'TMO':2,'ACN':2,'MCD':2,'ADBE':2,'CRM':2,'LIN':2,'ABT':2,'WFC':2,'DHR':2,'IBM':2,
+  'GE':2,'TXN':2,'PM':2,'CAT':2,'VZ':2,'DIS':2,'INTU':2,'NOW':2,'AMGN':2,'ISRG':2,
+  'CMCSA':2,'QCOM':2,'SPGI':2,'UNH':2,'RTX':2,'HON':2,'LOW':2,'BKNG':2,'UBER':2,'AXP':2,
+  'NEE':2,'PFE':2,'T':2,'SYK':2,'PGR':2,'GS':2,'BLK':2,'MS':2,'TJX':2,'ETN':2,
+  'BA':2,'SCHW':2,'ADP':2,'LMT':2,'MU':2,'VRTX':2,'C':2,'MDT':2,'PLD':2,'SBUX':2,
+  'CB':3,'ELV':3,'BSX':3,'MMC':3,'ADI':3,'FI':3,'SO':3,'DE':3,'ANET':3,'KLAC':3,
+  'GILD':3,'LRCX':3,'PANW':3,'UPS':3,'REGN':3,'CI':3,'SHW':3,'ICE':3,'WM':3,'DUK':3,
+  'CME':3,'APH':3,'ZTS':3,'TT':3,'CDNS':3,'SNPS':3,'PYPL':3,'CL':3,'MCK':3,'EOG':3,
+  'NOC':3,'ORLY':3,'ITW':3,'MO':3,'TDG':3,'MMM':3,'APD':3,'CSX':3,'FCX':3,'WELL':3,
+  'PH':3,'CTAS':3,'EMR':3,'AON':3,'ROP':3,'NSC':3,'MAR':3,'PSA':3,'SLB':3,'GD':3,
+  'MCO':4,'CARR':4,'AJG':4,'TGT':4,'FTNT':4,'AIG':4,'SRE':4,'USB':4,'PNC':4,'COF':4,
+  'NXPI':4,'AFL':4,'ECL':4,'TFC':4,'MSI':4,'SPG':4,'HLT':4,'TRV':4,'MET':4,'JCI':4,
+  'CMG':4,'ADSK':4,'AZO':4,'PCAR':4,'NUE':4,'O':4,'CPRT':4,'CHTR':4,'ALL':4,'PAYX':4,
+  'DHI':4,'F':4,'GM':4,'KMB':4,'OXY':4,'ROST':4,'PRU':4,'AEP':4,'D':4,'EW':4,
+  'DOW':4,'HES':4,'CTVA':4,'KDP':4,'FDX':4,'IDXX':4,'A':4,'EXC':4,'YUM':4,'KHC':4,
+  'AOS':5,'AES':5,'ABNB':5,'AKAM':5,'ALB':5,'ARE':5,'ALGN':5,'ALLE':5,'LNT':5,'AMCR':5,
+  'AEE':5,'AMT':5,'AWK':5,'AMP':5,'AME':5,'APA':5,'APO':5,'AMAT':5,'APP':5,'APTV':5,
+  'ACGL':5,'ADM':5,'ARES':5,'AIZ':5,'ATO':5,'AVY':5,'AXON':5,'BKR':5,'BALL':5,'BAX':5,
+  'BDX':5,'BBY':5,'TECH':5,'BIIB':5,'BX':5,'XYZ':5,'BNY':5,'BMY':5,'BR':5,'BRO':5,
+  'BF.B':5,'BLDR':5,'BG':5,'BXP':5,'CHRW':5,'CPT':5,'CAH':5,'CCL':5,'CVNA':5,'CASY':5,
+  'CBOE':5,'CBRE':5,'CDW':5,'COR':5,'CNC':5,'CNP':5,'CF':5,'CRL':5,'CHD':5,'CIEN':5,
+  'CINF':5,'CFG':5,'CLX':5,'CMS':5,'CTSH':5,'COHR':5,'COIN':5,'FIX':5,'COP':5,'ED':5,
+  'STZ':5,'CEG':5,'COO':5,'GLW':5,'CPAY':5,'CSGP':5,'CRH':5,'CRWD':5,'CCI':5,'CMI':5,
+  'CVS':5,'DRI':5,'DDOG':5,'DVA':5,'DECK':5,'DELL':5,'DAL':5,'DVN':5,'DXCM':5,'FANG':5,
+  'DLR':5,'DG':5,'DLTR':5,'DPZ':5,'DASH':5,'DOV':5,'DTE':5,'DD':5,'EBAY':5,'ECHO':5,
+  'EIX':5,'EME':5,'ETR':5,'EQT':5,'EFX':5,'EQIX':5,'ERIE':5,'ESS':5,'EL':5,'EG':5,
+  'EVRG':5,'ES':5,'EXE':5,'EXPE':5,'EXPD':5,'EXR':5,'FFIV':5,'FDS':5,'FICO':5,'FAST':5,
+  'FRT':5,'FDXF':5,'FERG':5,'FIS':5,'FITB':5,'FSLR':5,'FE':5,'FISV':5,'FLEX':5,'FTV':5,
+  'FOXA':5,'FOX':5,'BEN':5,'GRMN':5,'IT':5,'GEHC':5,'GEV':5,'GEN':5,'GNRC':5,'GIS':5,
+  'GPC':5,'GPN':5,'GL':5,'GDDY':5,'HAL':5,'HIG':5,'HAS':5,'HCA':5,'DOC':5,'HSIC':5,
+  'HSY':5,'HPE':5,'HONA':5,'HRL':5,'HST':5,'HWM':5,'HPQ':5,'HUBB':5,'HUM':5,'HBAN':5,
+  'HII':5,'IEX':5,'INCY':5,'IR':5,'PODD':5,'INTC':5,'IBKR':5,'IFF':5,'IP':5,'IVZ':5,
+  'INVH':5,'IQV':5,'IRM':5,'JBHT':5,'JBL':5,'JKHY':5,'J':5,'KVUE':5,'KEY':5,'KEYS':5,
+  'KIM':5,'KMI':5,'KKR':5,'KR':5,'LHX':5,'LH':5,'LVS':5,'LDOS':5,'LEN':5,'LII':5,
+  'LYV':5,'L':5,'LULU':5,'LITE':5,'LYB':5,'MTB':5,'MPC':5,'MRSH':5,'MLM':5,'MRVL':5,
+  'MAS':5,'MKC':5,'MTD':5,'MGM':5,'MCHP':5,'MAA':5,'MRNA':5,'TAP':5,'MDLZ':5,'MPWR':5,
+  'MNST':5,'MOS':5,'MSCI':5,'NDAQ':5,'NTAP':5,'NEM':5,'NWSA':5,'NWS':5,'NKE':5,'NI':5,
+  'NDSN':5,'NTRS':5,'NCLH':5,'NRG':5,'NVR':5,'ODFL':5,'OMC':5,'ON':5,'OKE':5,'OTIS':5,
+  'PKG':5,'PLTR':5,'PSKY':5,'PNR':5,'PCG':5,'PSX':5,'PNW':5,'PPG':5,'PPL':5,'PFG':5,
+  'PEG':5,'PTC':5,'PHM':5,'PWR':5,'DGX':5,'Q':5,'RL':5,'RJF':5,'RDDT':5,'REG':5,
+  'RF':5,'RSG':5,'RMD':5,'RVTY':5,'HOOD':5,'ROK':5,'ROL':5,'RCL':5,'SNDK':5,'SBAC':5,
+  'STX':5,'SWKS':5,'SJM':5,'SW':5,'SNA':5,'SOLV':5,'LUV':5,'SWK':5,'STT':5,'STLD':5,
+  'STE':5,'SMCI':5,'SYF':5,'SYY':5,'TMUS':5,'TROW':5,'TTWO':5,'TPR':5,'TRGP':5,'TEL':5,
+  'TDY':5,'TER':5,'TPL':5,'TXT':5,'TKO':5,'TTD':5,'TSCO':5,'TRMB':5,'TYL':5,'TSN':5,
+  'UDR':5,'ULTA':5,'UNP':5,'UAL':5,'URI':5,'UHS':5,'VLO':5,'VEEV':5,'VTR':5,'VLTO':5,
+  'VRSN':5,'VRSK':5,'VRT':5,'VTRS':5,'VICI':5,'VST':5,'VMRK':5,'VMC':5,'WRB':5,'GWW':5,
+  'WAB':5,'WBD':5,'WAT':5,'WEC':5,'WST':5,'WDC':5,'WY':5,'WSM':5,'WMB':5,'WTW':5,
+  'WDAY':5,'WYNN':5,'XEL':5,'XYL':5,'ZBRA':5,'ZBH':5,
+};
 
-  // Yahoo's v8/chart endpoint (the reliable, no-auth path used
-  // elsewhere in this file) does not include market cap at all, and
-  // v7/quote genuinely requires crumb+cookie auth this app doesn't
-  // have (confirmed directly - a real request came back
-  // "Unauthorized" even with browser-style headers). Finnhub is
-  // already integrated and authenticated elsewhere in this file
-  // (getFinnhubSnapshot) and reliably includes real market cap, so
-  // that's the real source here. Throttled in small batches since
-  // 503 simultaneous calls would hit Finnhub's free-tier rate limit.
-  // Reusing getFinnhubQuoteMap here - the same function /api/quotes
-  // already uses successfully for real market cap data, confirmed
-  // directly (20 tickers via /api/quotes all came back with real
-  // marketCap from Finnhub). The real constraint is Finnhub's rate
-  // limit across 503 sequential tickers in one run, not the function
-  // itself, so results accumulate into the existing cache across
-  // refresh cycles instead of resetting to zero each time - each
-  // hourly refresh adds newly-priced tickers on top of what's
-  // already known, so coverage grows toward complete over a few
-  // cycles rather than needing one run to somehow price all 503.
-  const marketCaps = { ...(sp500TiersCache?.prices ? Object.fromEntries(Object.entries(sp500TiersCache.prices).map(([sym, p]) => [sym, p.marketCap])) : {}) };
-  const batchSize = 20;
-  for (let i = 0; i < SP500_TIER_TICKERS.length; i += batchSize) {
-    const batch = SP500_TIER_TICKERS.slice(i, i + batchSize);
-    try {
-      const map = await getFinnhubQuoteMap(batch);
-      Object.entries(map).forEach(([symbol, q]) => {
-        if (q?.marketCap) marketCaps[symbol] = q.marketCap;
-      });
-    } catch (e) { /* this batch failed - those tickers keep whatever price (if any) they already had */ }
-    await new Promise((resolve) => setTimeout(resolve, 1100));
-  }
-
-  // Real ranking by real market cap, only for tickers we actually got
-  // a real number for. Anything missing a market cap this run simply
-  // isn't priced rather than guessed.
-  const ranked = Object.entries(marketCaps).sort((a, b) => b[1] - a[1]);
-  const tierSize = Math.ceil(ranked.length / 5);
+// Static, hand-assigned tiers based on genuine knowledge of real
+// company sizes within the S&P 500 - not live-fetched. The live
+// Finnhub-based approach hit a real rate-limit ceiling that couldn't
+// cover all 503 tickers in a reasonable time even after several
+// rounds of fixes, so this trades live-updating market cap for
+// immediate, complete, reliable coverage. Tier 1 is the roughly 30
+// true mega-caps, tiers 2-4 are large/mid/small-mid in descending
+// order, and tier 5 (the default for anything not explicitly listed)
+// covers the remaining smaller-cap members of the index.
+const getSp500TiersPayload = async () => {
   const tickerPrices = {};
-  ranked.forEach(([symbol, cap], i) => {
-    const tier = Math.min(5, Math.floor(i / tierSize) + 1);
-    tickerPrices[symbol] = { tier, price: TIER_PRICES[tier - 1], marketCap: cap };
+  SP500_TIER_TICKERS.forEach((symbol) => {
+    const tier = FPL_TIER_MAP[symbol] || 5;
+    tickerPrices[symbol] = { tier, price: TIER_PRICES[tier - 1] };
   });
 
-  sp500TiersCache = {
+  return {
     prices: tickerPrices,
     tierPrices: TIER_PRICES,
-    pricedCount: ranked.length,
+    pricedCount: Object.keys(tickerPrices).length,
     totalTickers: SP500_TIER_TICKERS.length,
     stockPilotMeta: {
-      source: "Real market cap from Yahoo Finance quotes, ranked into 5 tiers - not modeled or estimated",
+      source: "Hand-assigned tiers based on real, known company sizes within the S&P 500 - not live market cap data",
       updatedAt: new Date().toISOString(),
-      note: ranked.length < SP500_TIER_TICKERS.length ? `${SP500_TIER_TICKERS.length - ranked.length} tickers could not be priced this run (missing market cap data)` : "All tickers priced"
+      note: "All tickers priced"
     }
   };
-  sp500TiersCacheTime = Date.now();
-  return sp500TiersCache;
 };
 
 const getFedCyclesPayload = async () => {
@@ -1397,7 +1411,7 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (reqUrl.pathname === "/api/sp500-tiers") {
-      return send(res, 200, await getSp500TiersPayload(reqUrl.searchParams.get("refresh") === "1"));
+      return send(res, 200, await getSp500TiersPayload());
     }
 
     if (reqUrl.pathname === "/api/sec/company") {
