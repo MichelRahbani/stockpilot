@@ -119,6 +119,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
     <div class="league-code" id="navLeagueCode"></div>
   </div>
   <div class="pick-status" id="pickStatus">0 / 10 picked</div>
+  <div class="pick-status" id="fplBudgetDisplay" style="display:none"></div>
 </nav>
 
 <div class="draft-layout">
@@ -166,6 +167,9 @@ const myName=urlParams.get('name')||localStorage.getItem('bullpen_my_name')||loc
 
 let starters=[],bench=[];
 let league=null, draftMembers=[];
+let fplTierData=null;
+const FPL_BUDGET=100;
+
 
 // Real snake draft order: round 0 forward, round 1 reversed, etc,
 // matching real fantasy football / ESPN behavior. Hand-verified
@@ -277,6 +281,45 @@ function escapeHtmlDraft(s){
   const d = document.createElement('div');
   d.textContent = s || '';
   return d.innerHTML;
+}
+
+async function setupFplBudgetMode(){
+  document.getElementById('fplBudgetDisplay').style.display = '';
+  await fetchFplTiers();
+  renderFplBudget();
+}
+
+async function fetchFplTiers(){
+  try{
+    const res = await fetch(BACKEND+'/api/sp500-tiers');
+    fplTierData = await res.json();
+  }catch(e){ fplTierData = null; }
+}
+
+// Real market-cap-based price for a ticker, or null if this ticker
+// hasn't been priced yet (the tier dataset accumulates real prices
+// over time rather than guessing for tickers it doesn't have real
+// data for yet).
+function fplPriceFor(ticker){
+  return fplTierData?.prices?.[ticker]?.price ?? null;
+}
+
+function fplBudgetSpent(){
+  let spent = 0;
+  [...starters, ...bench].forEach(s => {
+    const price = fplPriceFor(s.ticker);
+    if(price != null) spent += price;
+  });
+  return spent;
+}
+
+function renderFplBudget(){
+  const el = document.getElementById('fplBudgetDisplay');
+  if(!el || !league || league.format !== 'fpl') return;
+  const spent = fplBudgetSpent();
+  const remaining = FPL_BUDGET - spent;
+  el.textContent = `$${remaining.toFixed(0)} left of $${FPL_BUDGET}`;
+  el.style.color = remaining < 0 ? 'var(--red, #ff1744)' : '';
 }
 
 const SP500_TICKERS = new Set([
@@ -481,6 +524,7 @@ async function init(){
   if(league && league.format === 'nfl'){
     setupNflDraftMode();
   } else {
+    if(league && league.format === 'fpl'){ setupFplBudgetMode(); }
     loadPopularStocks();
   }
 }
@@ -493,7 +537,7 @@ function renderRoster(){
     const div=document.createElement('div');
     div.className='roster-slot'+(s?' filled':'');
     div.innerHTML=s
-      ?`<span class="slot-num">${i+1}</span><span class="slot-ticker">${s.ticker}${sectorBadge(s.ticker)}</span><span class="slot-name">${s.name}</span><button class="slot-rm" onclick="removeStock('starter',${i})">✕</button>`
+      ?`<span class="slot-num">${i+1}</span><span class="slot-ticker">${s.ticker}${sectorBadge(s.ticker)}${priceBadge(s.ticker)}</span><span class="slot-name">${s.name}</span><button class="slot-rm" onclick="removeStock('starter',${i})">✕</button>`
       :`<span class="slot-num">${i+1}</span><span class="empty-label">Empty</span>`;
     ss.appendChild(div);
   }
@@ -504,7 +548,7 @@ function renderRoster(){
     const div=document.createElement('div');
     div.className='roster-slot'+(s?' bench-filled':'');
     div.innerHTML=s
-      ?`<span class="slot-num">B${i+1}</span><span class="slot-ticker">${s.ticker}${sectorBadge(s.ticker)}</span><span class="slot-name">${s.name}</span><button class="slot-rm" onclick="removeStock('bench',${i})">✕</button>`
+      ?`<span class="slot-num">B${i+1}</span><span class="slot-ticker">${s.ticker}${sectorBadge(s.ticker)}${priceBadge(s.ticker)}</span><span class="slot-name">${s.name}</span><button class="slot-rm" onclick="removeStock('bench',${i})">✕</button>`
       :`<span class="slot-num">B${i+1}</span><span class="empty-label">Empty</span>`;
     bs.appendChild(div);
   }
@@ -513,6 +557,7 @@ function renderRoster(){
   btn.classList.toggle('ready',total===10);
   btn.textContent=total===10?'Lock In Draft →':'Lock In Draft ('+total+'/10)';
   document.getElementById('pickStatus').textContent=total+' / 10 picked';
+  if(league && league.format === 'fpl') renderFplBudget();
 }
 
 function renderMembers(members){
@@ -581,7 +626,7 @@ async function filterBySector(sector){
       const card=document.createElement('div');
       card.className='stock-card'+(isMine?' mine':'');
       card.id='card_'+q.symbol;
-      card.innerHTML=`<div class="card-ticker">${q.symbol}${sectorBadge(q.symbol)}</div>
+      card.innerHTML=`<div class="card-ticker">${q.symbol}${sectorBadge(q.symbol)}${priceBadge(q.symbol)}</div>
         <div class="card-name">${q.shortName||q.longName||q.symbol}</div>
         <div class="card-price">$${(q.regularMarketPrice||0).toFixed(2)}</div>
         <div class="card-change ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}% today</div>
@@ -607,7 +652,7 @@ async function loadPopularStocks(){
       const card=document.createElement('div');
       card.className='stock-card'+(isMine?' mine':'');
       card.id='card_'+q.symbol;
-      card.innerHTML=`<div class="card-ticker">${q.symbol}${sectorBadge(q.symbol)}</div>
+      card.innerHTML=`<div class="card-ticker">${q.symbol}${sectorBadge(q.symbol)}${priceBadge(q.symbol)}</div>
         <div class="card-name">${q.shortName||q.longName||q.symbol}</div>
         <div class="card-price">$${(q.regularMarketPrice||0).toFixed(2)}</div>
         <div class="card-change ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}% today</div>
@@ -633,7 +678,7 @@ function renderFallback(){
     const card=document.createElement('div');
     card.className='stock-card'+(isMine?' mine':'');
     card.id='card_'+s.t;
-    card.innerHTML=`<div class="card-ticker">${s.t}${sectorBadge(s.t)}</div>
+    card.innerHTML=`<div class="card-ticker">${s.t}${sectorBadge(s.t)}${priceBadge(s.t)}</div>
       <div class="card-name">${s.n}</div>
       <div class="card-price">$${s.p.toFixed(2)}</div>
       <div class="card-change ${up?'up':'down'}">${up?'+':''}${s.c.toFixed(2)}% today</div>
@@ -669,7 +714,7 @@ async function doSearch(){
       const card=document.createElement('div');
       card.className='stock-card'+(isMine?' mine':'');
       card.id='card_'+r.symbol;
-      card.innerHTML=`<div class="card-ticker">${r.symbol}${sectorBadge(r.symbol)}</div>
+      card.innerHTML=`<div class="card-ticker">${r.symbol}${sectorBadge(r.symbol)}${priceBadge(r.symbol)}</div>
         <div class="card-name">${r.shortname||r.longname||r.symbol}</div>
         <div class="card-price">${q.regularMarketPrice?'$'+q.regularMarketPrice.toFixed(2):'—'}</div>
         <div class="card-change ${up?'up':'down'}">${q.regularMarketPrice?(up?'+':'')+chg.toFixed(2)+'% today':'Live price'}</div>
@@ -728,11 +773,23 @@ function sectorBadge(ticker){
   return `<span class="sector-badge" style="background:${color}" title="${sector}">${abbrev}</span>`;
 }
 
+function priceBadge(ticker){
+  if(!league || league.format !== 'fpl') return '';
+  const price = fplPriceFor(ticker);
+  if(price == null) return `<span class="sector-badge" style="background:#3a3f4a" title="Not priced yet">—</span>`;
+  return `<span class="sector-badge" style="background:#0d7a3f" title="Tier ${fplTierData.prices[ticker].tier}">$${price}</span>`;
+}
+
 function pickStock(ticker,name){
   if(league && league.format === 'nfl'){
     if(league.draft_status !== 'active'){ showToast('The draft has not started yet', 'error'); return; }
     if(draftIsComplete()){ showToast('The draft is already complete', 'error'); return; }
     if(!isMyTurn()){ showToast('Not your turn yet - wait for your pick', 'error'); return; }
+  }
+  if(league && league.format === 'fpl'){
+    const price = fplPriceFor(ticker);
+    if(price == null){ showToast('This stock has not been priced yet - try another for now', 'error'); return; }
+    if(fplBudgetSpent() + price > FPL_BUDGET){ showToast(`Not enough budget - this costs $${price}, you have $${(FPL_BUDGET - fplBudgetSpent()).toFixed(0)} left`, 'error'); return; }
   }
   if(starters.some(s=>s.ticker===ticker)||bench.some(s=>s.ticker===ticker)){showToast('Already in your roster','error');return;}
   if(starters.length>=7 && bench.length>=3){showToast('Roster full! Remove a stock first','error');return;}
