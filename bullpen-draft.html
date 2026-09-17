@@ -141,6 +141,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;dis
       <input type="text" class="search-input" placeholder="Search S&amp;P 500 stocks — AAPL, TSLA, NVDA..." id="searchInput" onkeydown="if(event.key==='Enter')doSearch()"/>
       <button class="search-btn" onclick="doSearch()">Search</button>
     </div>
+    <div id="nflDraftBanner"></div>
     <div class="sector-filter-row" id="sectorFilterRow" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px"></div>
     <div class="stocks-grid" id="stocksGrid">
       <div class="loading" style="grid-column:1/-1"><div class="spinner"></div><div>Loading popular stocks...</div></div>
@@ -164,6 +165,120 @@ let myMemberId=urlParams.get('mid')||localStorage.getItem('bullpen_my_member_id'
 const myName=urlParams.get('name')||localStorage.getItem('bullpen_my_name')||localStorage.getItem('supabase_name')||'';
 
 let starters=[],bench=[];
+let league=null, draftMembers=[];
+
+// Real snake draft order: round 0 forward, round 1 reversed, etc,
+// matching real fantasy football / ESPN behavior. Hand-verified
+// separately before wiring this in.
+function whoseTurn(){
+  if(!league || !league.draft_order || !league.draft_order.length) return null;
+  const order = league.draft_order;
+  const n = order.length;
+  const pickIndex = league.draft_current_pick || 0;
+  const round = Math.floor(pickIndex / n);
+  const posInRound = pickIndex % n;
+  const playerIndex = (round % 2 === 0) ? posInRound : (n - 1 - posInRound);
+  return order[playerIndex];
+}
+function isMyTurn(){
+  return league && league.format === 'nfl' && league.draft_status === 'active' && whoseTurn() === myMemberId;
+}
+function draftIsComplete(){
+  if(!league || !league.draft_order) return false;
+  const totalPicks = league.draft_order.length * 10; // 7 starters + 3 bench
+  return (league.draft_current_pick || 0) >= totalPicks;
+}
+
+let nflPollTimer = null;
+async function setupNflDraftMode(){
+  renderNflBanner();
+  if(league.draft_status === 'active'){
+    document.getElementById('stocksGrid').style.display = '';
+    document.getElementById('sectorFilterRow').style.display = '';
+    loadPopularStocks();
+    if(nflPollTimer) clearInterval(nflPollTimer);
+    nflPollTimer = setInterval(refreshNflDraftState, 4000);
+  } else {
+    document.getElementById('stocksGrid').style.display = 'none';
+    document.getElementById('sectorFilterRow').style.display = 'none';
+    if(nflPollTimer) clearInterval(nflPollTimer);
+    nflPollTimer = setInterval(refreshNflDraftState, 4000);
+  }
+}
+
+async function refreshNflDraftState(){
+  try{
+    const leagues = await sbGet('bullpen_leagues', 'code=eq.'+leagueCode);
+    if(!leagues || !leagues[0]) return;
+    const wasActive = league && league.draft_status === 'active';
+    league = leagues[0];
+    renderNflBanner();
+    if(league.draft_status === 'active' && !wasActive){
+      // Draft just started - show the board for the first time
+      document.getElementById('stocksGrid').style.display = '';
+      document.getElementById('sectorFilterRow').style.display = '';
+      loadPopularStocks();
+    }
+    if(league.draft_status === 'active'){
+      // Re-filter the currently shown grid so newly-drafted tickers
+      // (by other players) disappear without a full reload.
+      filterOutDraftedFromGrid();
+    }
+    if(draftIsComplete() && nflPollTimer){
+      clearInterval(nflPollTimer);
+      nflPollTimer = null;
+    }
+  }catch(e){ /* transient - next poll will retry */ }
+}
+
+function filterOutDraftedFromGrid(){
+  const taken = league.drafted_tickers || {};
+  Object.keys(taken).forEach(ticker => {
+    const card = document.getElementById('card_'+ticker);
+    if(card && !card.classList.contains('mine')) card.remove();
+  });
+}
+
+function renderNflBanner(){
+  const el = document.getElementById('nflDraftBanner');
+  if(!el || !league) return;
+
+  if(league.draft_status !== 'active'){
+    if(draftIsComplete()){
+      el.innerHTML = `<div class="empty-state" style="margin-bottom:14px">🏁 Draft complete! Check your roster below.</div>`;
+    } else {
+      el.innerHTML = `<div class="empty-state" style="margin-bottom:14px">⏳ Waiting for the commissioner to start the draft. This page will update automatically.</div>`;
+    }
+    return;
+  }
+
+  if(draftIsComplete()){
+    el.innerHTML = `<div class="empty-state" style="margin-bottom:14px">🏁 Draft complete! Check your roster below.</div>`;
+    return;
+  }
+
+  const turnMemberId = whoseTurn();
+  const turnMember = draftMembers.find(m => m.id === turnMemberId);
+  const totalPicks = league.draft_order.length * 10;
+  const pickNum = (league.draft_current_pick || 0) + 1;
+  const round = Math.floor((league.draft_current_pick || 0) / league.draft_order.length) + 1;
+
+  if(isMyTurn()){
+    el.innerHTML = `<div class="empty-state" style="margin-bottom:14px;border-color:rgba(0,230,118,0.5);background:rgba(0,230,118,0.06)">
+      <strong style="color:var(--green)">🟢 It's your pick!</strong> Round ${round} · Pick ${pickNum} of ${totalPicks}
+    </div>`;
+  } else {
+    el.innerHTML = `<div class="empty-state" style="margin-bottom:14px">
+      ⏳ Waiting on <strong>${escapeHtmlDraft(turnMember ? turnMember.name : 'another player')}</strong> · Round ${round} · Pick ${pickNum} of ${totalPicks}
+    </div>`;
+  }
+}
+function escapeHtmlDraft(s){
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
 const SP500_TICKERS = new Set([
   'MMM','AOS','ABT','ABBV','ACN','ADBE','AMD','AES','AFL','A','APD','ABNB',
   'AKAM','ALB','ARE','ALGN','ALLE','LNT','ALL','GOOGL','GOOG','MO','AMZN','AMCR',
@@ -343,9 +458,13 @@ async function init(){
   // Load league name + members
   try{
     const leagues=await sbGet('bullpen_leagues','code=eq.'+leagueCode);
-    if(leagues&&leagues[0]) document.getElementById('navLeagueName').textContent=leagues[0].name;
+    if(leagues&&leagues[0]){
+      league = leagues[0];
+      document.getElementById('navLeagueName').textContent=league.name;
+    }
 
     const members=await sbGet('bullpen_members','league_code=eq.'+leagueCode+'&order=joined_at.asc');
+    draftMembers = members;
 
     // Identify this user — try by ID first, then by name, then by supabase_name
     if(!myMemberId&&myName&&members.length){
@@ -358,7 +477,12 @@ async function init(){
 
   renderRoster();
   renderSectorFilterPills();
-  loadPopularStocks();
+
+  if(league && league.format === 'nfl'){
+    setupNflDraftMode();
+  } else {
+    loadPopularStocks();
+  }
 }
 
 function renderRoster(){
@@ -451,6 +575,7 @@ async function filterBySector(sector){
     grid.innerHTML='';
     quotes.forEach(q=>{
       quoteCache[q.symbol]=q;
+      if(league && league.format === 'nfl' && league.drafted_tickers && league.drafted_tickers[q.symbol] && league.drafted_tickers[q.symbol] !== myMemberId) return;
       const chg=q.regularMarketChangePercent||0;const up=chg>=0;
       const isMine=starters.some(s=>s.ticker===q.symbol)||bench.some(s=>s.ticker===q.symbol);
       const card=document.createElement('div');
@@ -476,6 +601,7 @@ async function loadPopularStocks(){
     grid.innerHTML='';
     quotes.forEach(q=>{
       quoteCache[q.symbol]=q;
+      if(league && league.format === 'nfl' && league.drafted_tickers && league.drafted_tickers[q.symbol] && league.drafted_tickers[q.symbol] !== myMemberId) return;
       const chg=q.regularMarketChangePercent||0;const up=chg>=0;
       const isMine=starters.some(s=>s.ticker===q.symbol)||bench.some(s=>s.ticker===q.symbol);
       const card=document.createElement('div');
@@ -529,7 +655,8 @@ async function doSearch(){
     // Two tickers (BRK.B, BF.B) use a period in the real S&P 500 list but
     // a hyphen in Yahoo's own symbols, so both forms are checked.
     const isSp500 = (sym) => SP500_TICKERS.has(sym) || SP500_TICKERS.has(sym.replace('-', '.'));
-    const results=(data?.quotes||[]).filter(x=>x.quoteType==='EQUITY' && isSp500(x.symbol)).slice(0,12);
+    const isAvailable = (sym) => !(league && league.format === 'nfl' && league.drafted_tickers && league.drafted_tickers[sym] && league.drafted_tickers[sym] !== myMemberId);
+    const results=(data?.quotes||[]).filter(x=>x.quoteType==='EQUITY' && isSp500(x.symbol) && isAvailable(x.symbol)).slice(0,12);
     if(!results.length){grid.innerHTML='<div class="loading" style="grid-column:1/-1">No S&amp;P 500 matches for that search</div>';return;}
     const tickers=results.map(x=>x.symbol).join(',');
     const qr=await fetch(BACKEND+'/api/quotes?symbols='+tickers);
@@ -602,16 +729,52 @@ function sectorBadge(ticker){
 }
 
 function pickStock(ticker,name){
+  if(league && league.format === 'nfl'){
+    if(league.draft_status !== 'active'){ showToast('The draft has not started yet', 'error'); return; }
+    if(draftIsComplete()){ showToast('The draft is already complete', 'error'); return; }
+    if(!isMyTurn()){ showToast('Not your turn yet - wait for your pick', 'error'); return; }
+  }
   if(starters.some(s=>s.ticker===ticker)||bench.some(s=>s.ticker===ticker)){showToast('Already in your roster','error');return;}
   if(starters.length>=7 && bench.length>=3){showToast('Roster full! Remove a stock first','error');return;}
   pendingPick={ticker,name};
   showPickReveal(ticker,name);
 }
 
-function finalizePick(){
+async function finalizePick(){
   if(!pendingPick) return;
   const {ticker,name}=pendingPick;
   pendingPick=null;
+
+  if(league && league.format === 'nfl'){
+    // Real-money-style safety: re-fetch fresh state right before
+    // committing, so two people clicking at nearly the same moment
+    // can't both draft the same stock, or draft out of turn if the
+    // page hadn't polled yet.
+    const fresh = await sbGet('bullpen_leagues', 'code=eq.'+leagueCode);
+    if(!fresh || !fresh[0]){ showToast('Could not verify draft state - try again', 'error'); return; }
+    league = fresh[0];
+    if(league.draft_status !== 'active'){ showToast('The draft is not active', 'error'); renderNflBanner(); return; }
+    if(whoseTurn() !== myMemberId){ showToast("It's not your turn anymore", 'error'); renderNflBanner(); return; }
+    if(league.drafted_tickers && league.drafted_tickers[ticker]){ showToast(ticker+' was just taken by someone else', 'error'); renderNflBanner(); loadPopularStocks(); return; }
+
+    const newDrafted = {...(league.drafted_tickers || {}), [ticker]: myMemberId};
+    const newPickIndex = (league.draft_current_pick || 0) + 1;
+    await sbPatch('bullpen_leagues', 'code=eq.'+leagueCode, { drafted_tickers: newDrafted, draft_current_pick: newPickIndex });
+    league.drafted_tickers = newDrafted;
+    league.draft_current_pick = newPickIndex;
+
+    if(starters.length<7){starters.push({ticker,name});}
+    else{bench.push({ticker,name});}
+    await sbPatch('bullpen_members', 'id=eq.'+myMemberId, { starters: starters.map(s=>s.ticker), bench: bench.map(s=>s.ticker) });
+    showToast(ticker+' drafted!', 'success');
+
+    const card=document.getElementById('card_'+ticker);
+    if(card){card.className='stock-card mine';card.querySelector('.card-pick-btn')?.remove();}
+    renderRoster();
+    renderNflBanner();
+    return;
+  }
+
   if(starters.length<7){starters.push({ticker,name});showToast(ticker+' added to starters ⚡','success');}
   else if(bench.length<3){bench.push({ticker,name});showToast(ticker+' added to bench 🪑','success');}
   else{showToast('Roster full! Remove a stock first','error');return;}
