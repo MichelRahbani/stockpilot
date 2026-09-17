@@ -618,6 +618,7 @@ async function updateScores(){
       if(!m.starters||!m.starters.length) continue;
       const baseline = m.week_baseline || {};
       let weekScore = 0;
+      const stockBreakdown = [];
       m.starters.forEach(t => {
         const basePrice = baseline[t];
         const curPrice = currentPriceMap[t];
@@ -628,12 +629,18 @@ async function updateScores(){
         const rawReturn = (basePrice && basePrice > 0 && curPrice) ? ((curPrice - basePrice) / basePrice) * 100 : (priceMap[t] || 0);
         const vol = volMapClient[t] || MARKET_AVG_VOLATILITY;
         const volAdjustFactor = MARKET_AVG_VOLATILITY / vol;
+        const volAdjustedReturn = rawReturn * volAdjustFactor;
         const alpha = rawReturn - benchmarkReturn;
-        weekScore += (rawReturn * volAdjustFactor) + (alpha * ALPHA_WEIGHT);
+        const alphaBonus = alpha * ALPHA_WEIGHT;
+        const contribution = volAdjustedReturn + alphaBonus;
+        weekScore += contribution;
+        stockBreakdown.push({ ticker: t, rawReturn, vol, volAdjustedReturn, alpha, alphaBonus, contribution });
       });
       const uniqueSectors = new Set(m.starters.map(t => SP500_SECTORS[t]).filter(Boolean)).size;
-      weekScore += (uniqueSectors - DIVERSIFICATION_BASELINE) * DIVERSIFICATION_WEIGHT;
+      const diversificationAdjust = (uniqueSectors - DIVERSIFICATION_BASELINE) * DIVERSIFICATION_WEIGHT;
+      weekScore += diversificationAdjust;
       m.weekly_score = parseFloat(weekScore.toFixed(2));
+      m._scoreBreakdown = { stocks: stockBreakdown, uniqueSectors, diversificationAdjust, benchmarkReturn };
       sbPatch('bullpen_members', `id=eq.${m.id}`, {weekly_score: m.weekly_score, score: m.weekly_score});
     }
 
@@ -766,9 +773,70 @@ function renderLeaderboard(){
     return `<div class="lb-row${isMe?' me':''}" onclick="previewMember('${m.id}')">
       <div class="lb-rank ${rankClass}">${rankIcon}</div>
       <div><div class="lb-name">${escapeHtml(m.name)}${isMe?' <span style="font-size:10px;color:var(--green)">(you)</span>':''}</div><div class="lb-picks">${picks}</div></div>
-      <div style="text-align:right"><div class="lb-score ${sc}">${ss}</div><div style="font-size:10px;color:var(--gold);font-family:'DM Mono',monospace">${seasonPts}pts</div></div>
+      <div style="text-align:right"><div class="lb-score ${sc}" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px" onclick="event.stopPropagation();showScoreBreakdown('${m.id}')" title="See how this score was calculated">${ss} <span style="opacity:0.6;font-size:11px">ⓘ</span></div><div style="font-size:10px;color:var(--gold);font-family:'DM Mono',monospace">${seasonPts}pts</div></div>
     </div>`;
   }).join('');
+}
+
+function showScoreBreakdown(memberId){
+  const m = members.find(x => x.id === memberId);
+  if(!m){ showToast('Could not find that member', 'err'); return; }
+  const breakdown = m._scoreBreakdown;
+  const weekScore = m.weekly_score || 0;
+  let modal = document.getElementById('scoreBreakdownModal');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'scoreBreakdownModal';
+    modal.className = 'overlay';
+    modal.innerHTML = `<div class="modal">
+      <div class="mhead"><h2>Why this score?</h2><button class="mclose" onclick="document.getElementById('scoreBreakdownModal').classList.remove('open')">✕</button></div>
+      <div class="mbody" id="scoreBreakdownBody"></div>
+    </div>`;
+    document.body.appendChild(modal);
+    modal.addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
+  }
+
+  const body = document.getElementById('scoreBreakdownBody');
+  if(!breakdown){
+    body.innerHTML = `<p style="color:var(--muted)">Score breakdown isn't available right now, this usually appears right after the weekly scoring runs. Try refreshing the leaderboard.</p>`;
+  } else {
+    const rows = breakdown.stocks.map(s => `
+      <tr>
+        <td style="padding:6px 8px;font-weight:700">${s.ticker}</td>
+        <td style="padding:6px 8px;text-align:right">${s.rawReturn>=0?'+':''}${s.rawReturn.toFixed(2)}%</td>
+        <td style="padding:6px 8px;text-align:right;color:var(--muted)">${(s.vol*100).toFixed(0)}%</td>
+        <td style="padding:6px 8px;text-align:right">${s.volAdjustedReturn>=0?'+':''}${s.volAdjustedReturn.toFixed(2)}</td>
+        <td style="padding:6px 8px;text-align:right">${s.alphaBonus>=0?'+':''}${s.alphaBonus.toFixed(2)}</td>
+        <td style="padding:6px 8px;text-align:right;font-weight:700">${s.contribution>=0?'+':''}${s.contribution.toFixed(2)}</td>
+      </tr>`).join('');
+    body.innerHTML = `
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px">Each stock's real move gets adjusted for how much it normally swings, plus a bonus or hit for beating or lagging the real S&amp;P 500 (${breakdown.benchmarkReturn>=0?'+':''}${breakdown.benchmarkReturn.toFixed(2)}% this week). Then diversification is applied once across the whole roster.</p>
+      <div style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:13px">
+          <thead>
+            <tr style="border-bottom:1px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase">
+              <th style="padding:6px 8px;text-align:left">Stock</th>
+              <th style="padding:6px 8px;text-align:right">Raw Return</th>
+              <th style="padding:6px 8px;text-align:right">Volatility</th>
+              <th style="padding:6px 8px;text-align:right">Vol-Adjusted</th>
+              <th style="padding:6px 8px;text-align:right">Alpha Bonus</th>
+              <th style="padding:6px 8px;text-align:right">Total</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:13px">
+        <span>Diversification (${breakdown.uniqueSectors} sector${breakdown.uniqueSectors===1?'':'s'} across the roster)</span>
+        <span style="font-weight:700">${breakdown.diversificationAdjust>=0?'+':''}${breakdown.diversificationAdjust.toFixed(2)}</span>
+      </div>
+      <div style="margin-top:8px;display:flex;justify-content:space-between;font-size:16px;font-weight:700">
+        <span>Final score</span>
+        <span>${weekScore>=0?'+':''}${weekScore.toFixed(2)} pts</span>
+      </div>
+    `;
+  }
+  modal.classList.add('open');
 }
 
 // ── Export leaderboard to CSV (opens directly in Excel) ──
