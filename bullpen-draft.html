@@ -250,6 +250,11 @@ function renderNflBanner(){
   if(league.draft_status !== 'active'){
     if(draftIsComplete()){
       el.innerHTML = `<div class="empty-state" style="margin-bottom:14px">🏁 Draft complete! Check your roster below.</div>`;
+    } else if(league.commissioner_name === myName){
+      el.innerHTML = `<div class="empty-state" style="margin-bottom:14px;border-color:rgba(0,230,118,0.5);background:rgba(0,230,118,0.06)">
+        <div style="margin-bottom:10px">You're the commissioner - start the draft when everyone's joined.</div>
+        <button class="btn btn-green" style="font-size:13px" onclick="startNflDraftFromRoom()">🏈 Start Draft (Snake Order)</button>
+      </div>`;
     } else {
       el.innerHTML = `<div class="empty-state" style="margin-bottom:14px">⏳ Waiting for the commissioner to start the draft. This page will update automatically.</div>`;
     }
@@ -281,6 +286,32 @@ function escapeHtmlDraft(s){
   const d = document.createElement('div');
   d.textContent = s || '';
   return d.innerHTML;
+}
+
+async function startNflDraftFromRoom(){
+  if(!confirm('Start the draft now? Pick order will be randomized (snake order), and every member needs to be in the league before you start, since the order locks in at that point.')) return;
+  const members = await sbGet('bullpen_members', `league_code=eq.${leagueCode}`);
+  if(members.length < 2){ showToast('Need at least 2 members to start a draft', 'error'); return; }
+  const order = members.map(m => m.id);
+  for(let i = order.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [order[i], order[j]] = [order[j], order[i]];
+  }
+  await sbPatch('bullpen_leagues', `code=eq.${leagueCode}`, { draft_order: order, draft_status: 'active', draft_current_pick: 0, drafted_tickers: {} });
+
+  const check = await sbGet('bullpen_leagues', `code=eq.${leagueCode}`);
+  if(!check || !check[0] || check[0].draft_status !== 'active'){
+    showToast('Could not start the draft - the league record did not update. This needs a database permissions fix, not a retry.', 'error');
+    return;
+  }
+
+  league = check[0];
+  draftMembers = members;
+  showToast('Draft started!', 'ok');
+  refreshNflDraftState();
+  document.getElementById('stocksGrid').style.display = '';
+  document.getElementById('sectorFilterRow').style.display = '';
+  loadPopularStocks();
 }
 
 async function setupFplBudgetMode(){
