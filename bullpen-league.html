@@ -268,9 +268,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
           <div class="moves-btns">
             <button class="btn btn-ghost" id="swapBtn" onclick="openSwap()" style="font-size:12px">⇄ Swap</button>
             <button class="btn btn-green" id="faBtn" onclick="openFA()" style="font-size:12px">🔍 Free Agency</button>
+            <button class="btn btn-ghost" id="tradeBtn" onclick="openTrade()" style="font-size:12px">🤝 Trade</button>
           </div>
         </div>
       </div>
+    </div>
+
+    <div class="card" id="tradesCard" style="display:none">
+      <h2>🤝 Trade Offers</h2>
+      <div id="tradesList"></div>
     </div>
 
     <!-- SIDEBAR -->
@@ -332,6 +338,25 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
     <div class="mfoot">
       <button class="btn-full btn-full-ghost" onclick="closeFA()">Cancel</button>
       <button class="btn-full btn-full-green" id="confirmFABtn" onclick="confirmFA()" disabled>Confirm Pickup</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="tradeModal">
+  <div class="modal">
+    <div class="mhead"><h2>🤝 Propose Trade</h2><button class="mclose" onclick="closeTrade()">✕</button></div>
+    <div class="mbody">
+      <div class="mlabel">Trade with</div>
+      <select id="tradePartnerSelect" onchange="onTradePartnerChange()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;margin-bottom:14px"></select>
+      <div class="mlabel">You give up</div>
+      <div id="tradeOfferList"></div>
+      <div class="trade-arrow">↔</div>
+      <div class="mlabel">You get</div>
+      <div id="tradeWantList"><div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Pick a trade partner first</div></div>
+    </div>
+    <div class="mfoot">
+      <button class="btn-full btn-full-ghost" onclick="closeTrade()">Cancel</button>
+      <button class="btn-full btn-full-green" id="confirmTradeBtn" onclick="proposeTrade()" disabled>Send Offer</button>
     </div>
   </div>
 </div>
@@ -586,6 +611,7 @@ async function loadData(){
 
     renderMembers();
     renderRoster();
+    loadTrades();
     await updateScores();
   }catch(e){showToast('Load failed: '+e.message,'err');}
 }
@@ -1098,6 +1124,154 @@ function openFA(){
   document.getElementById('faModal').classList.add('open');
 }
 function closeFA(){document.getElementById('faModal').classList.remove('open');faDropTicker=null;faPickup=null;}
+
+// TRADES
+let tradeOffer=null, tradeWant=null, tradePartner=null;
+
+function openTrade(){
+  if(!myMember)return;
+  const others=members.filter(m=>m.id!==myMember.id);
+  if(!others.length){showToast('No other members to trade with','err');return;}
+  document.getElementById('tradePartnerSelect').innerHTML=others.map(m=>`<option value="${m.id}">${escapeHtmlLeague(m.name)}</option>`).join('');
+  tradePartner=others[0];
+  renderTradeOfferList();
+  renderTradeWantList();
+  tradeOffer=null;tradeWant=null;
+  document.getElementById('confirmTradeBtn').disabled=true;
+  document.getElementById('tradeModal').classList.add('open');
+}
+function closeTrade(){document.getElementById('tradeModal').classList.remove('open');tradeOffer=null;tradeWant=null;}
+
+function onTradePartnerChange(){
+  const id=document.getElementById('tradePartnerSelect').value;
+  tradePartner=members.find(m=>m.id===id);
+  tradeWant=null;
+  renderTradeWantList();
+  document.getElementById('confirmTradeBtn').disabled=true;
+}
+
+function renderTradeOfferList(){
+  const allStocks=[...(myMember.starters||[]),...(myMember.bench||[])];
+  document.getElementById('tradeOfferList').innerHTML=allStocks.map(t=>{
+    const chg=priceMap[t]||0;const up=chg>=0;
+    const loc=myMember.starters.includes(t)?'Starter':'Bench';
+    return `<div class="trade-slot${tradeOffer===t?' sel':''}" onclick="selTradeOffer('${t}')">
+      <span class="t-ticker">${t}</span><span class="t-name">${loc}</span>
+      <span class="t-chg ${up?'chg-up':'chg-down'}">${up?'+':''}${chg.toFixed(2)}%</span>
+    </div>`;
+  }).join('')||'<div style="color:var(--muted);font-size:13px">No stocks in roster</div>';
+}
+function renderTradeWantList(){
+  const el=document.getElementById('tradeWantList');
+  if(!tradePartner){el.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:16px">Pick a trade partner first</div>';return;}
+  const theirStocks=[...(tradePartner.starters||[]),...(tradePartner.bench||[])];
+  el.innerHTML=theirStocks.map(t=>{
+    const chg=priceMap[t]||0;const up=chg>=0;
+    const loc=(tradePartner.starters||[]).includes(t)?'Starter':'Bench';
+    return `<div class="trade-slot${tradeWant===t?' sel':''}" onclick="selTradeWant('${t}')">
+      <span class="t-ticker">${t}</span><span class="t-name">${loc}</span>
+      <span class="t-chg ${up?'chg-up':'chg-down'}">${up?'+':''}${chg.toFixed(2)}%</span>
+    </div>`;
+  }).join('')||'<div style="color:var(--muted);font-size:13px">They have no stocks yet</div>';
+}
+function selTradeOffer(t){tradeOffer=t;renderTradeOfferList();document.getElementById('confirmTradeBtn').disabled=!(tradeOffer&&tradeWant);}
+function selTradeWant(t){tradeWant=t;renderTradeWantList();document.getElementById('confirmTradeBtn').disabled=!(tradeOffer&&tradeWant);}
+
+async function proposeTrade(){
+  if(!tradeOffer||!tradeWant||!tradePartner||!myMember)return;
+  const btn=document.getElementById('confirmTradeBtn');
+  btn.textContent='Sending...';btn.disabled=true;
+  try{
+    await sbPost('bullpen_trades',{
+      league_code:leagueCode, from_member_id:myMember.id, from_member_name:myMember.name,
+      to_member_id:tradePartner.id, to_member_name:tradePartner.name,
+      offer_ticker:tradeOffer, want_ticker:tradeWant, status:'pending'
+    });
+    closeTrade();
+    showToast(`Trade offer sent to ${tradePartner.name}!`,'ok');
+    loadTrades();
+  }catch(e){showToast('Failed to send trade offer','err');btn.textContent='Send Offer';btn.disabled=false;}
+}
+
+async function loadTrades(){
+  if(!myMember)return;
+  try{
+    const trades=await sbGet('bullpen_trades',`league_code=eq.${leagueCode}&status=eq.pending&order=created_at.desc`);
+    const mine=trades.filter(t=>t.from_member_id===myMember.id||t.to_member_id===myMember.id);
+    const card=document.getElementById('tradesCard');
+    if(!mine.length){card.style.display='none';return;}
+    card.style.display='';
+    document.getElementById('tradesList').innerHTML=mine.map(t=>{
+      const incoming=t.to_member_id===myMember.id;
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;margin-bottom:8px;font-size:13px">
+        <span>${incoming
+          ?`<strong>${escapeHtmlLeague(t.from_member_name)}</strong> offers you their <strong>${t.offer_ticker}</strong> for your <strong>${t.want_ticker}</strong>`
+          :`You offered <strong>${t.offer_ticker}</strong> to <strong>${escapeHtmlLeague(t.to_member_name)}</strong> for their <strong>${t.want_ticker}</strong> - waiting on them`}</span>
+        <span style="display:flex;gap:6px">
+          ${incoming?`<button onclick="acceptTrade('${t.id}')" style="background:var(--green);border:none;border-radius:6px;color:#04180c;padding:5px 12px;cursor:pointer;font-size:12px;font-weight:700">Accept</button><button onclick="rejectTrade('${t.id}')" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:5px 12px;cursor:pointer;font-size:12px">Decline</button>`
+          :`<button onclick="rejectTrade('${t.id}')" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:5px 12px;cursor:pointer;font-size:12px">Cancel</button>`}
+        </span>
+      </div>`;
+    }).join('');
+  }catch(e){ /* trades table might not exist yet - fail quietly */ }
+}
+
+async function rejectTrade(tradeId){
+  await sbPatch('bullpen_trades',`id=eq.${tradeId}`,{status:'rejected',resolved_at:new Date().toISOString()});
+  showToast('Trade declined','ok');
+  loadTrades();
+}
+
+async function acceptTrade(tradeId){
+  const trades=await sbGet('bullpen_trades',`id=eq.${tradeId}`);
+  const t=trades[0];
+  if(!t||t.status!=='pending'){showToast('This trade is no longer available','err');loadTrades();return;}
+
+  const fresh=await sbGet('bullpen_members',`id=in.(${t.from_member_id},${t.to_member_id})`);
+  const fromM=fresh.find(m=>m.id===t.from_member_id);
+  const toM=fresh.find(m=>m.id===t.to_member_id);
+  if(!fromM||!toM){showToast('Could not verify rosters - try again','err');return;}
+  const fromHas=[...(fromM.starters||[]),...(fromM.bench||[])].includes(t.offer_ticker);
+  const toHas=[...(toM.starters||[]),...(toM.bench||[])].includes(t.want_ticker);
+  if(!fromHas||!toHas){
+    await sbPatch('bullpen_trades',`id=eq.${tradeId}`,{status:'rejected',resolved_at:new Date().toISOString()});
+    showToast('This trade is no longer valid - a roster changed since it was offered','err');
+    loadTrades();return;
+  }
+
+  if(league && league.format === 'fpl'){
+    if(!fplTierData) await fetchFplTiers();
+    const offerPrice=fplPriceFor(t.offer_ticker), wantPrice=fplPriceFor(t.want_ticker);
+    if(offerPrice==null||wantPrice==null){showToast('One of these stocks is not priced yet','err');return;}
+    const fromSpentWithout=[...(fromM.starters||[]),...(fromM.bench||[])].filter(x=>x!==t.offer_ticker).reduce((s,x)=>s+(fplPriceFor(x)||0),0);
+    const toSpentWithout=[...(toM.starters||[]),...(toM.bench||[])].filter(x=>x!==t.want_ticker).reduce((s,x)=>s+(fplPriceFor(x)||0),0);
+    if(fromSpentWithout+wantPrice>FPL_BUDGET||toSpentWithout+offerPrice>FPL_BUDGET){
+      showToast('This trade would put someone over budget','err');return;
+    }
+  }
+
+  const swapTicker=(arr,oldT,newT)=>{
+    const copy=[...arr];
+    const i=copy.indexOf(oldT);
+    if(i>=0)copy[i]=newT;
+    return copy;
+  };
+  const newFromStarters=swapTicker(fromM.starters||[],t.offer_ticker,t.want_ticker);
+  const newFromBench=(fromM.starters||[]).includes(t.offer_ticker)?(fromM.bench||[]):swapTicker(fromM.bench||[],t.offer_ticker,t.want_ticker);
+  const newToStarters=swapTicker(toM.starters||[],t.want_ticker,t.offer_ticker);
+  const newToBench=(toM.starters||[]).includes(t.want_ticker)?(toM.bench||[]):swapTicker(toM.bench||[],t.want_ticker,t.offer_ticker);
+
+  await sbPatch('bullpen_members',`id=eq.${fromM.id}`,{starters:newFromStarters,bench:newFromBench});
+  await sbPatch('bullpen_members',`id=eq.${toM.id}`,{starters:newToStarters,bench:newToBench});
+  await sbPatch('bullpen_trades',`id=eq.${tradeId}`,{status:'accepted',resolved_at:new Date().toISOString()});
+
+  if(myMember.id===fromM.id){myMember.starters=newFromStarters;myMember.bench=newFromBench;}
+  if(myMember.id===toM.id){myMember.starters=newToStarters;myMember.bench=newToBench;}
+  showToast('Trade completed!','ok');
+  renderRoster();loadTrades();
+}
+function escapeHtmlLeague(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+
 function selFADrop(t){faDropTicker=t;document.querySelectorAll('#faDropList .trade-slot').forEach(el=>el.classList.remove('sel'));event.currentTarget.classList.add('sel');document.getElementById('confirmFABtn').disabled=!(faDropTicker&&faPickup);}
 
 async function faSearch(){
