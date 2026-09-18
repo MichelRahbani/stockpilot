@@ -513,6 +513,28 @@ const myMemberId=params.get('mid')||localStorage.getItem('bullpen_my_member_id')
 const myName=localStorage.getItem('bullpen_my_name')||'';
 
 let league=null,members=[],myMember=null,priceMap={},currentPriceMap={};
+let fplTierData=null;
+const FPL_BUDGET=100;
+
+async function fetchFplTiers(){
+  try{
+    const res = await fetch(BACKEND+'/api/sp500-tiers');
+    fplTierData = await res.json();
+  }catch(e){ fplTierData = null; }
+}
+function fplPriceFor(ticker){
+  return fplTierData?.prices?.[ticker]?.price ?? null;
+}
+function fplRosterSpent(exclude){
+  let spent = 0;
+  [...(myMember.starters||[]),...(myMember.bench||[])].forEach(t => {
+    if(t === exclude) return;
+    const price = fplPriceFor(t);
+    if(price != null) spent += price;
+  });
+  return spent;
+}
+
 let activeTab='starters';
 let swapOut=null,swapIn=null,faDropTicker=null,faPickup=null;
 
@@ -542,6 +564,7 @@ async function loadData(){
     document.getElementById('leagueName').textContent='🏟️ '+league.name;
     document.getElementById('leagueInfo').textContent=`Season ${league.season} · ${league.format==='fpl'?'FPL Style':'NFL Draft'} · Up to ${league.max_players} players`;
     document.getElementById('statWeek').textContent='W'+(league.current_week||1);
+    if(league.format === 'fpl') fetchFplTiers();
 
     members=await sbGet('bullpen_members',`league_code=eq.${leagueCode}&order=score.desc`);
     myMember=members.find(m=>m.id===myMemberId)||members.find(m=>m.name===myName)||null;
@@ -1094,14 +1117,24 @@ async function faSearch(){
     const pm={};(qdata?.quoteResponse?.result||[]).forEach(q=>{pm[q.symbol]=q.regularMarketChangePercent||0;});
     // Don't show stocks already in roster
     const myStocks=new Set([...(myMember.starters||[]),...(myMember.bench||[])]);
-    res.innerHTML=results.filter(x=>!myStocks.has(x.symbol)).map(x=>{
+    let filtered=results.filter(x=>!myStocks.has(x.symbol));
+    // NFL leagues are exclusive - a stock someone else already drafted
+    // is not a real free agent, same rule as the draft room itself.
+    if(league && league.format === 'nfl'){
+      const taken=league.drafted_tickers||{};
+      filtered=filtered.filter(x=>!taken[x.symbol]||taken[x.symbol]===myMember.id);
+    }
+    if(!filtered.length){res.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">'+(league&&league.format==='nfl'?'No available free agents match - everyone in the league already owns these.':'All results already in your roster')+'</div>';return;}
+    res.innerHTML=filtered.map(x=>{
       const chg=pm[x.symbol]||0;const up=chg>=0;
+      const fplPrice = (league && league.format === 'fpl') ? fplPriceFor(x.symbol) : null;
+      const priceTag = fplPrice != null ? `<span style="font-size:11px;color:#0d7a3f;font-weight:700;margin-left:6px">$${fplPrice}</span>` : '';
       return `<div class="trade-slot${faPickup&&faPickup.ticker===x.symbol?' sel':''}" onclick="selFAPickup('${x.symbol}','${(x.shortname||x.symbol).replace(/'/g,'')}')">
-        <span class="t-ticker">${x.symbol}</span>
+        <span class="t-ticker">${x.symbol}${priceTag}</span>
         <span class="t-name">${x.shortname||x.symbol}</span>
         <span class="t-chg ${up?'chg-up':'chg-down'}">${up?'+':''}${chg.toFixed(2)}%</span>
       </div>`;
-    }).join('')||'<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">All results already in your roster</div>';
+    }).join('');
   }catch(e){res.innerHTML='<div style="color:var(--red);font-size:13px;text-align:center;padding:12px">Search failed</div>';}
 }
 
@@ -1115,6 +1148,30 @@ function selFAPickup(ticker,name){
 async function confirmFA(){
   if(typeof trackEvent!="undefined")trackEvent("fa_pickup","Bullpen",leagueCode);
   if(!faDropTicker||!faPickup||!myMember)return;
+
+  // FPL: the swap has to fit budget once the dropped stock's cost is
+  // freed up - same rule as the actual draft, just applied to a swap.
+  if(league && league.format === 'fpl'){
+    const newPrice = fplPriceFor(faPickup.ticker);
+    if(newPrice == null){ showToast('This stock has not been priced yet - try another for now','err'); return; }
+    const budgetAfterDrop = FPL_BUDGET - fplRosterSpent(faDropTicker);
+    if(newPrice > budgetAfterDrop){ showToast(`Not enough budget - this costs $${newPrice}, you'd have $${budgetAfterDrop.toFixed(0)} after dropping ${faDropTicker}`,'err'); return; }
+  }
+
+  // NFL: re-verify the pickup is still actually free against fresh
+  // data right before committing, same race-safety as the draft room,
+  // then release the dropped stock and claim the new one league-wide.
+  if(league && league.format === 'nfl'){
+    const fresh = await sbGet('bullpen_leagues', `code=eq.${leagueCode}`);
+    if(!fresh || !fresh[0]){ showToast('Could not verify availability - try again','err'); return; }
+    league = fresh[0];
+    const taken = league.drafted_tickers || {};
+    if(taken[faPickup.ticker] && taken[faPickup.ticker] !== myMember.id){
+      showToast(`${faPickup.ticker} was just taken by someone else`,'err');
+      return;
+    }
+  }
+
   const btn=document.getElementById('confirmFABtn');
   btn.textContent='Saving...';btn.disabled=true;
   const starters=[...(myMember.starters||[])];
@@ -1132,6 +1189,13 @@ async function confirmFA(){
   else{showToast('Stock not found in roster','err');btn.textContent='Confirm Pickup';btn.disabled=false;return;}
 
   try{
+    if(league && league.format === 'nfl'){
+      const newDrafted = {...(league.drafted_tickers || {})};
+      delete newDrafted[faDropTicker];
+      newDrafted[faPickup.ticker] = myMember.id;
+      await sbPatch('bullpen_leagues', `code=eq.${leagueCode}`, { drafted_tickers: newDrafted });
+      league.drafted_tickers = newDrafted;
+    }
     await sbPatch('bullpen_members',`id=eq.${myMember.id}`,{starters,bench,fa_moves:newFA,score:newScore});
     myMember.starters=starters;myMember.bench=bench;myMember.fa_moves=newFA;myMember.score=newScore;
     closeFA();renderRoster();renderLeaderboard();
