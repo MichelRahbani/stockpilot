@@ -548,6 +548,11 @@ async function renderActive(){
     </div>
 
     <div class="card">
+      <h2>📊 Trade Performance</h2>
+      <div id="showdownTradeStats"><div style="color:var(--muted);font-size:13px">Loading...</div></div>
+    </div>
+
+    <div class="card">
       <h2>📜 Recent Trades</h2>
       <div id="recentTradesFeed"><div style="color:var(--muted);font-size:13px">Loading...</div></div>
     </div>
@@ -563,6 +568,7 @@ async function renderActive(){
   checkShowdownPendingOrders();
   renderShowdownAlerts();
   checkShowdownPriceAlerts();
+  renderShowdownTradeStats();
   loadRecentTrades();
   checkShowdownOptionExpirations();
   checkShowdownDividends();
@@ -619,6 +625,77 @@ async function setPct(pct){
   if(!price){ showToast('Could not get a price for that ticker.', 'error'); return; }
   const shares = Math.max(1, Math.floor((myEntry.cash * pct/100) / price));
   document.getElementById('tradeShares').value = shares;
+}
+
+// Computes real win rate / avg gain-loss / trade count from the
+// existing trade log via FIFO matching, so no changes were needed to
+// how holdings or trades are stored elsewhere - this only reads what
+// was already being logged. Handles both long and short round trips:
+// a sell matches against open long lots first (realizing long P&L),
+// any excess opens a short lot; a buy matches against open short
+// lots first (realizing short P&L), any excess opens a long lot.
+async function computeShowdownTradeStats(entryId){
+  const trades = await sbGet('bullpen_showdown_trades', `entry_id=eq.${entryId}&order=created_at.asc`);
+  const openLots = {}; // ticker -> [{shares, price, isLong}]
+  const closedTrades = []; // {ticker, pctReturn}
+
+  for(const t of trades){
+    if(!openLots[t.ticker]) openLots[t.ticker] = [];
+    const lots = openLots[t.ticker];
+    let remaining = t.shares;
+
+    if(t.action === 'buy'){
+      // Close short lots first
+      while(remaining > 0 && lots.length && !lots[0].isLong){
+        const lot = lots[0];
+        const matched = Math.min(remaining, lot.shares);
+        const pctReturn = ((lot.price - t.price) / lot.price) * 100; // short profits when price drops
+        closedTrades.push({ticker: t.ticker, pctReturn});
+        lot.shares -= matched; remaining -= matched;
+        if(lot.shares <= 0) lots.shift();
+      }
+      if(remaining > 0) lots.push({shares: remaining, price: t.price, isLong: true});
+    } else {
+      // Close long lots first
+      while(remaining > 0 && lots.length && lots[0].isLong){
+        const lot = lots[0];
+        const matched = Math.min(remaining, lot.shares);
+        const pctReturn = ((t.price - lot.price) / lot.price) * 100;
+        closedTrades.push({ticker: t.ticker, pctReturn});
+        lot.shares -= matched; remaining -= matched;
+        if(lot.shares <= 0) lots.shift();
+      }
+      if(remaining > 0) lots.push({shares: remaining, price: t.price, isLong: false});
+    }
+  }
+
+  const wins = closedTrades.filter(c => c.pctReturn > 0);
+  const losses = closedTrades.filter(c => c.pctReturn <= 0);
+  return {
+    totalTrades: trades.length,
+    closedTrades: closedTrades.length,
+    winRate: closedTrades.length ? (wins.length / closedTrades.length) * 100 : null,
+    avgGain: wins.length ? wins.reduce((s,c) => s+c.pctReturn, 0) / wins.length : null,
+    avgLoss: losses.length ? losses.reduce((s,c) => s+c.pctReturn, 0) / losses.length : null
+  };
+}
+
+async function renderShowdownTradeStats(){
+  const el = document.getElementById('showdownTradeStats');
+  if(!el || !myEntry) return;
+  const stats = await computeShowdownTradeStats(myEntry.id);
+  if(!stats.closedTrades){
+    el.innerHTML = `<div style="color:var(--muted);font-size:12px">No closed trades yet - stats appear once you've sold something.</div>`;
+    return;
+  }
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">
+      <div><div style="font-size:18px;font-weight:700;color:var(--text)">${stats.winRate.toFixed(0)}%</div><div style="font-size:10px;color:var(--muted)">WIN RATE</div></div>
+      <div><div style="font-size:18px;font-weight:700;color:#0d7a3f">${stats.avgGain != null ? '+'+stats.avgGain.toFixed(1)+'%' : '-'}</div><div style="font-size:10px;color:var(--muted)">AVG GAIN</div></div>
+      <div><div style="font-size:18px;font-weight:700;color:#dc2626">${stats.avgLoss != null ? stats.avgLoss.toFixed(1)+'%' : '-'}</div><div style="font-size:10px;color:var(--muted)">AVG LOSS</div></div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:var(--muted);margin-top:8px">${stats.closedTrades} closed trade${stats.closedTrades===1?'':'s'} · ${stats.totalTrades} total</div>
+  `;
 }
 
 async function loadRecentTrades(){
