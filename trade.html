@@ -770,14 +770,19 @@ async function computeFundQuote(fund){
     const weight = fund.holdings.find(h => h.ticker === t).weight / 100;
     if(startPrice && curPrice) navRatio += weight * (curPrice / startPrice);
   });
-  const price = fund.starting_nav * (navRatio || 1);
+  // Leverage applies to the RETURN, not the raw ratio - same as a
+  // real leveraged ETF: a 3x fund whose underlying basket is up 10%
+  // is up 30%, not simply 3x the price ratio.
+  const leverage = fund.leverage || 1;
+  const leveragedRatio = 1 + leverage * ((navRatio || 1) - 1);
+  const price = fund.starting_nav * leveragedRatio;
   const startingFundPrice = fund.starting_nav;
   const chg = price - startingFundPrice;
   const pct = startingFundPrice ? (chg / startingFundPrice) * 100 : 0;
   return {
     symbol: fund.ticker, longName: fund.name, shortName: fund.name,
     regularMarketPrice: price, regularMarketChange: chg, regularMarketChangePercent: pct,
-    isCustomFund: true, fundHoldings: fund.holdings, fundCode: fund.code
+    isCustomFund: true, fundHoldings: fund.holdings, fundCode: fund.code, fundLeverage: leverage
   };
 }
 async function fetchQuotesForFund(tickers){
@@ -795,7 +800,7 @@ function genFundCode(){
   for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
   return code;
 }
-async function createCustomFund(name, ticker, universe, holdings, creatorName){
+async function createCustomFund(name, ticker, universe, holdings, creatorName, leverage){
   const tickers = holdings.map(h => h.ticker);
   const priceMap = await fetchQuotesForFund(tickers);
   const missing = tickers.filter(t => !priceMap[t]);
@@ -803,7 +808,7 @@ async function createCustomFund(name, ticker, universe, holdings, creatorName){
   const code = genFundCode();
   const body = {
     code, ticker: ticker.toUpperCase(), name, creator_name: creatorName || 'Anonymous',
-    universe, holdings, starting_nav: 100, starting_prices: priceMap
+    universe, holdings, starting_nav: 100, starting_prices: priceMap, leverage: leverage || 1
   };
   try {
     const r = await fetch(SUPA_URL+'/rest/v1/custom_funds', {
@@ -870,6 +875,14 @@ function updateFundWeightBar(){
   totalEl.textContent = 'Total: ' + total.toFixed(0) + '%' + (total !== 100 ? ' (needs to equal 100%)' : ' ✓');
   totalEl.style.color = total === 100 ? '#86efac' : 'rgba(255,255,255,0.5)';
 }
+function onFundLeverageChange(input){
+  document.querySelectorAll('#fundLeverageRow .fund-lev-opt').forEach(label => {
+    const selected = label.querySelector('input').checked;
+    label.style.borderColor = selected ? 'var(--accent)' : 'rgba(255,255,255,0.15)';
+    label.style.background = selected ? 'var(--accent-bg)' : 'transparent';
+    label.style.color = selected ? '#fff' : 'rgba(255,255,255,0.6)';
+  });
+}
 async function submitCreateFund(){
   const name = document.getElementById('fundName').value.trim();
   const ticker = document.getElementById('fundTicker').value.trim().toUpperCase();
@@ -886,7 +899,8 @@ async function submitCreateFund(){
   const btn = document.getElementById('fundCreateBtn');
   btn.textContent = 'Creating...'; btn.disabled = true;
   const creatorName = (typeof getDisplayName === 'function' && getDisplayName()) || localStorage.getItem('sp_display_name') || 'Anonymous';
-  const result = await createCustomFund(name, ticker, fundUniverse, rows, creatorName);
+  const leverage = parseFloat(document.querySelector('input[name="fundLeverage"]:checked')?.value || '1');
+  const result = await createCustomFund(name, ticker, fundUniverse, rows, creatorName, leverage);
   btn.textContent = 'Create Fund →'; btn.disabled = false;
 
   if(result.error){ errEl.textContent = result.error; errEl.style.display='block'; return; }
@@ -976,17 +990,18 @@ function showQuote(q){ window._lastSymbol=q.symbol;
   const chg=q.regularMarketChange||0, pct=q.regularMarketChangePercent||0;
   const col=chg>=0?'#86efac':'#fca5a5';
   const priceFmt = q.isCustomFund ? fFund : f;
+  const isLeveraged = q.isCustomFund && q.fundLeverage > 1;
   const fundInfoCard = q.isCustomFund ? `
     <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,0.6)">
       <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:6px">🧠 What is this?</div>
-      <div style="margin-bottom:8px">A custom fund built by a user. Its price updates live from its real component stocks, weighted the same way a real index fund works.</div>
+      <div style="margin-bottom:8px">A custom fund built by a user. Its price updates live from its real component stocks, weighted the same way a real index fund works.${isLeveraged ? ` This one is <strong style="color:#fca5a5">${q.fundLeverage}x leveraged</strong> - it moves ${q.fundLeverage}x faster than its weighted holdings, in both directions, same real risk as a real leveraged ETF like TQQQ.` : ''}</div>
       <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:4px">Holdings</div>
       <div>${q.fundHoldings.map(h => h.ticker + ' ' + h.weight + '%').join(' · ')}</div>
     </div>` : '';
   document.getElementById('quoteArea').innerHTML=`
     <div class="q-header">
       <div>
-        <div class="q-sym">${q.symbol}${q.isCustomFund ? ' <span style="font-size:11px;background:var(--accent);padding:2px 8px;border-radius:100px;vertical-align:middle">CUSTOM FUND</span>' : ''} <button onclick="toggleQuoteInfo()" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;vertical-align:middle;line-height:1" aria-label="What is a stock quote?">i</button></div>
+        <div class="q-sym">${q.symbol}${q.isCustomFund ? ' <span style="font-size:11px;background:var(--accent);padding:2px 8px;border-radius:100px;vertical-align:middle">CUSTOM FUND</span>' : ''}${isLeveraged ? ` <span style="font-size:11px;background:#dc2626;padding:2px 8px;border-radius:100px;vertical-align:middle">${q.fundLeverage}x LEVERAGED</span>` : ''} <button onclick="toggleQuoteInfo()" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;vertical-align:middle;line-height:1" aria-label="What is a stock quote?">i</button></div>
         <div class="q-name">${q.longName||q.shortName||q.symbol}${q.isCustomFund ? ' · Priced in USD regardless of active market' : ''}</div>
       </div>
       <div>
@@ -2038,6 +2053,14 @@ document.head.appendChild(st);
 
     <div id="fundWeightBar" style="height:10px;border-radius:100px;background:#1a1a1a;overflow:hidden;margin:14px 0 4px;display:flex"></div>
     <div id="fundWeightTotal" style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px">Total: 0%</div>
+
+    <label style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700">LEVERAGE</label>
+    <div id="fundLeverageRow" style="display:flex;gap:8px;margin:6px 0 6px">
+      <label class="fund-lev-opt sel" style="flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-bg);color:#fff;font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="1" checked onchange="onFundLeverageChange(this)" style="margin-right:6px">1x</label>
+      <label class="fund-lev-opt" style="flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="2" onchange="onFundLeverageChange(this)" style="margin-right:6px">2x</label>
+      <label class="fund-lev-opt" style="flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="3" onchange="onFundLeverageChange(this)" style="margin-right:6px">3x</label>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:16px">2x/3x moves that much faster in both directions - same real risk as TQQQ or SOXL, just applied to your own mix.</div>
 
     <div id="fundBuilderError" style="display:none;color:#fca5a5;font-size:13px;margin-bottom:10px"></div>
 
