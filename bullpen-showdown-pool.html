@@ -293,6 +293,70 @@ function renderShowdownPendingOrders(){
   </div>`;
 }
 
+async function createShowdownPriceAlert(){
+  const ticker = document.getElementById('showdownAlertTicker').value.trim().toUpperCase();
+  const direction = document.getElementById('showdownAlertDirection').value;
+  const target = parseFloat(document.getElementById('showdownAlertPrice').value);
+  if(!ticker){ showToast('Enter a ticker', 'error'); return; }
+  if(!target || target <= 0){ showToast('Enter a target price', 'error'); return; }
+  const alerts = [...(myEntry.price_alerts || [])];
+  alerts.push({
+    id: 'alert_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+    ticker, direction, targetPrice: target, createdAt: new Date().toISOString()
+  });
+  await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {price_alerts: alerts});
+  myEntry.price_alerts = alerts;
+  showToast(`🔔 Alert set for ${ticker} ${direction} $${target.toFixed(2)}`, 'success');
+  document.getElementById('showdownAlertTicker').value = '';
+  document.getElementById('showdownAlertPrice').value = '';
+  renderShowdownAlerts();
+}
+
+async function cancelShowdownPriceAlert(alertId){
+  const alerts = (myEntry.price_alerts || []).filter(a => a.id !== alertId);
+  await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {price_alerts: alerts});
+  myEntry.price_alerts = alerts;
+  showToast('Alert cancelled', 'success');
+  renderShowdownAlerts();
+}
+
+function renderShowdownAlerts(){
+  const el = document.getElementById('showdownAlertsList');
+  if(!el) return;
+  const alerts = myEntry.price_alerts || [];
+  if(!alerts.length){ el.innerHTML = ''; return; }
+  el.innerHTML = alerts.map(a => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-top:6px;font-size:12px">
+      <span>${a.ticker} ${a.direction === 'above' ? '↑ above' : '↓ below'} $${a.targetPrice.toFixed(2)}</span>
+      <button onclick="cancelShowdownPriceAlert('${a.id}')" style="background:transparent;border:1px solid var(--border);border-radius:6px;color:var(--muted);padding:3px 8px;cursor:pointer;font-size:11px">Cancel</button>
+    </div>
+  `).join('');
+}
+
+async function checkShowdownPriceAlerts(){
+  const alerts = myEntry.price_alerts || [];
+  if(!alerts.length) return;
+  const tickers = [...new Set(alerts.map(a => a.ticker))];
+  const priceMap = {};
+  for(const t of tickers){ priceMap[t] = await getPrice(t).catch(() => null); }
+
+  const remaining = [];
+  let anyFired = false;
+  for(const a of alerts){
+    const price = priceMap[a.ticker];
+    if(!price){ remaining.push(a); continue; }
+    const triggered = a.direction === 'above' ? price >= a.targetPrice : price <= a.targetPrice;
+    if(!triggered){ remaining.push(a); continue; }
+    showToast(`🔔 ${a.ticker} is now ${a.direction === 'above' ? 'above' : 'below'} $${a.targetPrice.toFixed(2)} - currently $${price.toFixed(2)}`, 'success');
+    anyFired = true;
+  }
+  if(anyFired){
+    myEntry.price_alerts = remaining;
+    await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {price_alerts: remaining});
+    renderShowdownAlerts();
+  }
+}
+
 function populateShowdownProtectDropdown(){
   const sel = document.getElementById('showdownProtectTicker');
   if(!sel) return;
@@ -445,6 +509,19 @@ async function renderActive(){
         </div>
         <button class="btn-buy" onclick="setShowdownProtection()" style="width:100%;margin-top:8px;font-size:13px">Set Protection</button>
       </div>
+      <div style="margin-bottom:14px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">🔔 Price Alert</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input type="text" id="showdownAlertTicker" placeholder="Ticker" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;text-transform:uppercase">
+          <select id="showdownAlertDirection" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+            <option value="above">Goes above</option>
+            <option value="below">Goes below</option>
+          </select>
+          <input type="number" id="showdownAlertPrice" placeholder="Price" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+        </div>
+        <button class="btn-buy" onclick="createShowdownPriceAlert()" style="width:100%;font-size:13px">Set Alert</button>
+        <div id="showdownAlertsList" style="margin-top:8px"></div>
+      </div>
       <div id="showdownPendingOrders"></div>
       <h2 style="font-size:15px;margin-top:4px">Your Holdings</h2>
       ${holdingsHtml.join('')}
@@ -484,6 +561,8 @@ async function renderActive(){
   populateShowdownProtectDropdown();
   renderShowdownPendingOrders();
   checkShowdownPendingOrders();
+  renderShowdownAlerts();
+  checkShowdownPriceAlerts();
   loadRecentTrades();
   checkShowdownOptionExpirations();
   checkShowdownDividends();
@@ -877,6 +956,7 @@ async function renderCompleted(){
 
 load();
 setInterval(() => { if(myEntry) checkShowdownPendingOrders(); }, 30000);
+setInterval(() => { if(myEntry) checkShowdownPriceAlerts(); }, 30000);
 </script>
 </body>
 </html>
