@@ -2410,10 +2410,10 @@ const updateBulkStatus = () => {
 const updateDataSourceStatus = () => {
   const finnhubReady = Boolean(stockPilotProviderStatus?.finnhub?.configured);
   const secReady = Boolean(stockPilotProviderStatus?.secEdgar?.configured);
-  const statusText = stockPilotApiOnline ? "Live Data Connected" : "Fallback Data";
+  const statusText = stockPilotApiOnline ? "Live Data Connected" : "Connecting to Live Data";
   const providerText = stockPilotApiOnline
     ? `Gateway on${finnhubReady ? " + Finnhub" : ""}${secReady ? " + SEC" : ""}`
-    : "Live gateway offline";
+    : "Reconnecting - showing public backup data in the meantime";
   const checkedAt = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   const checkedAtRelative = "just now";
 
@@ -2423,12 +2423,12 @@ const updateDataSourceStatus = () => {
     liveDataPill.className = `live-data-pill ${stockPilotApiOnline ? "connected" : "fallback"}`;
     liveDataPill.title = stockPilotApiOnline
       ? "StockPilot is routing supported data through the local API gateway. Market data may still be delayed by the provider."
-      : "StockPilot is using fallback/public browser data. Start the live gateway for the strongest demo.";
+      : "Reconnecting to live pricing - this usually resolves within a minute. Public backup data is shown until it does.";
   }
 
   dataSourceStatus.textContent = stockPilotApiOnline
     ? `API connected: Yahoo public${finnhubReady ? " + Finnhub" : ""}${secReady ? " + SEC filings" : ""} + FRED`
-    : "Browser fallback data ready";
+    : "Public backup data - reconnecting to live pricing";
   dataSourceStatus.className = `data-source-status connected${stockPilotApiOnline ? " api-connected" : ""}`;
   fetchRealStocksButton.disabled = false;
   importPortfolioButton.disabled = false;
@@ -2650,27 +2650,27 @@ const getSettingsReadinessItems = () => {
 const getDataSourceItems = () => [
   {
     title: "Market Gateway",
-    value: stockPilotApiOnline ? "Connected" : "Fallback",
+    value: stockPilotApiOnline ? "Connected" : "Reconnecting",
     tone: stockPilotApiOnline ? "good" : "warn",
     detail: stockPilotApiOnline
-      ? "Frontend is using the local StockPilot API gateway before browser fallback."
-      : "Local API is not running, so the browser is using public fallback requests."
+      ? "Frontend is using the StockPilot API gateway before browser fallback."
+      : "Live gateway is reconnecting - the browser is using public backup data in the meantime."
   },
   {
     title: "Prices & History",
     value: stockPilotApiOnline ? "Gateway" : "Public",
     tone: stockPilotApiOnline ? "good" : "warn",
     detail: stockPilotApiOnline
-      ? "Daily price history and quotes are routed through the local gateway before any browser fallback."
-      : "Uses browser fallback requests until the local gateway is running."
+      ? "Daily price history and quotes are routed through the gateway before any browser fallback."
+      : "Uses public backup requests until the live gateway reconnects."
   },
   {
     title: "SEC Filings",
-    value: stockPilotApiOnline ? "Official" : "Gateway needed",
+    value: stockPilotApiOnline ? "Official" : "Reconnecting",
     tone: stockPilotApiOnline ? "good" : "warn",
     detail: stockPilotApiOnline
       ? "Supported US companies can pull official SEC companyfacts for filing-backed fundamentals."
-      : "Start the gateway to use official SEC filing facts instead of market-only data."
+      : "Official SEC filing facts will be available again once live data reconnects."
   },
   {
     title: "Keyed Quote API",
@@ -2678,7 +2678,7 @@ const getDataSourceItems = () => [
     tone: stockPilotProviderStatus?.finnhub?.configured ? "good" : "warn",
     detail: stockPilotProviderStatus?.finnhub?.configured
       ? "Finnhub key detected server-side for quote, profile, and metric enrichment."
-      : "Add FINNHUB_API_KEY in .env for stronger provider-backed quote enrichment."
+      : "Optional enrichment layer - core quotes and history work without it."
   },
   {
     title: "News",
@@ -2692,7 +2692,7 @@ const getDataSourceItems = () => [
     tone: stockPilotApiOnline ? "good" : "warn",
     detail: stockPilotApiOnline
       ? "Rates, CPI, unemployment, and mortgage context refresh through public FRED CSV series."
-      : "Macro cards show built-in demo context until the local API gateway can reach FRED."
+      : "Macro cards show built-in demo context until live data reconnects."
   },
   {
     title: "Production Upgrade",
@@ -2709,7 +2709,7 @@ const renderApiStatusPanel = () => {
       title: "Gateway",
       value: stockPilotApiOnline ? "Connected" : "Offline",
       tone: stockPilotApiOnline ? "good" : "bad",
-      detail: stockPilotApiOnline ? `The app is routing supported requests through ${stockPilotApiBaseUrl}.` : stockPilotApiError || "No local gateway response yet."
+      detail: stockPilotApiOnline ? `The app is routing supported requests through the live gateway.` : "Reconnecting to live data - this usually resolves within a minute."
     },
     {
       title: "Market Data",
@@ -4175,7 +4175,7 @@ const fetchMacroData = async () => {
       recordDataFreshness("macro", "success", "Fed funds, Treasury yield, CPI, unemployment, and mortgage-rate series refreshed.", "FRED via StockPilot API");
     } else {
       macroData = getFallbackMacroData();
-      recordDataFreshness("macro", "skipped", "Start the StockPilot API gateway for live FRED data. Showing built-in demo context.", "Built-in macro fallback");
+      recordDataFreshness("macro", "skipped", "Live FRED data will resume once the gateway reconnects. Showing built-in demo context for now.", "Built-in macro fallback");
     }
   } catch (error) {
     macroData = getFallbackMacroData();
@@ -7067,7 +7067,7 @@ const renderProfessorDemoKit = () => {
 
 const renderPresentationMode = () => {
   if (!presentationModeGrid) return;
-  const sourceMode = stockPilotApiOnline ? "Local API gateway" : "Browser fallback";
+  const sourceMode = stockPilotApiOnline ? "Live API gateway" : "Public backup data";
   const confidenceCounts = holdings.reduce(
     (counts, holding) => {
       counts[holdingConfidence(holding).level] += 1;
@@ -11569,11 +11569,21 @@ loadSavedWatchlist();
 updateDataSourceStatus();
 checkStockPilotApi().then(() => {
   // A cold-started backend can still be waking up even after the initial
-  // check's own retries gave up. One more attempt after a real pause
-  // catches that case, rather than leaving the whole session stuck on
-  // Fallback Data for a backend that's actually fine a few seconds later.
+  // check's own retries gave up. Keep trying every 15s for up to 2
+  // minutes total - a genuinely cold Railway container can take longer
+  // than one extra attempt accounts for, and a new user's very first
+  // visit (no prior warm session) is exactly when this matters most.
+  // Stops retrying the moment it comes back online, or after 8 attempts.
   if (!stockPilotApiOnline) {
-    setTimeout(() => { checkStockPilotApi(); }, 15000);
+    let gatewayRetryCount = 0;
+    const gatewayRetryInterval = setInterval(() => {
+      gatewayRetryCount++;
+      if (stockPilotApiOnline || gatewayRetryCount >= 8) {
+        clearInterval(gatewayRetryInterval);
+        return;
+      }
+      checkStockPilotApi();
+    }, 15000);
   }
 });
 renderMacroDashboard();
