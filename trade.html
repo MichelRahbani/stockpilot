@@ -1798,7 +1798,12 @@ async function saveTradeToCloud(ticker, action, shares, price, total){
   try {
     const nickname = localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || 'Anonymous';
     const uid = JSON.parse(atob(t.split('.')[1])).sub;
-    // Calculate current portfolio value
+    // This value is a rough snapshot for the trade log display only -
+    // it uses cost basis, not live price, so it's not accurate for
+    // anything beyond "what did this look like right after this
+    // trade". Real current value is computed live from
+    // student_portfolios (synced below) wherever it actually matters,
+    // like the classroom teacher view.
     const portfolioValue = port.cash + Object.values(port.pos).reduce((sum, p) => sum + (p.qty * p.avg), 0);
     await fetch(SUPA_URL2 + '/rest/v1/trades', {
       method: 'POST',
@@ -1819,7 +1824,25 @@ async function saveTradeToCloud(ticker, action, shares, price, total){
         portfolio_value: portfolioValue
       })
     });
+    await syncStudentPortfolio(uid, t);
   } catch(e) { /* silent fail — never block the trade */ }
+}
+
+async function syncStudentPortfolio(uid, token){
+  try {
+    const holdings = {};
+    Object.entries(port.pos).forEach(([sym, p]) => { if(p.qty) holdings[sym] = p.qty; });
+    await fetch(SUPA_URL2 + '/rest/v1/student_portfolios', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPA_KEY2,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'resolution=merge-duplicates,return=minimal'
+      },
+      body: JSON.stringify({ user_id: uid, cash: port.cash, holdings, updated_at: new Date().toISOString() })
+    });
+  } catch(e) { /* silent fail — classroom view falls back to last-known trade snapshot */ }
 }
 
 async function renderPort(){
