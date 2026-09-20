@@ -904,7 +904,8 @@ async function openStudentDashboard(classId){
   const memberMap = {};
   members.forEach(m=>memberMap[m.user_id]=m.nickname||'Student');
 
-  // Get trades for all members
+  // Get trades for all members (used for trade counts only - real
+  // current value comes from live holdings below, not trade snapshots)
   let trades = [];
   if(uids.length){
     const t = await sbGet('trades','user_id=in.('+uids.join(',')+')&order=created_at.desc&limit=1000');
@@ -914,22 +915,59 @@ async function openStudentDashboard(classId){
   // My trades only
   const myTrades = trades.filter(t=>t.user_id===uid);
 
-  // Build student stats
+  // Build student stats from real current holdings, not a stale
+  // trade-time snapshot - same proven pattern as the instructor
+  // dashboard, which already computes this correctly.
   const studentStats = {};
   members.forEach(m=>{
-    studentStats[m.user_id] = {name:memberMap[m.user_id], value:100000, trades:0, lastValue:100000};
+    studentStats[m.user_id] = {name:memberMap[m.user_id], cash:100000, positions:{}, value:100000, trades:0};
   });
+
+  const SUPA_KEY_SD = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+  if(uids.length){
+    try {
+      const portfoliosRes = await fetch(SUPA_URL+'/rest/v1/virtual_portfolios?user_id=in.('+uids.join(',')+')',{
+        headers:{'apikey':SUPA_KEY_SD,'Authorization':'Bearer '+SUPA_KEY_SD}
+      });
+      const portfolios = await portfoliosRes.json();
+      if(Array.isArray(portfolios)){
+        portfolios.forEach(p=>{
+          if(studentStats[p.user_id] && p.portfolio){
+            studentStats[p.user_id].cash = p.portfolio.cash || 100000;
+            studentStats[p.user_id].positions = p.portfolio.pos || {};
+          }
+        });
+      }
+    } catch(e){ console.log('Portfolio fetch error:', e); }
+  }
+
   trades.forEach(t=>{
-    if(studentStats[t.user_id] && t.portfolio_value){
-      studentStats[t.user_id].value = t.portfolio_value;
-      studentStats[t.user_id].trades++;
-    }
+    if(studentStats[t.user_id]) studentStats[t.user_id].trades++;
+  });
+
+  const sdAllTickers = new Set();
+  Object.values(studentStats).forEach(s=>{ Object.keys(s.positions).forEach(tk=>sdAllTickers.add(tk)); });
+  let sdPriceMap = {};
+  if(sdAllTickers.size > 0){
+    try {
+      const BACKEND_SD = 'https://stockpilot-production-c94f.up.railway.app';
+      const r = await fetch(BACKEND_SD+'/api/quotes?symbols='+[...sdAllTickers].join(','));
+      const data = await r.json();
+      (data?.quoteResponse?.result||[]).forEach(q=>{ sdPriceMap[q.symbol] = q.regularMarketPrice || 0; });
+    } catch(e){ console.log('Price fetch error:', e); }
+  }
+  Object.values(studentStats).forEach(s=>{
+    let holdingsValue = 0;
+    Object.entries(s.positions).forEach(([ticker, pos])=>{
+      const livePrice = sdPriceMap[ticker] || pos.avg || 0;
+      holdingsValue += (pos.qty || 0) * livePrice;
+    });
+    s.value = s.cash + holdingsValue;
   });
 
   // My stats
   const myStats = studentStats[uid] || {value:100000, trades:0};
   const myReturn = ((myStats.value-100000)/100000*100);
-  // Note: value from last trade — live recalc available on instructor dashboard
   document.getElementById('sdMyValue').textContent = '$'+myStats.value.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
   document.getElementById('sdMyReturn').textContent = (myReturn>=0?'+':'')+myReturn.toFixed(2)+'%';
   document.getElementById('sdMyReturn').style.color = myReturn>=0?'var(--green)':'var(--red)';
