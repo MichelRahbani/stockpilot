@@ -429,7 +429,7 @@ function openCreate(){
   document.getElementById('createModal').classList.add('open');
 }
 function closeCreate(){ document.getElementById('createModal').classList.remove('open'); }
-function openJoin(){ document.getElementById('joinModal').classList.add('open'); }
+function openJoin(prefillCode){ document.getElementById('joinModal').classList.add('open'); if(prefillCode) document.getElementById('jCode').value = prefillCode; }
 function closeJoin(){ document.getElementById('joinModal').classList.remove('open'); }
 
 function genCode(){
@@ -547,6 +547,10 @@ function goToTournament(){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const joinCode = new URLSearchParams(window.location.search).get('join');
+  if(joinCode){
+    requireAuth(() => openJoin(joinCode));
+  }
   const savedCode = localStorage.getItem('bshowdown_my_code');
   if(savedCode && isLoggedIn()){
     const banner = document.createElement('div');
