@@ -44,6 +44,27 @@
    workspace picker entirely rather than remove them, since app.js
    expects them to exist in the DOM even when unused. */
 .mode-switcher, .workspace-navigator { display: none !important; }
+/* Learn had three stacked popups on first visit: this page's own
+   welcomePopup disclaimer, then app.js's near-duplicate
+   educationalOverlay disclaimer, then app.js's onboarding wizard
+   (which is about budgets/goals/portfolio, not learning). Keeping
+   welcomePopup as the single, short disclaimer and force-hiding the
+   other two here rather than deleting them from app.js, since other
+   pages still need them. */
+#educationalOverlay, #onboardingOverlay { display: none !important; }
+/* Learn's top-level tab bar had 8 entries, but Terms/History/Concepts/
+   Behavior are all just different default panels of the same Library
+   view (data-learning-area="library"), not genuinely separate
+   destinations - and every one of them is already reachable through
+   the "Learning Focus" quick-actions in the sidebar. Hiding the
+   redundant ones here rather than touching the JS, so the existing
+   click-to-panel wiring (and the mobile dropdown, which still lists
+   every option) stays completely intact. Down to 4 top-level tabs:
+   Overview, Pathway, Tips, Practice. */
+.learning-area-tab[data-default-panel="terms"],
+.learning-area-tab[data-default-panel="history"],
+.learning-area-tab[data-default-panel="concepts"],
+.learning-area-tab[data-default-panel="behavior"] { display: none !important; }
 </style>
 </head>
   <body class="command-mode beginner-mode">
@@ -1019,11 +1040,6 @@
               <button class="ghost-button" id="reviewEducationalNoticeButton" type="button">Open Settings</button>
             </div>
           </div>
-        </section>
-
-        <section class="data-quality-banner" aria-label="Data quality note">
-          <strong>Provider-backed data</strong>
-          <span>StockPilot uses the local API gateway for public market quotes, SEC filing facts, FRED macro series, and RSS headlines when connected. Data can still be delayed, revised, rate-limited, or unavailable, so verify critical figures before acting.</span>
         </section>
 
 
