@@ -446,7 +446,7 @@ async function renderActive(){
       <div class="t-header">
         <div><div class="t-name">📈 ${tournament.name}</div><div class="t-meta">Code: ${tournament.code} · Ends ${tournament.end_date}</div></div>
       </div>
-      <div class="card empty-state">You haven't joined this showdown yet. <a href="/bullpen-showdown.html" style="color:var(--blue)">Join with the code →</a></div>`;
+      <div class="card empty-state">You haven't joined this showdown yet. <a href="/bullpen-showdown.html?join=${tournament.code}" style="color:var(--blue)">Join with the code →</a></div>`;
     return;
   }
 
