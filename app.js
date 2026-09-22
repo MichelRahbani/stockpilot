@@ -5183,24 +5183,24 @@ const renderLearningPath = () => {
               <strong>${escapeHtml(lesson.title)}</strong>
               <p>${escapeHtml(lesson.skill)}</p>
               <div class="path-lesson-detail">
-                <section class="lesson-detail-block">
-                  <span>Simple English</span>
+                <section class="lesson-detail-block lesson-detail-simple">
+                  <span>💬 Simple English</span>
                   <p>${escapeHtml(lesson.simple || lesson.skill)}</p>
                 </section>
-                <section class="lesson-detail-block">
-                  <span>Why it matters</span>
+                <section class="lesson-detail-block lesson-detail-why">
+                  <span>⚡ Why it matters</span>
                   <p>${escapeHtml(lesson.why || "This idea helps connect daily money decisions to long-term outcomes.")}</p>
                 </section>
-                <section class="lesson-detail-block">
-                  <span>Example</span>
+                <section class="lesson-detail-block lesson-detail-example">
+                  <span>📊 Example</span>
                   <p>${escapeHtml(lesson.example || "Use this lesson as a lens when reviewing your own numbers.")}</p>
                 </section>
-                <section class="lesson-detail-block">
-                  <span>How to use it in StockPilot</span>
+                <section class="lesson-detail-block lesson-detail-howto">
+                  <span>🎯 How to use it in StockPilot</span>
                   <p>${escapeHtml(getLessonAppStep(lesson))}</p>
                 </section>
-                <section class="lesson-detail-block">
-                  <span>Key ideas</span>
+                <section class="lesson-detail-block lesson-detail-keyideas">
+                  <span>💡 Key ideas</span>
                   <ul>
                     ${renderLessonList([
                       lesson.skill,
@@ -5209,12 +5209,12 @@ const renderLearningPath = () => {
                     ])}
                   </ul>
                 </section>
-                <section class="lesson-detail-block">
-                  <span>Mistakes to avoid</span>
+                <section class="lesson-detail-block lesson-detail-mistakes">
+                  <span>⚠️ Mistakes to avoid</span>
                   <ul>${renderLessonList(getLessonMistakes(lesson))}</ul>
                 </section>
-                <section class="lesson-detail-block">
-                  <span>Practice prompt</span>
+                <section class="lesson-detail-block lesson-detail-practice">
+                  <span>✏️ Practice prompt</span>
                   <p>${escapeHtml(lesson.practice || "Write one action you can take from this lesson today.")}</p>
                 </section>
                 <section class="comprehension-check" aria-label="Comprehension check for ${escapeHtml(lesson.title)}">
