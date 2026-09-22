@@ -2358,6 +2358,36 @@ body.pro-mode .beginner-copy {
   width: min(56rem, 100%);
 }
 
+.account-card-simple {
+  width: min(26rem, 100%);
+}
+
+.account-tab-row {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0.75rem 0 1rem;
+}
+
+.account-tab {
+  flex: 1;
+  padding: 0.55rem;
+  border-radius: 8px;
+  border: 1.5px solid rgba(47, 72, 88, 0.18);
+  background: transparent;
+  color: #6b7a9a;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+
+.account-tab-active {
+  border-color: #2979ff;
+  background: rgba(41, 121, 255, 0.1);
+  color: #2979ff;
+}
+
 .educational-card {
   display: grid;
   gap: 0.95rem;
