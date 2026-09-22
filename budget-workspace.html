@@ -845,76 +845,44 @@
         </section>
 
         <section class="account-overlay" id="accountOverlay" hidden aria-label="StockPilot account">
-          <div class="account-card" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
+          <div class="account-card account-card-simple" role="dialog" aria-modal="true" aria-labelledby="accountModalTitle">
             <div class="section-title">
               <div>
                 <p class="eyebrow">StockPilot Account</p>
-                <h2 id="accountModalTitle">Create a user or sign in</h2>
-                <span class="table-note">Create an account to save your portfolio and access it from any device.</span>
+                <h2 id="accountModalTitle">Sign In</h2>
+                <span class="table-note">You need a StockPilot account to save your portfolio and access it from any device.</span>
               </div>
               <button class="info-close" id="closeAccountButton" type="button" aria-label="Close account panel">x</button>
             </div>
-            <div class="account-current-card" id="accountCurrentCard">
-              <div>
-                <span>Current User</span>
-                <strong id="accountCurrentName">Guest</strong>
-                <p id="accountCurrentDetail">Create a user before presenting saved plans, goals, and portfolios.</p>
-              </div>
-              <div class="account-current-actions">
-                <button class="ghost-button small-button" id="accountFocusCreateButton" type="button">Create User</button>
-                <button class="ghost-button small-button" id="accountFocusLoginButton" type="button">Sign In</button>
-              </div>
+            <div class="account-tab-row">
+              <button type="button" class="account-tab account-tab-active" id="accountTabIn" onclick="setAccountModalMode('in')">Sign In</button>
+              <button type="button" class="account-tab" id="accountTabUp" onclick="setAccountModalMode('up')">Sign Up</button>
             </div>
-            <div class="account-form-grid">
-              <article>
-                <h3>Create User</h3>
-                <label class="field">
-                  <span>Name</span>
-                  <input id="createAccountName" autocomplete="name" placeholder="Your name" />
-                </label>
-                <label class="field">
-                  <span>Email</span>
-                  <input id="createAccountEmail" type="email" autocomplete="email" placeholder="you@example.com" />
-                </label>
-                <label class="field">
-                  <span>Password</span>
-                  <input id="createAccountCode" type="password" autocomplete="new-password" placeholder="At least 6 characters" />
-                </label>
-                <button class="primary-button" id="createAccountButton" type="button">Create User</button>
-              </article>
-              <article>
-                <h3>Sign In</h3>
-                <label class="field">
-                  <span>Email</span>
-                  <input id="loginAccountEmail" type="email" autocomplete="email" placeholder="you@example.com" />
-                </label>
-                <label class="field">
-                  <span>Password</span>
-                  <input id="loginAccountCode" type="password" autocomplete="current-password" placeholder="Your password" />
-                </label>
-                <div class="button-row">
-                  <button class="primary-button" id="loginAccountButton" type="button">Sign In</button>
-                  <button class="ghost-button small-button" id="forgotPasswordButton" type="button" style="margin-top:8px;width:100%;font-size:13px;color:#6b7a9a">Forgot password?</button>
-                  <button class="ghost-button" id="signOutButton" type="button">Sign Out</button>
-                </div>
-              </article>
-              <article class="account-backup-card">
-                <h3>Backup</h3>
-                <p class="table-note">Save or restore your StockPilot demo data in this browser.</p>
-                <div class="button-row">
-                  <button class="ghost-button small-button" id="exportAppDataButton" type="button">Copy Backup</button>
-                  <button class="primary-button small-button" id="importAppDataButton" type="button">Restore Backup</button>
-                </div>
-                <textarea id="appDataTransfer" rows="4" placeholder="Your backup appears here. Paste a backup here to restore."></textarea>
-              </article>
-              <article class="account-cloud-card">
-                <h3>Cloud-Ready Plan</h3>
-                <p class="table-note">This keeps the demo honest while showing what an online launch would sync.</p>
-                <div class="cloud-readiness-grid" id="cloudReadinessGrid"></div>
-                <p class="helper-text" id="cloudReadinessStatus">Local demo today. Future production version would use secure login, encrypted storage, and server-side backups.</p>
-              </article>
-            </div>
-            <p class="helper-text" id="accountMessage">This is a simple local demo user. A future online version would use secure cloud login.</p>
+            <p class="helper-text" id="accountMessage"></p>
+            <label class="field" id="accountNameField" style="display:none">
+              <span>Name</span>
+              <input id="createAccountName" autocomplete="name" placeholder="Your name" />
+            </label>
+            <label class="field" id="accountEmailFieldIn">
+              <span>Email</span>
+              <input id="loginAccountEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+            </label>
+            <label class="field" id="accountEmailFieldUp" style="display:none">
+              <span>Email</span>
+              <input id="createAccountEmail" type="email" autocomplete="email" placeholder="you@example.com" />
+            </label>
+            <label class="field" id="accountPassFieldIn">
+              <span>Password</span>
+              <input id="loginAccountCode" type="password" autocomplete="current-password" placeholder="Your password" />
+            </label>
+            <label class="field" id="accountPassFieldUp" style="display:none">
+              <span>Password</span>
+              <input id="createAccountCode" type="password" autocomplete="new-password" placeholder="At least 6 characters" />
+            </label>
+            <button class="primary-button" id="loginAccountButton" type="button">Sign In</button>
+            <button class="primary-button" id="createAccountButton" type="button" style="display:none">Create Account</button>
+            <button class="ghost-button small-button" id="forgotPasswordButton" type="button" style="width:100%;margin-top:8px">Forgot password?</button>
+            <button class="ghost-button" id="signOutButton" type="button" style="display:none;width:100%;margin-top:8px">Sign Out</button>
           </div>
         </section>
 
@@ -1019,11 +987,6 @@
               <button class="ghost-button" id="reviewEducationalNoticeButton" type="button">Open Settings</button>
             </div>
           </div>
-        </section>
-
-        <section class="data-quality-banner" aria-label="Data quality note">
-          <strong>Provider-backed data</strong>
-          <span>StockPilot uses the local API gateway for public market quotes, SEC filing facts, FRED macro series, and RSS headlines when connected. Data can still be delayed, revised, rate-limited, or unavailable, so verify critical figures before acting.</span>
         </section>
 
 
