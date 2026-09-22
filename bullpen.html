@@ -944,6 +944,18 @@ async function createLeague() {
       alert('Pick both a start and end date for your custom season.');
       return;
     }
+    // A date input can hand back a malformed year (e.g. "0026" instead
+    // of "2026") depending on how it was typed. Catch that here rather
+    // than silently storing bad data - nothing currently reads
+    // season_start back, but a future feature might, and there's no
+    // reason to let obviously-wrong years through.
+    const startYear = parseInt(seasonStart.slice(0, 4), 10);
+    const endYear = parseInt(seasonEnd.slice(0, 4), 10);
+    if(startYear < 2000 || startYear > 2100 || endYear < 2000 || endYear > 2100){
+      btn.textContent = 'Create League'; btn.disabled = false;
+      alert('That date doesn\'t look right - check the year on your start and end dates.');
+      return;
+    }
     if(new Date(seasonEnd) <= new Date(seasonStart)){
       btn.textContent = 'Create League'; btn.disabled = false;
       alert('The end date needs to be after the start date.');
