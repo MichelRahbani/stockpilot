@@ -2848,6 +2848,29 @@ const applySettingsFromPanel = () => {
   }
 };
 
+const setAccountModalMode = (mode) => {
+  const isUp = mode === "up";
+  const tabIn = document.getElementById("accountTabIn");
+  const tabUp = document.getElementById("accountTabUp");
+  if (tabIn) tabIn.classList.toggle("account-tab-active", !isUp);
+  if (tabUp) tabUp.classList.toggle("account-tab-active", isUp);
+  const nameField = document.getElementById("accountNameField");
+  if (nameField) nameField.style.display = isUp ? "block" : "none";
+  const emailIn = document.getElementById("accountEmailFieldIn");
+  const emailUp = document.getElementById("accountEmailFieldUp");
+  if (emailIn) emailIn.style.display = isUp ? "none" : "block";
+  if (emailUp) emailUp.style.display = isUp ? "block" : "none";
+  const passIn = document.getElementById("accountPassFieldIn");
+  const passUp = document.getElementById("accountPassFieldUp");
+  if (passIn) passIn.style.display = isUp ? "none" : "block";
+  if (passUp) passUp.style.display = isUp ? "block" : "none";
+  if (loginAccountButton) loginAccountButton.style.display = isUp ? "none" : "block";
+  if (createAccountButton) createAccountButton.style.display = isUp ? "block" : "none";
+  const title = document.getElementById("accountModalTitle");
+  if (title) title.textContent = isUp ? "Sign Up" : "Sign In";
+  setAccountMessage("", "neutral");
+};
+
 const createLocalAccount = async () => {
   const name = createAccountName?.value.trim();
   const email = normalizeEmail(createAccountEmail?.value || "");
