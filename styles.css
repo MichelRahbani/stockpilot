@@ -5104,10 +5104,29 @@ body.education-mode .education-hub {
 .lesson-detail-block,
 .comprehension-check {
   border: 1px solid rgba(107, 79, 200, 0.1);
+  border-left-width: 3px;
   border-radius: 10px;
   background: #ffffff;
   padding: 0.6rem;
 }
+
+/* Distinct accent per section type, so the seven blocks in a lesson
+   card read as different kinds of information at a glance instead of
+   all looking identical. */
+.lesson-detail-simple { border-left-color: #2563eb; background: rgba(37, 99, 235, 0.05); }
+.lesson-detail-simple > span { color: #2563eb; }
+.lesson-detail-why { border-left-color: #d97706; background: rgba(217, 119, 6, 0.05); }
+.lesson-detail-why > span { color: #b45309; }
+.lesson-detail-example { border-left-color: #059669; background: rgba(5, 150, 105, 0.05); }
+.lesson-detail-example > span { color: #047857; }
+.lesson-detail-howto { border-left-color: #6b4fc8; background: rgba(107, 79, 200, 0.06); }
+.lesson-detail-howto > span { color: #4d38a1; }
+.lesson-detail-keyideas { border-left-color: #db2777; background: rgba(219, 39, 119, 0.05); }
+.lesson-detail-keyideas > span { color: #be185d; }
+.lesson-detail-mistakes { border-left-color: #dc2626; background: rgba(220, 38, 38, 0.05); }
+.lesson-detail-mistakes > span { color: #b91c1c; }
+.lesson-detail-practice { border-left-color: #0d9488; background: rgba(13, 148, 136, 0.05); }
+.lesson-detail-practice > span { color: #0f766e; }
 
 .path-lesson-detail span,
 .comprehension-check span {
