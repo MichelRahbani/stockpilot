@@ -669,11 +669,18 @@ function openInput(r,c){
 
 function renderHints(r,c){
   const used = usedTickers();
-  const valid = Object.keys(COMPANIES).filter(t => checkFit(t, game.rows[r], game.cols[c]) && !used.has(t));
   const box = document.getElementById('hintRow');
+  const available = Object.keys(COMPANIES).filter(t => !used.has(t));
+  const valid = available.filter(t => checkFit(t, game.rows[r], game.cols[c]));
+  const invalid = available.filter(t => !checkFit(t, game.rows[r], game.cols[c]));
   if(!valid.length){ box.innerHTML = ''; return; }
-  box.innerHTML = '<div class="hint-label">Need an option? Tap one:</div>' +
-    valid.slice(0,3).map(t => `<span class="sugg" onclick="document.getElementById('tickerInput').value='${t}'">${t}</span>`).join('');
+
+  const correctPick = shuffle(valid)[0];
+  const wrongPicks = shuffle(invalid).slice(0, 4);
+  const options = shuffle([correctPick, ...wrongPicks]);
+
+  box.innerHTML = '<div class="hint-label">Need an option? Only one of these actually fits:</div>' +
+    options.map(t => `<span class="sugg" onclick="document.getElementById('tickerInput').value='${t}'">${t}</span>`).join('');
 }
 
 function closeInput(){
