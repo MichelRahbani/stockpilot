@@ -57,6 +57,11 @@
   }
   .form-panel input:focus{outline:none; border-color:var(--blue)}
   .form-panel input#joinCodeInput{text-transform:uppercase; letter-spacing:2px}
+  .diff-btn{
+    flex:1; background:var(--bg3); border:1.5px solid var(--border); border-radius:8px;
+    padding:9px; font-size:13px; font-weight:700; color:var(--muted); cursor:pointer; font-family:inherit;
+  }
+  .diff-btn.active{border-color:var(--blue); background:rgba(91,141,239,0.1); color:var(--text)}
   .big-btn{
     width:100%; background:var(--blue); color:#fff; border:none; border-radius:10px;
     padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;
@@ -213,6 +218,12 @@
     <div class="form-panel" id="createPanel" style="display:none">
       <label>Your Name</label>
       <input id="createNameInput" placeholder="Your name" maxlength="24">
+      <label>Difficulty</label>
+      <div class="difficulty-row" style="display:flex;gap:8px;margin-bottom:16px">
+        <button type="button" class="diff-btn" data-diff="easy" onclick="setDifficulty('easy')">Easy</button>
+        <button type="button" class="diff-btn active" data-diff="medium" onclick="setDifficulty('medium')">Medium</button>
+        <button type="button" class="diff-btn" data-diff="hard" onclick="setDifficulty('hard')">Hard</button>
+      </div>
       <div class="form-err" id="createErr"></div>
       <button class="big-btn" onclick="createGame()">Create Game →</button>
     </div>
@@ -237,6 +248,7 @@
 
   <!-- ══ GAME BOARD ══ -->
   <div id="gameView">
+    <div id="difficultyBadge" style="text-align:center;margin-bottom:10px"></div>
     <div id="spectatorBadge" style="display:none;text-align:center;margin-bottom:14px">
       <span style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);font-weight:700">👀 Spectating</span>
     </div>
@@ -403,17 +415,39 @@ function showCategoryInfo(event, type, idx){
 }
 function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 
-function generateGrid(){
-  for(let attempt=0; attempt<600; attempt++){
+function avgOptionsPerCell(rows, cols){
+  let total = 0;
+  for(const r of rows){ for(const c of cols){
+    total += Object.values(COMPANIES).filter(co => catMatches(co,r) && catMatches(co,c)).length;
+  }}
+  return total / 9;
+}
+
+function generateGrid(difficulty){
+  difficulty = difficulty || 'medium';
+  const candidates = [];
+  for(let attempt=0; attempt<2000 && candidates.length<12; attempt++){
     const rows = shuffle(ROW_POOL).slice(0,3);
     const cols = shuffle(COL_POOL).slice(0,3);
     let solvable = true;
     outer: for(const r of rows){ for(const c of cols){
       if(!Object.values(COMPANIES).some(co => catMatches(co,r) && catMatches(co,c))){ solvable=false; break outer; }
     }}
-    if(solvable) return {rows, cols};
+    if(solvable) candidates.push({rows, cols, score: avgOptionsPerCell(rows, cols)});
   }
-  return {rows:[ROW_POOL[0],ROW_POOL[1],ROW_POOL[2]], cols:[COL_POOL[0],COL_POOL[1],COL_POOL[2]]};
+  if(!candidates.length){
+    return {rows:[ROW_POOL[0],ROW_POOL[1],ROW_POOL[2]], cols:[COL_POOL[0],COL_POOL[1],COL_POOL[2]]};
+  }
+  candidates.sort((a,b) => a.score - b.score); // low score = fewer options = harder
+  let picked;
+  if(difficulty === 'hard'){
+    picked = candidates[0];
+  } else if(difficulty === 'easy'){
+    picked = candidates[candidates.length-1];
+  } else {
+    picked = candidates[Math.floor(candidates.length/2)];
+  }
+  return {rows: picked.rows, cols: picked.cols};
 }
 
 function checkFit(ticker, rowCat, colCat){
@@ -447,6 +481,12 @@ let pollTimer = null;
 let isSpectator = false;
 let turnTimerInterval = null;
 const TURN_SECONDS = 40;
+let selectedDifficulty = 'medium';
+
+function setDifficulty(level){
+  selectedDifficulty = level;
+  document.querySelectorAll('.diff-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.diff === level));
+}
 
 function genCode(){
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -470,7 +510,7 @@ async function createGame(){
   errEl.textContent = '';
 
   const code = genCode();
-  const picked = generateGrid();
+  const picked = generateGrid(selectedDifficulty);
   const rows = await sbPost('bullpen_gridiron_games', {
     code, player_x_name: name, player_x_id: myPlayerId,
     board: Array(9).fill(null), current_turn: 'X', status: 'waiting', turn_started_at: new Date().toISOString(),
@@ -533,8 +573,19 @@ function enterGame(){
   document.getElementById('spectatorLinkRow').style.display = isSpectator ? 'none' : 'block';
   document.getElementById('playerXName').textContent = game.player_x_name;
   document.getElementById('playerOName').textContent = game.player_o_name || '—';
+  renderDifficultyBadge();
   renderBoard();
   pollGameState();
+}
+
+function renderDifficultyBadge(){
+  const avg = avgOptionsPerCell(game.rows, game.cols);
+  let label, color;
+  if(avg <= 1.7){ label = 'Hard'; color = 'var(--red)'; }
+  else if(avg <= 2.3){ label = 'Medium'; color = 'var(--gold)'; }
+  else { label = 'Easy'; color = 'var(--green)'; }
+  document.getElementById('difficultyBadge').innerHTML =
+    `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:${color}">${label} grid</span>`;
 }
 
 function copySpectatorLink(){
@@ -791,7 +842,7 @@ async function rematchGame(){
   setLandingMode('create');
 
   const code = genCode();
-  const picked = generateGrid();
+  const picked = generateGrid(selectedDifficulty);
   const rows = await sbPost('bullpen_gridiron_games', {
     code, player_x_name: myName, player_x_id: myPlayerId,
     board: Array(9).fill(null), current_turn: 'X', status: 'waiting', turn_started_at: new Date().toISOString(),
