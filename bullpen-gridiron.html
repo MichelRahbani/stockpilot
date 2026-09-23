@@ -364,7 +364,11 @@ const ROW_POOL = [
   {key:"aristocrat", label:"Dividend Aristocrat"},
   {key:"before1950", label:"Founded Before 1950"},
   {key:"sector", val:"Technology", label:"Sector: Technology"},
-  {key:"sector", val:"Healthcare", label:"Sector: Healthcare"}
+  {key:"sector", val:"Healthcare", label:"Sector: Healthcare"},
+  {key:"sector", val:"Consumer Staples", label:"Sector: Consumer Staples"},
+  {key:"sector", val:"Financials", label:"Sector: Financials"},
+  {key:"sector", val:"Consumer Discretionary", label:"Sector: Consumer Discretionary"},
+  {key:"sector", val:"Communication Services", label:"Sector: Communication Services"}
 ];
 const COL_POOL = [
   {key:"hq", val:"CA", label:"HQ in California"},
@@ -400,7 +404,7 @@ function showCategoryInfo(event, type, idx){
 function shuffle(arr){ const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
 
 function generateGrid(){
-  for(let attempt=0; attempt<150; attempt++){
+  for(let attempt=0; attempt<600; attempt++){
     const rows = shuffle(ROW_POOL).slice(0,3);
     const cols = shuffle(COL_POOL).slice(0,3);
     let solvable = true;
