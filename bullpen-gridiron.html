@@ -39,6 +39,13 @@
   .meta-row{display:flex; justify-content:center; gap:10px; margin:18px 0}
   .meta-pill{background:var(--bg3); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; color:var(--muted); font-weight:600}
   .meta-pill b{color:var(--text)}
+  .new-grid-btn{
+    background:var(--bg3); border:1px solid var(--border); border-radius:20px;
+    padding:6px 14px; font-size:12px; color:var(--text); font-weight:700;
+    cursor:pointer; font-family:inherit;
+  }
+  .new-grid-btn:hover{border-color:var(--blue)}
+  .result-new-grid{margin-left:8px; background:var(--bg3); color:var(--text)}
 
   .grid-wrap{display:grid; grid-template-columns:90px repeat(3,1fr); gap:6px; margin:24px 0}
   .col-head, .row-head, .cell{
@@ -140,6 +147,7 @@
   <div class="meta-row">
     <div class="meta-pill">Filled: <b id="filledCount">0</b>/9</div>
     <div class="meta-pill">Correct: <b id="correctCount">0</b></div>
+    <button class="new-grid-btn" onclick="newGrid()">🔀 New Grid</button>
   </div>
 
   <div class="grid-wrap" id="gridWrap"></div>
@@ -161,6 +169,7 @@
     <div class="score" id="finalScore">0/9</div>
     <div class="label">squares correct</div>
     <button class="share-btn" onclick="shareResult()">📋 Copy Result</button>
+    <button class="new-grid-btn result-new-grid" onclick="newGrid()">🔀 Run It Back</button>
   </div>
 
   <div class="rules">
@@ -180,50 +189,96 @@
 // Every fact here is a stable, structural one (not something that
 // drifts week to week) so the puzzle stays accurate over time.
 const COMPANIES = {
-  AAPL:{name:"Apple",dow30:true,aristocrat:false,before1950:false,hq:"CA"},
-  CRM:{name:"Salesforce",dow30:true,aristocrat:false,before1950:false,hq:"CA"},
-  V:{name:"Visa",dow30:true,aristocrat:false,before1950:false,hq:"CA"},
-  DIS:{name:"Disney",dow30:true,aristocrat:false,before1950:true,hq:"CA"},
-  WFC:{name:"Wells Fargo",dow30:false,aristocrat:false,before1950:true,hq:"CA"},
-  O:{name:"Realty Income",dow30:false,aristocrat:true,before1950:false,hq:"CA"},
-  NVDA:{name:"Nvidia",dow30:false,aristocrat:false,before1950:false,hq:"CA"},
-  GOOGL:{name:"Alphabet",dow30:false,aristocrat:false,before1950:false,hq:"CA"},
+  AAPL:{name:"Apple",dow30:true,aristocrat:false,before1950:false,hq:"CA",sector:"Technology"},
+  CRM:{name:"Salesforce",dow30:true,aristocrat:false,before1950:false,hq:"CA",sector:"Technology"},
+  NVDA:{name:"Nvidia",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Technology"},
+  GOOGL:{name:"Alphabet",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Technology"},
+  V:{name:"Visa",dow30:true,aristocrat:false,before1950:false,hq:"CA",sector:"Financials"},
+  WFC:{name:"Wells Fargo",dow30:false,aristocrat:false,before1950:true,hq:"CA",sector:"Financials"},
+  DIS:{name:"Disney",dow30:true,aristocrat:false,before1950:true,hq:"CA",sector:"Communication Services"},
+  O:{name:"Realty Income",dow30:false,aristocrat:true,before1950:false,hq:"CA",sector:"Real Estate"},
 
-  XOM:{name:"ExxonMobil",dow30:true,aristocrat:true,before1950:true,hq:"TX"},
-  CAT:{name:"Caterpillar",dow30:true,aristocrat:false,before1950:true,hq:"TX"},
-  SYY:{name:"Sysco",dow30:false,aristocrat:true,before1950:false,hq:"TX"},
-  T:{name:"AT&T",dow30:false,aristocrat:false,before1950:true,hq:"TX"},
-  TXN:{name:"Texas Instruments",dow30:false,aristocrat:false,before1950:true,hq:"TX"},
+  XOM:{name:"ExxonMobil",dow30:true,aristocrat:true,before1950:true,hq:"TX",sector:"Energy"},
+  CAT:{name:"Caterpillar",dow30:true,aristocrat:true,before1950:true,hq:"TX",sector:"Industrials"},
+  SYY:{name:"Sysco",dow30:false,aristocrat:true,before1950:false,hq:"TX",sector:"Consumer Staples"},
+  T:{name:"AT&T",dow30:false,aristocrat:false,before1950:true,hq:"TX",sector:"Communication Services"},
+  TXN:{name:"Texas Instruments",dow30:false,aristocrat:false,before1950:true,hq:"TX",sector:"Technology"},
 
-  JPM:{name:"JPMorgan Chase",dow30:true,aristocrat:false,before1950:true,hq:"NY"},
-  IBM:{name:"IBM",dow30:true,aristocrat:true,before1950:true,hq:"NY"},
-  VZ:{name:"Verizon",dow30:true,aristocrat:false,before1950:false,hq:"NY"},
-  AXP:{name:"American Express",dow30:true,aristocrat:false,before1950:true,hq:"NY"},
-  GS:{name:"Goldman Sachs",dow30:true,aristocrat:false,before1950:false,hq:"NY"},
-  PEP:{name:"PepsiCo",dow30:false,aristocrat:true,before1950:false,hq:"NY"},
-  CL:{name:"Colgate-Palmolive",dow30:false,aristocrat:true,before1950:true,hq:"NY"},
-  MMM:{name:"3M",dow30:true,aristocrat:true,before1950:true,hq:"MN"},
-  KO:{name:"Coca-Cola",dow30:true,aristocrat:true,before1950:true,hq:"GA"},
-  MCD:{name:"McDonald's",dow30:true,aristocrat:true,before1950:false,hq:"IL"},
-  HD:{name:"Home Depot",dow30:true,aristocrat:false,before1950:false,hq:"GA"},
-  PG:{name:"Procter & Gamble",dow30:true,aristocrat:true,before1950:true,hq:"OH"},
-  JNJ:{name:"Johnson & Johnson",dow30:true,aristocrat:true,before1950:true,hq:"NJ"},
-  WMT:{name:"Walmart",dow30:true,aristocrat:true,before1950:false,hq:"AR"},
-  MSFT:{name:"Microsoft",dow30:true,aristocrat:false,before1950:false,hq:"WA"},
-  AMZN:{name:"Amazon",dow30:true,aristocrat:false,before1950:false,hq:"WA"}
+  JPM:{name:"JPMorgan Chase",dow30:true,aristocrat:false,before1950:true,hq:"NY",sector:"Financials"},
+  AXP:{name:"American Express",dow30:true,aristocrat:false,before1950:true,hq:"NY",sector:"Financials"},
+  GS:{name:"Goldman Sachs",dow30:true,aristocrat:false,before1950:true,hq:"NY",sector:"Financials"},
+  IBM:{name:"IBM",dow30:true,aristocrat:true,before1950:true,hq:"NY",sector:"Technology"},
+  VZ:{name:"Verizon",dow30:true,aristocrat:false,before1950:false,hq:"NY",sector:"Communication Services"},
+  PEP:{name:"PepsiCo",dow30:false,aristocrat:true,before1950:false,hq:"NY",sector:"Consumer Staples"},
+  CL:{name:"Colgate-Palmolive",dow30:false,aristocrat:true,before1950:true,hq:"NY",sector:"Consumer Staples"},
+
+  MCD:{name:"McDonald's",dow30:true,aristocrat:true,before1950:false,hq:"IL",sector:"Consumer Discretionary"},
+  ABT:{name:"Abbott Laboratories",dow30:false,aristocrat:true,before1950:true,hq:"IL",sector:"Healthcare"},
+  ABBV:{name:"AbbVie",dow30:false,aristocrat:true,before1950:false,hq:"IL",sector:"Healthcare"},
+
+  MSFT:{name:"Microsoft",dow30:true,aristocrat:false,before1950:false,hq:"WA",sector:"Technology"},
+  AMZN:{name:"Amazon",dow30:true,aristocrat:false,before1950:false,hq:"WA",sector:"Consumer Discretionary"},
+  COST:{name:"Costco",dow30:false,aristocrat:false,before1950:false,hq:"WA",sector:"Consumer Staples"},
+  SBUX:{name:"Starbucks",dow30:false,aristocrat:false,before1950:false,hq:"WA",sector:"Consumer Discretionary"}
 };
 
-// ── Grid definition ──
-const ROWS = [
+// ── Category pools ──
+// More options than fit in one grid, so "New Grid" has real variety to
+// draw from. Every attribute here is a stable, structural fact - no
+// soft trivia, nothing that drifts week to week.
+const ROW_POOL = [
   {key:"dow30", label:"Dow 30 Member"},
   {key:"aristocrat", label:"Dividend Aristocrat"},
-  {key:"before1950", label:"Founded Before 1950"}
+  {key:"before1950", label:"Founded Before 1950"},
+  {key:"sector", val:"Technology", label:"Sector: Technology"}
 ];
-const COLS = [
+const COL_POOL = [
   {key:"hq", val:"CA", label:"HQ in California"},
   {key:"hq", val:"TX", label:"HQ in Texas"},
-  {key:"hq", val:"NY", label:"HQ in New York"}
+  {key:"hq", val:"NY", label:"HQ in New York"},
+  {key:"hq", val:"IL", label:"HQ in Illinois"}
 ];
+
+function catMatches(co, cat){
+  return cat.val ? co[cat.key] === cat.val : co[cat.key] === true;
+}
+
+function shuffle(arr){
+  const a = [...arr];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+
+// Pick 3 random rows + 3 random columns, verify every one of the 9
+// resulting cells has at least one valid answer, retry with a fresh
+// random combo if not. Not every combination from the pools is
+// solvable given current company coverage, so this generates-and-
+// checks rather than assuming any 3-of-N pick works.
+function generateGrid(){
+  for(let attempt=0; attempt<150; attempt++){
+    const rows = shuffle(ROW_POOL).slice(0,3);
+    const cols = shuffle(COL_POOL).slice(0,3);
+    let solvable = true;
+    outer:
+    for(const r of rows){
+      for(const c of cols){
+        const hasMatch = Object.values(COMPANIES).some(co => catMatches(co,r) && catMatches(co,c));
+        if(!hasMatch){ solvable = false; break outer; }
+      }
+    }
+    if(solvable) return {rows, cols};
+  }
+  // Explicit, individually-verified-solvable fallback (should
+  // essentially never be reached given pool coverage, but this is a
+  // real combo confirmed solvable, not just an assumed default).
+  return {
+    rows: [ROW_POOL[0], ROW_POOL[1], ROW_POOL[2]],
+    cols: [COL_POOL[0], COL_POOL[1], COL_POOL[2]]
+  };
+}
+
+let ROWS, COLS;
+
 
 let grid = Array(9).fill(null); // {ticker, correct}
 let usedTickers = new Set();
@@ -232,9 +287,7 @@ let activeCell = null;
 function checkFit(ticker, r, c){
   const co = COMPANIES[ticker];
   if(!co) return false;
-  const rowOk = co[ROWS[r].key] === true;
-  const colOk = co[COLS[c].key] === COLS[c].val;
-  return rowOk && colOk;
+  return catMatches(co, ROWS[r]) && catMatches(co, COLS[c]);
 }
 
 function renderGrid(){
@@ -338,7 +391,20 @@ document.getElementById('tickerInput').addEventListener('keydown', e => {
   if(e.key === 'Enter') submitGuess();
 });
 
-renderGrid();
+function newGrid(){
+  const picked = generateGrid();
+  ROWS = picked.rows;
+  COLS = picked.cols;
+  grid = Array(9).fill(null);
+  usedTickers = new Set();
+  activeCell = null;
+  document.getElementById('resultBanner').classList.remove('show');
+  document.getElementById('usedRow').innerHTML = '';
+  closeInput();
+  renderGrid();
+}
+
+newGrid();
 </script>
 
 </body>
