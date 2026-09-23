@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bullpen Gridiron — S&P 500 Tic-Tac-Toe | StockPilot</title>
+<meta name="description" content="Daily stock market tic-tac-toe. Fill the grid with S&P 500 companies that match both the row and column. Same ticker only once.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚽</text></svg>">
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#111826; --bg3:#161f30; --border:#232f45;
+    --text:#e8edf5; --muted:#8b98af; --green:#3ecf8e; --red:#ff6b6b;
+    --gold:#f5b942; --blue:#5b8def;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+    min-height:100vh; padding-bottom:60px;
+  }
+  header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 24px; border-bottom:1px solid var(--border);
+    background:var(--bg2);
+  }
+  .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text)}
+  .logo img{width:32px; height:32px; border-radius:8px}
+  .logo b{font-size:17px; font-weight:800}
+  .badge{background:rgba(62,207,142,0.15); color:var(--green); font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:0.3px}
+  nav a{color:var(--muted); text-decoration:none; font-size:13px; font-weight:600; margin-left:18px}
+  nav a:hover{color:var(--text)}
+
+  main{max-width:640px; margin:0 auto; padding:32px 20px}
+  .hero{text-align:center; margin-bottom:24px}
+  .hero .kicker{color:var(--gold); font-size:12px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:8px}
+  .hero h1{font-size:30px; font-weight:800; margin-bottom:8px}
+  .hero p{color:var(--muted); font-size:14px; max-width:460px; margin:0 auto}
+
+  .meta-row{display:flex; justify-content:center; gap:10px; margin:18px 0}
+  .meta-pill{background:var(--bg3); border:1px solid var(--border); border-radius:20px; padding:6px 14px; font-size:12px; color:var(--muted); font-weight:600}
+  .meta-pill b{color:var(--text)}
+
+  .grid-wrap{display:grid; grid-template-columns:90px repeat(3,1fr); gap:6px; margin:24px 0}
+  .col-head, .row-head, .cell{
+    display:flex; align-items:center; justify-content:center;
+    text-align:center; border-radius:10px; padding:10px 6px; min-height:88px;
+  }
+  .corner{background:transparent}
+  .col-head{background:var(--bg3); border:1px solid var(--border); font-size:12px; font-weight:700; color:var(--blue); line-height:1.3}
+  .row-head{background:var(--bg3); border:1px solid var(--border); font-size:12px; font-weight:700; color:var(--gold); line-height:1.3}
+  .cell{
+    background:var(--bg2); border:1.5px solid var(--border); cursor:pointer;
+    flex-direction:column; gap:4px; position:relative; transition:all 0.15s;
+  }
+  .cell:hover{border-color:var(--blue)}
+  .cell.filled{cursor:default}
+  .cell.correct{background:rgba(62,207,142,0.1); border-color:var(--green)}
+  .cell.wrong{background:rgba(255,107,107,0.1); border-color:var(--red)}
+  .cell .ticker{font-size:16px; font-weight:800}
+  .cell .plus{font-size:22px; color:var(--border); font-weight:300}
+  .cell.correct .ticker{color:var(--green)}
+  .cell.wrong .ticker{color:var(--red)}
+  .cell .hint{font-size:9px; color:var(--muted); margin-top:2px}
+
+  .input-panel{
+    background:var(--bg2); border:1px solid var(--border); border-radius:14px;
+    padding:18px; margin-top:20px; display:none;
+  }
+  .input-panel.open{display:block}
+  .input-panel .cell-label{font-size:12px; color:var(--muted); margin-bottom:10px}
+  .input-panel .cell-label b{color:var(--text)}
+  .input-row{display:flex; gap:8px}
+  #tickerInput{
+    flex:1; background:var(--bg3); border:1.5px solid var(--border); border-radius:8px;
+    padding:11px 14px; color:var(--text); font-size:15px; font-weight:600;
+    text-transform:uppercase; font-family:'DM Mono',monospace;
+  }
+  #tickerInput:focus{outline:none; border-color:var(--blue)}
+  .submit-btn{
+    background:var(--blue); color:#fff; border:none; border-radius:8px;
+    padding:11px 22px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;
+  }
+  .submit-btn:hover{opacity:0.9}
+  .cancel-btn{background:transparent; border:none; color:var(--muted); font-size:12px; margin-top:10px; cursor:pointer; text-decoration:underline; font-family:inherit}
+  .feedback{font-size:12px; margin-top:8px; min-height:16px; font-weight:600}
+  .feedback.err{color:var(--red)}
+  .feedback.ok{color:var(--green)}
+
+  .suggestions{display:flex; flex-wrap:wrap; gap:6px; margin-top:10px}
+  .sugg{background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:4px 9px; font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; cursor:pointer}
+  .sugg:hover{border-color:var(--blue); color:var(--text)}
+
+  .used-row{margin-top:20px; display:flex; flex-wrap:wrap; gap:6px; justify-content:center}
+  .used-chip{background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:4px 10px; font-size:11px; color:var(--muted); font-family:'DM Mono',monospace}
+
+  .result-banner{
+    display:none; text-align:center; margin-top:24px; padding:20px;
+    background:var(--bg2); border:1px solid var(--border); border-radius:14px;
+  }
+  .result-banner.show{display:block}
+  .result-banner .score{font-size:36px; font-weight:800; color:var(--gold)}
+  .result-banner .label{font-size:13px; color:var(--muted); margin-top:4px}
+  .share-btn{
+    margin-top:14px; background:var(--green); color:#04140c; border:none; border-radius:8px;
+    padding:10px 20px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
+  }
+
+  .rules{margin-top:28px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px 18px}
+  .rules h3{font-size:13px; margin-bottom:8px}
+  .rules ul{padding-left:18px; color:var(--muted); font-size:12.5px; line-height:1.8}
+
+  @media(max-width:480px){
+    .grid-wrap{grid-template-columns:64px repeat(3,1fr); gap:4px}
+    .col-head, .row-head{font-size:10.5px; padding:6px 3px}
+    .cell{min-height:74px}
+    .cell .ticker{font-size:14px}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/bullpen.html" class="logo">
+    <img src="/logo.jpg" alt="StockPilot">
+    <b>StockPilot</b>
+    <span class="badge">BULLPEN</span>
+  </a>
+  <nav>
+    <a href="/bullpen.html">All Modes</a>
+  </nav>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="kicker">⚽ New Mode</div>
+    <h1>Bullpen Gridiron</h1>
+    <p>Fill all 9 squares with S&P 500 companies that fit both the row and the column. Each ticker can only be used once.</p>
+  </div>
+
+  <div class="meta-row">
+    <div class="meta-pill">Filled: <b id="filledCount">0</b>/9</div>
+    <div class="meta-pill">Correct: <b id="correctCount">0</b></div>
+  </div>
+
+  <div class="grid-wrap" id="gridWrap"></div>
+
+  <div class="input-panel" id="inputPanel">
+    <div class="cell-label">Square <b id="activeCellLabel"></b></div>
+    <div class="input-row">
+      <input id="tickerInput" placeholder="TICKER" maxlength="6" autocomplete="off">
+      <button class="submit-btn" onclick="submitGuess()">Check</button>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <div class="suggestions" id="suggestions"></div>
+    <button class="cancel-btn" onclick="closeInput()">Cancel</button>
+  </div>
+
+  <div class="used-row" id="usedRow"></div>
+
+  <div class="result-banner" id="resultBanner">
+    <div class="score" id="finalScore">0/9</div>
+    <div class="label">squares correct</div>
+    <button class="share-btn" onclick="shareResult()">📋 Copy Result</button>
+  </div>
+
+  <div class="rules">
+    <h3>How it works</h3>
+    <ul>
+      <li>Click any square, then type a ticker that satisfies <b>both</b> its row and column category.</li>
+      <li>Every category is a real, checkable fact — sector, HQ state, Dow 30 membership, Dividend Aristocrat status, or founding era.</li>
+      <li>Each ticker can only be used once across the whole grid.</li>
+      <li>Tap a suggestion chip if you're stuck — it still has to actually satisfy both categories.</li>
+    </ul>
+  </div>
+</main>
+
+<script>
+// ── Company dataset ──
+// Curated set of well-known S&P 500 companies with verifiable attributes.
+// Every fact here is a stable, structural one (not something that
+// drifts week to week) so the puzzle stays accurate over time.
+const COMPANIES = {
+  AAPL:{name:"Apple",dow30:true,aristocrat:false,before1950:false,hq:"CA"},
+  CRM:{name:"Salesforce",dow30:true,aristocrat:false,before1950:false,hq:"CA"},
+  V:{name:"Visa",dow30:true,aristocrat:false,before1950:false,hq:"CA"},
+  DIS:{name:"Disney",dow30:true,aristocrat:false,before1950:true,hq:"CA"},
+  WFC:{name:"Wells Fargo",dow30:false,aristocrat:false,before1950:true,hq:"CA"},
+  O:{name:"Realty Income",dow30:false,aristocrat:true,before1950:false,hq:"CA"},
+  NVDA:{name:"Nvidia",dow30:false,aristocrat:false,before1950:false,hq:"CA"},
+  GOOGL:{name:"Alphabet",dow30:false,aristocrat:false,before1950:false,hq:"CA"},
+
+  XOM:{name:"ExxonMobil",dow30:true,aristocrat:true,before1950:true,hq:"TX"},
+  CAT:{name:"Caterpillar",dow30:true,aristocrat:false,before1950:true,hq:"TX"},
+  SYY:{name:"Sysco",dow30:false,aristocrat:true,before1950:false,hq:"TX"},
+  T:{name:"AT&T",dow30:false,aristocrat:false,before1950:true,hq:"TX"},
+  TXN:{name:"Texas Instruments",dow30:false,aristocrat:false,before1950:true,hq:"TX"},
+
+  JPM:{name:"JPMorgan Chase",dow30:true,aristocrat:false,before1950:true,hq:"NY"},
+  IBM:{name:"IBM",dow30:true,aristocrat:true,before1950:true,hq:"NY"},
+  VZ:{name:"Verizon",dow30:true,aristocrat:false,before1950:false,hq:"NY"},
+  AXP:{name:"American Express",dow30:true,aristocrat:false,before1950:true,hq:"NY"},
+  GS:{name:"Goldman Sachs",dow30:true,aristocrat:false,before1950:false,hq:"NY"},
+  PEP:{name:"PepsiCo",dow30:false,aristocrat:true,before1950:false,hq:"NY"},
+  CL:{name:"Colgate-Palmolive",dow30:false,aristocrat:true,before1950:true,hq:"NY"},
+  MMM:{name:"3M",dow30:true,aristocrat:true,before1950:true,hq:"MN"},
+  KO:{name:"Coca-Cola",dow30:true,aristocrat:true,before1950:true,hq:"GA"},
+  MCD:{name:"McDonald's",dow30:true,aristocrat:true,before1950:false,hq:"IL"},
+  HD:{name:"Home Depot",dow30:true,aristocrat:false,before1950:false,hq:"GA"},
+  PG:{name:"Procter & Gamble",dow30:true,aristocrat:true,before1950:true,hq:"OH"},
+  JNJ:{name:"Johnson & Johnson",dow30:true,aristocrat:true,before1950:true,hq:"NJ"},
+  WMT:{name:"Walmart",dow30:true,aristocrat:true,before1950:false,hq:"AR"},
+  MSFT:{name:"Microsoft",dow30:true,aristocrat:false,before1950:false,hq:"WA"},
+  AMZN:{name:"Amazon",dow30:true,aristocrat:false,before1950:false,hq:"WA"}
+};
+
+// ── Grid definition ──
+const ROWS = [
+  {key:"dow30", label:"Dow 30 Member"},
+  {key:"aristocrat", label:"Dividend Aristocrat"},
+  {key:"before1950", label:"Founded Before 1950"}
+];
+const COLS = [
+  {key:"hq", val:"CA", label:"HQ in California"},
+  {key:"hq", val:"TX", label:"HQ in Texas"},
+  {key:"hq", val:"NY", label:"HQ in New York"}
+];
+
+let grid = Array(9).fill(null); // {ticker, correct}
+let usedTickers = new Set();
+let activeCell = null;
+
+function checkFit(ticker, r, c){
+  const co = COMPANIES[ticker];
+  if(!co) return false;
+  const rowOk = co[ROWS[r].key] === true;
+  const colOk = co[COLS[c].key] === COLS[c].val;
+  return rowOk && colOk;
+}
+
+function renderGrid(){
+  const wrap = document.getElementById('gridWrap');
+  let html = '<div class="corner"></div>';
+  COLS.forEach(c => html += `<div class="col-head">${c.label}</div>`);
+
+  for(let r=0; r<3; r++){
+    html += `<div class="row-head">${ROWS[r].label}</div>`;
+    for(let c=0; c<3; c++){
+      const idx = r*3+c;
+      const cell = grid[idx];
+      if(cell){
+        html += `<div class="cell ${cell.correct?'correct':'wrong'} filled">
+          <span class="ticker">${cell.ticker}</span>
+          <span class="hint">${cell.correct ? '✓' : '✗'}</span>
+        </div>`;
+      } else {
+        html += `<div class="cell" onclick="openInput(${r},${c})"><span class="plus">+</span></div>`;
+      }
+    }
+  }
+  wrap.innerHTML = html;
+  document.getElementById('filledCount').textContent = grid.filter(x=>x).length;
+  document.getElementById('correctCount').textContent = grid.filter(x=>x && x.correct).length;
+
+  if(grid.filter(x=>x).length === 9) showResult();
+}
+
+function openInput(r,c){
+  if(grid[r*3+c]) return;
+  activeCell = {r,c};
+  document.getElementById('activeCellLabel').textContent = `${ROWS[r].label} × ${COLS[c].label}`;
+  document.getElementById('inputPanel').classList.add('open');
+  document.getElementById('tickerInput').value = '';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('tickerInput').focus();
+  renderSuggestions(r,c);
+}
+
+function closeInput(){
+  activeCell = null;
+  document.getElementById('inputPanel').classList.remove('open');
+}
+
+function renderSuggestions(r,c){
+  // Show a few valid tickers as a helper, but only ones not yet used -
+  // still requires the player to recognize which ones actually fit.
+  const valid = Object.keys(COMPANIES).filter(t => checkFit(t,r,c) && !usedTickers.has(t));
+  const box = document.getElementById('suggestions');
+  if(!valid.length){ box.innerHTML=''; return; }
+  box.innerHTML = '<span style="font-size:10px;color:var(--muted);width:100%">Need a hint? Tap one:</span>' +
+    valid.slice(0,3).map(t => `<span class="sugg" onclick="document.getElementById('tickerInput').value='${t}'">${t}</span>`).join('');
+}
+
+function submitGuess(){
+  if(!activeCell) return;
+  const raw = document.getElementById('tickerInput').value.trim().toUpperCase();
+  const feedback = document.getElementById('feedback');
+  if(!raw){ feedback.textContent='Enter a ticker first.'; feedback.className='feedback err'; return; }
+  if(usedTickers.has(raw)){ feedback.textContent=`${raw} is already used elsewhere in the grid.`; feedback.className='feedback err'; return; }
+  if(!COMPANIES[raw]){ feedback.textContent=`${raw} isn't in this puzzle's company list.`; feedback.className='feedback err'; return; }
+
+  const {r,c} = activeCell;
+  const correct = checkFit(raw, r, c);
+  grid[r*3+c] = {ticker:raw, correct};
+  usedTickers.add(raw);
+  renderUsed();
+
+  feedback.textContent = correct ? `✓ ${COMPANIES[raw].name} fits!` : `✗ ${COMPANIES[raw].name} doesn't satisfy both categories.`;
+  feedback.className = 'feedback ' + (correct ? 'ok' : 'err');
+
+  setTimeout(() => { closeInput(); renderGrid(); }, correct ? 500 : 900);
+}
+
+function renderUsed(){
+  const row = document.getElementById('usedRow');
+  row.innerHTML = [...usedTickers].map(t => `<span class="used-chip">${t}</span>`).join('');
+}
+
+function showResult(){
+  const correct = grid.filter(x=>x && x.correct).length;
+  document.getElementById('finalScore').textContent = correct + '/9';
+  document.getElementById('resultBanner').classList.add('show');
+}
+
+function shareResult(){
+  const correct = grid.filter(x=>x && x.correct).length;
+  const gridEmoji = grid.map(x => x && x.correct ? '🟩' : '🟥').join('');
+  const rows3 = [gridEmoji.slice(0,3), gridEmoji.slice(3,6), gridEmoji.slice(6,9)].join('\n');
+  const text = `Bullpen Gridiron — ${correct}/9\n${rows3}\nmystockspilot.com/bullpen-gridiron.html`;
+  navigator.clipboard?.writeText(text).then(() => {
+    const btn = document.querySelector('.share-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+document.getElementById('tickerInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') submitGuess();
+});
+
+renderGrid();
+</script>
+
+</body>
+</html>
