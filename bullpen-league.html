@@ -1569,12 +1569,14 @@ setInterval(updateScores,60000);
       <input type="text" id="editLeagueName" class="fa-input" style="width:100%;margin-bottom:16px"/>
       <div class="mlabel" style="margin-bottom:8px">Max Players</div>
       <select id="editMaxPlayers" class="fa-input" style="width:100%;margin-bottom:20px">
-        <option>5</option><option>8</option><option>10</option><option>12</option><option>15</option>
+        <option>5</option><option>8</option><option>10</option><option>12</option><option>15</option><option>20</option><option>25</option><option>30</option><option>40</option><option>50</option>
       </select>
       <div style="background:rgba(255,23,68,0.06);border:1px solid rgba(255,23,68,0.2);border-radius:10px;padding:16px;margin-top:4px">
         <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:8px">⚠️ Commissioner Actions</div>
         <button class="btn btn-red" style="width:100%;font-size:13px;margin-bottom:8px" onclick="resetWeeklyMoves()">🔄 Reset Weekly Moves for All</button>
-        <div style="font-size:11px;color:var(--muted)">Use this every Monday to reset everyone's move counts.</div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px">Use this every Monday to reset everyone's move counts.</div>
+        <button class="btn btn-red" style="width:100%;font-size:13px;background:rgba(255,23,68,0.15);border:1px solid rgba(255,23,68,0.4)" onclick="confirmDeleteLeague()">🗑️ Delete League</button>
+        <div style="font-size:11px;color:var(--muted);margin-top:8px">Permanently deletes this league and everyone's rosters. This cannot be undone.</div>
       </div>
     </div>
     <div class="mfoot">
@@ -1604,6 +1606,23 @@ async function saveLeagueSettings(){
     document.getElementById('manageModal').classList.remove('open');
     showToast('League updated!','ok');
   }catch(e){showToast('Save failed','err');}
+}
+
+async function confirmDeleteLeague(){
+  const typed = prompt(`This permanently deletes "${league.name}" and every member's roster. This cannot be undone.\n\nType the league name to confirm:`);
+  if(typed === null) return;
+  if(typed.trim() !== league.name){
+    showToast('Name did not match - league not deleted','err');
+    return;
+  }
+  try{
+    await sbDelete('bullpen_members', `league_code=eq.${leagueCode}`);
+    await sbDelete('bullpen_leagues', `code=eq.${leagueCode}`);
+    showToast('League deleted','ok');
+    setTimeout(() => { window.location.href = '/bullpen.html'; }, 1200);
+  }catch(e){
+    showToast('Delete failed','err');
+  }
 }
 
 async function resetWeeklyMoves(){
