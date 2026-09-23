@@ -215,6 +215,12 @@
 
   <!-- ══ GAME BOARD ══ -->
   <div id="gameView">
+    <div id="spectatorBadge" style="display:none;text-align:center;margin-bottom:14px">
+      <span style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);font-weight:700">👀 Spectating</span>
+    </div>
+    <div id="spectatorLinkRow" style="display:none;text-align:center;margin-bottom:14px">
+      <button class="copy-btn" onclick="copySpectatorLink()">👀 Copy Spectator Link</button>
+    </div>
     <div class="vs-row">
       <div class="player-card x" id="playerXCard">
         <div class="mark">X</div>
@@ -243,7 +249,8 @@
 
     <div class="result-banner" id="resultBanner">
       <div class="headline" id="resultHeadline"></div>
-      <button class="new-game-btn" onclick="resetToLanding()">🔀 New Game</button>
+      <button class="new-game-btn" id="rematchBtn" onclick="rematchGame()">🔁 Rematch</button>
+      <button class="new-game-btn" id="newGameBtn" onclick="resetToLanding()" style="background:var(--bg3);color:var(--text);margin-left:8px">🔀 New Game</button>
     </div>
   </div>
 
@@ -311,20 +318,34 @@ const COMPANIES = {
   MSFT:{name:"Microsoft",dow30:true,aristocrat:false,before1950:false,hq:"WA",sector:"Technology"},
   AMZN:{name:"Amazon",dow30:true,aristocrat:false,before1950:false,hq:"WA",sector:"Consumer Discretionary"},
   COST:{name:"Costco",dow30:false,aristocrat:false,before1950:false,hq:"WA",sector:"Consumer Staples"},
-  SBUX:{name:"Starbucks",dow30:false,aristocrat:false,before1950:false,hq:"WA",sector:"Consumer Discretionary"}
+  SBUX:{name:"Starbucks",dow30:false,aristocrat:false,before1950:false,hq:"WA",sector:"Consumer Discretionary"},
+
+  KO:{name:"Coca-Cola",dow30:true,aristocrat:true,before1950:true,hq:"GA",sector:"Consumer Staples"},
+  HD:{name:"Home Depot",dow30:true,aristocrat:false,before1950:false,hq:"GA",sector:"Consumer Discretionary"},
+  PG:{name:"Procter & Gamble",dow30:true,aristocrat:true,before1950:true,hq:"OH",sector:"Consumer Staples"},
+  JNJ:{name:"Johnson & Johnson",dow30:true,aristocrat:true,before1950:true,hq:"NJ",sector:"Healthcare"},
+  MRK:{name:"Merck",dow30:true,aristocrat:false,before1950:true,hq:"NJ",sector:"Healthcare"},
+  MMM:{name:"3M",dow30:true,aristocrat:true,before1950:true,hq:"MN",sector:"Industrials"},
+  WMT:{name:"Walmart",dow30:true,aristocrat:true,before1950:false,hq:"AR",sector:"Consumer Staples"}
 };
 
 const ROW_POOL = [
   {key:"dow30", label:"Dow 30 Member"},
   {key:"aristocrat", label:"Dividend Aristocrat"},
   {key:"before1950", label:"Founded Before 1950"},
-  {key:"sector", val:"Technology", label:"Sector: Technology"}
+  {key:"sector", val:"Technology", label:"Sector: Technology"},
+  {key:"sector", val:"Healthcare", label:"Sector: Healthcare"}
 ];
 const COL_POOL = [
   {key:"hq", val:"CA", label:"HQ in California"},
   {key:"hq", val:"TX", label:"HQ in Texas"},
   {key:"hq", val:"NY", label:"HQ in New York"},
-  {key:"hq", val:"IL", label:"HQ in Illinois"}
+  {key:"hq", val:"IL", label:"HQ in Illinois"},
+  {key:"hq", val:"GA", label:"HQ in Georgia"},
+  {key:"hq", val:"OH", label:"HQ in Ohio"},
+  {key:"hq", val:"NJ", label:"HQ in New Jersey"},
+  {key:"hq", val:"MN", label:"HQ in Minnesota"},
+  {key:"hq", val:"AR", label:"HQ in Arkansas"}
 ];
 
 function catMatches(co, cat){ return cat.val ? co[cat.key] === cat.val : co[cat.key] === true; }
@@ -371,6 +392,7 @@ let game = null;
 let myMark = null; // 'X' or 'O'
 let activeCell = null;
 let pollTimer = null;
+let isSpectator = false;
 
 function genCode(){
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -453,10 +475,34 @@ async function joinGame(){
 function enterGame(){
   document.getElementById('landing').style.display = 'none';
   document.getElementById('gameView').style.display = 'block';
+  document.getElementById('spectatorBadge').style.display = isSpectator ? 'block' : 'none';
+  document.getElementById('spectatorLinkRow').style.display = isSpectator ? 'none' : 'block';
   document.getElementById('playerXName').textContent = game.player_x_name;
   document.getElementById('playerOName').textContent = game.player_o_name || '—';
   renderBoard();
   pollGameState();
+}
+
+function copySpectatorLink(){
+  const url = `${window.location.origin}${window.location.pathname}?watch=${game.code}`;
+  navigator.clipboard?.writeText(url);
+  const btn = document.querySelector('#spectatorLinkRow .copy-btn');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Copied!';
+  setTimeout(() => btn.textContent = orig, 1500);
+}
+
+async function watchGame(code){
+  const rows = await sbGet('bullpen_gridiron_games', `code=eq.${code}`);
+  if(!rows || !rows[0]){
+    alert('No game found with that code.');
+    resetToLanding();
+    return;
+  }
+  game = rows[0];
+  myMark = null;
+  isSpectator = true;
+  enterGame();
 }
 
 async function pollGameState(){
@@ -589,6 +635,9 @@ function showResult(winInfo){
   if(winInfo.mark === 'draw'){
     headline.textContent = "It's a draw!";
     headline.className = 'headline draw';
+  } else if(isSpectator){
+    headline.textContent = `${winInfo.mark} wins! (${winInfo.mark === 'X' ? game.player_x_name : game.player_o_name})`;
+    headline.className = winInfo.mark === 'X' ? 'headline win' : 'headline lose';
   } else if(winInfo.mark === myMark){
     headline.textContent = "You win! 🎉";
     headline.className = 'headline win';
@@ -596,22 +645,53 @@ function showResult(winInfo){
     headline.textContent = "You lose.";
     headline.className = 'headline lose';
   }
+  document.getElementById('rematchBtn').style.display = isSpectator ? 'none' : 'inline-block';
+  document.getElementById('newGameBtn').textContent = isSpectator ? '🔀 Watch Another' : '🔀 New Game';
 }
 
 function resetToLanding(){
   clearInterval(pollTimer);
-  game = null; myMark = null; activeCell = null;
+  game = null; myMark = null; activeCell = null; isSpectator = false;
   document.getElementById('gameView').style.display = 'none';
   document.getElementById('resultBanner').classList.remove('show');
   document.getElementById('landing').style.display = 'block';
   setLandingMode('create');
 }
 
+async function rematchGame(){
+  const myName = myMark === 'X' ? game.player_x_name : game.player_o_name;
+  clearInterval(pollTimer);
+  game = null; myMark = 'X'; activeCell = null; isSpectator = false;
+
+  document.getElementById('gameView').style.display = 'none';
+  document.getElementById('resultBanner').classList.remove('show');
+  document.getElementById('landing').style.display = 'block';
+  setLandingMode('create');
+
+  const code = genCode();
+  const picked = generateGrid();
+  const rows = await sbPost('bullpen_gridiron_games', {
+    code, player_x_name: myName, player_x_id: myPlayerId,
+    board: Array(9).fill(null), current_turn: 'X', status: 'waiting',
+    rows: picked.rows, cols: picked.cols
+  });
+  if(!rows || !rows[0]) return;
+  game = rows[0];
+
+  document.getElementById('createPanel').style.display = 'none';
+  document.getElementById('waitingPanel').style.display = 'block';
+  document.getElementById('waitingCode').textContent = code;
+  pollForOpponent(code);
+}
+
 document.getElementById('tickerInput').addEventListener('keydown', e => { if(e.key === 'Enter') submitGuess(); });
 
 // If arriving with a join code in the URL, prefill it
+const urlWatchCode = new URLSearchParams(window.location.search).get('watch');
 const urlCode = new URLSearchParams(window.location.search).get('join');
-if(urlCode){
+if(urlWatchCode){
+  watchGame(urlWatchCode.toUpperCase());
+} else if(urlCode){
   setLandingMode('join');
   document.getElementById('joinCodeInput').value = urlCode.toUpperCase();
 } else {
