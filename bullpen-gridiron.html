@@ -129,6 +129,18 @@
     text-transform:uppercase; font-family:'DM Mono',monospace;
   }
   #tickerInput:focus{outline:none; border-color:var(--blue)}
+  #autocompleteDropdown{
+    display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:50;
+    background:var(--bg3); border:1.5px solid var(--border); border-radius:8px;
+    max-height:180px; overflow-y:auto; box-shadow:0 8px 20px rgba(0,0,0,0.4);
+  }
+  #autocompleteDropdown.open{display:block}
+  .ac-item{padding:9px 14px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px}
+  .ac-item:hover, .ac-item.active{background:rgba(91,141,239,0.12)}
+  .ac-ticker{font-family:'DM Mono',monospace; font-weight:700; font-size:13px}
+  .ac-name{font-size:11px; color:var(--muted)}
+  .ac-item.ac-fit .ac-ticker{color:var(--green)}
+  .ac-item.ac-nofit .ac-ticker{color:var(--muted)}
   .submit-btn{
     background:var(--blue); color:#fff; border:none; border-radius:8px;
     padding:11px 22px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;
@@ -251,7 +263,10 @@
     <div class="input-panel" id="inputPanel">
       <div class="cell-label">Square <b id="activeCellLabel"></b></div>
       <div class="input-row">
-        <input id="tickerInput" placeholder="TICKER" maxlength="6" autocomplete="off">
+        <div style="position:relative;flex:1">
+          <input id="tickerInput" placeholder="TICKER" maxlength="6" autocomplete="off">
+          <div id="autocompleteDropdown"></div>
+        </div>
         <button class="submit-btn" onclick="submitGuess()">Claim</button>
       </div>
       <div class="feedback" id="feedback"></div>
@@ -648,6 +663,7 @@ function openInput(r,c){
   document.getElementById('tickerInput').value = '';
   document.getElementById('feedback').textContent = '';
   document.getElementById('tickerInput').focus();
+  closeAutocomplete();
   renderHints(r,c);
 }
 
@@ -779,7 +795,58 @@ async function rematchGame(){
   pollForOpponent(code);
 }
 
-document.getElementById('tickerInput').addEventListener('keydown', e => { if(e.key === 'Enter') submitGuess(); });
+document.getElementById('tickerInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter'){
+    const dropdown = document.getElementById('autocompleteDropdown');
+    if(dropdown.classList.contains('open')){
+      const active = dropdown.querySelector('.ac-item.active');
+      if(active){ selectAutocomplete(active.dataset.ticker); return; }
+    }
+    submitGuess();
+  } else if(e.key === 'Escape'){
+    closeAutocomplete();
+  }
+});
+
+document.getElementById('tickerInput').addEventListener('input', e => {
+  const query = e.target.value.trim().toUpperCase();
+  const dropdown = document.getElementById('autocompleteDropdown');
+  if(!query){ closeAutocomplete(); return; }
+  const matches = Object.entries(COMPANIES)
+    .filter(([t]) => t.startsWith(query))
+    .slice(0, 8);
+  if(!matches.length){ closeAutocomplete(); return; }
+  const used = usedTickers();
+  const {r,c} = activeCell || {};
+  dropdown.innerHTML = matches.map(([t, co]) => {
+    const alreadyUsed = used.has(t);
+    const fits = activeCell && !alreadyUsed && checkFit(t, game.rows[r], game.cols[c]);
+    const cls = alreadyUsed ? 'ac-nofit' : (fits ? 'ac-fit' : 'ac-nofit');
+    return `<div class="ac-item ${cls}" data-ticker="${t}" onclick="selectAutocomplete('${t}')">
+      <span class="ac-ticker">${t}</span>
+      <span class="ac-name">${co.name}${alreadyUsed ? ' (used)' : ''}</span>
+    </div>`;
+  }).join('');
+  dropdown.classList.add('open');
+});
+
+function selectAutocomplete(ticker){
+  document.getElementById('tickerInput').value = ticker;
+  closeAutocomplete();
+  document.getElementById('tickerInput').focus();
+}
+
+function closeAutocomplete(){
+  const dropdown = document.getElementById('autocompleteDropdown');
+  dropdown.classList.remove('open');
+  dropdown.innerHTML = '';
+}
+
+document.addEventListener('click', e => {
+  if(!e.target.closest('#autocompleteDropdown') && e.target.id !== 'tickerInput'){
+    closeAutocomplete();
+  }
+});
 
 // If arriving with a join code in the URL, prefill it
 const urlWatchCode = new URLSearchParams(window.location.search).get('watch');
