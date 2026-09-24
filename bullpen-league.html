@@ -275,6 +275,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
       <div class="card" id="discussionCard">
         <div class="card-head">
           <div class="card-title">💬 League Discussion</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <select id="exportMemberSelect" class="fa-input" style="font-size:11px;padding:4px 8px;width:auto;max-width:110px">
+              <option value="">Export by...</option>
+            </select>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="exportMemberActivity()">⬇ Person</button>
+            <button class="btn btn-ghost" style="font-size:11px;padding:5px 10px" onclick="exportFullChatLog()">⬇ All</button>
+          </div>
         </div>
         <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
           <select id="postTickerSelect" class="fa-input" style="width:100%;margin-bottom:8px">
@@ -1144,6 +1151,7 @@ async function confirmSwap(){
   try{
     await sbPatch('bullpen_members',`id=eq.${myMember.id}`,{starters,bench,trades_left:newTrades,score:newScore});
     myMember.starters=starters;myMember.bench=bench;myMember.trades_left=newTrades;myMember.score=newScore;
+    logActivity(myMember.id, myMember.name, 'swap', `Swapped ${swapOut} (starter) for ${swapIn} (bench)`);
     closeSwap();renderRoster();renderLeaderboard();
     showToast(`✅ ${swapOut} ⇄ ${swapIn} swapped!`,'ok');
   }catch(e){showToast('Swap failed','err');btn.textContent='Confirm Swap';btn.disabled=false;}
@@ -1243,6 +1251,12 @@ async function proposeTrade(){
   }catch(e){showToast('Failed to send trade offer','err');btn.textContent='Send Offer';btn.disabled=false;}
 }
 
+// ── Activity log (feeds the export feature) ──
+async function logActivity(memberId, memberName, actionType, details){
+  try{ await sbPost('bullpen_league_activity', {league_code: leagueCode, member_id: memberId, member_name: memberName, action_type: actionType, details}); }
+  catch(e){ /* non-critical - export just won't have this entry */ }
+}
+
 // ── Discussion ──
 let discussionPosts = [];
 let discussionComments = {}; // postId -> array of comments
@@ -1258,6 +1272,15 @@ function populatePostTickerSelect(){
   if(mine.includes(current)) sel.value = current;
 }
 
+function populateExportMemberSelect(){
+  const sel = document.getElementById('exportMemberSelect');
+  if(!sel) return;
+  const current = sel.value;
+  sel.innerHTML = '<option value="">Export by...</option>' +
+    members.map(m => `<option value="${m.id}">${escapeHtmlLeague(m.name)}</option>`).join('');
+  sel.value = current;
+}
+
 function timeAgo(iso){
   const diffMs = Date.now() - new Date(iso).getTime();
   const mins = Math.floor(diffMs/60000);
@@ -1271,6 +1294,7 @@ function timeAgo(iso){
 
 async function loadDiscussion(){
   populatePostTickerSelect();
+  populateExportMemberSelect();
   try{
     const posts = await sbGet('bullpen_league_posts', `league_code=eq.${leagueCode}&order=created_at.desc`);
     discussionPosts = posts;
@@ -1291,6 +1315,7 @@ async function loadDiscussion(){
 
 function renderDiscussionFeed(){
   const feed = document.getElementById('discussionFeed');
+  const isCommissioner = league && league.commissioner_name === myName;
   if(!discussionPosts.length){
     feed.innerHTML = '<div class="empty-feed">No posts yet. Be the first to share why you picked a stock.</div>';
     return;
@@ -1298,19 +1323,24 @@ function renderDiscussionFeed(){
   feed.innerHTML = discussionPosts.map(p => {
     const comments = discussionComments[p.id] || [];
     const isOpen = openCommentThreads.has(p.id);
+    const canDeletePost = myMember && (myMember.id === p.member_id || isCommissioner);
     return `<div class="post-item">
       <div class="post-head">
         <span class="post-author">${escapeHtmlLeague(p.member_name)}</span>
         ${p.ticker ? `<span class="post-ticker-badge">${escapeHtmlLeague(p.ticker)}</span>` : ''}
         <span class="post-time">${timeAgo(p.created_at)}</span>
+        ${canDeletePost ? `<button class="post-reply-toggle" style="margin-left:4px" onclick="deletePost('${p.id}')" title="Delete post">🗑</button>` : ''}
       </div>
       <div class="post-content">${escapeHtmlLeague(p.content)}</div>
       <button class="post-reply-toggle" onclick="toggleComments('${p.id}')">💬 ${comments.length ? comments.length+' repl'+(comments.length===1?'y':'ies') : 'Reply'}</button>
       <div class="comments-box" id="comments_${p.id}" style="display:${isOpen?'block':'none'}">
-        ${comments.map(c => `<div class="comment-item">
-          <div class="comment-head"><span class="comment-author">${escapeHtmlLeague(c.member_name)}</span><span class="comment-time">${timeAgo(c.created_at)}</span></div>
+        ${comments.map(c => {
+          const canDeleteComment = myMember && (myMember.id === c.member_id || isCommissioner);
+          return `<div class="comment-item">
+          <div class="comment-head"><span class="comment-author">${escapeHtmlLeague(c.member_name)}</span><span class="comment-time">${timeAgo(c.created_at)}</span>${canDeleteComment ? `<button class="post-reply-toggle" onclick="deleteComment('${c.id}','${p.id}')" title="Delete reply">🗑</button>` : ''}</div>
           <div class="comment-content">${escapeHtmlLeague(c.content)}</div>
-        </div>`).join('')}
+        </div>`;
+        }).join('')}
         ${myMember ? `<div class="comment-input-row">
           <input type="text" id="commentInput_${p.id}" placeholder="Write a reply..." maxlength="500" onkeydown="if(event.key==='Enter')submitComment('${p.id}')">
           <button onclick="submitComment('${p.id}')">Send</button>
@@ -1318,6 +1348,25 @@ function renderDiscussionFeed(){
       </div>
     </div>`;
   }).join('');
+}
+
+async function deletePost(postId){
+  if(!confirm('Delete this post? This also removes its replies.')) return;
+  try{
+    await sbDelete('bullpen_league_comments', `post_id=eq.${postId}`);
+    await sbDelete('bullpen_league_posts', `id=eq.${postId}`);
+    showToast('Post deleted','ok');
+    loadDiscussion();
+  }catch(e){ showToast('Delete failed','err'); }
+}
+
+async function deleteComment(commentId, postId){
+  if(!confirm('Delete this reply?')) return;
+  try{
+    await sbDelete('bullpen_league_comments', `id=eq.${commentId}`);
+    showToast('Reply deleted','ok');
+    loadDiscussion();
+  }catch(e){ showToast('Delete failed','err'); }
 }
 
 function toggleComments(postId){
@@ -1356,6 +1405,86 @@ async function submitComment(postId){
     openCommentThreads.add(postId);
     loadDiscussion();
   }catch(e){ showToast('Reply failed - try again','err'); }
+}
+
+// ── Export ──
+function downloadTextFile(filename, text){
+  const blob = new Blob([text], {type: 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function fmtDate(iso){
+  return new Date(iso).toLocaleString('en-US', {month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit'});
+}
+
+async function exportFullChatLog(){
+  showToast('Preparing export...', 'ok');
+  try{
+    const posts = await sbGet('bullpen_league_posts', `league_code=eq.${leagueCode}&order=created_at.asc`);
+    let comments = [];
+    if(posts.length){
+      const postIds = posts.map(p=>p.id);
+      comments = await sbGet('bullpen_league_comments', `post_id=in.(${postIds.join(',')})&order=created_at.asc`);
+    }
+    const commentsByPost = {};
+    comments.forEach(c => { (commentsByPost[c.post_id] = commentsByPost[c.post_id]||[]).push(c); });
+
+    let out = `STOCKPILOT BULLPEN — LEAGUE DISCUSSION EXPORT\n`;
+    out += `League: ${league.name} (${leagueCode})\n`;
+    out += `Exported: ${fmtDate(new Date().toISOString())}\n`;
+    out += `${'='.repeat(60)}\n\n`;
+    if(!posts.length){ out += '(No posts yet.)\n'; }
+    posts.forEach(p => {
+      out += `[${fmtDate(p.created_at)}] ${p.member_name}${p.ticker ? ' — '+p.ticker : ' (general post)'}\n`;
+      out += `${p.content}\n`;
+      (commentsByPost[p.id]||[]).forEach(c => {
+        out += `\n    ↳ [${fmtDate(c.created_at)}] ${c.member_name}: ${c.content}\n`;
+      });
+      out += `\n${'-'.repeat(60)}\n\n`;
+    });
+    downloadTextFile(`${leagueCode}-discussion-export.txt`, out);
+  }catch(e){ showToast('Export failed - try again','err'); }
+}
+
+async function exportMemberActivity(){
+  const sel = document.getElementById('exportMemberSelect');
+  const memberId = sel.value;
+  if(!memberId){ showToast('Pick a person to export first','err'); return; }
+  const member = members.find(m=>m.id===memberId);
+  if(!member){ showToast('Member not found','err'); return; }
+  showToast('Preparing export...', 'ok');
+  try{
+    const [activity, posts, allComments] = await Promise.all([
+      sbGet('bullpen_league_activity', `league_code=eq.${leagueCode}&member_id=eq.${memberId}&order=created_at.asc`),
+      sbGet('bullpen_league_posts', `league_code=eq.${leagueCode}&member_id=eq.${memberId}&order=created_at.asc`),
+      sbGet('bullpen_league_comments', `member_id=eq.${memberId}&order=created_at.asc`)
+    ]);
+    // Only keep comments that belong to a post in this league
+    const leaguePosts = await sbGet('bullpen_league_posts', `league_code=eq.${leagueCode}`);
+    const leaguePostIds = new Set(leaguePosts.map(p=>p.id));
+    const comments = allComments.filter(c => leaguePostIds.has(c.post_id));
+    const postById = {}; leaguePosts.forEach(p => postById[p.id] = p);
+
+    const entries = [
+      ...activity.map(a => ({time: a.created_at, type: a.action_type.toUpperCase().replace('_',' '), text: a.details})),
+      ...posts.map(p => ({time: p.created_at, type: 'POST'+(p.ticker?' on '+p.ticker:''), text: p.content})),
+      ...comments.map(c => ({time: c.created_at, type: `REPLY on ${postById[c.post_id]?.member_name||'a'}'s post`, text: c.content}))
+    ].sort((a,b) => new Date(a.time) - new Date(b.time));
+
+    let out = `STOCKPILOT BULLPEN — ACTIVITY EXPORT FOR ${member.name.toUpperCase()}\n`;
+    out += `League: ${league.name} (${leagueCode})\n`;
+    out += `Exported: ${fmtDate(new Date().toISOString())}\n`;
+    out += `${'='.repeat(60)}\n\n`;
+    if(!entries.length){ out += '(No activity recorded yet.)\n'; }
+    entries.forEach(e => {
+      out += `[${fmtDate(e.time)}] ${e.type}\n${e.text}\n\n`;
+    });
+    downloadTextFile(`${leagueCode}-${member.name.replace(/[^a-z0-9]/gi,'')}-export.txt`, out);
+  }catch(e){ showToast('Export failed - try again','err'); }
 }
 
 async function loadTrades(){
@@ -1429,6 +1558,8 @@ async function acceptTrade(tradeId){
   await sbPatch('bullpen_members',`id=eq.${fromM.id}`,{starters:newFromStarters,bench:newFromBench});
   await sbPatch('bullpen_members',`id=eq.${toM.id}`,{starters:newToStarters,bench:newToBench});
   await sbPatch('bullpen_trades',`id=eq.${tradeId}`,{status:'accepted',resolved_at:new Date().toISOString()});
+  logActivity(fromM.id, fromM.name, 'trade', `Traded ${t.offer_ticker} to ${toM.name} for ${t.want_ticker}`);
+  logActivity(toM.id, toM.name, 'trade', `Traded ${t.want_ticker} to ${fromM.name} for ${t.offer_ticker}`);
 
   if(myMember.id===fromM.id){myMember.starters=newFromStarters;myMember.bench=newFromBench;}
   if(myMember.id===toM.id){myMember.starters=newToStarters;myMember.bench=newToBench;}
@@ -1537,6 +1668,7 @@ async function confirmFA(){
     }
     await sbPatch('bullpen_members',`id=eq.${myMember.id}`,{starters,bench,fa_moves:newFA,score:newScore});
     myMember.starters=starters;myMember.bench=bench;myMember.fa_moves=newFA;myMember.score=newScore;
+    logActivity(myMember.id, myMember.name, 'free_agency', `Dropped ${faDropTicker}, picked up ${faPickup.ticker}`);
     closeFA();renderRoster();renderLeaderboard();
     showToast(`✅ Dropped ${faDropTicker}, picked up ${faPickup.ticker}!`,'ok');
   }catch(e){showToast('FA pickup failed','err');btn.textContent='Confirm Pickup';btn.disabled=false;}
