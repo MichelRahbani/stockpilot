@@ -762,6 +762,65 @@ const FPL_TIER_MAP = {
 // true mega-caps, tiers 2-4 are large/mid/small-mid in descending
 // order, and tier 5 (the default for anything not explicitly listed)
 // covers the remaining smaller-cap members of the index.
+// HQ state data: real SEC-filed business addresses for all S&P 500
+// tickers. This is expensive (500+ individual SEC lookups, rate-limited
+// well under SEC's 10/sec guideline) so it gets its own long-lived cache
+// completely separate from the generic 60s cache - this data changes for
+// maybe a handful of companies a year, not worth refetching often. The
+// first request after a server restart kicks off the build in the
+// background and returns whatever's ready so far; it fills in over the
+// next couple minutes and every request after that is instant.
+const HQ_STATE_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+let hqStateCache = { states: {}, builtAt: 0, building: false, total: 0, done: 0 };
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const buildHqStateCache = async () => {
+  if (hqStateCache.building) return;
+  hqStateCache.building = true;
+  try {
+    const tickerMap = await getSecTickerMap();
+    const tickers = SP500_TIER_TICKERS.filter((t) => tickerMap[t]);
+    hqStateCache.total = tickers.length;
+    hqStateCache.done = 0;
+    const states = {};
+    for (const ticker of tickers) {
+      try {
+        const cik = String(tickerMap[ticker].cik).padStart(10, "0");
+        const data = await cachedFetch(`https://data.sec.gov/submissions/CIK${cik}.json`, "json");
+        const state = data?.addresses?.business?.stateOrCountry || data?.addresses?.mailing?.stateOrCountry || null;
+        if (state && /^[A-Z]{2}$/.test(state)) states[ticker] = state;
+      } catch (e) {
+        // Skip tickers whose SEC lookup fails - partial data is fine, we
+        // never want one bad lookup to block the other 500.
+      }
+      hqStateCache.done += 1;
+      await sleep(120); // ~8 req/sec, safely under SEC's 10/sec guideline
+    }
+    hqStateCache.states = states;
+    hqStateCache.builtAt = Date.now();
+  } finally {
+    hqStateCache.building = false;
+  }
+};
+
+const getHqStatesPayload = async () => {
+  const stale = Date.now() - hqStateCache.builtAt > HQ_STATE_CACHE_TTL_MS;
+  if ((stale || hqStateCache.builtAt === 0) && !hqStateCache.building) {
+    buildHqStateCache(); // fire and forget - don't block this request on a 60s+ job
+  }
+  return {
+    states: hqStateCache.states,
+    stockPilotMeta: {
+      source: "SEC EDGAR submissions API - each company's own registered business address",
+      updatedAt: hqStateCache.builtAt ? new Date(hqStateCache.builtAt).toISOString() : null,
+      status: hqStateCache.building ? "building" : (hqStateCache.builtAt ? "ready" : "not started"),
+      progress: hqStateCache.total ? `${hqStateCache.done}/${hqStateCache.total}` : null,
+      note: hqStateCache.builtAt === 0 ? "First request after a restart - this takes a minute or two to build, then it's cached for 24 hours." : "Real filed addresses, not estimates."
+    }
+  };
+};
+
 const getSp500TiersPayload = async () => {
   const tickerPrices = {};
   SP500_TIER_TICKERS.forEach((symbol) => {
@@ -1412,6 +1471,10 @@ const server = http.createServer(async (req, res) => {
 
     if (reqUrl.pathname === "/api/sp500-tiers") {
       return send(res, 200, await getSp500TiersPayload());
+    }
+
+    if (reqUrl.pathname === "/api/hq-states") {
+      return send(res, 200, await getHqStatesPayload());
     }
 
     if (reqUrl.pathname === "/api/sec/company") {
