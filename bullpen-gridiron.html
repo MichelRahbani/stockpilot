@@ -1262,7 +1262,7 @@ async function submitGuess(){
   const {r,c} = activeCell;
   const fits = checkFit(raw, game.rows[r], game.cols[c]);
   if(!fits){
-    feedback.textContent = `✗ ${COMPANIES[raw].name} doesn't satisfy both categories. Try again.`;
+    feedback.textContent = `✗ ${raw} doesn't satisfy both categories. Try again.`;
     feedback.className = 'feedback err';
     return;
   }
@@ -1291,7 +1291,7 @@ async function submitGuess(){
   });
   if(updated && updated[0]) game = updated[0];
 
-  feedback.textContent = `✓ ${COMPANIES[raw].name} claimed!`;
+  feedback.textContent = `✓ ${raw} claimed!`;
   feedback.className = 'feedback ok';
   setTimeout(() => { closeInput(); renderBoard(); }, 500);
 }
@@ -1381,9 +1381,11 @@ document.getElementById('tickerInput').addEventListener('input', e => {
     const alreadyUsed = used.has(t);
     const fits = activeCell && !alreadyUsed && checkFit(t, game.rows[r], game.cols[c]);
     const cls = alreadyUsed ? 'ac-nofit' : (fits ? 'ac-fit' : 'ac-nofit');
+    const sectorShort = (ROW_POOL.find(rw => rw.val === co.sector)?.label || co.sector).replace('Sector: ', '');
+    const tierName = COL_POOL.find(cl => cl.val === co.tier)?.label || ('Tier ' + co.tier);
     return `<div class="ac-item ${cls}" data-ticker="${t}" onclick="selectAutocomplete('${t}')">
       <span class="ac-ticker">${t}</span>
-      <span class="ac-name">${co.name}${alreadyUsed ? ' (used)' : ''}</span>
+      <span class="ac-name">${sectorShort} · ${tierName}${alreadyUsed ? ' (used)' : ''}</span>
     </div>`;
   }).join('');
   dropdown.classList.add('open');
