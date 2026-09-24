@@ -384,7 +384,43 @@ const COMPANIES = {
   DFS:{name:"Discover Financial Services",dow30:false,aristocrat:false,before1950:false,hq:"IL",sector:"Financials"},
   GILD:{name:"Gilead Sciences",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Healthcare"},
   KMB:{name:"Kimberly-Clark",dow30:false,aristocrat:true,before1950:true,hq:"TX",sector:"Consumer Staples"},
-  ROST:{name:"Ross Stores",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Consumer Discretionary"}
+  ROST:{name:"Ross Stores",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Consumer Discretionary"},
+
+  PYPL:{name:"PayPal",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Financials"},
+  AMAT:{name:"Applied Materials",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Technology"},
+  EBAY:{name:"eBay",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Consumer Discretionary"},
+
+  SCHW:{name:"Charles Schwab",dow30:false,aristocrat:false,before1950:false,hq:"TX",sector:"Financials"},
+  MCK:{name:"McKesson",dow30:false,aristocrat:false,before1950:true,hq:"TX",sector:"Healthcare"},
+  THC:{name:"Tenet Healthcare",dow30:false,aristocrat:false,before1950:false,hq:"TX",sector:"Healthcare"},
+
+  C:{name:"Citigroup",dow30:false,aristocrat:false,before1950:true,hq:"NY",sector:"Financials"},
+  PFE:{name:"Pfizer",dow30:false,aristocrat:false,before1950:true,hq:"NY",sector:"Healthcare"},
+  BMY:{name:"Bristol Myers Squibb",dow30:false,aristocrat:false,before1950:true,hq:"NY",sector:"Healthcare"},
+  MET:{name:"MetLife",dow30:false,aristocrat:false,before1950:true,hq:"NY",sector:"Financials"},
+  BLK:{name:"BlackRock",dow30:false,aristocrat:false,before1950:false,hq:"NY",sector:"Financials"},
+  MS:{name:"Morgan Stanley",dow30:false,aristocrat:false,before1950:true,hq:"NY",sector:"Financials"},
+
+  WBA:{name:"Walgreens Boots Alliance",dow30:false,aristocrat:false,before1950:true,hq:"IL",sector:"Consumer Staples"},
+  ADM:{name:"Archer-Daniels-Midland",dow30:false,aristocrat:true,before1950:true,hq:"IL",sector:"Consumer Staples"},
+  ALL:{name:"Allstate",dow30:false,aristocrat:false,before1950:true,hq:"IL",sector:"Financials"},
+  CBOE:{name:"Cboe Global Markets",dow30:false,aristocrat:false,before1950:false,hq:"IL",sector:"Financials"},
+  NTRS:{name:"Northern Trust",dow30:false,aristocrat:false,before1950:true,hq:"IL",sector:"Financials"},
+
+  AFL:{name:"Aflac",dow30:false,aristocrat:true,before1950:false,hq:"GA",sector:"Financials"},
+  GPC:{name:"Genuine Parts Company",dow30:false,aristocrat:true,before1950:true,hq:"GA",sector:"Consumer Discretionary"},
+
+  KR:{name:"Kroger",dow30:false,aristocrat:false,before1950:true,hq:"OH",sector:"Consumer Staples"},
+  PGR:{name:"Progressive Corp",dow30:false,aristocrat:false,before1950:true,hq:"OH",sector:"Financials"},
+  FITB:{name:"Fifth Third Bancorp",dow30:false,aristocrat:false,before1950:true,hq:"OH",sector:"Financials"},
+
+  PRU:{name:"Prudential Financial",dow30:false,aristocrat:false,before1950:true,hq:"NJ",sector:"Financials"},
+  CPB:{name:"Campbell's Company",dow30:false,aristocrat:false,before1950:true,hq:"NJ",sector:"Consumer Staples"},
+  BDX:{name:"Becton Dickinson",dow30:false,aristocrat:false,before1950:true,hq:"NJ",sector:"Healthcare"},
+
+  BBY:{name:"Best Buy",dow30:false,aristocrat:true,before1950:false,hq:"MN",sector:"Consumer Discretionary"},
+
+  TSN:{name:"Tyson Foods",dow30:false,aristocrat:false,before1950:true,hq:"AR",sector:"Consumer Staples"}
 };
 
 const ROW_POOL = [
@@ -407,7 +443,8 @@ const COL_POOL = [
   {key:"hq", val:"OH", label:"HQ in Ohio"},
   {key:"hq", val:"NJ", label:"HQ in New Jersey"},
   {key:"hq", val:"MN", label:"HQ in Minnesota"},
-  {key:"hq", val:"AR", label:"HQ in Arkansas"}
+  {key:"hq", val:"AR", label:"HQ in Arkansas"},
+  {key:"hq", val:"WA", label:"HQ in Washington"}
 ];
 
 function catMatches(co, cat){ return cat.val ? co[cat.key] === cat.val : co[cat.key] === true; }
@@ -628,8 +665,8 @@ function enterGame(){
 function renderDifficultyBadge(){
   const avg = avgOptionsPerCell(game.rows, game.cols);
   let label, color;
-  if(avg <= 1.7){ label = 'Hard'; color = 'var(--red)'; }
-  else if(avg <= 2.3){ label = 'Medium'; color = 'var(--gold)'; }
+  if(avg <= 2.33){ label = 'Hard'; color = 'var(--red)'; }
+  else if(avg <= 3.33){ label = 'Medium'; color = 'var(--gold)'; }
   else { label = 'Easy'; color = 'var(--green)'; }
   document.getElementById('difficultyBadge').innerHTML =
     `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:${color}">${label} grid</span>`;
