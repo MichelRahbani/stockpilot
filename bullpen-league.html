@@ -1322,6 +1322,7 @@ async function loadDiscussion(){
 function renderDiscussionFeed(){
   const feed = document.getElementById('discussionFeed');
   const isCommissioner = league && league.commissioner_name === myName;
+  const canGrade = isCommissioner && isClassroomLeague();
   if(!discussionPosts.length){
     feed.innerHTML = '<div class="empty-feed">No posts yet. Be the first to share why you picked a stock.</div>';
     return;
@@ -1343,9 +1344,9 @@ function renderDiscussionFeed(){
       ${hasGrade ? `<div class="grade-badge">📝 Grade: ${p.grade}/10${p.grade_feedback ? ` — ${escapeHtmlLeague(p.grade_feedback)}` : ''}</div>` : ''}
       <div style="display:flex;gap:14px;align-items:center">
         <button class="post-reply-toggle" onclick="toggleComments('${p.id}')">💬 ${comments.length ? comments.length+' repl'+(comments.length===1?'y':'ies') : 'Reply'}</button>
-        ${isCommissioner ? `<button class="post-reply-toggle" onclick="toggleGradeForm('${p.id}')">📝 ${hasGrade ? 'Edit grade' : 'Grade this'}</button>` : ''}
+        ${canGrade ? `<button class="post-reply-toggle" onclick="toggleGradeForm('${p.id}')">📝 ${hasGrade ? 'Edit grade' : 'Grade this'}</button>` : ''}
       </div>
-      ${isCommissioner ? `<div class="grade-form" id="gradeForm_${p.id}" style="display:${isGradeOpen?'flex':'none'}">
+      ${canGrade ? `<div class="grade-form" id="gradeForm_${p.id}" style="display:${isGradeOpen?'flex':'none'}">
         <input type="number" min="0" max="10" step="0.5" id="gradeScore_${p.id}" placeholder="0-10" value="${hasGrade?p.grade:''}">
         <input type="text" id="gradeFeedback_${p.id}" placeholder="Feedback (optional)" value="${hasGrade&&p.grade_feedback?escapeHtmlLeague(p.grade_feedback):''}">
         <button onclick="saveGrade('${p.id}')">Save</button>
@@ -1401,6 +1402,7 @@ function toggleGradeForm(postId){
 async function saveGrade(postId){
   const isCommissioner = league && league.commissioner_name === myName;
   if(!isCommissioner){ showToast('Only the commissioner can grade posts','err'); return; }
+  if(!isClassroomLeague()){ showToast('Grading is only available for classroom-type leagues','err'); return; }
   const scoreInput = document.getElementById('gradeScore_'+postId);
   const feedbackInput = document.getElementById('gradeFeedback_'+postId);
   const scoreRaw = scoreInput.value.trim();
@@ -1615,6 +1617,10 @@ async function acceptTrade(tradeId){
   renderRoster();loadTrades();
 }
 function escapeHtmlLeague(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML;}
+// Leagues created before league_type existed have no value set - treat those
+// as classroom (real teachers were already relying on grading working).
+// Only an explicit 'club' opts out.
+function isClassroomLeague(){ return !league || league.league_type !== 'club'; }
 
 function selFADrop(t){faDropTicker=t;document.querySelectorAll('#faDropList .trade-slot').forEach(el=>el.classList.remove('sel'));event.currentTarget.classList.add('sel');document.getElementById('confirmFABtn').disabled=!(faDropTicker&&faPickup);}
 
@@ -1908,6 +1914,12 @@ setInterval(updateScores,60000);
       <select id="editMaxPlayers" class="fa-input" style="width:100%;margin-bottom:20px">
         <option>5</option><option>8</option><option>10</option><option>12</option><option>15</option><option>20</option><option>25</option><option>30</option><option>40</option><option>50</option><option>75</option><option>100</option><option>150</option><option>200</option><option>250</option>
       </select>
+      <div class="mlabel" style="margin-bottom:8px">League Type</div>
+      <select id="editLeagueType" class="fa-input" style="width:100%;margin-bottom:8px">
+        <option value="club">🎓 Club / Casual</option>
+        <option value="classroom">🏫 Classroom</option>
+      </select>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:20px">Classroom leagues let the commissioner grade discussion posts. Club leagues don't - it's not appropriate for a club president to grade peers.</div>
       <div style="background:rgba(255,23,68,0.06);border:1px solid rgba(255,23,68,0.2);border-radius:10px;padding:16px;margin-top:4px">
         <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:8px">⚠️ Commissioner Actions</div>
         <button class="btn btn-red" style="width:100%;font-size:13px;margin-bottom:8px" onclick="resetWeeklyMoves()">🔄 Reset Weekly Moves for All</button>
@@ -1928,20 +1940,23 @@ function openManageLeague(){
   if(!league)return;
   document.getElementById('editLeagueName').value=league.name;
   document.getElementById('editMaxPlayers').value=league.max_players;
+  document.getElementById('editLeagueType').value=isClassroomLeague()?'classroom':'club';
   document.getElementById('manageModal').classList.add('open');
 }
 
 async function saveLeagueSettings(){
   const name=document.getElementById('editLeagueName').value.trim();
   const maxPlayers=parseInt(document.getElementById('editMaxPlayers').value);
+  const leagueType=document.getElementById('editLeagueType').value;
   if(!name){showToast('League name cannot be empty','err');return;}
   try{
-    await sbPatch('bullpen_leagues',`code=eq.${leagueCode}`,{name,max_players:maxPlayers});
-    league.name=name;league.max_players=maxPlayers;
+    await sbPatch('bullpen_leagues',`code=eq.${leagueCode}`,{name,max_players:maxPlayers,league_type:leagueType});
+    league.name=name;league.max_players=maxPlayers;league.league_type=leagueType;
     document.getElementById('leagueName').textContent='🏟️ '+name;
     document.getElementById('memberCount').textContent=members.length+' / '+maxPlayers;
     document.getElementById('manageModal').classList.remove('open');
     showToast('League updated!','ok');
+    renderDiscussionFeed();
   }catch(e){showToast('Save failed','err');}
 }
 
