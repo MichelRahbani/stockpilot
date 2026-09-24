@@ -540,6 +540,9 @@ const myName=localStorage.getItem('bullpen_my_name')||'';
 let league=null,members=[],myMember=null,priceMap={},currentPriceMap={};
 let fplTierData=null;
 const FPL_BUDGET=100;
+const MAX_OWNERS_PER_STOCK=5;
+function draftedOwners(ticker){ return (league && league.drafted_tickers && league.drafted_tickers[ticker]) || []; }
+function isSoldOut(ticker){ const owners=draftedOwners(ticker); return owners.length>=MAX_OWNERS_PER_STOCK && !(myMember && owners.includes(myMember.id)); }
 
 async function fetchFplTiers(){
   try{
@@ -1300,13 +1303,13 @@ async function faSearch(){
     // Don't show stocks already in roster
     const myStocks=new Set([...(myMember.starters||[]),...(myMember.bench||[])]);
     let filtered=results.filter(x=>!myStocks.has(x.symbol));
-    // NFL leagues are exclusive - a stock someone else already drafted
-    // is not a real free agent, same rule as the draft room itself.
+    // NFL leagues cap each stock at MAX_OWNERS_PER_STOCK owners - once a
+    // stock hits that cap it's not a real free agent anymore, same rule
+    // as the draft room itself.
     if(league && league.format === 'nfl'){
-      const taken=league.drafted_tickers||{};
-      filtered=filtered.filter(x=>!taken[x.symbol]||taken[x.symbol]===myMember.id);
+      filtered=filtered.filter(x=>!isSoldOut(x.symbol));
     }
-    if(!filtered.length){res.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">'+(league&&league.format==='nfl'?'No available free agents match - everyone in the league already owns these.':'All results already in your roster')+'</div>';return;}
+    if(!filtered.length){res.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">'+(league&&league.format==='nfl'?'No available free agents match - these are all at their '+MAX_OWNERS_PER_STOCK+'-owner cap.':'All results already in your roster')+'</div>';return;}
     res.innerHTML=filtered.map(x=>{
       const chg=pm[x.symbol]||0;const up=chg>=0;
       const fplPrice = (league && league.format === 'fpl') ? fplPriceFor(x.symbol) : null;
@@ -1347,9 +1350,8 @@ async function confirmFA(){
     const fresh = await sbGet('bullpen_leagues', `code=eq.${leagueCode}`);
     if(!fresh || !fresh[0]){ showToast('Could not verify availability - try again','err'); return; }
     league = fresh[0];
-    const taken = league.drafted_tickers || {};
-    if(taken[faPickup.ticker] && taken[faPickup.ticker] !== myMember.id){
-      showToast(`${faPickup.ticker} was just taken by someone else`,'err');
+    if(isSoldOut(faPickup.ticker)){
+      showToast(`${faPickup.ticker} just hit its ${MAX_OWNERS_PER_STOCK}-owner cap`,'err');
       return;
     }
   }
@@ -1373,8 +1375,9 @@ async function confirmFA(){
   try{
     if(league && league.format === 'nfl'){
       const newDrafted = {...(league.drafted_tickers || {})};
-      delete newDrafted[faDropTicker];
-      newDrafted[faPickup.ticker] = myMember.id;
+      const afterDrop = draftedOwners(faDropTicker).filter(id=>id!==myMember.id);
+      if(afterDrop.length) newDrafted[faDropTicker]=afterDrop; else delete newDrafted[faDropTicker];
+      newDrafted[faPickup.ticker] = [...draftedOwners(faPickup.ticker), myMember.id];
       await sbPatch('bullpen_leagues', `code=eq.${leagueCode}`, { drafted_tickers: newDrafted });
       league.drafted_tickers = newDrafted;
     }
@@ -1569,7 +1572,7 @@ setInterval(updateScores,60000);
       <input type="text" id="editLeagueName" class="fa-input" style="width:100%;margin-bottom:16px"/>
       <div class="mlabel" style="margin-bottom:8px">Max Players</div>
       <select id="editMaxPlayers" class="fa-input" style="width:100%;margin-bottom:20px">
-        <option>5</option><option>8</option><option>10</option><option>12</option><option>15</option><option>20</option><option>25</option><option>30</option><option>40</option><option>50</option>
+        <option>5</option><option>8</option><option>10</option><option>12</option><option>15</option><option>20</option><option>25</option><option>30</option><option>40</option><option>50</option><option>75</option><option>100</option><option>150</option><option>200</option><option>250</option>
       </select>
       <div style="background:rgba(255,23,68,0.06);border:1px solid rgba(255,23,68,0.2);border-radius:10px;padding:16px;margin-top:4px">
         <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:8px">⚠️ Commissioner Actions</div>
