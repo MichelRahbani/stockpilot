@@ -124,6 +124,11 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .comment-input-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;font-family:inherit}
 .comment-input-row button{background:var(--green);color:#000;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 .empty-feed{padding:32px 20px;text-align:center;color:var(--muted);font-size:13px}
+.grade-badge{background:rgba(255,193,7,0.1);border:1px solid rgba(255,193,7,0.3);border-radius:6px;padding:6px 10px;font-size:12px;color:#ffc107;margin-bottom:8px}
+.grade-form{display:flex;gap:6px;margin-top:8px;align-items:center;flex-wrap:wrap}
+.grade-form input[type="number"]{width:60px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 8px;color:var(--text);font-size:12px;font-family:inherit}
+.grade-form input[type="text"]{flex:1;min-width:140px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;font-family:inherit}
+.grade-form button{background:#ffc107;color:#000;border:none;border-radius:6px;padding:6px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
 
 /* MEMBERS */
 .member-row{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border)}
@@ -1261,6 +1266,7 @@ async function logActivity(memberId, memberName, actionType, details){
 let discussionPosts = [];
 let discussionComments = {}; // postId -> array of comments
 let openCommentThreads = new Set();
+let openGradeForms = new Set();
 
 function populatePostTickerSelect(){
   const sel = document.getElementById('postTickerSelect');
@@ -1323,7 +1329,9 @@ function renderDiscussionFeed(){
   feed.innerHTML = discussionPosts.map(p => {
     const comments = discussionComments[p.id] || [];
     const isOpen = openCommentThreads.has(p.id);
+    const isGradeOpen = openGradeForms.has(p.id);
     const canDeletePost = myMember && (myMember.id === p.member_id || isCommissioner);
+    const hasGrade = p.grade !== null && p.grade !== undefined;
     return `<div class="post-item">
       <div class="post-head">
         <span class="post-author">${escapeHtmlLeague(p.member_name)}</span>
@@ -1332,7 +1340,16 @@ function renderDiscussionFeed(){
         ${canDeletePost ? `<button class="post-reply-toggle" style="margin-left:4px" onclick="deletePost('${p.id}')" title="Delete post">🗑</button>` : ''}
       </div>
       <div class="post-content">${escapeHtmlLeague(p.content)}</div>
-      <button class="post-reply-toggle" onclick="toggleComments('${p.id}')">💬 ${comments.length ? comments.length+' repl'+(comments.length===1?'y':'ies') : 'Reply'}</button>
+      ${hasGrade ? `<div class="grade-badge">📝 Grade: ${p.grade}/10${p.grade_feedback ? ` — ${escapeHtmlLeague(p.grade_feedback)}` : ''}</div>` : ''}
+      <div style="display:flex;gap:14px;align-items:center">
+        <button class="post-reply-toggle" onclick="toggleComments('${p.id}')">💬 ${comments.length ? comments.length+' repl'+(comments.length===1?'y':'ies') : 'Reply'}</button>
+        ${isCommissioner ? `<button class="post-reply-toggle" onclick="toggleGradeForm('${p.id}')">📝 ${hasGrade ? 'Edit grade' : 'Grade this'}</button>` : ''}
+      </div>
+      ${isCommissioner ? `<div class="grade-form" id="gradeForm_${p.id}" style="display:${isGradeOpen?'flex':'none'}">
+        <input type="number" min="0" max="10" step="0.5" id="gradeScore_${p.id}" placeholder="0-10" value="${hasGrade?p.grade:''}">
+        <input type="text" id="gradeFeedback_${p.id}" placeholder="Feedback (optional)" value="${hasGrade&&p.grade_feedback?escapeHtmlLeague(p.grade_feedback):''}">
+        <button onclick="saveGrade('${p.id}')">Save</button>
+      </div>` : ''}
       <div class="comments-box" id="comments_${p.id}" style="display:${isOpen?'block':'none'}">
         ${comments.map(c => {
           const canDeleteComment = myMember && (myMember.id === c.member_id || isCommissioner);
@@ -1373,6 +1390,30 @@ function toggleComments(postId){
   if(openCommentThreads.has(postId)) openCommentThreads.delete(postId);
   else openCommentThreads.add(postId);
   renderDiscussionFeed();
+}
+
+function toggleGradeForm(postId){
+  if(openGradeForms.has(postId)) openGradeForms.delete(postId);
+  else openGradeForms.add(postId);
+  renderDiscussionFeed();
+}
+
+async function saveGrade(postId){
+  const isCommissioner = league && league.commissioner_name === myName;
+  if(!isCommissioner){ showToast('Only the commissioner can grade posts','err'); return; }
+  const scoreInput = document.getElementById('gradeScore_'+postId);
+  const feedbackInput = document.getElementById('gradeFeedback_'+postId);
+  const scoreRaw = scoreInput.value.trim();
+  if(scoreRaw === ''){ showToast('Enter a score first','err'); return; }
+  const score = parseFloat(scoreRaw);
+  if(isNaN(score) || score < 0 || score > 10){ showToast('Score must be between 0 and 10','err'); return; }
+  const feedback = feedbackInput.value.trim();
+  try{
+    await sbPatch('bullpen_league_posts', `id=eq.${postId}`, { grade: score, grade_feedback: feedback || null, graded_at: new Date().toISOString() });
+    showToast('Grade saved','ok');
+    openGradeForms.delete(postId);
+    loadDiscussion();
+  }catch(e){ showToast('Could not save grade - try again','err'); }
 }
 
 async function submitPost(){
@@ -1441,6 +1482,9 @@ async function exportFullChatLog(){
     posts.forEach(p => {
       out += `[${fmtDate(p.created_at)}] ${p.member_name}${p.ticker ? ' — '+p.ticker : ' (general post)'}\n`;
       out += `${p.content}\n`;
+      if(p.grade !== null && p.grade !== undefined){
+        out += `  [Grade: ${p.grade}/10${p.grade_feedback ? ' — '+p.grade_feedback : ''}]\n`;
+      }
       (commentsByPost[p.id]||[]).forEach(c => {
         out += `\n    ↳ [${fmtDate(c.created_at)}] ${c.member_name}: ${c.content}\n`;
       });
@@ -1471,13 +1515,17 @@ async function exportMemberActivity(){
 
     const entries = [
       ...activity.map(a => ({time: a.created_at, type: a.action_type.toUpperCase().replace('_',' '), text: a.details})),
-      ...posts.map(p => ({time: p.created_at, type: 'POST'+(p.ticker?' on '+p.ticker:''), text: p.content})),
+      ...posts.map(p => ({time: p.created_at, type: 'POST'+(p.ticker?' on '+p.ticker:''), text: p.content + (p.grade!==null&&p.grade!==undefined ? `\n  [Grade: ${p.grade}/10${p.grade_feedback ? ' — '+p.grade_feedback : ''}]` : '')})),
       ...comments.map(c => ({time: c.created_at, type: `REPLY on ${postById[c.post_id]?.member_name||'a'}'s post`, text: c.content}))
     ].sort((a,b) => new Date(a.time) - new Date(b.time));
+
+    const gradedPosts = posts.filter(p => p.grade !== null && p.grade !== undefined);
+    const avgGrade = gradedPosts.length ? (gradedPosts.reduce((s,p)=>s+p.grade,0)/gradedPosts.length).toFixed(1) : null;
 
     let out = `STOCKPILOT BULLPEN — ACTIVITY EXPORT FOR ${member.name.toUpperCase()}\n`;
     out += `League: ${league.name} (${leagueCode})\n`;
     out += `Exported: ${fmtDate(new Date().toISOString())}\n`;
+    if(avgGrade !== null) out += `Average post grade: ${avgGrade}/10 (${gradedPosts.length} graded of ${posts.length} posts)\n`;
     out += `${'='.repeat(60)}\n\n`;
     if(!entries.length){ out += '(No activity recorded yet.)\n'; }
     entries.forEach(e => {
