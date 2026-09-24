@@ -368,7 +368,23 @@ const COMPANIES = {
   JNJ:{name:"Johnson & Johnson",dow30:true,aristocrat:true,before1950:true,hq:"NJ",sector:"Healthcare"},
   MRK:{name:"Merck",dow30:true,aristocrat:false,before1950:true,hq:"NJ",sector:"Healthcare"},
   MMM:{name:"3M",dow30:true,aristocrat:true,before1950:true,hq:"MN",sector:"Industrials"},
-  WMT:{name:"Walmart",dow30:true,aristocrat:true,before1950:false,hq:"AR",sector:"Consumer Staples"}
+  WMT:{name:"Walmart",dow30:true,aristocrat:true,before1950:false,hq:"AR",sector:"Consumer Staples"},
+
+  MA:{name:"Mastercard",dow30:false,aristocrat:false,before1950:false,hq:"NY",sector:"Financials"},
+  CSCO:{name:"Cisco Systems",dow30:true,aristocrat:false,before1950:false,hq:"CA",sector:"Technology"},
+  ORCL:{name:"Oracle",dow30:false,aristocrat:false,before1950:false,hq:"TX",sector:"Technology"},
+  ADBE:{name:"Adobe",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Technology"},
+  TGT:{name:"Target",dow30:false,aristocrat:true,before1950:true,hq:"MN",sector:"Consumer Discretionary"},
+  UNH:{name:"UnitedHealth Group",dow30:true,aristocrat:false,before1950:false,hq:"MN",sector:"Healthcare"},
+
+  USB:{name:"US Bancorp",dow30:false,aristocrat:false,before1950:true,hq:"MN",sector:"Financials"},
+  GIS:{name:"General Mills",dow30:false,aristocrat:false,before1950:true,hq:"MN",sector:"Consumer Staples"},
+  CAH:{name:"Cardinal Health",dow30:false,aristocrat:true,before1950:false,hq:"OH",sector:"Healthcare"},
+  MDLZ:{name:"Mondelez International",dow30:false,aristocrat:false,before1950:false,hq:"IL",sector:"Consumer Staples"},
+  DFS:{name:"Discover Financial Services",dow30:false,aristocrat:false,before1950:false,hq:"IL",sector:"Financials"},
+  GILD:{name:"Gilead Sciences",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Healthcare"},
+  KMB:{name:"Kimberly-Clark",dow30:false,aristocrat:true,before1950:true,hq:"TX",sector:"Consumer Staples"},
+  ROST:{name:"Ross Stores",dow30:false,aristocrat:false,before1950:false,hq:"CA",sector:"Consumer Discretionary"}
 };
 
 const ROW_POOL = [
@@ -423,17 +439,48 @@ function avgOptionsPerCell(rows, cols){
   return total / 9;
 }
 
+function cellOptions(r, c){
+  return Object.keys(COMPANIES).filter(t => catMatches(COMPANIES[t], r) && catMatches(COMPANIES[t], c));
+}
+
+// Kuhn's algorithm: checks whether all 9 cells can be simultaneously filled
+// with 9 DISTINCT companies. A grid that only passes the cheaper per-cell
+// check (every cell has *some* valid answer) can still be a dead end if two
+// cells share their only option - the board could never fully fill, so a
+// draw would never actually be reachable. This is the real check.
+function hasPerfectMatching(rows, cols){
+  const cellOpts = {};
+  for(let i=0;i<3;i++){ for(let j=0;j<3;j++){
+    const opts = cellOptions(rows[i], cols[j]);
+    if(!opts.length) return false;
+    cellOpts[i+'_'+j] = opts;
+  }}
+  const match = {}; // company -> cell key
+  function tryAssign(cellKey, visited){
+    for(const company of cellOpts[cellKey]){
+      if(visited.has(company)) continue;
+      visited.add(company);
+      if(!(company in match) || tryAssign(match[company], visited)){
+        match[company] = cellKey;
+        return true;
+      }
+    }
+    return false;
+  }
+  let count = 0;
+  for(const cellKey of Object.keys(cellOpts)){
+    if(tryAssign(cellKey, new Set())) count++;
+  }
+  return count === 9;
+}
+
 function generateGrid(difficulty){
   difficulty = difficulty || 'medium';
   const candidates = [];
-  for(let attempt=0; attempt<2000 && candidates.length<12; attempt++){
+  for(let attempt=0; attempt<4000 && candidates.length<12; attempt++){
     const rows = shuffle(ROW_POOL).slice(0,3);
     const cols = shuffle(COL_POOL).slice(0,3);
-    let solvable = true;
-    outer: for(const r of rows){ for(const c of cols){
-      if(!Object.values(COMPANIES).some(co => catMatches(co,r) && catMatches(co,c))){ solvable=false; break outer; }
-    }}
-    if(solvable) candidates.push({rows, cols, score: avgOptionsPerCell(rows, cols)});
+    if(hasPerfectMatching(rows, cols)) candidates.push({rows, cols, score: avgOptionsPerCell(rows, cols)});
   }
   if(!candidates.length){
     return {rows:[ROW_POOL[0],ROW_POOL[1],ROW_POOL[2]], cols:[COL_POOL[0],COL_POOL[1],COL_POOL[2]]};
