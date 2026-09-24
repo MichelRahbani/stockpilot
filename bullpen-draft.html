@@ -169,6 +169,11 @@ let starters=[],bench=[];
 let league=null, draftMembers=[];
 let fplTierData=null;
 const FPL_BUDGET=100;
+const MAX_OWNERS_PER_STOCK=5;
+// drafted_tickers[ticker] is an array of member IDs who own that stock in
+// this NFL league (up to MAX_OWNERS_PER_STOCK), not a single owner.
+function draftedOwners(ticker){ return (league && league.drafted_tickers && league.drafted_tickers[ticker]) || []; }
+function isSoldOut(ticker){ const owners=draftedOwners(ticker); return owners.length>=MAX_OWNERS_PER_STOCK && !owners.includes(myMemberId); }
 
 
 // Real snake draft order: round 0 forward, round 1 reversed, etc,
@@ -243,6 +248,7 @@ async function refreshNflDraftState(){
 function filterOutDraftedFromGrid(){
   const taken = league.drafted_tickers || {};
   Object.keys(taken).forEach(ticker => {
+    if(!isSoldOut(ticker)) return;
     const card = document.getElementById('card_'+ticker);
     if(card && !card.classList.contains('mine')) card.remove();
   });
@@ -670,7 +676,7 @@ async function filterBySector(sector){
     grid.innerHTML='';
     quotes.forEach(q=>{
       quoteCache[q.symbol]=q;
-      if(league && league.format === 'nfl' && league.drafted_tickers && league.drafted_tickers[q.symbol] && league.drafted_tickers[q.symbol] !== myMemberId) return;
+      if(league && league.format === 'nfl' && isSoldOut(q.symbol)) return;
       const chg=q.regularMarketChangePercent||0;const up=chg>=0;
       const isMine=starters.some(s=>s.ticker===q.symbol)||bench.some(s=>s.ticker===q.symbol);
       const card=document.createElement('div');
@@ -680,6 +686,7 @@ async function filterBySector(sector){
         <div class="card-name">${q.shortName||q.longName||q.symbol}</div>
         <div class="card-price">$${(q.regularMarketPrice||0).toFixed(2)}</div>
         <div class="card-change ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}% today</div>
+        ${(league && league.format==='nfl' && draftedOwners(q.symbol).length>0)?`<div style="font-size:10px;color:var(--muted);margin-top:4px">${draftedOwners(q.symbol).length}/${MAX_OWNERS_PER_STOCK} drafted league-wide</div>`:''}
         ${!isMine?`<button class="card-pick-btn" onclick="pickStock('${q.symbol}','${(q.shortName||q.symbol).replace(/'/g,'').substring(0,20)}')">+ Draft</button>`:''}`;
       grid.appendChild(card);
     });
@@ -696,7 +703,7 @@ async function loadPopularStocks(){
     grid.innerHTML='';
     quotes.forEach(q=>{
       quoteCache[q.symbol]=q;
-      if(league && league.format === 'nfl' && league.drafted_tickers && league.drafted_tickers[q.symbol] && league.drafted_tickers[q.symbol] !== myMemberId) return;
+      if(league && league.format === 'nfl' && isSoldOut(q.symbol)) return;
       const chg=q.regularMarketChangePercent||0;const up=chg>=0;
       const isMine=starters.some(s=>s.ticker===q.symbol)||bench.some(s=>s.ticker===q.symbol);
       const card=document.createElement('div');
@@ -706,6 +713,7 @@ async function loadPopularStocks(){
         <div class="card-name">${q.shortName||q.longName||q.symbol}</div>
         <div class="card-price">$${(q.regularMarketPrice||0).toFixed(2)}</div>
         <div class="card-change ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}% today</div>
+        ${(league && league.format==='nfl' && draftedOwners(q.symbol).length>0)?`<div style="font-size:10px;color:var(--muted);margin-top:4px">${draftedOwners(q.symbol).length}/${MAX_OWNERS_PER_STOCK} drafted league-wide</div>`:''}
         ${!isMine?`<button class="card-pick-btn" onclick="pickStock('${q.symbol}','${(q.shortName||q.symbol).replace(/'/g,'').substring(0,20)}')">+ Draft</button>`:''}`;
       grid.appendChild(card);
     });
@@ -750,7 +758,7 @@ async function doSearch(){
     // Two tickers (BRK.B, BF.B) use a period in the real S&P 500 list but
     // a hyphen in Yahoo's own symbols, so both forms are checked.
     const isSp500 = (sym) => SP500_TICKERS.has(sym) || SP500_TICKERS.has(sym.replace('-', '.'));
-    const isAvailable = (sym) => !(league && league.format === 'nfl' && league.drafted_tickers && league.drafted_tickers[sym] && league.drafted_tickers[sym] !== myMemberId);
+    const isAvailable = (sym) => !(league && league.format === 'nfl' && isSoldOut(sym));
     const results=(data?.quotes||[]).filter(x=>x.quoteType==='EQUITY' && isSp500(x.symbol) && isAvailable(x.symbol)).slice(0,12);
     if(!results.length){grid.innerHTML='<div class="loading" style="grid-column:1/-1">No S&amp;P 500 matches for that search</div>';return;}
     const tickers=results.map(x=>x.symbol).join(',');
@@ -862,9 +870,9 @@ async function finalizePick(){
     league = fresh[0];
     if(league.draft_status !== 'active'){ showToast('The draft is not active', 'error'); renderNflBanner(); return; }
     if(whoseTurn() !== myMemberId){ showToast("It's not your turn anymore", 'error'); renderNflBanner(); return; }
-    if(league.drafted_tickers && league.drafted_tickers[ticker]){ showToast(ticker+' was just taken by someone else', 'error'); renderNflBanner(); loadPopularStocks(); return; }
+    if(isSoldOut(ticker)){ showToast(ticker+' just hit its '+MAX_OWNERS_PER_STOCK+'-owner cap', 'error'); renderNflBanner(); loadPopularStocks(); return; }
 
-    const newDrafted = {...(league.drafted_tickers || {}), [ticker]: myMemberId};
+    const newDrafted = {...(league.drafted_tickers || {}), [ticker]: [...draftedOwners(ticker), myMemberId]};
     const newPickIndex = (league.draft_current_pick || 0) + 1;
     await sbPatch('bullpen_leagues', 'code=eq.'+leagueCode, { drafted_tickers: newDrafted, draft_current_pick: newPickIndex });
     league.drafted_tickers = newDrafted;
