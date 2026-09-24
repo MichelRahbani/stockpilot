@@ -104,6 +104,27 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .copy-btn{width:100%;padding:10px;border-radius:8px;background:var(--green);color:#000;border:none;font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s}
 .copy-btn:hover{background:var(--green-d)}
 
+/* DISCUSSION */
+.post-item{padding:14px 20px;border-bottom:1px solid var(--border)}
+.post-item:last-child{border-bottom:none}
+.post-head{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
+.post-author{font-weight:700;font-size:13px}
+.post-ticker-badge{background:rgba(0,230,118,0.12);color:var(--green);border:1px solid rgba(0,230,118,0.3);border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;font-family:'DM Mono',monospace}
+.post-time{font-size:11px;color:var(--muted);margin-left:auto}
+.post-content{font-size:13.5px;line-height:1.5;color:rgba(255,255,255,0.9);margin-bottom:8px;white-space:pre-wrap;word-break:break-word}
+.post-reply-toggle{font-size:12px;color:var(--muted);cursor:pointer;background:none;border:none;font-family:inherit;padding:0}
+.post-reply-toggle:hover{color:var(--text)}
+.comments-box{margin-top:10px;padding-left:14px;border-left:2px solid var(--border)}
+.comment-item{margin-bottom:8px}
+.comment-head{display:flex;gap:8px;align-items:baseline;margin-bottom:2px}
+.comment-author{font-weight:700;font-size:12px}
+.comment-time{font-size:10px;color:var(--muted)}
+.comment-content{font-size:12.5px;color:rgba(255,255,255,0.85);white-space:pre-wrap;word-break:break-word}
+.comment-input-row{display:flex;gap:6px;margin-top:8px}
+.comment-input-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:6px 10px;color:var(--text);font-size:12px;font-family:inherit}
+.comment-input-row button{background:var(--green);color:#000;border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit}
+.empty-feed{padding:32px 20px;text-align:center;color:var(--muted);font-size:13px}
+
 /* MEMBERS */
 .member-row{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--border)}
 .member-row:last-child{border-bottom:none}
@@ -248,6 +269,23 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
           </div>
         </div>
         <div id="leaderboard"><div style="padding:32px;text-align:center;color:var(--muted)">Loading...</div></div>
+      </div>
+
+      <!-- DISCUSSION -->
+      <div class="card" id="discussionCard">
+        <div class="card-head">
+          <div class="card-title">💬 League Discussion</div>
+        </div>
+        <div style="padding:16px 20px;border-bottom:1px solid var(--border)">
+          <select id="postTickerSelect" class="fa-input" style="width:100%;margin-bottom:8px">
+            <option value="">No specific stock (general post)</option>
+          </select>
+          <textarea id="postContent" placeholder="Why'd you pick it? What's the thesis? Start a discussion..." style="width:100%;min-height:64px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:inherit;font-size:13px;resize:vertical;margin-bottom:8px;box-sizing:border-box"></textarea>
+          <button class="btn btn-green" style="width:100%;font-size:13px" onclick="submitPost()">Post</button>
+        </div>
+        <div id="discussionFeed" style="padding:8px 0">
+          <div style="padding:32px;text-align:center;color:var(--muted)">Loading discussion...</div>
+        </div>
       </div>
 
       <!-- MY ROSTER -->
@@ -623,6 +661,7 @@ async function loadData(){
     renderMembers();
     renderRoster();
     loadTrades();
+    loadDiscussion();
     await updateScores();
   }catch(e){showToast('Load failed: '+e.message,'err');}
 }
@@ -1202,6 +1241,121 @@ async function proposeTrade(){
     showToast(`Trade offer sent to ${tradePartner.name}!`,'ok');
     loadTrades();
   }catch(e){showToast('Failed to send trade offer','err');btn.textContent='Send Offer';btn.disabled=false;}
+}
+
+// ── Discussion ──
+let discussionPosts = [];
+let discussionComments = {}; // postId -> array of comments
+let openCommentThreads = new Set();
+
+function populatePostTickerSelect(){
+  const sel = document.getElementById('postTickerSelect');
+  if(!sel || !myMember) return;
+  const mine = [...(myMember.starters||[]), ...(myMember.bench||[])];
+  const current = sel.value;
+  sel.innerHTML = '<option value="">No specific stock (general post)</option>' +
+    mine.map(t => `<option value="${t}">${t}</option>`).join('');
+  if(mine.includes(current)) sel.value = current;
+}
+
+function timeAgo(iso){
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const mins = Math.floor(diffMs/60000);
+  if(mins < 1) return 'just now';
+  if(mins < 60) return mins+'m ago';
+  const hrs = Math.floor(mins/60);
+  if(hrs < 24) return hrs+'h ago';
+  const days = Math.floor(hrs/24);
+  return days+'d ago';
+}
+
+async function loadDiscussion(){
+  populatePostTickerSelect();
+  try{
+    const posts = await sbGet('bullpen_league_posts', `league_code=eq.${leagueCode}&order=created_at.desc`);
+    discussionPosts = posts;
+    if(posts.length){
+      const postIds = posts.map(p=>p.id);
+      const comments = await sbGet('bullpen_league_comments', `post_id=in.(${postIds.join(',')})&order=created_at.asc`);
+      discussionComments = {};
+      comments.forEach(c => {
+        if(!discussionComments[c.post_id]) discussionComments[c.post_id] = [];
+        discussionComments[c.post_id].push(c);
+      });
+    }
+    renderDiscussionFeed();
+  }catch(e){
+    document.getElementById('discussionFeed').innerHTML = '<div class="empty-feed">Could not load discussion right now.</div>';
+  }
+}
+
+function renderDiscussionFeed(){
+  const feed = document.getElementById('discussionFeed');
+  if(!discussionPosts.length){
+    feed.innerHTML = '<div class="empty-feed">No posts yet. Be the first to share why you picked a stock.</div>';
+    return;
+  }
+  feed.innerHTML = discussionPosts.map(p => {
+    const comments = discussionComments[p.id] || [];
+    const isOpen = openCommentThreads.has(p.id);
+    return `<div class="post-item">
+      <div class="post-head">
+        <span class="post-author">${escapeHtmlLeague(p.member_name)}</span>
+        ${p.ticker ? `<span class="post-ticker-badge">${escapeHtmlLeague(p.ticker)}</span>` : ''}
+        <span class="post-time">${timeAgo(p.created_at)}</span>
+      </div>
+      <div class="post-content">${escapeHtmlLeague(p.content)}</div>
+      <button class="post-reply-toggle" onclick="toggleComments('${p.id}')">💬 ${comments.length ? comments.length+' repl'+(comments.length===1?'y':'ies') : 'Reply'}</button>
+      <div class="comments-box" id="comments_${p.id}" style="display:${isOpen?'block':'none'}">
+        ${comments.map(c => `<div class="comment-item">
+          <div class="comment-head"><span class="comment-author">${escapeHtmlLeague(c.member_name)}</span><span class="comment-time">${timeAgo(c.created_at)}</span></div>
+          <div class="comment-content">${escapeHtmlLeague(c.content)}</div>
+        </div>`).join('')}
+        ${myMember ? `<div class="comment-input-row">
+          <input type="text" id="commentInput_${p.id}" placeholder="Write a reply..." maxlength="500" onkeydown="if(event.key==='Enter')submitComment('${p.id}')">
+          <button onclick="submitComment('${p.id}')">Send</button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleComments(postId){
+  if(openCommentThreads.has(postId)) openCommentThreads.delete(postId);
+  else openCommentThreads.add(postId);
+  renderDiscussionFeed();
+}
+
+async function submitPost(){
+  if(!myMember){ showToast('Sign in and select your name first','err'); return; }
+  const ticker = document.getElementById('postTickerSelect').value;
+  const content = document.getElementById('postContent').value.trim();
+  if(!content){ showToast('Write something first','err'); return; }
+  if(content.length > 2000){ showToast('Keep it under 2000 characters','err'); return; }
+  try{
+    await sbPost('bullpen_league_posts', {
+      league_code: leagueCode, member_id: myMember.id, member_name: myMember.name,
+      ticker: ticker || null, content
+    });
+    document.getElementById('postContent').value = '';
+    document.getElementById('postTickerSelect').value = '';
+    showToast('Posted!','ok');
+    loadDiscussion();
+  }catch(e){ showToast('Post failed - try again','err'); }
+}
+
+async function submitComment(postId){
+  if(!myMember){ showToast('Sign in and select your name first','err'); return; }
+  const input = document.getElementById('commentInput_'+postId);
+  const content = input.value.trim();
+  if(!content) return;
+  if(content.length > 500){ showToast('Keep replies under 500 characters','err'); return; }
+  try{
+    await sbPost('bullpen_league_comments', { post_id: postId, member_id: myMember.id, member_name: myMember.name, content });
+    input.value = '';
+    openCommentThreads.add(postId);
+    loadDiscussion();
+  }catch(e){ showToast('Reply failed - try again','err'); }
 }
 
 async function loadTrades(){
