@@ -540,8 +540,18 @@ async function doSignin(){
 // Writes should identify WHO is making the request whenever we know —
 // reads stay on the anon key since class leaderboards etc. are meant
 // to be viewable regardless of login state.
+function isTokenExpired(token){
+  try{
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return !payload.exp || payload.exp * 1000 < Date.now();
+  }catch(e){
+    return true; // unreadable token — treat as expired, don't trust it
+  }
+}
 function writeAuthToken(){
-  return localStorage.getItem('supabase_token') || SUPA_KEY;
+  const stored = localStorage.getItem('supabase_token');
+  if(stored && !isTokenExpired(stored)) return stored;
+  return SUPA_KEY;
 }
 async function sbGet(table, qs=''){
   const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{
@@ -550,11 +560,22 @@ async function sbGet(table, qs=''){
   return r.json();
 }
 async function sbPost(table, body){
-  const r = await fetch(SUPA_URL+'/rest/v1/'+table,{
+  let r = await fetch(SUPA_URL+'/rest/v1/'+table,{
     method:'POST',
     headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json','Prefer':'return=representation'},
     body: JSON.stringify(body)
   });
+  if((r.status === 401 || r.status === 403) && writeAuthToken() !== SUPA_KEY){
+    // The stored token was rejected for a reason isTokenExpired() didn't
+    // catch (e.g. revoked server-side) - retry once with the anon key
+    // rather than leave the user stuck on a cryptic "error, try again"
+    // with no path forward.
+    r = await fetch(SUPA_URL+'/rest/v1/'+table,{
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+      body: JSON.stringify(body)
+    });
+  }
   return r.json();
 }
 
