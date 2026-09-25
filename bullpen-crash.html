@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Crash Survival | StockPilot</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚠️</text></svg>">
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0f1420; --bg3:#151b28; --border:#232b3a;
+    --text:#e8ecf3; --muted:#8b95a8; --green:#3ecf8e; --red:#ff5c5c; --gold:#ffc107; --blue:#2979ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+  .brand-badge{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px}
+  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px}
+  h1{text-align:center;font-size:28px;margin:0 0 4px}
+  .subtitle{text-align:center;color:var(--muted);font-size:14px;margin-bottom:28px}
+  .stat-row{display:flex;gap:12px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+  .stat-pill{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 18px;text-align:center;min-width:100px}
+  .stat-pill .num{font-size:20px;font-weight:800}
+  .stat-pill .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px}
+  .ticker-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+  .ticker-name{font-size:18px;font-weight:800}
+  .ticker-sub{color:var(--muted);font-size:12px}
+  .day-badge{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:700;color:var(--gold)}
+  .chart-box{background:var(--bg3);border-radius:12px;padding:16px 8px;margin-bottom:20px}
+  .position-badge{text-align:center;margin-bottom:16px;font-size:13px;color:var(--muted)}
+  .position-badge .in{color:var(--green);font-weight:700}
+  .position-badge .out{color:var(--muted);font-weight:700}
+  .btn-row{display:flex;gap:12px}
+  .btn-action{flex:1;padding:16px;border:none;border-radius:12px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform 0.1s}
+  .btn-action:active{transform:scale(0.97)}
+  .btn-buy{background:var(--green);color:#003820}
+  .btn-sell{background:var(--red);color:#3a0000}
+  .btn-hold{background:var(--bg3);border:1px solid var(--border);color:var(--text)}
+  .start-screen{text-align:center;padding:10px 0}
+  .btn-start{padding:16px 40px;background:var(--gold);color:#000;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:16px}
+  .gameover{text-align:center;padding:10px 0}
+  .gameover .final{font-size:36px;font-weight:800;margin:6px 0}
+  .gameover .final.up{color:var(--green)}
+  .gameover .final.down{color:var(--red)}
+  .name-row{display:flex;gap:8px;margin:18px 0}
+  .name-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit}
+  .btn-save{padding:11px 18px;background:var(--gold);color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px}
+  .btn-again{width:100%;padding:14px;background:var(--green);color:#003820;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px}
+  .leaderboard{margin-top:28px}
+  .leaderboard h2{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+  .lb-row{display:flex;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:14px}
+  .lb-row .rank{color:var(--muted);width:24px}
+  .empty-feed{padding:16px;text-align:center;color:var(--muted);font-size:13px}
+  .how{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .how h2{font-size:14px;margin:0 0 8px}
+  .how li{color:var(--muted);font-size:13px;margin-bottom:6px;line-height:1.5}
+  .loading{text-align:center;padding:60px 0;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">📈 <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
+  <a class="back" href="/bullpen.html">← All Modes</a>
+</div>
+
+<div class="wrap">
+  <h1>⚠️ Market Crash Survival</h1>
+  <div class="subtitle">A real, genuinely volatile stretch of trading days. Buy, sell, or hold your way through it.</div>
+
+  <div class="stat-row">
+    <div class="stat-pill"><div class="num" id="cashDisplay">$10,000</div><div class="lbl">Portfolio</div></div>
+    <div class="stat-pill"><div class="num" id="returnDisplay">+0.0%</div><div class="lbl">Return</div></div>
+    <div class="stat-pill"><div class="num" id="bestDisplay">-</div><div class="lbl">Your Best</div></div>
+  </div>
+
+  <div class="card" id="gameCard">
+    <div class="start-screen">
+      <div style="font-size:15px;color:var(--muted);margin-bottom:6px">$10,000 to start. A real, historically volatile 20-day stretch on a real stock.</div>
+      <div style="font-size:13px;color:var(--muted)">Each day: be in the market or out of it before the next move happens.</div>
+      <button class="btn-start" onclick="startGame()">Start</button>
+    </div>
+  </div>
+
+  <div class="leaderboard">
+    <h2>🏆 Best Returns</h2>
+    <div id="leaderboardList"><div class="lb-row"><span>Loading...</span></div></div>
+  </div>
+
+  <div class="how">
+    <h2>How it works</h2>
+    <ul>
+      <li>You'll get a real 20-trading-day stretch from a real stock's actual price history, picked because it was genuinely volatile.</li>
+      <li>Each day you choose: stay in the market, get out of it, or (if you're out) get back in - before that day's real move happens.</li>
+      <li>Panic-selling right before a bounce is the single most common way people lose money in a real crash. See how you actually do under pressure.</li>
+      <li>Final score is your total return over the 20 days.</li>
+    </ul>
+  </div>
+</div>
+
+<script src="bullpen-shared.js"></script>
+<script>
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+const STARTING_CASH = 10000;
+const GAME_DAYS = 20;
+
+// Individual stocks (not index funds) tend to have sharper, more dramatic
+// moves - better for this game than something smoothed-out like SPY.
+const TICKER_POOL = [
+  'TSLA','NVDA','AMD','NFLX','META','COIN','PLTR','MRNA','CRM','SHOP',
+  'BA','GE','F','GM','DAL','UAL','CCL','RCL','MGM','WYNN',
+  'BAC','WFC','C','GS','MS','AAPL','MSFT','AMZN','GOOGL','DIS'
+];
+
+let path = null; // array of {t, c}
+let dayIndex = 0; // index into path for "today" (the last revealed day)
+let cash = STARTING_CASH;
+let shares = 0;
+let inMarket = false;
+let gameActive = false;
+let best = localStorage.getItem('crash_best');
+if(best !== null) document.getElementById('bestDisplay').textContent = parseFloat(best).toFixed(1) + '%';
+
+function pickTicker(){
+  return TICKER_POOL[Math.floor(Math.random() * TICKER_POOL.length)];
+}
+
+function volatility(points, start, len){
+  let sum = 0;
+  for(let i=start+1; i<start+len; i++){
+    sum += Math.abs((points[i].c - points[i-1].c) / points[i-1].c);
+  }
+  return sum / (len - 1);
+}
+
+async function startGame(){
+  document.getElementById('gameCard').innerHTML = '<div class="loading">Finding a volatile stretch...</div>';
+  const symbol = pickTicker();
+  try{
+    const res = await fetch(`${BACKEND}/api/history?symbol=${symbol}&range=5y&interval=1d`);
+    const data = await res.json();
+    const result = data?.chart?.result?.[0];
+    const timestamps = result?.timestamp || [];
+    const closes = result?.indicators?.quote?.[0]?.close || [];
+    const clean = [];
+    for(let i=0;i<timestamps.length;i++){
+      if(closes[i] !== null && closes[i] !== undefined) clean.push({t:timestamps[i], c:closes[i]});
+    }
+    if(clean.length < GAME_DAYS + 10) throw new Error('not enough data');
+
+    // Sample candidate windows, keep the most volatile one found - real
+    // data, just selected for genuine drama rather than a random calm
+    // stretch.
+    let bestWindow = null, bestVol = -1;
+    for(let attempt=0; attempt<40; attempt++){
+      const start = Math.floor(Math.random() * (clean.length - GAME_DAYS - 1));
+      const vol = volatility(clean, start, GAME_DAYS);
+      if(vol > bestVol){ bestVol = vol; bestWindow = start; }
+    }
+    path = clean.slice(bestWindow, bestWindow + GAME_DAYS + 1);
+    dayIndex = 0;
+    cash = STARTING_CASH;
+    shares = 0;
+    inMarket = false;
+    gameActive = true;
+    window._crashSymbol = symbol;
+    updateStats();
+    renderDay();
+  }catch(e){
+    startGame(); // try a different ticker
+  }
+}
+
+function portfolioValue(){
+  return inMarket ? shares * path[dayIndex].c : cash;
+}
+
+function updateStats(){
+  const value = portfolioValue();
+  const pct = ((value - STARTING_CASH) / STARTING_CASH) * 100;
+  document.getElementById('cashDisplay').textContent = '$' + value.toLocaleString(undefined, {maximumFractionDigits:0});
+  const rd = document.getElementById('returnDisplay');
+  rd.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
+  rd.style.color = pct >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+function buildSparkline(points, uptoIdx){
+  const w = 560, h = 160, pad = 10;
+  const shown = points.slice(0, uptoIdx + 1);
+  const closes = shown.map(p => p.c);
+  const min = Math.min(...closes), max = Math.max(...closes);
+  const range = (max - min) || 1;
+  const stepX = (w - pad*2) / GAME_DAYS;
+  const coords = closes.map((c,i) => {
+    const x = pad + i * stepX;
+    const y = pad + (h - pad*2) * (1 - (c - min) / range);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const trendUp = closes[closes.length-1] >= closes[0];
+  const color = trendUp ? 'var(--green)' : 'var(--red)';
+  const lastX = pad + (shown.length-1) * stepX;
+  const lastY = pad + (h - pad*2) * (1 - (closes[closes.length-1] - min) / range);
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block">
+    <polyline points="${coords.join(' ')}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="${color}"/>
+  </svg>`;
+}
+
+function renderDay(){
+  const daysElapsed = dayIndex;
+  const daysLeft = GAME_DAYS - dayIndex;
+  const svg = buildSparkline(path, dayIndex);
+  document.getElementById('gameCard').innerHTML = `
+    <div class="ticker-head">
+      <div>
+        <div class="ticker-name">${window._crashSymbol}</div>
+        <div class="ticker-sub">Day ${daysElapsed} of ${GAME_DAYS}</div>
+      </div>
+      <div class="day-badge">${daysLeft} days left</div>
+    </div>
+    <div class="chart-box">${svg}</div>
+    <div class="position-badge">You're currently <span class="${inMarket ? 'in' : 'out'}">${inMarket ? 'IN the market' : 'OUT of the market'}</span></div>
+    <div class="btn-row">
+      ${inMarket
+        ? `<button class="btn-action btn-sell" onclick="makeMove('sell')">Sell - Go to Cash</button><button class="btn-action btn-hold" onclick="makeMove('hold')">Stay In</button>`
+        : `<button class="btn-action btn-buy" onclick="makeMove('buy')">Buy In</button><button class="btn-action btn-hold" onclick="makeMove('hold')">Stay Out</button>`
+      }
+    </div>
+  `;
+}
+
+function makeMove(action){
+  if(!gameActive) return;
+  const priceToday = path[dayIndex].c;
+  if(action === 'sell'){
+    cash = shares * priceToday;
+    shares = 0;
+    inMarket = false;
+  } else if(action === 'buy'){
+    shares = cash / priceToday;
+    cash = 0;
+    inMarket = true;
+  }
+  // advance to next day
+  dayIndex++;
+  updateStats();
+  if(dayIndex >= GAME_DAYS){
+    endGame();
+  } else {
+    renderDay();
+  }
+}
+
+function endGame(){
+  gameActive = false;
+  const finalValue = portfolioValue();
+  const pct = ((finalValue - STARTING_CASH) / STARTING_CASH) * 100;
+  const storedBest = parseFloat(localStorage.getItem('crash_best'));
+  if(isNaN(storedBest) || pct > storedBest){
+    localStorage.setItem('crash_best', pct);
+    document.getElementById('bestDisplay').textContent = pct.toFixed(1) + '%';
+  }
+  document.getElementById('gameCard').innerHTML = `
+    <div class="gameover">
+      <div style="color:var(--muted);font-size:13px">Final return over 20 days</div>
+      <div class="final ${pct >= 0 ? 'up' : 'down'}">${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div>
+      <div style="color:var(--muted);font-size:13px">$${finalValue.toLocaleString(undefined,{maximumFractionDigits:0})} from $10,000 on ${window._crashSymbol}</div>
+      <div class="name-row">
+        <input type="text" id="saveNameInput" placeholder="Your name for the leaderboard" maxlength="30">
+        <button class="btn-save" onclick="saveScore(${pct})">Save</button>
+      </div>
+      <button class="btn-again" onclick="startGame()">Try Another Stretch</button>
+    </div>
+  `;
+}
+
+async function saveScore(finalReturn){
+  const input = document.getElementById('saveNameInput');
+  const name = (input.value || '').trim();
+  if(!name){ input.focus(); return; }
+  const btn = event.target;
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try{
+    await sbPost('bullpen_crash_scores', { player_name: name, final_return: finalReturn });
+    btn.textContent = 'Saved!';
+    loadLeaderboard();
+  }catch(e){
+    btn.textContent = 'Save'; btn.disabled = false;
+  }
+}
+
+async function loadLeaderboard(){
+  try{
+    const rows = await sbGet('bullpen_crash_scores', 'order=final_return.desc&limit=10');
+    const list = document.getElementById('leaderboardList');
+    if(!rows.length){
+      list.innerHTML = '<div class="empty-feed">No runs yet - be the first!</div>';
+      return;
+    }
+    list.innerHTML = rows.map((r,i) => `
+      <div class="lb-row">
+        <span><span class="rank">#${i+1}</span> ${escapeHtml(r.player_name)}</span>
+        <span style="font-weight:700;color:${r.final_return >= 0 ? 'var(--green)' : 'var(--red)'}">${r.final_return >= 0 ? '+' : ''}${parseFloat(r.final_return).toFixed(1)}%</span>
+      </div>
+    `).join('');
+  }catch(e){
+    document.getElementById('leaderboardList').innerHTML = '<div class="empty-feed">Couldn\'t load leaderboard</div>';
+  }
+}
+
+loadLeaderboard();
+</script>
+</body>
+</html>
