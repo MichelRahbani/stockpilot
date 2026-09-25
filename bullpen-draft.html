@@ -566,6 +566,21 @@ async function init(){
       if(found){myMemberId=found.id;localStorage.setItem('bullpen_my_member_id',found.id);}
     }
 
+    // Restore already-drafted picks from the saved member record. Every
+    // pick gets written to the database immediately when it's made (see
+    // finalizePick), but this page never used to read that back on load -
+    // so a refresh mid-draft made picks LOOK like they'd vanished, even
+    // though they were safe in the database the whole time. The ticker is
+    // used as a placeholder name here since this file has no ticker-name
+    // lookup; it's cosmetic only and doesn't affect the roster itself.
+    if(myMemberId){
+      const me = members.find(m=>m.id===myMemberId);
+      if(me){
+        starters = (me.starters||[]).map(t=>({ticker:t, name:t}));
+        bench = (me.bench||[]).map(t=>({ticker:t, name:t}));
+      }
+    }
+
     renderMembers(members);
   }catch(e){console.log('Init error',e);}
 
