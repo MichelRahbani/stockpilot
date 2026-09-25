@@ -771,7 +771,7 @@ const FPL_TIER_MAP = {
 // background and returns whatever's ready so far; it fills in over the
 // next couple minutes and every request after that is instant.
 const HQ_STATE_CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
-let hqStateCache = { states: {}, builtAt: 0, building: false, total: 0, done: 0 };
+let hqStateCache = { states: {}, names: {}, builtAt: 0, building: false, total: 0, done: 0 };
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -784,7 +784,9 @@ const buildHqStateCache = async () => {
     hqStateCache.total = tickers.length;
     hqStateCache.done = 0;
     const states = {};
+    const names = {};
     for (const ticker of tickers) {
+      if (tickerMap[ticker].title) names[ticker] = tickerMap[ticker].title;
       try {
         const cik = String(tickerMap[ticker].cik).padStart(10, "0");
         const data = await cachedFetch(`https://data.sec.gov/submissions/CIK${cik}.json`, "json");
@@ -798,6 +800,7 @@ const buildHqStateCache = async () => {
       await sleep(120); // ~8 req/sec, safely under SEC's 10/sec guideline
     }
     hqStateCache.states = states;
+    hqStateCache.names = names;
     hqStateCache.builtAt = Date.now();
   } finally {
     hqStateCache.building = false;
@@ -811,8 +814,9 @@ const getHqStatesPayload = async () => {
   }
   return {
     states: hqStateCache.states,
+    names: hqStateCache.names,
     stockPilotMeta: {
-      source: "SEC EDGAR submissions API - each company's own registered business address",
+      source: "SEC EDGAR submissions API - each company's own registered business address; names from SEC's own company_tickers.json",
       updatedAt: hqStateCache.builtAt ? new Date(hqStateCache.builtAt).toISOString() : null,
       status: hqStateCache.building ? "building" : (hqStateCache.builtAt ? "ready" : "not started"),
       progress: hqStateCache.total ? `${hqStateCache.done}/${hqStateCache.total}` : null,
