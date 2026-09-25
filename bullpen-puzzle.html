@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Daily Portfolio Puzzle | StockPilot</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧩</text></svg>">
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0f1420; --bg3:#151b28; --border:#232b3a;
+    --text:#e8ecf3; --muted:#8b95a8; --green:#3ecf8e; --red:#ff5c5c; --gold:#ffc107; --blue:#2979ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+  .brand-badge{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px}
+  .wrap{max-width:600px;margin:0 auto;padding:32px 20px 60px}
+  h1{text-align:center;font-size:28px;margin:0 0 4px}
+  .subtitle{text-align:center;color:var(--muted);font-size:14px;margin-bottom:8px}
+  .date-badge{text-align:center;color:var(--gold);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:24px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px}
+  .instructions{font-size:14px;color:var(--muted);text-align:center;margin-bottom:20px;line-height:1.5}
+  .pick-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+  .pick-item{background:var(--bg3);border:2px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;transition:border-color 0.15s}
+  .pick-item:hover{border-color:var(--blue)}
+  .pick-item.picked{opacity:0.35;cursor:default}
+  .pick-item .ticker{font-weight:800;font-size:16px}
+  .pick-item .name{color:var(--muted);font-size:12px}
+  .pick-item .rank-num{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px}
+  .rank-slots{display:flex;gap:8px;margin-bottom:20px;justify-content:center}
+  .rank-slot{width:44px;height:44px;border-radius:8px;background:var(--bg3);border:1px dashed var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:var(--muted)}
+  .rank-slot.filled{border-style:solid;border-color:var(--blue);color:var(--text)}
+  .loading{text-align:center;padding:60px 0;color:var(--muted)}
+  .results-row{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;border-radius:8px;margin-bottom:8px;font-size:14px}
+  .results-row.correct{background:rgba(62,207,142,0.1);border:1px solid rgba(62,207,142,0.3)}
+  .results-row.wrong{background:rgba(255,92,92,0.08);border:1px solid rgba(255,92,92,0.25)}
+  .results-row .pos{color:var(--muted);width:20px}
+  .results-row .pct{font-weight:700}
+  .gameover{text-align:center;padding:10px 0 20px}
+  .gameover .final{font-size:40px;font-weight:800;margin:6px 0}
+  .name-row{display:flex;gap:8px;margin:18px 0}
+  .name-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit}
+  .btn-save{padding:11px 18px;background:var(--gold);color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px}
+  .leaderboard{margin-top:28px}
+  .leaderboard h2{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+  .lb-row{display:flex;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:14px}
+  .lb-row .rank{color:var(--muted);width:24px}
+  .empty-feed{padding:16px;text-align:center;color:var(--muted);font-size:13px}
+  .how{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .how h2{font-size:14px;margin:0 0 8px}
+  .how li{color:var(--muted);font-size:13px;margin-bottom:6px;line-height:1.5}
+  .already-done{text-align:center;padding:20px 0;color:var(--muted);font-size:14px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">📈 <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
+  <a class="back" href="/bullpen.html">← All Modes</a>
+</div>
+
+<div class="wrap">
+  <h1>🧩 Daily Portfolio Puzzle</h1>
+  <div class="subtitle">Same 5 stocks for everyone, every day. Rank them best to worst.</div>
+  <div class="date-badge" id="dateBadge"></div>
+
+  <div class="card" id="gameCard">
+    <div class="loading">Loading today's puzzle...</div>
+  </div>
+
+  <div class="leaderboard">
+    <h2>🏆 Today's Top Scores</h2>
+    <div id="leaderboardList"><div class="lb-row"><span>Loading...</span></div></div>
+  </div>
+
+  <div class="how">
+    <h2>How it works</h2>
+    <ul>
+      <li>Every player gets the same 5 real S&amp;P 500 companies on a given day - picked the same way for everyone, so it's a fair comparison.</li>
+      <li>Rank them from best to worst year-to-date stock performance, just by clicking them in order.</li>
+      <li>Scored instantly against the real numbers. Comes back tomorrow with 5 new companies.</li>
+    </ul>
+  </div>
+</div>
+
+<script src="bullpen-shared.js"></script>
+<script>
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+
+// A pool wide enough for real day-to-day variety across a year of daily
+// puzzles, still limited to well-known, liquid names for reliable data.
+const PUZZLE_POOL = [
+  'AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA','JPM','V','MA',
+  'HD','PG','JNJ','UNH','XOM','CVX','KO','PEP','WMT','COST',
+  'DIS','NFLX','ADBE','CRM','ORCL','IBM','CSCO','INTC','AMD','QCOM',
+  'BA','CAT','GE','HON','MMM','GS','MS','BAC','WFC','AXP',
+  'MCD','SBUX','NKE','LOW','TGT','PFE','MRK','ABBV','TMO','ABT'
+];
+
+function todayString(){
+  const d = new Date();
+  return d.toISOString().slice(0,10); // YYYY-MM-DD, UTC-based so it's the same for everyone regardless of timezone quirks
+}
+
+// Deterministic PRNG seeded from the date string, so every player gets
+// the identical puzzle on the same day - same idea as Wordle.
+function seededRandom(seed){
+  let h = 0;
+  for(let i=0;i<seed.length;i++){ h = (Math.imul(31, h) + seed.charCodeAt(i)) | 0; }
+  return function(){
+    h = (Math.imul(h, 1103515245) + 12345) | 0;
+    return ((h >>> 0) % 100000) / 100000;
+  };
+}
+
+function pickTodaysTickers(){
+  const rand = seededRandom(todayString());
+  const pool = [...PUZZLE_POOL];
+  const picked = [];
+  for(let i=0;i<5 && pool.length;i++){
+    const idx = Math.floor(rand() * pool.length);
+    picked.push(pool.splice(idx,1)[0]);
+  }
+  return picked;
+}
+
+let todaysTickers = [];
+let ytdReturns = {}; // ticker -> pct
+let playerOrder = []; // tickers in the order the player clicked them
+let puzzleSolved = false;
+
+document.getElementById('dateBadge').textContent = new Date().toLocaleDateString(undefined, {weekday:'long', month:'long', day:'numeric'});
+
+async function loadPuzzle(){
+  todaysTickers = pickTodaysTickers();
+  const already = localStorage.getItem('puzzle_done_' + todayString());
+  if(already){
+    showAlreadyDone(JSON.parse(already));
+    return;
+  }
+  try{
+    const results = await Promise.all(todaysTickers.map(async t => {
+      const res = await fetch(`${BACKEND}/api/history?symbol=${t}&range=ytd&interval=1d`);
+      const data = await res.json();
+      const result = data?.chart?.result?.[0];
+      const closes = (result?.indicators?.quote?.[0]?.close || []).filter(c => c !== null && c !== undefined);
+      if(closes.length < 2) return null;
+      const pct = ((closes[closes.length-1] - closes[0]) / closes[0]) * 100;
+      return { ticker: t, pct };
+    }));
+    if(results.some(r => r === null)) throw new Error('missing data');
+    results.forEach(r => { ytdReturns[r.ticker] = r.pct; });
+    renderPickScreen();
+  }catch(e){
+    document.getElementById('gameCard').innerHTML = '<div class="loading">Could not load today\'s puzzle - try refreshing.</div>';
+  }
+}
+
+function renderPickScreen(){
+  playerOrder = [];
+  document.getElementById('gameCard').innerHTML = `
+    <div class="instructions">Click the 5 companies in order, <strong>best year-to-date performer first</strong>.</div>
+    <div class="rank-slots" id="rankSlots">
+      ${[1,2,3,4,5].map(n => `<div class="rank-slot" id="slot${n}">${n}</div>`).join('')}
+    </div>
+    <div class="pick-list" id="pickList">
+      ${todaysTickers.map(t => `
+        <div class="pick-item" id="item_${t}" onclick="pickTicker('${t}')">
+          <div><div class="ticker">${t}</div></div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function pickTicker(ticker){
+  if(playerOrder.includes(ticker) || playerOrder.length >= 5) return;
+  playerOrder.push(ticker);
+  const item = document.getElementById('item_' + ticker);
+  item.classList.add('picked');
+  item.querySelector('div').insertAdjacentHTML('beforeend', '');
+  document.getElementById('slot' + playerOrder.length).textContent = ticker;
+  document.getElementById('slot' + playerOrder.length).classList.add('filled');
+  if(playerOrder.length === 5) setTimeout(showResults, 300);
+}
+
+function showResults(){
+  puzzleSolved = true;
+  const correctOrder = [...todaysTickers].sort((a,b) => ytdReturns[b] - ytdReturns[a]);
+  let score = 0;
+  correctOrder.forEach((t,i) => { if(playerOrder[i] === t) score++; });
+
+  localStorage.setItem('puzzle_done_' + todayString(), JSON.stringify({ order: playerOrder, score }));
+
+  const rowsHtml = correctOrder.map((t,i) => {
+    const playerPos = playerOrder.indexOf(t) + 1;
+    const isCorrectPos = playerOrder[i] === t;
+    return `<div class="results-row ${isCorrectPos ? 'correct' : 'wrong'}">
+      <span class="pos">#${i+1}</span>
+      <span style="flex:1;padding-left:8px"><strong>${t}</strong> ${isCorrectPos ? '' : `(you had it #${playerPos})`}</span>
+      <span class="pct" style="color:${ytdReturns[t]>=0?'var(--green)':'var(--red)'}">${ytdReturns[t]>=0?'+':''}${ytdReturns[t].toFixed(1)}%</span>
+    </div>`;
+  }).join('');
+
+  document.getElementById('gameCard').innerHTML = `
+    <div class="gameover">
+      <div style="color:var(--muted);font-size:13px">You got</div>
+      <div class="final">${score} / 5</div>
+      <div style="color:var(--muted);font-size:13px">in the right spot</div>
+    </div>
+    ${rowsHtml}
+    <div class="name-row">
+      <input type="text" id="saveNameInput" placeholder="Your name for today's leaderboard" maxlength="30">
+      <button class="btn-save" onclick="saveScore(${score})">Save</button>
+    </div>
+  `;
+}
+
+function showAlreadyDone(saved){
+  document.getElementById('gameCard').innerHTML = `
+    <div class="already-done">
+      You already solved today's puzzle.<br>
+      <div style="font-size:32px;font-weight:800;color:var(--text);margin:12px 0">${saved.score} / 5</div>
+      Come back tomorrow for a new one.
+    </div>
+  `;
+}
+
+async function saveScore(score){
+  const input = document.getElementById('saveNameInput');
+  const name = (input.value || '').trim();
+  if(!name){ input.focus(); return; }
+  const btn = event.target;
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try{
+    await sbPost('bullpen_puzzle_scores', { player_name: name, puzzle_date: todayString(), score });
+    btn.textContent = 'Saved!';
+    loadLeaderboard();
+  }catch(e){
+    btn.textContent = 'Save'; btn.disabled = false;
+  }
+}
+
+async function loadLeaderboard(){
+  try{
+    const rows = await sbGet('bullpen_puzzle_scores', `puzzle_date=eq.${todayString()}&order=score.desc&limit=10`);
+    const list = document.getElementById('leaderboardList');
+    if(!rows.length){
+      list.innerHTML = '<div class="empty-feed">No scores yet today - be the first!</div>';
+      return;
+    }
+    list.innerHTML = rows.map((r,i) => `
+      <div class="lb-row">
+        <span><span class="rank">#${i+1}</span> ${escapeHtml(r.player_name)}</span>
+        <span style="font-weight:700">${r.score}/5</span>
+      </div>
+    `).join('');
+  }catch(e){
+    document.getElementById('leaderboardList').innerHTML = '<div class="empty-feed">Couldn\'t load leaderboard</div>';
+  }
+}
+
+loadPuzzle();
+loadLeaderboard();
+</script>
+</body>
+</html>
