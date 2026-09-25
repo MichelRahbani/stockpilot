@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bull or Bear Streak | StockPilot</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📈</text></svg>">
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0f1420; --bg3:#151b28; --border:#232b3a;
+    --text:#e8ecf3; --muted:#8b95a8; --green:#3ecf8e; --red:#ff5c5c; --gold:#ffc107; --blue:#2979ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+  .brand-badge{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px}
+  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px}
+  h1{text-align:center;font-size:28px;margin:0 0 4px}
+  .subtitle{text-align:center;color:var(--muted);font-size:14px;margin-bottom:28px}
+  .stat-row{display:flex;gap:12px;justify-content:center;margin-bottom:24px}
+  .stat-pill{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 20px;text-align:center}
+  .stat-pill .num{font-size:22px;font-weight:800}
+  .stat-pill .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px}
+  .ticker-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+  .ticker-name{font-size:20px;font-weight:800}
+  .ticker-sub{color:var(--muted);font-size:12px}
+  .chart-box{background:var(--bg3);border-radius:12px;padding:16px 8px;margin-bottom:20px}
+  .empty-feed{padding:40px 20px;text-align:center;color:var(--muted)}
+  .btn-row{display:flex;gap:12px}
+  .btn-guess{flex:1;padding:18px;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform 0.1s}
+  .btn-guess:active{transform:scale(0.97)}
+  .btn-bull{background:var(--green);color:#003820}
+  .btn-bear{background:var(--red);color:#3a0000}
+  .btn-guess:disabled{opacity:0.4;cursor:default}
+  .reveal{text-align:center;padding:20px 0}
+  .reveal-move{font-size:32px;font-weight:800;margin-bottom:6px}
+  .reveal-move.up{color:var(--green)}
+  .reveal-move.down{color:var(--red)}
+  .reveal-verdict{font-size:15px;margin-bottom:20px}
+  .reveal-verdict.correct{color:var(--green)}
+  .reveal-verdict.wrong{color:var(--red)}
+  .btn-continue{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+  .gameover{text-align:center;padding:10px 0}
+  .gameover .final{font-size:40px;font-weight:800;margin:6px 0}
+  .name-row{display:flex;gap:8px;margin:18px 0}
+  .name-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit}
+  .btn-save{padding:11px 18px;background:var(--gold);color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px}
+  .btn-again{width:100%;padding:14px;background:var(--green);color:#003820;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px}
+  .leaderboard{margin-top:28px}
+  .leaderboard h2{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+  .lb-row{display:flex;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:14px}
+  .lb-row .rank{color:var(--muted);width:24px}
+  .loading{text-align:center;padding:60px 0;color:var(--muted)}
+  .how{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .how h2{font-size:14px;margin:0 0 8px}
+  .how li{color:var(--muted);font-size:13px;margin-bottom:6px;line-height:1.5}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">📈 <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
+  <a class="back" href="/bullpen.html">← All Modes</a>
+</div>
+
+<div class="wrap">
+  <h1>🐂 Bull or Bear Streak</h1>
+  <div class="subtitle">Guess the next day's move on real S&amp;P 500 stocks. How long can you keep it going?</div>
+
+  <div class="stat-row">
+    <div class="stat-pill"><div class="num" id="currentStreak">0</div><div class="lbl">Current Streak</div></div>
+    <div class="stat-pill"><div class="num" id="bestStreak">0</div><div class="lbl">Your Best</div></div>
+  </div>
+
+  <div class="card" id="gameCard">
+    <div class="loading">Loading a chart...</div>
+  </div>
+
+  <div class="leaderboard">
+    <h2>🏆 Top Streaks</h2>
+    <div id="leaderboardList"><div class="lb-row"><span>Loading...</span></div></div>
+  </div>
+
+  <div class="how">
+    <h2>How it works</h2>
+    <ul>
+      <li>You'll see a real price chart for a real S&amp;P 500 company with the most recent day hidden.</li>
+      <li>Guess whether the next trading day closed up (Bull) or down (Bear).</li>
+      <li>Guess right, your streak grows and you move to a new stock. Guess wrong, the streak ends.</li>
+      <li>Every chart is real historical data, pulled fresh each round - not simulated.</li>
+    </ul>
+  </div>
+</div>
+
+<script src="bullpen-shared.js"></script>
+<script>
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+
+// A curated pool of well-known, liquid tickers - keeps chart quality good
+// and avoids obscure names with thin/choppy trading history.
+const TICKER_POOL = [
+  'AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA','JPM','V','MA',
+  'HD','PG','JNJ','UNH','XOM','CVX','KO','PEP','WMT','COST',
+  'DIS','NFLX','ADBE','CRM','ORCL','IBM','CSCO','INTC','AMD','QCOM',
+  'BA','CAT','GE','HON','MMM','GS','MS','BAC','WFC','AXP',
+  'MCD','SBUX','NKE','LOW','TGT','PFE','MRK','ABBV','TMO','ABT'
+];
+
+let currentStreak = 0;
+let bestStreak = parseInt(localStorage.getItem('streak_best') || '0', 10);
+let roundData = null; // {symbol, closes[], timestamps[], guessIndex}
+let awaitingGuess = false;
+
+document.getElementById('bestStreak').textContent = bestStreak;
+
+function pickTicker(){
+  return TICKER_POOL[Math.floor(Math.random() * TICKER_POOL.length)];
+}
+
+async function loadRound(){
+  awaitingGuess = false;
+  document.getElementById('gameCard').innerHTML = '<div class="loading">Loading a chart...</div>';
+  const symbol = pickTicker();
+  try{
+    const res = await fetch(`${BACKEND}/api/history?symbol=${symbol}&range=6mo&interval=1d`);
+    const data = await res.json();
+    const result = data?.chart?.result?.[0];
+    const timestamps = result?.timestamp || [];
+    const closes = result?.indicators?.quote?.[0]?.close || [];
+    // Filter out any null closes (holidays/gaps) while keeping timestamps aligned
+    const clean = [];
+    for(let i=0;i<timestamps.length;i++){
+      if(closes[i] !== null && closes[i] !== undefined) clean.push({t:timestamps[i], c:closes[i]});
+    }
+    if(clean.length < 40){ throw new Error('not enough data'); }
+    // Pick a random reveal point with at least 25 days of chart before it
+    // and at least 1 day after it to reveal.
+    const guessIdx = 25 + Math.floor(Math.random() * (clean.length - 26));
+    roundData = { symbol, points: clean, guessIdx };
+    renderRound();
+  }catch(e){
+    // Try a different ticker rather than leaving the player stuck
+    loadRound();
+  }
+}
+
+function renderRound(){
+  awaitingGuess = true;
+  const { symbol, points, guessIdx } = roundData;
+  const chartPoints = points.slice(0, guessIdx + 1); // includes the day just before the guess
+  const svg = buildSparkline(chartPoints);
+  document.getElementById('gameCard').innerHTML = `
+    <div class="ticker-head">
+      <div>
+        <div class="ticker-name">${symbol}</div>
+        <div class="ticker-sub">${chartPoints.length} trading days shown - what happens next?</div>
+      </div>
+    </div>
+    <div class="chart-box">${svg}</div>
+    <div class="btn-row">
+      <button class="btn-guess btn-bull" onclick="makeGuess('up')">▲ Bull</button>
+      <button class="btn-guess btn-bear" onclick="makeGuess('down')">▼ Bear</button>
+    </div>
+  `;
+}
+
+function buildSparkline(points){
+  const w = 560, h = 180, pad = 10;
+  const closes = points.map(p => p.c);
+  const min = Math.min(...closes), max = Math.max(...closes);
+  const range = (max - min) || 1;
+  const stepX = (w - pad*2) / (points.length - 1);
+  const coords = closes.map((c,i) => {
+    const x = pad + i * stepX;
+    const y = pad + (h - pad*2) * (1 - (c - min) / range);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  const trendUp = closes[closes.length-1] >= closes[0];
+  const color = trendUp ? 'var(--green)' : 'var(--red)';
+  const lastX = pad + (points.length-1) * stepX;
+  const lastY = pad + (h - pad*2) * (1 - (closes[closes.length-1] - min) / range);
+  return `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:auto;display:block">
+    <polyline points="${coords.join(' ')}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="4" fill="${color}"/>
+  </svg>`;
+}
+
+function makeGuess(direction){
+  if(!awaitingGuess) return;
+  awaitingGuess = false;
+  const { points, guessIdx } = roundData;
+  const before = points[guessIdx].c;
+  const after = points[guessIdx + 1].c;
+  const actualDirection = after >= before ? 'up' : 'down';
+  const correct = direction === actualDirection;
+  const pctMove = (((after - before) / before) * 100).toFixed(2);
+
+  if(correct){
+    currentStreak++;
+    if(currentStreak > bestStreak){
+      bestStreak = currentStreak;
+      localStorage.setItem('streak_best', bestStreak);
+    }
+    document.getElementById('currentStreak').textContent = currentStreak;
+    document.getElementById('bestStreak').textContent = bestStreak;
+  }
+
+  document.getElementById('gameCard').innerHTML = `
+    <div class="reveal">
+      <div class="reveal-move ${actualDirection === 'up' ? 'up' : 'down'}">${actualDirection === 'up' ? '▲' : '▼'} ${pctMove > 0 ? '+' : ''}${pctMove}%</div>
+      <div class="reveal-verdict ${correct ? 'correct' : 'wrong'}">${correct ? '✓ Correct! Streak continues.' : '✗ Wrong - streak ends.'}</div>
+      ${correct
+        ? `<button class="btn-continue" onclick="nextRound()">Next Stock →</button>`
+        : renderGameOver()}
+    </div>
+  `;
+}
+
+function renderGameOver(){
+  const finalStreak = currentStreak;
+  currentStreak = 0;
+  document.getElementById('currentStreak').textContent = '0';
+  return `
+    <div class="gameover">
+      <div style="color:var(--muted);font-size:13px">Final streak</div>
+      <div class="final">${finalStreak}</div>
+      ${finalStreak > 0 ? `
+        <div class="name-row">
+          <input type="text" id="saveNameInput" placeholder="Your name for the leaderboard" maxlength="30">
+          <button class="btn-save" onclick="saveScore(${finalStreak})">Save</button>
+        </div>
+      ` : ''}
+      <button class="btn-again" onclick="loadRound()">Play Again</button>
+    </div>
+  `;
+}
+
+function nextRound(){
+  loadRound();
+}
+
+async function saveScore(streak){
+  const input = document.getElementById('saveNameInput');
+  const name = (input.value || '').trim();
+  if(!name){ input.focus(); return; }
+  const btn = event.target;
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  try{
+    await sbPost('bullpen_streak_scores', { player_name: name, best_streak: streak });
+    btn.textContent = 'Saved!';
+    loadLeaderboard();
+  }catch(e){
+    btn.textContent = 'Save'; btn.disabled = false;
+  }
+}
+
+async function loadLeaderboard(){
+  try{
+    const rows = await sbGet('bullpen_streak_scores', 'order=best_streak.desc&limit=10');
+    const list = document.getElementById('leaderboardList');
+    if(!rows.length){
+      list.innerHTML = '<div class="empty-feed" style="padding:16px">No streaks yet - be the first!</div>';
+      return;
+    }
+    list.innerHTML = rows.map((r,i) => `
+      <div class="lb-row">
+        <span><span class="rank">#${i+1}</span> ${escapeHtml(r.player_name)}</span>
+        <span style="font-weight:700">${r.best_streak}</span>
+      </div>
+    `).join('');
+  }catch(e){
+    document.getElementById('leaderboardList').innerHTML = '<div class="empty-feed" style="padding:16px">Couldn\'t load leaderboard</div>';
+  }
+}
+
+loadRound();
+loadLeaderboard();
+</script>
+</body>
+</html>
