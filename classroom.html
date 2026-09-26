@@ -282,6 +282,7 @@ tr:hover td{background:#fafafa}
         <button class="tab" onclick="switchTab('trades',this)">📋 Trade History</button>
         <button class="tab" onclick="switchTab('budgets',this)">💰 Budgets</button>
         <button class="tab" onclick="switchTab('assignments',this)">📝 Assignments</button>
+        <button class="tab" onclick="switchTab('materials',this)">📎 Materials</button>
       </div>
 
       <div id="tabLeaderboard">
@@ -383,6 +384,20 @@ tr:hover td{background:#fafafa}
           </table>
         </div>
       </div>
+
+      <div id="tabMaterials" style="display:none">
+        <div class="card" style="margin-bottom:20px">
+          <div style="font-weight:600;margin-bottom:12px">+ Upload Lecture Material</div>
+          <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px">
+            <input type="text" id="newMaterialTitle" placeholder="e.g. Week 3 - Diversification" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
+            <input type="file" id="newMaterialFile" accept=".pdf,.ppt,.pptx" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
+          </div>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">PDF or PowerPoint, up to 50MB. Students can view or download it from their class page.</p>
+          <button class="btn btn-primary btn-sm" onclick="uploadMaterial()" id="uploadMaterialBtn">Upload</button>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Materials for this class</div>
+        <div id="materialsList"><p style="font-size:13px;color:var(--muted)">No materials uploaded yet.</p></div>
+      </div>
     </div>
   </div>
 
@@ -433,6 +448,10 @@ tr:hover td{background:#fafafa}
         <div id="sdAssignmentsWrap" style="margin-bottom:20px">
           <div id="sdAssignmentsList"></div>
         </div>
+
+        <!-- Lecture materials -->
+        <div style="font-size:16px;font-weight:700;margin-bottom:12px">📎 Class Materials</div>
+        <div id="sdMaterialsList" style="margin-bottom:20px"></div>
 
         <!-- Class leaderboard (names only, no private details) -->
         <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏆 Class Standings</div>
@@ -886,7 +905,9 @@ function switchTab(tab, btn){
   document.getElementById('tabTrades').style.display = tab==='trades'?'block':'none';
   document.getElementById('tabBudgets').style.display = tab==='budgets'?'block':'none';
   document.getElementById('tabAssignments').style.display = tab==='assignments'?'block':'none';
+  document.getElementById('tabMaterials').style.display = tab==='materials'?'block':'none';
   if(tab==='assignments') loadAssignments();
+  if(tab==='materials') loadMaterials();
 }
 
 // ── Join class ──
@@ -947,6 +968,7 @@ async function openStudentDashboard(classId){
   document.getElementById('sdInstructor').textContent = 'Instructor: ' + (cls.instructor_name||'');
   document.getElementById('studentClassList').style.display = 'none';
   document.getElementById('studentDashboard').style.display = 'block';
+  loadStudentMaterials(classId);
 
   // Get all members
   const members = await sbGet('class_members','class_id=eq.'+classId);
@@ -1111,6 +1133,31 @@ async function selfGradeAssignments(assignments, classId, uid){
 }
 
 let studentAssignmentsState = { assignments: [], classId: null, uid: null };
+async function loadStudentMaterials(classId){
+  const wrap = document.getElementById('sdMaterialsList');
+  wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Loading...</p>';
+  try {
+    const materials = await sbGet('class_materials','class_id=eq.'+classId+'&order=uploaded_at.desc');
+    if(!materials.length){
+      wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Your instructor hasn\'t posted any materials yet.</p>';
+      return;
+    }
+    wrap.innerHTML = materials.map(m => {
+      const icon = m.file_type === 'pdf' ? '📄' : '📊';
+      return `<a href="${materialFileUrl(m.file_path)}" target="_blank" style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px;text-decoration:none;color:inherit">
+        <span style="font-size:20px">${icon}</span>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px">${escapeHtmlLocal(m.title)}</div>
+          <div style="font-size:12px;color:var(--muted)">${m.file_type.toUpperCase()}</div>
+        </div>
+        <span style="font-size:13px;color:var(--green);font-weight:600">View →</span>
+      </a>`;
+    }).join('');
+  } catch(e){
+    wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Could not load materials.</p>';
+  }
+}
+
 async function loadStudentAssignments(classId, uid){
   const wrap = document.getElementById('sdAssignmentsList');
   const scoreEl = document.getElementById('sdAssignmentsScore');
@@ -1566,6 +1613,94 @@ async function deleteAssignment(id){
       method:'DELETE', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken()}
     });
     await loadAssignments();
+  } catch(e){ alert('Could not delete: '+e.message); }
+}
+
+// ── Materials (PDF/PPT lecture slides) ──
+async function uploadMaterial(){
+  if(!currentClass) return;
+  const title = document.getElementById('newMaterialTitle').value.trim();
+  const fileInput = document.getElementById('newMaterialFile');
+  const file = fileInput.files[0];
+  if(!title){ alert('Give the material a title first.'); return; }
+  if(!file){ alert('Choose a PDF or PowerPoint file first.'); return; }
+  const validTypes = ['application/pdf','application/vnd.ms-powerpoint','application/vnd.openxmlformats-officedocument.presentationml.presentation'];
+  const validExt = /\.(pdf|ppt|pptx)$/i.test(file.name);
+  if(!validTypes.includes(file.type) && !validExt){ alert('Only PDF or PowerPoint files are supported.'); return; }
+  if(file.size > 52428800){ alert('File is too large - max 50MB.'); return; }
+
+  const btn = document.getElementById('uploadMaterialBtn');
+  btn.textContent = 'Uploading...'; btn.disabled = true;
+  try {
+    const ext = file.name.split('.').pop();
+    const path = currentClass.id + '/' + Date.now() + '_' + Math.random().toString(36).slice(2,8) + '.' + ext;
+    const uploadRes = await fetch(SUPA_URL+'/storage/v1/object/class-materials/'+path, {
+      method: 'POST',
+      headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer '+writeAuthToken(), 'Content-Type': file.type || 'application/octet-stream'},
+      body: file
+    });
+    if(!uploadRes.ok){ throw new Error('Upload failed ('+uploadRes.status+')'); }
+    await sbPost('class_materials', {
+      class_id: currentClass.id, title, file_path: path,
+      file_type: ext.toLowerCase(), file_size: file.size
+    });
+    document.getElementById('newMaterialTitle').value = '';
+    fileInput.value = '';
+    await loadMaterials();
+  } catch(e){
+    alert('Could not upload: '+e.message);
+  } finally {
+    btn.textContent = 'Upload'; btn.disabled = false;
+  }
+}
+
+function materialFileUrl(path){
+  return SUPA_URL+'/storage/v1/object/public/class-materials/'+path;
+}
+
+async function loadMaterials(){
+  if(!currentClass) return;
+  const wrap = document.getElementById('materialsList');
+  wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Loading...</p>';
+  try {
+    const materials = await sbGet('class_materials','class_id=eq.'+currentClass.id+'&order=uploaded_at.desc');
+    if(!materials.length){
+      wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">No materials uploaded yet.</p>';
+      return;
+    }
+    wrap.innerHTML = materials.map(m => {
+      const sizeKb = m.file_size ? Math.round(m.file_size/1024) : 0;
+      const sizeText = sizeKb > 1024 ? (sizeKb/1024).toFixed(1)+' MB' : sizeKb+' KB';
+      const icon = m.file_type === 'pdf' ? '📄' : '📊';
+      return `<div style="display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:20px">${icon}</span>
+          <div>
+            <div style="font-weight:600;font-size:14px">${escapeHtmlLocal(m.title)}</div>
+            <div style="font-size:12px;color:var(--muted)">${m.file_type.toUpperCase()} · ${sizeText}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center">
+          <a href="${materialFileUrl(m.file_path)}" target="_blank" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:600">View →</a>
+          <button onclick="deleteMaterial('${m.id}','${m.file_path}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){
+    wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Could not load materials.</p>';
+  }
+}
+
+async function deleteMaterial(id, filePath){
+  if(!confirm('Delete this material? Students will no longer be able to view it.')) return;
+  try {
+    await fetch(SUPA_URL+'/storage/v1/object/class-materials/'+filePath, {
+      method: 'DELETE', headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer '+writeAuthToken()}
+    });
+    await fetch(SUPA_URL+'/rest/v1/class_materials?id=eq.'+id, {
+      method: 'DELETE', headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer '+writeAuthToken()}
+    });
+    await loadMaterials();
   } catch(e){ alert('Could not delete: '+e.message); }
 }
 
