@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
-<link rel="apple-touch-icon" href="https://mystockspilot.com/logo.jpg"/>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>StockPilot Classroom</title>
@@ -169,6 +167,17 @@ tr:hover td{background:#fafafa}
     <div class="field"><label>Class Code</label><input type="text" id="joinCode" placeholder="ABC123" maxlength="6" oninput="this.value=this.value.toUpperCase()"/></div>
     <div class="field"><label>Your Name (shown to instructor)</label><input type="text" id="joinNickname" placeholder="First Last"/></div>
     <button class="btn btn-primary" style="width:100%" onclick="doJoinClass()">Join Class →</button>
+  </div>
+</div>
+
+<!-- COPY TO CLASS MODAL -->
+<div class="modal-bg" id="copyModal">
+  <div class="modal" style="max-width:420px">
+    <button class="modal-close" onclick="closeModal('copyModal')">✕</button>
+    <h2>Copy to Other Classes</h2>
+    <p class="subtitle">Pick which of your other classes should get a copy.</p>
+    <div id="copyClassList" style="display:flex;flex-direction:column;gap:8px;margin:16px 0;max-height:40vh;overflow-y:auto"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="confirmCopy()" id="copyConfirmBtn">Copy</button>
   </div>
 </div>
 
@@ -1603,7 +1612,7 @@ function renderAssignments(completions){
       +'<td>'+a.points+' pts</td>'
       +'<td>'+(a.due_date?new Date(a.due_date+'T00:00:00').toLocaleDateString():'—')+'</td>'
       +'<td>'+passedCount+' / '+(currentClassMemberCount||'?')+'</td>'
-      +'<td><button class="btn btn-ghost btn-sm" onclick="deleteAssignment(\''+a.id+'\')" title="Delete">🗑</button></td>'
+      +'<td><button class="btn btn-ghost btn-sm" onclick="openCopyPicker(\'assignment\',\''+a.id+'\')" title="Copy to another class" style="margin-right:6px">📋</button><button class="btn btn-ghost btn-sm" onclick="deleteAssignment(\''+a.id+'\')" title="Delete">🗑</button></td>'
       +'</tr>';
   }).join('');
 }
@@ -1684,6 +1693,7 @@ async function loadMaterials(){
         </div>
         <div style="display:flex;gap:12px;align-items:center">
           <a href="${materialFileUrl(m.file_path)}" target="_blank" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:600">View →</a>
+          <button onclick="openCopyPicker('material','${m.id}')" title="Copy to another class" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">📋</button>
           <button onclick="deleteMaterial('${m.id}','${m.file_path}')" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px">🗑</button>
         </div>
       </div>`;
@@ -1704,6 +1714,68 @@ async function deleteMaterial(id, filePath){
     });
     await loadMaterials();
   } catch(e){ alert('Could not delete: '+e.message); }
+}
+
+// ── Copy an assignment or material to other classes - the fix for a
+// teacher with several sections who doesn't want to rebuild the same
+// quiz or re-upload the same slides for every period. ──
+let copyContext = null; // {type: 'assignment'|'material', itemId}
+
+async function openCopyPicker(type, itemId){
+  copyContext = { type, itemId };
+  const uid = getUid();
+  const classes = await sbGet('classes', 'instructor_id=eq.'+uid+'&order=name.asc');
+  const others = classes.filter(c => c.id !== currentClass.id);
+  const list = document.getElementById('copyClassList');
+  if(!others.length){
+    list.innerHTML = '<p style="font-size:13px;color:var(--muted)">You don\'t have any other classes yet.</p>';
+    document.getElementById('copyConfirmBtn').style.display = 'none';
+  } else {
+    document.getElementById('copyConfirmBtn').style.display = 'block';
+    list.innerHTML = others.map(c => `
+      <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px">
+        <input type="checkbox" value="${c.id}" class="copyClassCheckbox">
+        ${escapeHtmlLocal(c.name)}
+      </label>
+    `).join('');
+  }
+  openModal('copyModal');
+}
+
+async function confirmCopy(){
+  const checked = Array.from(document.querySelectorAll('.copyClassCheckbox:checked')).map(c => c.value);
+  if(!checked.length){ alert('Pick at least one class first.'); return; }
+  const btn = document.getElementById('copyConfirmBtn');
+  btn.textContent = 'Copying...'; btn.disabled = true;
+  try {
+    if(copyContext.type === 'assignment'){
+      const source = allAssignments.find(a => a.id === copyContext.itemId);
+      for(const classId of checked){
+        await sbPost('class_assignments', {
+          class_id: classId, title: source.title, points: source.points,
+          due_date: source.due_date, type: source.type, pass_criteria: source.pass_criteria,
+          quiz_questions: source.quiz_questions, sort_order: 0
+        });
+      }
+    } else {
+      const materials = await sbGet('class_materials', 'id=eq.'+copyContext.itemId);
+      const source = materials[0];
+      for(const classId of checked){
+        // Same file_path reused across classes - no need to re-upload
+        // the actual file, it's already in storage.
+        await sbPost('class_materials', {
+          class_id: classId, title: source.title, file_path: source.file_path,
+          file_type: source.file_type, file_size: source.file_size
+        });
+      }
+    }
+    closeModal('copyModal');
+    alert('Copied to ' + checked.length + ' class' + (checked.length===1?'':'es') + '.');
+  } catch(e){
+    alert('Could not copy: '+e.message);
+  } finally {
+    btn.textContent = 'Copy'; btn.disabled = false;
+  }
 }
 
 // Auto-grade every assignment against what students have already done —
