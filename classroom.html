@@ -170,6 +170,18 @@ tr:hover td{background:#fafafa}
   </div>
 </div>
 
+<!-- QUIZ MODAL -->
+<div class="modal-bg" id="quizModal">
+  <div class="modal" style="max-width:560px">
+    <button class="modal-close" onclick="closeModal('quizModal')">✕</button>
+    <h2 id="quizModalTitle">Quiz</h2>
+    <p class="subtitle" id="quizModalSub">Answer each question, then submit.</p>
+    <div id="quizModalBody" style="display:flex;flex-direction:column;gap:16px;max-height:50vh;overflow-y:auto;padding-right:4px"></div>
+    <div id="quizModalResult" style="display:none;margin-top:12px;padding:12px;border-radius:8px;text-align:center;font-weight:600"></div>
+    <button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="submitQuiz()" id="quizSubmitBtn">Submit Quiz</button>
+  </div>
+</div>
+
 <!-- SHARE MODAL -->
 <div class="modal-bg" id="shareModal">
   <div class="modal" style="max-width:540px">
@@ -330,9 +342,26 @@ tr:hover td{background:#fafafa}
                 <option value="budget">Budget Planner</option>
                 <option value="budget_challenge">Budget Challenge</option>
                 <option value="daily_challenge">Daily Budget Challenge</option>
+                <option value="quiz">Quiz</option>
               </select></div>
-            <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px" id="newAsgCriteriaLabel">Minimum trades required</label>
+            <div id="newAsgCriteriaWrap"><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px" id="newAsgCriteriaLabel">Minimum trades required</label>
               <input type="number" id="newAsgCriteria" value="5" min="1" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+          </div>
+          <div id="quizBuilderWrap" style="display:none;background:var(--bg-alt,#f7f7f5);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span style="font-size:13px;font-weight:600">Quiz Questions (<span id="quizQCount">0</span>)</span>
+              <span style="font-size:12px;color:var(--muted)">Each question is worth an equal share of the total points above</span>
+            </div>
+            <div id="quizQuestionList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+            <div style="display:grid;grid-template-columns:1fr 140px;gap:10px;margin-bottom:8px">
+              <input type="text" id="quizNewQuestion" placeholder="Question text" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
+              <select id="quizNewType" onchange="renderQuizAnswerInputs()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+                <option value="mc">Multiple Choice</option>
+                <option value="fill_blank">Fill in the Blank</option>
+              </select>
+            </div>
+            <div id="quizAnswerInputs"></div>
+            <button type="button" class="btn btn-ghost btn-sm" onclick="addQuizQuestion()">+ Add Question</button>
           </div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Students pass or fail — no partial credit. Grading runs automatically off what they've already done in the app, so nothing to grade by hand.</p>
           <button class="btn btn-primary btn-sm" onclick="createAssignment()">+ Add Assignment</button>
@@ -1052,7 +1081,7 @@ async function selfGradeAssignments(assignments, classId, uid){
     const bestBudgetChallenge = (Array.isArray(budgetChallenges)?budgetChallenges:[]).reduce((m,b)=>Math.max(m,b.score||0),0);
     const dailyCount = Array.isArray(dailyChallenges) ? dailyChallenges.length : 0;
 
-    const rows = assignments.map(a=>{
+    const rows = assignments.filter(a => a.type !== 'quiz').map(a=>{
       const crit = a.pass_criteria||{};
       let passed = false;
       if(a.type==='trading') passed = tradeCount >= (crit.min_trades||1);
@@ -1081,6 +1110,7 @@ async function selfGradeAssignments(assignments, classId, uid){
   }
 }
 
+let studentAssignmentsState = { assignments: [], classId: null, uid: null };
 async function loadStudentAssignments(classId, uid){
   const wrap = document.getElementById('sdAssignmentsList');
   const scoreEl = document.getElementById('sdAssignmentsScore');
@@ -1090,6 +1120,7 @@ async function loadStudentAssignments(classId, uid){
   let completions = [];
   try {
     assignments = await sbGet('class_assignments','class_id=eq.'+classId+'&order=sort_order.asc');
+    studentAssignmentsState = { assignments, classId, uid };
   } catch(e){
     wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Could not load assignments.</p>';
     return;
@@ -1127,7 +1158,16 @@ async function loadStudentAssignments(classId, uid){
     const link = ASG_TYPE_LINK[a.type] || {url:'/trade', label:'Go do this'};
 
     let statusBadge, actionHtml;
-    if(c && c.passed){
+    if(a.type === 'quiz'){
+      if(c){
+        const pct = a.points ? Math.round((c.points_awarded/a.points)*100) : 0;
+        statusBadge = '<span class="tag" style="background:'+(pct>=70?'#dcfce7':'#fee2e2')+';color:'+(pct>=70?'#166534':'#b91c1c')+'">'+c.points_awarded+'/'+a.points+' pts ('+pct+'%)</span>';
+        actionHtml = '<a href="#" onclick="openQuiz(\''+a.id+'\');return false;" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">Retake Quiz →</a>';
+      } else {
+        statusBadge = '<span class="tag" style="background:#f3f4f6;color:#6b7280">📝 Not attempted</span>';
+        actionHtml = '<a href="#" onclick="openQuiz(\''+a.id+'\');return false;" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">Take Quiz →</a>';
+      }
+    } else if(c && c.passed){
       statusBadge = '<span class="tag tag-green">✅ Done · '+a.points+'/'+a.points+' pts</span>';
       actionHtml = '';
     } else if(c && !c.passed){
@@ -1146,6 +1186,86 @@ async function loadStudentAssignments(classId, uid){
       + '<div style="display:flex;align-items:center;gap:12px">'+statusBadge+actionHtml+'</div>'
       + '</div>';
   }).join('');
+}
+
+// ── Take a quiz ──
+let activeQuizAssignment = null;
+function openQuiz(assignmentId){
+  const a = studentAssignmentsState.assignments.find(x => x.id === assignmentId);
+  if(!a || !a.quiz_questions){ alert('Could not load this quiz.'); return; }
+  activeQuizAssignment = a;
+  document.getElementById('quizModalTitle').textContent = a.title;
+  document.getElementById('quizModalSub').textContent = a.quiz_questions.length + ' question' + (a.quiz_questions.length===1?'':'s') + ' · ' + a.points + ' points total';
+  document.getElementById('quizModalResult').style.display = 'none';
+  document.getElementById('quizSubmitBtn').style.display = 'block';
+  document.getElementById('quizModalBody').innerHTML = a.quiz_questions.map((q, i) => {
+    if(q.type === 'mc'){
+      return `<div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:8px">${i+1}. ${escapeHtmlLocal(q.question)}</div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${q.options.map((opt, oi) => `
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+              <input type="radio" name="quizAns${i}" value="${oi}">
+              ${escapeHtmlLocal(opt)}
+            </label>
+          `).join('')}
+        </div>
+      </div>`;
+    } else {
+      return `<div>
+        <div style="font-weight:600;font-size:14px;margin-bottom:8px">${i+1}. ${escapeHtmlLocal(q.question)}</div>
+        <input type="text" id="quizAns${i}" placeholder="Your answer" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+      </div>`;
+    }
+  }).join('');
+  openModal('quizModal');
+}
+
+async function submitQuiz(){
+  const a = activeQuizAssignment;
+  if(!a) return;
+  const answers = [];
+  let correctCount = 0;
+  a.quiz_questions.forEach((q, i) => {
+    let given, isCorrect;
+    if(q.type === 'mc'){
+      const checked = document.querySelector('input[name="quizAns'+i+'"]:checked');
+      given = checked ? parseInt(checked.value) : null;
+      isCorrect = given === q.correct;
+    } else {
+      given = (document.getElementById('quizAns'+i).value || '').trim();
+      isCorrect = given.toLowerCase() === String(q.correct).trim().toLowerCase();
+    }
+    if(isCorrect) correctCount++;
+    answers.push({ given, correct: isCorrect });
+  });
+
+  const pointsAwarded = Math.round((correctCount / a.quiz_questions.length) * a.points);
+  const { classId, uid } = studentAssignmentsState;
+
+  try {
+    await fetch(SUPA_URL+'/rest/v1/assignment_completions?on_conflict=assignment_id,user_id', {
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},
+      body: JSON.stringify([{
+        assignment_id: a.id, class_id: classId, user_id: uid,
+        nickname: getName() || 'Student',
+        passed: correctCount === a.quiz_questions.length,
+        points_awarded: pointsAwarded,
+        answers, evaluated_at: new Date().toISOString()
+      }])
+    });
+    const resultEl = document.getElementById('quizModalResult');
+    resultEl.style.display = 'block';
+    const pct = Math.round((correctCount/a.quiz_questions.length)*100);
+    resultEl.style.background = pct >= 70 ? '#dcfce7' : '#fee2e2';
+    resultEl.style.color = pct >= 70 ? '#166534' : '#b91c1c';
+    resultEl.textContent = `You got ${correctCount} of ${a.quiz_questions.length} correct (${pointsAwarded}/${a.points} points)`;
+    document.getElementById('quizSubmitBtn').style.display = 'none';
+    await loadStudentAssignments(studentAssignmentsState.classId, studentAssignmentsState.uid);
+  } catch(e){
+    alert('Could not submit quiz - try again.');
+  }
 }
 
 // ── Copy code ──
@@ -1294,13 +1414,77 @@ const ASG_CRITERIA_LABELS = {
   trading: 'Minimum trades required',
   budget: 'Minimum budget score (0-100)',
   budget_challenge: 'Minimum budget challenge score (0-100)',
-  daily_challenge: 'Minimum # of daily challenges completed'
+  daily_challenge: 'Minimum # of daily challenges completed',
+  quiz: ''
 };
+
+let quizQuestions = [];
 
 function updateAsgCriteriaLabel(){
   const type = document.getElementById('newAsgType').value;
   document.getElementById('newAsgCriteriaLabel').textContent = ASG_CRITERIA_LABELS[type] || 'Minimum required';
+  document.getElementById('newAsgCriteriaWrap').style.display = type === 'quiz' ? 'none' : 'block';
+  document.getElementById('quizBuilderWrap').style.display = type === 'quiz' ? 'block' : 'none';
 }
+
+function renderQuizAnswerInputs(){
+  const type = document.getElementById('quizNewType').value;
+  const wrap = document.getElementById('quizAnswerInputs');
+  if(type === 'mc'){
+    wrap.innerHTML = `
+      <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px">
+        ${[0,1,2,3].map(i => `
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="radio" name="quizCorrectOpt" value="${i}" ${i===0?'checked':''}>
+            <input type="text" id="quizOpt${i}" placeholder="Option ${i+1}" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+          </div>
+        `).join('')}
+      </div>
+      <p style="font-size:11px;color:var(--muted);margin:0 0 8px">Select the radio button next to the correct answer.</p>
+    `;
+  } else {
+    wrap.innerHTML = `
+      <input type="text" id="quizFillAnswer" placeholder="Correct answer (student's answer is matched case-insensitively)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:8px">
+    `;
+  }
+}
+if(document.getElementById("quizAnswerInputs")) renderQuizAnswerInputs();
+
+function addQuizQuestion(){
+  const question = document.getElementById('quizNewQuestion').value.trim();
+  const type = document.getElementById('quizNewType').value;
+  if(!question){ alert('Enter the question text first.'); return; }
+  if(type === 'mc'){
+    const options = [0,1,2,3].map(i => document.getElementById('quizOpt'+i).value.trim());
+    if(options.some(o => !o)){ alert('Fill in all 4 options.'); return; }
+    const correctIdx = parseInt(document.querySelector('input[name="quizCorrectOpt"]:checked').value);
+    quizQuestions.push({ type: 'mc', question, options, correct: correctIdx });
+  } else {
+    const answer = document.getElementById('quizFillAnswer').value.trim();
+    if(!answer){ alert('Enter the correct answer.'); return; }
+    quizQuestions.push({ type: 'fill_blank', question, correct: answer });
+  }
+  document.getElementById('quizNewQuestion').value = '';
+  renderQuizAnswerInputs();
+  renderQuizQuestionList();
+}
+
+function removeQuizQuestion(idx){
+  quizQuestions.splice(idx, 1);
+  renderQuizQuestionList();
+}
+
+function renderQuizQuestionList(){
+  document.getElementById('quizQCount').textContent = quizQuestions.length;
+  document.getElementById('quizQuestionList').innerHTML = quizQuestions.map((q, i) => `
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px">
+      <span style="font-size:13px">${i+1}. ${escapeHtmlLocal(q.question)} <span style="color:var(--muted);font-size:11px">(${q.type === 'mc' ? 'multiple choice' : 'fill in the blank'})</span></span>
+      <button type="button" onclick="removeQuizQuestion(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1">×</button>
+    </div>
+  `).join('');
+}
+
+function escapeHtmlLocal(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 
 async function createAssignment(){
   if(!currentClass) return;
@@ -1311,6 +1495,7 @@ async function createAssignment(){
   const critValue = parseFloat(document.getElementById('newAsgCriteria').value) || 1;
 
   if(!title){ alert('Give the assignment a title first.'); return; }
+  if(type==='quiz' && !quizQuestions.length){ alert('Add at least one quiz question first.'); return; }
 
   let pass_criteria = {};
   if(type==='trading') pass_criteria = {min_trades: critValue};
@@ -1322,9 +1507,12 @@ async function createAssignment(){
     await sbPost('class_assignments', {
       class_id: currentClass.id,
       title, points, due_date: due, type, pass_criteria,
+      quiz_questions: type==='quiz' ? quizQuestions : null,
       sort_order: allAssignments.length
     });
     document.getElementById('newAsgTitle').value = '';
+    quizQuestions = [];
+    renderQuizQuestionList();
     await loadAssignments();
   } catch(e){
     alert('Could not create assignment: '+e.message);
