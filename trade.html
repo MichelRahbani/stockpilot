@@ -667,7 +667,40 @@ function save(){ localStorage.setItem(mkt.key,JSON.stringify(port)); if(typeof s
 
 const SUPA_URL2='https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPA_KEY2='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
-function getToken(){return localStorage.getItem('supabase_token');}
+function isTokenExpiredLocal(token){
+  try{
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return !payload.exp || payload.exp * 1000 < Date.now();
+  }catch(e){
+    return true;
+  }
+}
+async function getToken(){
+  const stored = localStorage.getItem('supabase_token');
+  if(!stored) return null;
+  if(!isTokenExpiredLocal(stored)) return stored;
+  // Token's expired - try a real refresh instead of silently sending a
+  // dead token (which previously just failed the fetch and got eaten by
+  // an empty catch block, so trades looked saved locally but never made
+  // it to the server for the classroom dashboard to see).
+  const refreshToken = localStorage.getItem('supabase_refresh_token');
+  if(!refreshToken) return null;
+  try{
+    const r = await fetch(SUPA_URL2+'/auth/v1/token?grant_type=refresh_token', {
+      method:'POST',
+      headers:{'apikey':SUPA_KEY2,'Content-Type':'application/json'},
+      body: JSON.stringify({refresh_token: refreshToken})
+    });
+    if(!r.ok) return null;
+    const data = await r.json();
+    if(!data.access_token) return null;
+    localStorage.setItem('supabase_token', data.access_token);
+    if(data.refresh_token) localStorage.setItem('supabase_refresh_token', data.refresh_token);
+    return data.access_token;
+  }catch(e){
+    return null;
+  }
+}
 function signOutTrade(){
   localStorage.removeItem('supabase_token');
   localStorage.removeItem('supabase_email');
@@ -687,7 +720,7 @@ function showNavUser(name){
   document.getElementById('navUserName').textContent=name;
 }
 async function savePortfolioToCloud(){
-  const t=getToken();if(!t)return;
+  const t=await getToken();if(!t)return;
   const uid=(JSON.parse(atob(t.split('.')[1])).sub);
   try{
     const check=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?user_id=eq.'+uid+'&select=id&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
@@ -700,7 +733,7 @@ async function savePortfolioToCloud(){
   }catch(e){}
 }
 async function loadPortfolioFromCloud(){
-  const t=getToken();if(!t)return false;
+  const t=await getToken();if(!t)return false;
   const uid=(JSON.parse(atob(t.split('.')[1])).sub);
   try{
     const r=await fetch(SUPA_URL2+'/rest/v1/virtual_portfolios?user_id=eq.'+uid+'&select=*&limit=1',{headers:{'apikey':SUPA_KEY2,'Authorization':'Bearer '+t}});
@@ -1793,7 +1826,7 @@ async function checkPendingOrders(){
 }
 
 async function saveTradeToCloud(ticker, action, shares, price, total){
-  const t = getToken();
+  const t = await getToken();
   if(!t) return; // only save if signed in
   try {
     const nickname = localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || 'Anonymous';
