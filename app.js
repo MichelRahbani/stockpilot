@@ -11802,8 +11802,11 @@ window.submitBudgetToClass = async function() {
   if (msg) { msg.textContent = 'Submitting...'; msg.style.color='#2563eb'; msg.style.display='block'; }
 
   try {
-    // Get user's classes
-    const classRes = await fetch(SUPA_URL + '/rest/v1/class_members?user_id=eq.' + uid + '&select=class_id,nickname', {
+    // Get user's classes - ordered so "most recent" (the comment below)
+    // is actually true, rather than whatever order Postgres happens to
+    // return. A student in more than one class needs this to land their
+    // submission in the class they actually meant.
+    const classRes = await fetch(SUPA_URL + '/rest/v1/class_members?user_id=eq.' + uid + '&select=class_id,nickname&order=joined_at.desc&limit=1', {
       headers: { apikey: SUPA_KEY, Authorization: 'Bearer ' + token }
     });
     const classes = await classRes.json();
