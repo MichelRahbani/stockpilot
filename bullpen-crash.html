@@ -108,11 +108,11 @@ const GAME_DAYS = 20;
 
 // Individual stocks (not index funds) tend to have sharper, more dramatic
 // moves - better for this game than something smoothed-out like SPY.
-const TICKER_POOL = [
-  'TSLA','NVDA','AMD','NFLX','META','COIN','PLTR','MRNA','CRM','SHOP',
-  'BA','GE','F','GM','DAL','UAL','CCL','RCL','MGM','WYNN',
-  'BAC','WFC','C','GS','MS','AAPL','MSFT','AMZN','GOOGL','DIS'
-];
+const TICKER_POOL = {
+  'TSLA':'Tesla Inc','NVDA':'NVIDIA Corp','AMD':'Advanced Micro Devices','NFLX':'Netflix Inc','META':'Meta Platforms Inc','COIN':'Coinbase Global','PLTR':'Palantir Technologies','MRNA':'Moderna Inc','CRM':'Salesforce Inc','SHOP':'Shopify Inc',
+  'BA':'Boeing Co','GE':'General Electric','F':'Ford Motor Co','GM':'General Motors','DAL':'Delta Air Lines','UAL':'United Airlines','CCL':'Carnival Corp','RCL':'Royal Caribbean','MGM':'MGM Resorts','WYNN':'Wynn Resorts',
+  'BAC':'Bank of America','WFC':'Wells Fargo','C':'Citigroup Inc','GS':'Goldman Sachs','MS':'Morgan Stanley','AAPL':'Apple Inc.','MSFT':'Microsoft Corp','AMZN':'Amazon.com Inc','GOOGL':'Alphabet Inc.','DIS':'Walt Disney Co'
+};
 
 let path = null; // array of {t, c}
 let dayIndex = 0; // index into path for "today" (the last revealed day)
@@ -124,7 +124,8 @@ let best = localStorage.getItem('crash_best');
 if(best !== null) document.getElementById('bestDisplay').textContent = parseFloat(best).toFixed(1) + '%';
 
 function pickTicker(){
-  return TICKER_POOL[Math.floor(Math.random() * TICKER_POOL.length)];
+  const keys = Object.keys(TICKER_POOL);
+  return keys[Math.floor(Math.random() * keys.length)];
 }
 
 function volatility(points, start, len){
@@ -215,7 +216,7 @@ function renderDay(){
   document.getElementById('gameCard').innerHTML = `
     <div class="ticker-head">
       <div>
-        <div class="ticker-name">${window._crashSymbol}</div>
+        <div class="ticker-name">${window._crashSymbol} <span style="font-weight:500;color:var(--muted);font-size:14px">${TICKER_POOL[window._crashSymbol] || ''}</span></div>
         <div class="ticker-sub">Day ${daysElapsed} of ${GAME_DAYS}</div>
       </div>
       <div class="day-badge">${daysLeft} days left</div>
@@ -266,7 +267,7 @@ function endGame(){
     <div class="gameover">
       <div style="color:var(--muted);font-size:13px">Final return over 20 days</div>
       <div class="final ${pct >= 0 ? 'up' : 'down'}">${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%</div>
-      <div style="color:var(--muted);font-size:13px">$${finalValue.toLocaleString(undefined,{maximumFractionDigits:0})} from $10,000 on ${window._crashSymbol}</div>
+      <div style="color:var(--muted);font-size:13px">$${finalValue.toLocaleString(undefined,{maximumFractionDigits:0})} from $10,000 on ${window._crashSymbol} (${TICKER_POOL[window._crashSymbol] || ''})</div>
       <div class="name-row">
         <input type="text" id="saveNameInput" placeholder="Your name for the leaderboard" maxlength="30">
         <button class="btn-save" onclick="saveScore(${pct})">Save</button>
