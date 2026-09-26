@@ -176,6 +176,7 @@ tr:hover td{background:#fafafa}
     <button class="modal-close" onclick="closeModal('copyModal')">✕</button>
     <h2>Copy to Other Classes</h2>
     <p class="subtitle">Pick which of your other classes should get a copy.</p>
+    <div id="copyMsg" class="msg" style="display:none;margin-bottom:10px"></div>
     <div id="copyClassList" style="display:flex;flex-direction:column;gap:8px;margin:16px 0;max-height:40vh;overflow-y:auto"></div>
     <button class="btn btn-primary" style="width:100%" onclick="confirmCopy()" id="copyConfirmBtn">Copy</button>
   </div>
@@ -1727,6 +1728,7 @@ async function openCopyPicker(type, itemId){
   const classes = await sbGet('classes', 'instructor_id=eq.'+uid+'&order=name.asc');
   const others = classes.filter(c => c.id !== currentClass.id);
   const list = document.getElementById('copyClassList');
+  document.getElementById('copyMsg').style.display = 'none';
   if(!others.length){
     list.innerHTML = '<p style="font-size:13px;color:var(--muted)">You don\'t have any other classes yet.</p>';
     document.getElementById('copyConfirmBtn').style.display = 'none';
@@ -1744,7 +1746,7 @@ async function openCopyPicker(type, itemId){
 
 async function confirmCopy(){
   const checked = Array.from(document.querySelectorAll('.copyClassCheckbox:checked')).map(c => c.value);
-  if(!checked.length){ alert('Pick at least one class first.'); return; }
+  if(!checked.length){ showMsg('copyMsg','Pick at least one class first.','error'); return; }
   const btn = document.getElementById('copyConfirmBtn');
   btn.textContent = 'Copying...'; btn.disabled = true;
   try {
@@ -1769,10 +1771,10 @@ async function confirmCopy(){
         });
       }
     }
-    closeModal('copyModal');
-    alert('Copied to ' + checked.length + ' class' + (checked.length===1?'':'es') + '.');
+    showMsg('copyMsg', 'Copied to ' + checked.length + ' class' + (checked.length===1?'':'es') + '.', 'success');
+    setTimeout(() => closeModal('copyModal'), 1200);
   } catch(e){
-    alert('Could not copy: '+e.message);
+    showMsg('copyMsg', 'Could not copy: '+e.message, 'error');
   } finally {
     btn.textContent = 'Copy'; btn.disabled = false;
   }
