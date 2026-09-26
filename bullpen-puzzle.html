@@ -79,7 +79,8 @@
     <h2>How it works</h2>
     <ul>
       <li>Every player gets the same 5 real S&amp;P 500 companies on a given day - picked the same way for everyone, so it's a fair comparison.</li>
-      <li>Rank them from best to worst year-to-date stock performance, just by clicking them in order.</li>
+      <li>Rank them from best to worst year-to-date stock performance, just by clicking them in order. Whatever you get right turns green and locks in.</li>
+      <li>Two attempts, Wordle-style - if you don't get all 5 on the first try, the correct ones stay locked and you get one more shot at the rest.</li>
       <li>Scored instantly against the real numbers. Comes back tomorrow with 5 new companies.</li>
     </ul>
   </div>
@@ -98,6 +99,13 @@ const PUZZLE_POOL = [
   'BA','CAT','GE','HON','MMM','GS','MS','BAC','WFC','AXP',
   'MCD','SBUX','NKE','LOW','TGT','PFE','MRK','ABBV','TMO','ABT'
 ];
+const TICKER_NAMES = {
+  'AAPL':'Apple Inc.','MSFT':'Microsoft Corp','GOOGL':'Alphabet Inc.','AMZN':'Amazon.com Inc','NVDA':'NVIDIA Corp','META':'Meta Platforms Inc','TSLA':'Tesla Inc','JPM':'JPMorgan Chase','V':'Visa Inc.','MA':'Mastercard',
+  'HD':'Home Depot','PG':'Procter & Gamble','JNJ':'Johnson & Johnson','UNH':'UnitedHealth Group','XOM':'Exxon Mobil','CVX':'Chevron Corp','KO':'Coca-Cola Co','PEP':'PepsiCo Inc','WMT':'Walmart Inc','COST':'Costco Wholesale',
+  'DIS':'Walt Disney Co','NFLX':'Netflix Inc','ADBE':'Adobe Inc','CRM':'Salesforce Inc','ORCL':'Oracle Corp','IBM':'IBM','CSCO':'Cisco Systems','INTC':'Intel Corp','AMD':'Advanced Micro Devices','QCOM':'Qualcomm Inc',
+  'BA':'Boeing Co','CAT':'Caterpillar Inc','GE':'General Electric','HON':'Honeywell Intl','MMM':'3M Co','GS':'Goldman Sachs','MS':'Morgan Stanley','BAC':'Bank of America','WFC':'Wells Fargo','AXP':'American Express',
+  'MCD':'McDonald\'s Corp','SBUX':'Starbucks Corp','NKE':'Nike Inc','LOW':'Lowe\'s Companies','TGT':'Target Corp','PFE':'Pfizer Inc','MRK':'Merck & Co','ABBV':'AbbVie Inc','TMO':'Thermo Fisher Scientific','ABT':'Abbott Laboratories'
+};
 
 function todayString(){
   const d = new Date();
@@ -128,7 +136,11 @@ function pickTodaysTickers(){
 
 let todaysTickers = [];
 let ytdReturns = {}; // ticker -> pct
-let playerOrder = []; // tickers in the order the player clicked them
+let correctOrder = []; // tickers, best-to-worst YTD return - the true answer
+let finalOrder = [null,null,null,null,null]; // positions locked in as correct so far
+let currentPicks = []; // tickers picked so far in the current attempt
+let openPositions = []; // indices not yet locked in
+let attemptNumber = 1;
 let puzzleSolved = false;
 
 document.getElementById('dateBadge').textContent = new Date().toLocaleDateString(undefined, {weekday:'long', month:'long', day:'numeric'});
@@ -152,23 +164,38 @@ async function loadPuzzle(){
     }));
     if(results.some(r => r === null)) throw new Error('missing data');
     results.forEach(r => { ytdReturns[r.ticker] = r.pct; });
-    renderPickScreen();
+    correctOrder = [...todaysTickers].sort((a,b) => ytdReturns[b] - ytdReturns[a]);
+    finalOrder = [null,null,null,null,null];
+    attemptNumber = 1;
+    startAttempt();
   }catch(e){
     document.getElementById('gameCard').innerHTML = '<div class="loading">Could not load today\'s puzzle - try refreshing.</div>';
   }
 }
 
-function renderPickScreen(){
-  playerOrder = [];
+function startAttempt(){
+  currentPicks = [];
+  openPositions = finalOrder.map((v,i)=>v===null?i:null).filter(i=>i!==null);
+  const remainingTickers = todaysTickers.filter(t => !finalOrder.includes(t));
+
+  const slotsHtml = finalOrder.map((t, i) => {
+    if(t !== null){
+      return `<div class="rank-slot filled" style="background:var(--green);border-color:var(--green);color:#fff">${t}</div>`;
+    }
+    return `<div class="rank-slot" id="slot${i}">${i+1}</div>`;
+  }).join('');
+
+  const attemptLabel = attemptNumber === 1
+    ? 'Click the 5 companies in order, <strong>best year-to-date performer first</strong>.'
+    : `Attempt 2 of 2 - green slots are locked in. Place the rest.`;
+
   document.getElementById('gameCard').innerHTML = `
-    <div class="instructions">Click the 5 companies in order, <strong>best year-to-date performer first</strong>.</div>
-    <div class="rank-slots" id="rankSlots">
-      ${[1,2,3,4,5].map(n => `<div class="rank-slot" id="slot${n}">${n}</div>`).join('')}
-    </div>
+    <div class="instructions">${attemptLabel}</div>
+    <div class="rank-slots" id="rankSlots">${slotsHtml}</div>
     <div class="pick-list" id="pickList">
-      ${todaysTickers.map(t => `
+      ${remainingTickers.map(t => `
         <div class="pick-item" id="item_${t}" onclick="pickTicker('${t}')">
-          <div><div class="ticker">${t}</div></div>
+          <div><div class="ticker">${t}</div><div style="font-size:11px;color:var(--muted);margin-top:2px">${TICKER_NAMES[t]||''}</div></div>
         </div>
       `).join('')}
     </div>
@@ -176,30 +203,50 @@ function renderPickScreen(){
 }
 
 function pickTicker(ticker){
-  if(playerOrder.includes(ticker) || playerOrder.length >= 5) return;
-  playerOrder.push(ticker);
+  if(currentPicks.includes(ticker) || currentPicks.length >= openPositions.length) return;
+  currentPicks.push(ticker);
   const item = document.getElementById('item_' + ticker);
   item.classList.add('picked');
-  item.querySelector('div').insertAdjacentHTML('beforeend', '');
-  document.getElementById('slot' + playerOrder.length).textContent = ticker;
-  document.getElementById('slot' + playerOrder.length).classList.add('filled');
-  if(playerOrder.length === 5) setTimeout(showResults, 300);
+  const slotIdx = openPositions[currentPicks.length - 1];
+  const slotEl = document.getElementById('slot' + slotIdx);
+  slotEl.textContent = ticker;
+  slotEl.classList.add('filled');
+  if(currentPicks.length === openPositions.length) setTimeout(checkAttempt, 300);
 }
 
-function showResults(){
-  puzzleSolved = true;
-  const correctOrder = [...todaysTickers].sort((a,b) => ytdReturns[b] - ytdReturns[a]);
-  let score = 0;
-  correctOrder.forEach((t,i) => { if(playerOrder[i] === t) score++; });
+function checkAttempt(){
+  const attemptedOrder = [...finalOrder];
+  openPositions.forEach((posIdx, i) => { attemptedOrder[posIdx] = currentPicks[i]; });
 
-  localStorage.setItem('puzzle_done_' + todayString(), JSON.stringify({ order: playerOrder, score }));
+  const allCorrect = attemptedOrder.every((t,i) => t === correctOrder[i]);
+
+  if(allCorrect || attemptNumber >= 2){
+    showResults(attemptedOrder);
+  } else {
+    // Lock in whatever was correct this attempt, give a second try at the rest
+    attemptedOrder.forEach((t,i) => { if(t === correctOrder[i]) finalOrder[i] = t; });
+    attemptNumber = 2;
+    startAttempt();
+  }
+}
+
+function showResults(attemptedOrder){
+  puzzleSolved = true;
+  let score = 0;
+  attemptedOrder.forEach((t,i) => { if(t === correctOrder[i]) score++; });
+
+  localStorage.setItem('puzzle_done_' + todayString(), JSON.stringify({ order: attemptedOrder, score, attempts: attemptNumber }));
+
+  const solvedNote = score === 5
+    ? (attemptNumber === 1 ? ' - solved on the first try!' : ' - solved in 2 tries!')
+    : '';
 
   const rowsHtml = correctOrder.map((t,i) => {
-    const playerPos = playerOrder.indexOf(t) + 1;
-    const isCorrectPos = playerOrder[i] === t;
+    const playerPos = attemptedOrder.indexOf(t) + 1;
+    const isCorrectPos = attemptedOrder[i] === t;
     return `<div class="results-row ${isCorrectPos ? 'correct' : 'wrong'}">
       <span class="pos">#${i+1}</span>
-      <span style="flex:1;padding-left:8px"><strong>${t}</strong> ${isCorrectPos ? '' : `(you had it #${playerPos})`}</span>
+      <span style="flex:1;padding-left:8px"><strong>${t}</strong> <span style="color:var(--muted);font-weight:400">${TICKER_NAMES[t]||''}</span> ${isCorrectPos ? '' : `(you had it #${playerPos})`}</span>
       <span class="pct" style="color:${ytdReturns[t]>=0?'var(--green)':'var(--red)'}">${ytdReturns[t]>=0?'+':''}${ytdReturns[t].toFixed(1)}%</span>
     </div>`;
   }).join('');
@@ -208,7 +255,7 @@ function showResults(){
     <div class="gameover">
       <div style="color:var(--muted);font-size:13px">You got</div>
       <div class="final">${score} / 5</div>
-      <div style="color:var(--muted);font-size:13px">in the right spot</div>
+      <div style="color:var(--muted);font-size:13px">in the right spot${solvedNote}</div>
     </div>
     ${rowsHtml}
     <div class="name-row">
@@ -217,6 +264,7 @@ function showResults(){
     </div>
   `;
 }
+
 
 function showAlreadyDone(saved){
   document.getElementById('gameCard').innerHTML = `
