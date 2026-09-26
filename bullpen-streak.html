@@ -101,13 +101,13 @@ const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
 
 // A curated pool of well-known, liquid tickers - keeps chart quality good
 // and avoids obscure names with thin/choppy trading history.
-const TICKER_POOL = [
-  'AAPL','MSFT','GOOGL','AMZN','NVDA','META','TSLA','JPM','V','MA',
-  'HD','PG','JNJ','UNH','XOM','CVX','KO','PEP','WMT','COST',
-  'DIS','NFLX','ADBE','CRM','ORCL','IBM','CSCO','INTC','AMD','QCOM',
-  'BA','CAT','GE','HON','MMM','GS','MS','BAC','WFC','AXP',
-  'MCD','SBUX','NKE','LOW','TGT','PFE','MRK','ABBV','TMO','ABT'
-];
+const TICKER_POOL = {
+  'AAPL':'Apple Inc.','MSFT':'Microsoft Corp','GOOGL':'Alphabet Inc.','AMZN':'Amazon.com Inc','NVDA':'NVIDIA Corp','META':'Meta Platforms Inc','TSLA':'Tesla Inc','JPM':'JPMorgan Chase','V':'Visa Inc.','MA':'Mastercard',
+  'HD':'Home Depot','PG':'Procter & Gamble','JNJ':'Johnson & Johnson','UNH':'UnitedHealth Group','XOM':'Exxon Mobil','CVX':'Chevron Corp','KO':'Coca-Cola Co','PEP':'PepsiCo Inc','WMT':'Walmart Inc','COST':'Costco Wholesale',
+  'DIS':'Walt Disney Co','NFLX':'Netflix Inc','ADBE':'Adobe Inc','CRM':'Salesforce Inc','ORCL':'Oracle Corp','IBM':'IBM','CSCO':'Cisco Systems','INTC':'Intel Corp','AMD':'Advanced Micro Devices','QCOM':'Qualcomm Inc',
+  'BA':'Boeing Co','CAT':'Caterpillar Inc','GE':'General Electric','HON':'Honeywell Intl','MMM':'3M Co','GS':'Goldman Sachs','MS':'Morgan Stanley','BAC':'Bank of America','WFC':'Wells Fargo','AXP':'American Express',
+  'MCD':'McDonald\'s Corp','SBUX':'Starbucks Corp','NKE':'Nike Inc','LOW':'Lowe\'s Companies','TGT':'Target Corp','PFE':'Pfizer Inc','MRK':'Merck & Co','ABBV':'AbbVie Inc','TMO':'Thermo Fisher Scientific','ABT':'Abbott Laboratories'
+};
 
 let currentStreak = 0;
 let bestStreak = parseInt(localStorage.getItem('streak_best') || '0', 10);
@@ -117,7 +117,8 @@ let awaitingGuess = false;
 document.getElementById('bestStreak').textContent = bestStreak;
 
 function pickTicker(){
-  return TICKER_POOL[Math.floor(Math.random() * TICKER_POOL.length)];
+  const keys = Object.keys(TICKER_POOL);
+  return keys[Math.floor(Math.random() * keys.length)];
 }
 
 async function loadRound(){
@@ -155,7 +156,7 @@ function renderRound(){
   document.getElementById('gameCard').innerHTML = `
     <div class="ticker-head">
       <div>
-        <div class="ticker-name">${symbol}</div>
+        <div class="ticker-name">${symbol} <span style="font-weight:500;color:var(--muted);font-size:15px">${TICKER_POOL[symbol] || ''}</span></div>
         <div class="ticker-sub">${chartPoints.length} trading days shown - what happens next?</div>
       </div>
     </div>
