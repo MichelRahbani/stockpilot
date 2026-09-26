@@ -363,7 +363,7 @@ tr:hover td{background:#fafafa}
             <div id="quizAnswerInputs"></div>
             <button type="button" class="btn btn-ghost btn-sm" onclick="addQuizQuestion()">+ Add Question</button>
           </div>
-          <p style="font-size:12px;color:var(--muted);margin-bottom:12px">Students pass or fail — no partial credit. Grading runs automatically off what they've already done in the app, so nothing to grade by hand.</p>
+          <p id="newAsgHelpText" style="font-size:12px;color:var(--muted);margin-bottom:12px">Students pass or fail — no partial credit. Grading runs automatically off what they've already done in the app, so nothing to grade by hand.</p>
           <button class="btn btn-primary btn-sm" onclick="createAssignment()">+ Add Assignment</button>
         </div>
 
@@ -1425,6 +1425,9 @@ function updateAsgCriteriaLabel(){
   document.getElementById('newAsgCriteriaLabel').textContent = ASG_CRITERIA_LABELS[type] || 'Minimum required';
   document.getElementById('newAsgCriteriaWrap').style.display = type === 'quiz' ? 'none' : 'block';
   document.getElementById('quizBuilderWrap').style.display = type === 'quiz' ? 'block' : 'none';
+  document.getElementById('newAsgHelpText').textContent = type === 'quiz'
+    ? 'Scored proportionally by how many questions a student gets right - not pass/fail. Students can retake it since this is meant for practice.'
+    : "Students pass or fail — no partial credit. Grading runs automatically off what they've already done in the app, so nothing to grade by hand.";
 }
 
 function renderQuizAnswerInputs(){
