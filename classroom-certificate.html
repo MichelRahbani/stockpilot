@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Certificate of Completion | StockPilot Classroom</title>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:#f3f4f2;min-height:100vh}
+.toolbar{padding:16px 24px;display:flex;justify-content:space-between;align-items:center;background:#fff;border-bottom:1px solid #e5e7eb}
+.toolbar a{color:#16a34a;text-decoration:none;font-size:14px;font-weight:600}
+.btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:#16a34a;color:#fff;font-family:'DM Sans',sans-serif}
+.wrap{max-width:900px;margin:40px auto;padding:0 20px}
+#loadingMsg{text-align:center;padding:80px;color:#6b7280}
+#notReady{display:none;text-align:center;padding:80px 20px}
+#notReady h2{font-family:'Fraunces',serif;font-size:24px;margin-bottom:10px}
+#notReady p{color:#6b7280;max-width:420px;margin:0 auto}
+.cert{display:none;background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:64px 72px;position:relative}
+.cert::before{content:"";position:absolute;inset:16px;border:2px solid #16a34a;pointer-events:none}
+.cert-inner{position:relative;text-align:center}
+.cert-eyebrow{font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:#16a34a;font-weight:700;margin-bottom:18px}
+.cert-title{font-family:'Fraunces',serif;font-size:38px;font-weight:700;color:#111827;margin-bottom:24px}
+.cert-sub{font-size:15px;color:#6b7280;margin-bottom:8px}
+.cert-name{font-family:'Fraunces',serif;font-style:italic;font-size:34px;color:#111827;margin:14px 0 24px;border-bottom:2px solid #e5e7eb;display:inline-block;padding-bottom:10px;min-width:340px}
+.cert-body{font-size:15px;color:#374151;max-width:520px;margin:0 auto 30px;line-height:1.7}
+.cert-stats{display:flex;justify-content:center;gap:48px;margin:30px 0}
+.cert-stat{text-align:center}
+.cert-stat .n{font-size:22px;font-weight:800;color:#16a34a}
+.cert-stat .l{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
+.cert-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:50px;padding-top:20px;border-top:1px solid #e5e7eb}
+.cert-footer .sig{text-align:left}
+.cert-footer .sig .name{font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:#111827}
+.cert-footer .sig .label{font-size:11px;color:#6b7280;margin-top:2px}
+.cert-footer .date{text-align:right;font-size:13px;color:#6b7280}
+.cert-logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:28px;font-size:12px;color:#9ca3af}
+.cert-logo img{height:18px;width:18px;border-radius:4px}
+@media print{
+  .toolbar{display:none}
+  body{background:#fff}
+  .wrap{margin:0;padding:0;max-width:none}
+  .cert{border:none;padding:40px}
+}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <a href="/classroom.html">← Back to Class</a>
+  <button class="btn" onclick="window.print()" id="printBtn" style="display:none">🖨 Print / Save as PDF</button>
+</div>
+
+<div class="wrap">
+  <div id="loadingMsg">Loading...</div>
+  <div id="notReady">
+    <h2>Not ready yet</h2>
+    <p id="notReadyMsg">This certificate becomes available once your class has ended.</p>
+  </div>
+  <div class="cert" id="certCard">
+    <div class="cert-inner">
+      <div class="cert-eyebrow">Certificate of Completion</div>
+      <div class="cert-title">StockPilot Classroom</div>
+      <div class="cert-sub">This certifies that</div>
+      <div class="cert-name" id="certName">—</div>
+      <div class="cert-body">
+        has successfully completed <strong id="certClassName">—</strong>, a personal finance and investing course covering virtual stock trading, budgeting, and portfolio management using real market data.
+      </div>
+      <div class="cert-stats" id="certStats"></div>
+      <div class="cert-footer">
+        <div class="sig">
+          <div class="name" id="certInstructor">—</div>
+          <div class="label">Instructor</div>
+        </div>
+        <div class="date" id="certDate">—</div>
+      </div>
+      <div class="cert-logo"><img src="/logo.jpg" alt=""/>Issued by StockPilot</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+
+function getUid(){
+  const t = localStorage.getItem('supabase_token');
+  if(!t) return null;
+  try{ return JSON.parse(atob(t.split('.')[1])).sub; }catch(e){ return null; }
+}
+function getName(){ return localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || 'Student'; }
+async function sbGet(table, qs=''){
+  const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''), {headers:{apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY}});
+  return r.json();
+}
+
+const urlParams = new URLSearchParams(location.search);
+const classId = urlParams.get('class');
+
+async function init(){
+  const uid = getUid();
+  if(!uid || !classId){
+    document.getElementById('loadingMsg').textContent = 'Open this from your class page.';
+    return;
+  }
+  try{
+    const classes = await sbGet('classes', 'id=eq.'+classId);
+    if(!classes.length){
+      document.getElementById('loadingMsg').textContent = 'Class not found.';
+      return;
+    }
+    const cls = classes[0];
+
+    const isFrozen = cls.freeze_date && new Date(cls.freeze_date) <= new Date();
+    if(!isFrozen){
+      document.getElementById('loadingMsg').style.display = 'none';
+      document.getElementById('notReady').style.display = 'block';
+      if(cls.freeze_date){
+        document.getElementById('notReadyMsg').textContent = 'This certificate unlocks once the class ends on ' + new Date(cls.freeze_date).toLocaleDateString() + '.';
+      } else {
+        document.getElementById('notReadyMsg').textContent = 'Your instructor hasn\u2019t set an end date for this class yet, so certificates aren\u2019t available.';
+      }
+      return;
+    }
+
+    const members = await sbGet('class_members', 'class_id=eq.'+classId+'&user_id=eq.'+uid);
+    if(!members.length){
+      document.getElementById('loadingMsg').textContent = 'You\u2019re not a member of this class.';
+      return;
+    }
+    const nickname = members[0].nickname || getName();
+
+    const [trades, budgets, completions] = await Promise.all([
+      sbGet('trades', 'user_id=eq.'+uid),
+      sbGet('budget_submissions', 'class_id=eq.'+classId+'&user_id=eq.'+uid),
+      sbGet('assignment_completions', 'class_id=eq.'+classId+'&user_id=eq.'+uid)
+    ]);
+    const passedCount = completions.filter(c => c.passed).length;
+
+    document.getElementById('certName').textContent = nickname;
+    document.getElementById('certClassName').textContent = cls.name;
+    document.getElementById('certInstructor').textContent = cls.instructor_name || 'Instructor';
+    document.getElementById('certDate').textContent = new Date(cls.freeze_date).toLocaleDateString(undefined, {year:'numeric', month:'long', day:'numeric'});
+
+    const stats = [
+      { n: trades.length, l: 'Trades Made' },
+      { n: passedCount + '/' + completions.length, l: 'Assignments Passed' },
+      { n: budgets.length ? 'Yes' : 'No', l: 'Budget Submitted' }
+    ];
+    document.getElementById('certStats').innerHTML = stats.map(s => `
+      <div class="cert-stat"><div class="n">${s.n}</div><div class="l">${s.l}</div></div>
+    `).join('');
+
+    document.getElementById('loadingMsg').style.display = 'none';
+    document.getElementById('certCard').style.display = 'block';
+    document.getElementById('printBtn').style.display = 'block';
+  }catch(e){
+    document.getElementById('loadingMsg').textContent = 'Could not load your certificate - try refreshing.';
+  }
+}
+init();
+</script>
+</body>
+</html>
