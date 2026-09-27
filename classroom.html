@@ -1914,13 +1914,22 @@ async function loadFantasyStandings(){
     const rows = rosters.map(r => {
       const picks = [...(r.starters||[]), ...(r.bench||[])];
       const draftPrices = r.draft_prices || {};
+      const draftRealPrices = r.draft_real_prices || {};
       let spent = 0, currentValue = 0;
       picks.forEach(t => {
-        const paid = draftPrices[t] || 0;
+        const paid = draftPrices[t] || 0; // fantasy dollars spent on this pick
         spent += paid;
-        const now = priceMap[t] != null ? priceMap[t] : paid;
-        // scale: what this pick is "worth" now relative to what it cost
-        currentValue += paid > 0 ? paid * (now / (draftPrices[t] || now || 1)) : now;
+        const realThen = draftRealPrices[t]; // actual market price the moment it was drafted
+        const realNow = priceMap[t];
+        // Apply the real percent change since draft day to the fantasy
+        // dollars spent - the tier price ($18, $3, etc) and the real
+        // market price are different scales and must never be divided
+        // against each other directly.
+        if(realThen && realNow != null){
+          currentValue += paid * (realNow / realThen);
+        } else {
+          currentValue += paid; // no real-price data yet for this pick - treat as flat
+        }
       });
       const budgetLeft = (currentFantasyLeague.budget || 100) - spent;
       const totalValue = currentValue + Math.max(budgetLeft, 0);
