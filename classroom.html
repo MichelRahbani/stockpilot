@@ -503,6 +503,11 @@ tr:hover td{background:#fafafa}
           </div>
         </div>
 
+        <div id="sdCertBanner" style="display:none;background:#fef9e7;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;margin-bottom:20px;display:none;align-items:center;justify-content:space-between">
+          <div style="font-size:13px"><strong>🎓 This class has ended.</strong> <span style="color:var(--muted)">Your completion certificate is ready.</span></div>
+          <a id="sdCertLink" href="#" style="font-size:13px;color:var(--green);font-weight:600;text-decoration:none;white-space:nowrap">Get Certificate →</a>
+        </div>
+
         <!-- My stats -->
         <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:12px;padding:20px;margin-bottom:20px">
           <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--green);margin-bottom:12px">My Portfolio</div>
@@ -1079,6 +1084,14 @@ async function openStudentDashboard(classId){
 
   document.getElementById('sdClassName').textContent = cls.name;
   document.getElementById('sdInstructor').textContent = 'Instructor: ' + (cls.instructor_name||'');
+  const isFrozen = cls.freeze_date && new Date(cls.freeze_date) <= new Date();
+  const certBanner = document.getElementById('sdCertBanner');
+  if(isFrozen){
+    certBanner.style.display = 'flex';
+    document.getElementById('sdCertLink').href = '/classroom-certificate.html?class=' + classId;
+  } else {
+    certBanner.style.display = 'none';
+  }
   document.getElementById('studentClassList').style.display = 'none';
   document.getElementById('studentDashboard').style.display = 'block';
   loadStudentMaterials(classId);
