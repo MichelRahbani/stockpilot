@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Fantasy Draft | StockPilot Classroom</title>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#16a34a;--green-l:#f0fdf4;--green-b:#bbf7d0;
+  --blue:#2563eb;--blue-l:#eff6ff;--blue-b:#bfdbfe;
+  --red:#dc2626;--red-l:#fef2f2;
+  --gray:#6b7280;--border:#e5e7eb;--bg:#f9fafb;--white:#fff;
+  --text:#111827;--muted:#6b7280;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:16px;color:var(--text)}
+.nav-logo img{height:28px;width:28px;border-radius:6px}
+.nav-badge{background:#dcfce7;color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.05em}
+.btn{padding:8px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.15s}
+.btn-primary{background:var(--green);color:white}.btn-primary:hover{background:#15803d}
+.btn-primary:disabled{background:#9ca3af;cursor:not-allowed}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.btn-sm{padding:6px 14px;font-size:13px}
+.page{max-width:1200px;margin:0 auto;padding:24px 20px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px}
+.grid2{display:grid;grid-template-columns:340px 1fr;gap:20px;align-items:start}
+@media(max-width:860px){.grid2{grid-template-columns:1fr}}
+.budget-box{position:sticky;top:80px}
+.budget-amount{font-size:32px;font-weight:800;color:var(--green)}
+.budget-amount.over{color:var(--red)}
+.roster-slot{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1px dashed var(--border);border-radius:8px;margin-bottom:6px;font-size:13px}
+.roster-slot.filled{border-style:solid;background:var(--green-l);border-color:var(--green-b)}
+.roster-slot .ticker{font-weight:700}
+.roster-slot .price{color:var(--muted);font-size:12px}
+.roster-slot .remove{cursor:pointer;color:var(--red);font-weight:700;padding:0 4px}
+.section-label{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.05em;margin:14px 0 6px}
+.search-row{display:flex;gap:8px;margin-bottom:12px}
+.search-row input{flex:1;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif}
+.sector-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--muted)}
+.pill.active{background:var(--text);color:var(--white);border-color:var(--text)}
+.stock-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.stock-card{border:1px solid var(--border);border-radius:10px;padding:12px;cursor:pointer;background:var(--white);transition:all .12s}
+.stock-card:hover{border-color:var(--green);transform:translateY(-1px)}
+.stock-card.mine{background:var(--green-l);border-color:var(--green-b)}
+.stock-card.disabled{opacity:.4;cursor:not-allowed}
+.stock-card .tk{font-weight:800;font-size:15px}
+.stock-card .nm{font-size:11px;color:var(--muted);margin:2px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stock-card .pr{font-weight:700;font-size:14px}
+.stock-card .chg{font-size:11px;font-weight:600}
+.stock-card .price-tag{display:inline-block;margin-top:6px;font-size:11px;background:var(--blue-l);color:var(--blue);padding:2px 8px;border-radius:12px;font-weight:700}
+.loading{grid-column:1/-1;text-align:center;padding:40px;color:var(--muted)}
+.submit-bar{position:sticky;bottom:0;background:var(--white);border-top:1px solid var(--border);padding:14px 0;margin-top:16px;display:flex;justify-content:flex-end;gap:10px}
+.msg{font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:12px}
+.msg.error{background:var(--red-l);color:var(--red)}
+.msg.success{background:var(--green-l);color:var(--green)}
+.done-banner{text-align:center;padding:60px 20px}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/classroom.html" class="nav-logo"><img src="/logo.jpg" alt="StockPilot"/>StockPilot <span class="nav-badge">CLASSROOM</span></a>
+  <a href="/classroom.html" class="btn btn-ghost btn-sm">\u2190 Back to Class</a>
+</nav>
+
+<div class="page">
+  <div id="loadingMsg" style="text-align:center;padding:60px;color:var(--muted)">Loading...</div>
+  <div id="doneWrap" style="display:none"></div>
+  <div id="draftWrap" style="display:none">
+    <div style="margin-bottom:16px">
+      <h1 style="font-size:24px;font-weight:800" id="leagueTitle"></h1>
+      <p style="color:var(--muted);font-size:14px" id="leagueSubtitle"></p>
+    </div>
+    <div id="submitMsg" class="msg" style="display:none"></div>
+
+    <div class="grid2">
+      <div>
+        <div class="card budget-box">
+          <div style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase">Budget Remaining</div>
+          <div class="budget-amount" id="budgetDisplay">$100</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:6px" id="budgetTotal"></div>
+
+          <div class="section-label" id="startersLabel">Starters</div>
+          <div id="startersList"></div>
+          <div class="section-label" id="benchLabel">Bench</div>
+          <div id="benchList"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="search-row">
+          <input type="text" id="searchInput" placeholder="Search by ticker or company name..." onkeydown="if(event.key==='Enter')doSearch()">
+          <button class="btn btn-ghost" onclick="doSearch()">Search</button>
+        </div>
+        <div class="sector-pills" id="sectorPills"></div>
+        <div class="stock-grid" id="stockGrid"><div class="loading">Loading stocks...</div></div>
+      </div>
+    </div>
+
+    <div class="submit-bar">
+      <button class="btn btn-primary" onclick="submitDraft()" id="submitBtn">Submit My Roster</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SP500_TICKERS = new Set([
+  'MMM','AOS','ABT','ABBV','ACN','ADBE','AMD','AES','AFL','A','APD','ABNB',
+  'AKAM','ALB','ARE','ALGN','ALLE','LNT','ALL','GOOGL','GOOG','MO','AMZN','AMCR',
+  'AEE','AEP','AXP','AIG','AMT','AWK','AMP','AME','AMGN','APH','ADI','AON',
+  'APA','APO','AAPL','AMAT','APP','APTV','ACGL','ADM','ARES','ANET','AJG','AIZ',
+  'T','ATO','ADSK','ADP','AZO','AVY','AXON','BKR','BALL','BAC','BAX','BDX',
+  'BRK.B','BBY','TECH','BIIB','BLK','BX','XYZ','BNY','BA','BKNG','BSX','BMY',
+  'AVGO','BR','BRO','BF.B','BLDR','BG','BXP','CHRW','CDNS','CPT','COF','CAH',
+  'CCL','CARR','CVNA','CASY','CAT','CBOE','CBRE','CDW','COR','CNC','CNP','CF',
+  'CRL','SCHW','CHTR','CVX','CMG','CB','CHD','CIEN','CI','CINF','CTAS','CSCO',
+  'C','CFG','CLX','CME','CMS','KO','CTSH','COHR','COIN','CL','CMCSA','FIX',
+  'COP','ED','STZ','CEG','COO','CPRT','GLW','CPAY','CTVA','CSGP','COST','CRH',
+  'CRWD','CCI','CSX','CMI','CVS','DHR','DRI','DDOG','DVA','DECK','DE','DELL',
+  'DAL','DVN','DXCM','FANG','DLR','DG','DLTR','D','DPZ','DASH','DOV','DOW',
+  'DHI','DTE','DUK','DD','ETN','EBAY','ECHO','ECL','EIX','EW','ELV','EME',
+  'EMR','ETR','EOG','EQT','EFX','EQIX','ERIE','ESS','EL','EG','EVRG','ES',
+  'EXC','EXE','EXPE','EXPD','EXR','XOM','FFIV','FDS','FICO','FAST','FRT','FDX',
+  'FDXF','FERG','FIS','FITB','FSLR','FE','FISV','FLEX','F','FTNT','FTV','FOXA',
+  'FOX','BEN','FCX','GRMN','IT','GE','GEHC','GEV','GEN','GNRC','GD','GIS',
+  'GM','GPC','GILD','GPN','GL','GDDY','GS','HAL','HIG','HAS','HCA','DOC',
+  'HSIC','HSY','HPE','HLT','HD','HONA','HON','HRL','HST','HWM','HPQ','HUBB',
+  'HUM','HBAN','HII','IBM','IEX','IDXX','ITW','INCY','IR','PODD','INTC','IBKR',
+  'ICE','IFF','IP','INTU','ISRG','IVZ','INVH','IQV','IRM','JBHT','JBL','JKHY',
+  'J','JNJ','JCI','JPM','KVUE','KDP','KEY','KEYS','KMB','KIM','KMI','KKR',
+  'KLAC','KHC','KR','LHX','LH','LRCX','LVS','LDOS','LEN','LII','LLY','LIN',
+  'LYV','LMT','L','LOW','LULU','LITE','LYB','MTB','MPC','MAR','MRSH','MLM',
+  'MRVL','MAS','MA','MKC','MCD','MCK','MDT','MRK','META','MET','MTD','MGM',
+  'MCHP','MU','MSFT','MAA','MRNA','TAP','MDLZ','MPWR','MNST','MCO','MS','MOS',
+  'MSI','MSCI','NDAQ','NTAP','NFLX','NEM','NWSA','NWS','NEE','NKE','NI','NDSN',
+  'NSC','NTRS','NOC','NCLH','NRG','NUE','NVDA','NVR','NXPI','ORLY','OXY','ODFL',
+  'OMC','ON','OKE','ORCL','OTIS','PCAR','PKG','PLTR','PANW','PSKY','PH','PAYX',
+  'PYPL','PNR','PEP','PFE','PCG','PM','PSX','PNW','PNC','PPG','PPL','PFG',
+  'PG','PGR','PLD','PRU','PEG','PTC','PSA','PHM','PWR','QCOM','DGX','Q',
+  'RL','RJF','RDDT','RTX','O','REG','REGN','RF','RSG','RMD','RVTY','HOOD',
+  'ROK','ROL','ROP','ROST','RCL','SPGI','CRM','SNDK','SBAC','SLB','STX','SRE',
+  'NOW','SHW','SPG','SWKS','SJM','SW','SNA','SOLV','SO','LUV','SWK','SBUX',
+  'STT','STLD','STE','SYK','SMCI','SYF','SNPS','SYY','TMUS','TROW','TTWO','TPR',
+  'TRGP','TGT','TEL','TDY','TER','TSLA','TXN','TPL','TXT','TMO','TJX','TKO',
+  'TTD','TSCO','TT','TDG','TRV','TRMB','TFC','TYL','TSN','USB','UBER','UDR',
+  'ULTA','UNP','UAL','UPS','URI','UNH','UHS','VLO','VEEV','VTR','VLTO','VRSN',
+  'VRSK','VZ','VRTX','VRT','VTRS','VICI','V','VST','VMRK','VMC','WRB','GWW',
+  'WAB','WMT','DIS','WBD','WM','WAT','WEC','WFC','WELL','WST','WDC','WY',
+  'WSM','WMB','WTW','WDAY','WYNN','XEL','XYL','YUM','ZBRA','ZBH','ZTS',
+]);
+
+const POPULAR=['AAPL','NVDA','TSLA','MSFT','META','AMZN','GOOGL','NFLX','AMD','COIN','PLTR','DIS','JPM','V','BRK.B'];
+const SP500_SECTORS = {
+  'MMM':'Industrials','AOS':'Industrials','ABT':'Health Care','ABBV':'Health Care','ACN':'Information Technology','ADBE':'Information Technology',
+  'AMD':'Information Technology','AES':'Utilities','AFL':'Financials','A':'Health Care','APD':'Materials','ABNB':'Consumer Discretionary',
+  'AKAM':'Information Technology','ALB':'Materials','ARE':'Real Estate','ALGN':'Health Care','ALLE':'Industrials','LNT':'Utilities',
+  'ALL':'Financials','GOOGL':'Communication Services','GOOG':'Communication Services','MO':'Consumer Staples','AMZN':'Consumer Discretionary','AMCR':'Materials',
+  'AEE':'Utilities','AEP':'Utilities','AXP':'Financials','AIG':'Financials','AMT':'Real Estate','AWK':'Utilities',
+  'AMP':'Financials','AME':'Industrials','AMGN':'Health Care','APH':'Information Technology','ADI':'Information Technology','AON':'Financials',
+  'APA':'Energy','APO':'Financials','AAPL':'Information Technology','AMAT':'Information Technology','APP':'Communication Services','APTV':'Consumer Discretionary',
+  'ACGL':'Financials','ADM':'Consumer Staples','ARES':'Financials','ANET':'Information Technology','AJG':'Financials','AIZ':'Financials',
+  'T':'Communication Services','ATO':'Utilities','ADSK':'Information Technology','ADP':'Industrials','AZO':'Consumer Discretionary','AVY':'Materials',
+  'AXON':'Industrials','BKR':'Energy','BALL':'Materials','BAC':'Financials','BAX':'Health Care','BDX':'Health Care',
+  'BRK.B':'Financials','BBY':'Consumer Discretionary','TECH':'Health Care','BIIB':'Health Care','BLK':'Financials','BX':'Financials',
+  'XYZ':'Financials','BNY':'Financials','BA':'Industrials','BKNG':'Consumer Discretionary','BSX':'Health Care','BMY':'Health Care',
+  'AVGO':'Information Technology','BR':'Industrials','BRO':'Financials','BF.B':'Consumer Staples','BLDR':'Industrials','BG':'Consumer Staples',
+  'BXP':'Real Estate','CHRW':'Industrials','CDNS':'Information Technology','CPT':'Real Estate','COF':'Financials','CAH':'Health Care',
+  'CCL':'Consumer Discretionary','CARR':'Industrials','CVNA':'Consumer Discretionary','CASY':'Consumer Staples','CAT':'Industrials','CBOE':'Financials',
+  'CBRE':'Real Estate','CDW':'Information Technology','COR':'Health Care','CNC':'Health Care','CNP':'Utilities','CF':'Materials',
+  'CRL':'Health Care','SCHW':'Financials','CHTR':'Communication Services','CVX':'Energy','CMG':'Consumer Discretionary','CB':'Financials',
+  'CHD':'Consumer Staples','CIEN':'Information Technology','CI':'Health Care','CINF':'Financials','CTAS':'Industrials','CSCO':'Information Technology',
+  'C':'Financials','CFG':'Financials','CLX':'Consumer Staples','CME':'Financials','CMS':'Utilities','KO':'Consumer Staples',
+  'CTSH':'Information Technology','COHR':'Information Technology','COIN':'Financials','CL':'Consumer Staples','CMCSA':'Communication Services','FIX':'Industrials',
+  'COP':'Energy','ED':'Utilities','STZ':'Consumer Staples','CEG':'Utilities','COO':'Health Care','CPRT':'Industrials',
+  'GLW':'Information Technology','CPAY':'Financials','CTVA':'Materials','CSGP':'Real Estate','COST':'Consumer Staples','CRH':'Materials',
+  'CRWD':'Information Technology','CCI':'Real Estate','CSX':'Industrials','CMI':'Industrials','CVS':'Health Care','DHR':'Health Care',
+  'DRI':'Consumer Discretionary','DDOG':'Information Technology','DVA':'Health Care','DECK':'Consumer Discretionary','DE':'Industrials','DELL':'Information Technology',
+  'DAL':'Industrials','DVN':'Energy','DXCM':'Health Care','FANG':'Energy','DLR':'Real Estate','DG':'Consumer Staples',
+  'DLTR':'Consumer Staples','D':'Utilities','DPZ':'Consumer Discretionary','DASH':'Consumer Discretionary','DOV':'Industrials','DOW':'Materials',
+  'DHI':'Consumer Discretionary','DTE':'Utilities','DUK':'Utilities','DD':'Industrials','ETN':'Industrials','EBAY':'Consumer Discretionary',
+  'ECHO':'Communication Services','ECL':'Materials','EIX':'Utilities','EW':'Health Care','ELV':'Health Care','EME':'Industrials',
+  'EMR':'Industrials','ETR':'Utilities','EOG':'Energy','EQT':'Energy','EFX':'Industrials','EQIX':'Real Estate',
+  'ERIE':'Financials','ESS':'Real Estate','EL':'Consumer Staples','EG':'Financials','EVRG':'Utilities','ES':'Utilities',
+  'EXC':'Utilities','EXE':'Energy','EXPE':'Consumer Discretionary','EXPD':'Industrials','EXR':'Real Estate','XOM':'Energy',
+  'FFIV':'Information Technology','FDS':'Financials','FICO':'Information Technology','FAST':'Industrials','FRT':'Real Estate','FDX':'Industrials',
+  'FDXF':'Industrials','FERG':'Industrials','FIS':'Financials','FITB':'Financials','FSLR':'Information Technology','FE':'Utilities',
+  'FISV':'Financials','FLEX':'Information Technology','F':'Consumer Discretionary','FTNT':'Information Technology','FTV':'Industrials','FOXA':'Communication Services',
+  'FOX':'Communication Services','BEN':'Financials','FCX':'Materials','GRMN':'Consumer Discretionary','IT':'Information Technology','GE':'Industrials',
+  'GEHC':'Health Care','GEV':'Industrials','GEN':'Information Technology','GNRC':'Industrials','GD':'Industrials','GIS':'Consumer Staples',
+  'GM':'Consumer Discretionary','GPC':'Consumer Discretionary','GILD':'Health Care','GPN':'Financials','GL':'Financials','GDDY':'Information Technology',
+  'GS':'Financials','HAL':'Energy','HIG':'Financials','HAS':'Consumer Discretionary','HCA':'Health Care','DOC':'Real Estate',
+  'HSIC':'Health Care','HSY':'Consumer Staples','HPE':'Information Technology','HLT':'Consumer Discretionary','HD':'Consumer Discretionary','HONA':'Industrials',
+  'HON':'Industrials','HRL':'Consumer Staples','HST':'Real Estate','HWM':'Industrials','HPQ':'Information Technology','HUBB':'Industrials',
+  'HUM':'Health Care','HBAN':'Financials','HII':'Industrials','IBM':'Information Technology','IEX':'Industrials','IDXX':'Health Care',
+  'ITW':'Industrials','INCY':'Health Care','IR':'Industrials','PODD':'Health Care','INTC':'Information Technology','IBKR':'Financials',
+  'ICE':'Financials','IFF':'Materials','IP':'Materials','INTU':'Information Technology','ISRG':'Health Care','IVZ':'Financials',
+  'INVH':'Real Estate','IQV':'Health Care','IRM':'Real Estate','JBHT':'Industrials','JBL':'Information Technology','JKHY':'Financials',
+  'J':'Industrials','JNJ':'Health Care','JCI':'Industrials','JPM':'Financials','KVUE':'Consumer Staples','KDP':'Consumer Staples',
+  'KEY':'Financials','KEYS':'Information Technology','KMB':'Consumer Staples','KIM':'Real Estate','KMI':'Energy','KKR':'Financials',
+  'KLAC':'Information Technology','KHC':'Consumer Staples','KR':'Consumer Staples','LHX':'Industrials','LH':'Health Care','LRCX':'Information Technology',
+  'LVS':'Consumer Discretionary','LDOS':'Industrials','LEN':'Consumer Discretionary','LII':'Industrials','LLY':'Health Care','LIN':'Materials',
+  'LYV':'Communication Services','LMT':'Industrials','L':'Financials','LOW':'Consumer Discretionary','LULU':'Consumer Discretionary','LITE':'Information Technology',
+  'LYB':'Materials','MTB':'Financials','MPC':'Energy','MAR':'Consumer Discretionary','MRSH':'Financials','MLM':'Materials',
+  'MRVL':'Information Technology','MAS':'Industrials','MA':'Financials','MKC':'Consumer Staples','MCD':'Consumer Discretionary','MCK':'Health Care',
+  'MDT':'Health Care','MRK':'Health Care','META':'Communication Services','MET':'Financials','MTD':'Health Care','MGM':'Consumer Discretionary',
+  'MCHP':'Information Technology','MU':'Information Technology','MSFT':'Information Technology','MAA':'Real Estate','MRNA':'Health Care','TAP':'Consumer Staples',
+  'MDLZ':'Consumer Staples','MPWR':'Information Technology','MNST':'Consumer Staples','MCO':'Financials','MS':'Financials','MOS':'Materials',
+  'MSI':'Information Technology','MSCI':'Financials','NDAQ':'Financials','NTAP':'Information Technology','NFLX':'Communication Services','NEM':'Materials',
+  'NWSA':'Communication Services','NWS':'Communication Services','NEE':'Utilities','NKE':'Consumer Discretionary','NI':'Utilities','NDSN':'Industrials',
+  'NSC':'Industrials','NTRS':'Financials','NOC':'Industrials','NCLH':'Consumer Discretionary','NRG':'Utilities','NUE':'Materials',
+  'NVDA':'Information Technology','NVR':'Consumer Discretionary','NXPI':'Information Technology','ORLY':'Consumer Discretionary','OXY':'Energy','ODFL':'Industrials',
+  'OMC':'Communication Services','ON':'Information Technology','OKE':'Energy','ORCL':'Information Technology','OTIS':'Industrials','PCAR':'Industrials',
+  'PKG':'Materials','PLTR':'Information Technology','PANW':'Information Technology','PSKY':'Communication Services','PH':'Industrials','PAYX':'Industrials',
+  'PYPL':'Financials','PNR':'Industrials','PEP':'Consumer Staples','PFE':'Health Care','PCG':'Utilities','PM':'Consumer Staples',
+  'PSX':'Energy','PNW':'Utilities','PNC':'Financials','PPG':'Materials','PPL':'Utilities','PFG':'Financials',
+  'PG':'Consumer Staples','PGR':'Financials','PLD':'Real Estate','PRU':'Financials','PEG':'Utilities','PTC':'Information Technology',
+  'PSA':'Real Estate','PHM':'Consumer Discretionary','PWR':'Industrials','QCOM':'Information Technology','DGX':'Health Care','Q':'Information Technology',
+  'RL':'Consumer Discretionary','RJF':'Financials','RDDT':'Communication Services','RTX':'Industrials','O':'Real Estate','REG':'Real Estate',
+  'REGN':'Health Care','RF':'Financials','RSG':'Industrials','RMD':'Health Care','RVTY':'Health Care','HOOD':'Financials',
+  'ROK':'Industrials','ROL':'Industrials','ROP':'Information Technology','ROST':'Consumer Discretionary','RCL':'Consumer Discretionary','SPGI':'Financials',
+  'CRM':'Information Technology','SNDK':'Information Technology','SBAC':'Real Estate','SLB':'Energy','STX':'Information Technology','SRE':'Utilities',
+  'NOW':'Information Technology','SHW':'Materials','SPG':'Real Estate','SWKS':'Information Technology','SJM':'Consumer Staples','SW':'Materials',
+  'SNA':'Industrials','SOLV':'Health Care','SO':'Utilities','LUV':'Industrials','SWK':'Industrials','SBUX':'Consumer Discretionary',
+  'STT':'Financials','STLD':'Materials','STE':'Health Care','SYK':'Health Care','SMCI':'Information Technology','SYF':'Financials',
+  'SNPS':'Information Technology','SYY':'Consumer Staples','TMUS':'Communication Services','TROW':'Financials','TTWO':'Communication Services','TPR':'Consumer Discretionary',
+  'TRGP':'Energy','TGT':'Consumer Staples','TEL':'Information Technology','TDY':'Information Technology','TER':'Information Technology','TSLA':'Consumer Discretionary',
+  'TXN':'Information Technology','TPL':'Energy','TXT':'Industrials','TMO':'Health Care','TJX':'Consumer Discretionary','TKO':'Communication Services',
+  'TTD':'Communication Services','TSCO':'Consumer Discretionary','TT':'Industrials','TDG':'Industrials','TRV':'Financials','TRMB':'Information Technology',
+  'TFC':'Financials','TYL':'Information Technology','TSN':'Consumer Staples','USB':'Financials','UBER':'Industrials','UDR':'Real Estate',
+  'ULTA':'Consumer Discretionary','UNP':'Industrials','UAL':'Industrials','UPS':'Industrials','URI':'Industrials','UNH':'Health Care',
+  'UHS':'Health Care','VLO':'Energy','VEEV':'Health Care','VTR':'Real Estate','VLTO':'Industrials','VRSN':'Information Technology',
+  'VRSK':'Industrials','VZ':'Communication Services','VRTX':'Health Care','VRT':'Industrials','VTRS':'Health Care','VICI':'Real Estate',
+  'V':'Financials','VST':'Utilities','VMRK':'Real Estate','VMC':'Materials','WRB':'Financials','GWW':'Industrials',
+  'WAB':'Industrials','WMT':'Consumer Staples','DIS':'Communication Services','WBD':'Communication Services','WM':'Industrials','WAT':'Health Care',
+  'WEC':'Utilities','WFC':'Financials','WELL':'Real Estate','WST':'Health Care','WDC':'Information Technology','WY':'Real Estate',
+  'WSM':'Consumer Discretionary','WMB':'Energy','WTW':'Financials','WDAY':'Information Technology','WYNN':'Consumer Discretionary','XEL':'Utilities',
+  'XYL':'Industrials','YUM':'Consumer Discretionary','ZBRA':'Information Technology','ZBH':'Health Care','ZTS':'Health Care',
+};
+const SECTOR_ABBREV = {
+  'Information Technology':'TECH',
+  'Health Care':'HLTH',
+  'Financials':'FIN',
+  'Consumer Discretionary':'CD',
+  'Communication Services':'COMM',
+  'Industrials':'IND',
+  'Consumer Staples':'CS',
+  'Energy':'ENGY',
+  'Utilities':'UTIL',
+  'Real Estate':'RE',
+  'Materials':'MATL',
+};
+const SECTOR_COLOR = {
+  'TECH':'#3b82f6',
+  'HLTH':'#10b981',
+  'FIN':'#eab308',
+  'CD':'#f97316',
+  'COMM':'#a855f7',
+  'IND':'#64748b',
+  'CS':'#ec4899',
+  'ENGY':'#ef4444',
+  'UTIL':'#06b6d4',
+  'RE':'#84cc16',
+  'MATL':'#78716c',
+};
+const quoteCache={}; // ticker -> full quote object, populated as cards load, used for the pick-reveal card
+const TICKER_DOMAINS={
+  AAPL:'apple.com',NVDA:'nvidia.com',TSLA:'tesla.com',MSFT:'microsoft.com',META:'meta.com',
+  AMZN:'amazon.com',GOOGL:'google.com',GOOG:'google.com',AMD:'amd.com',COIN:'coinbase.com',
+  PLTR:'palantir.com',ARM:'arm.com',JPM:'jpmorganchase.com',V:'visa.com','BRK-B':'berkshirehathaway.com',
+  NFLX:'netflix.com',DIS:'disney.com',KO:'coca-cola.com',PEP:'pepsico.com',NKE:'nike.com',
+  SBUX:'starbucks.com',MCD:'mcdonalds.com',WMT:'walmart.com',COST:'costco.com',HD:'homedepot.com',
+  BA:'boeing.com',INTC:'intel.com',ORCL:'oracle.com',CRM:'salesforce.com',ADBE:'adobe.com',
+  UBER:'uber.com',ABNB:'airbnb.com',SNAP:'snap.com',PYPL:'paypal.com',SQ:'squareup.com',
+  F:'ford.com',GM:'gm.com',T:'att.com',VZ:'verizon.com',XOM:'exxonmobil.com',CVX:'chevron.com',
+  JNJ:'jnj.com',PFE:'pfizer.com',UNH:'unitedhealthgroup.com',GS:'goldmansachs.com',MS:'morganstanley.com',
+  BAC:'bankofamerica.com',WFC:'wellsfargo.com',SPOT:'spotify.com',SHOP:'shopify.com',RBLX:'roblox.com'
+};
+
+// ── Auth / Supabase ──
+const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+
+function isTokenExpiredLocal(token){
+  try{ const p = JSON.parse(atob(token.split('.')[1])); return !p.exp || p.exp*1000 < Date.now(); }
+  catch(e){ return true; }
+}
+async function getFreshToken(){
+  const stored = localStorage.getItem('supabase_token');
+  if(stored && !isTokenExpiredLocal(stored)) return stored;
+  const refreshToken = localStorage.getItem('supabase_refresh_token');
+  if(!refreshToken) return null;
+  try{
+    const r = await fetch(SUPA_URL+'/auth/v1/token?grant_type=refresh_token', {
+      method:'POST', headers:{'apikey':SUPA_KEY,'Content-Type':'application/json'},
+      body: JSON.stringify({refresh_token: refreshToken})
+    });
+    if(!r.ok) return null;
+    const data = await r.json();
+    if(!data.access_token) return null;
+    localStorage.setItem('supabase_token', data.access_token);
+    if(data.refresh_token) localStorage.setItem('supabase_refresh_token', data.refresh_token);
+    return data.access_token;
+  }catch(e){ return null; }
+}
+function getUid(){
+  const t = localStorage.getItem('supabase_token');
+  if(!t) return null;
+  try{ return JSON.parse(atob(t.split('.')[1])).sub; }catch(e){ return null; }
+}
+function getName(){ return localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || 'Student'; }
+
+async function sbGet(table, qs=''){
+  const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''), {headers:{apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY}});
+  return r.json();
+}
+async function sbWrite(table, body, method='POST', extraQs=''){
+  const token = await getFreshToken();
+  const r = await fetch(SUPA_URL+'/rest/v1/'+table+(extraQs?'?'+extraQs:''), {
+    method, headers:{apikey:SUPA_KEY, Authorization:'Bearer '+(token||SUPA_KEY), 'Content-Type':'application/json', Prefer: method==='POST'?'return=representation':'return=minimal'},
+    body: JSON.stringify(body)
+  });
+  if(method==='POST') return r.json();
+  return r.ok;
+}
+
+// ── State ──
+const urlParams = new URLSearchParams(location.search);
+const classId = urlParams.get('class');
+let league = null;
+let myRoster = { starters: [], bench: [], draft_prices: {} };
+let tierData = null;
+
+function priceFor(ticker){ return tierData?.prices?.[ticker]?.price ?? null; }
+
+function budgetSpent(){
+  let spent = 0;
+  [...myRoster.starters, ...myRoster.bench].forEach(t => { spent += myRoster.draft_prices[t] || 0; });
+  return spent;
+}
+
+async function init(){
+  const uid = getUid();
+  if(!uid || !classId){
+    document.getElementById('loadingMsg').textContent = 'Open this from your class page to draft.';
+    return;
+  }
+  try{
+    const leagues = await sbGet('class_fantasy_leagues', 'class_id=eq.'+classId+'&order=created_at.desc&limit=1');
+    if(!leagues.length){
+      document.getElementById('loadingMsg').textContent = 'No fantasy draft has been set up for this class yet.';
+      return;
+    }
+    league = leagues[0];
+
+    const rosters = await sbGet('class_fantasy_rosters', 'league_id=eq.'+league.id+'&user_id=eq.'+uid);
+    if(rosters.length && rosters[0].submitted){
+      showDone(rosters[0]);
+      return;
+    }
+    if(rosters.length){
+      myRoster.starters = rosters[0].starters || [];
+      myRoster.bench = rosters[0].bench || [];
+      myRoster.draft_prices = rosters[0].draft_prices || {};
+    }
+
+    const tierRes = await fetch(BACKEND+'/api/sp500-tiers');
+    tierData = await tierRes.json();
+
+    document.getElementById('loadingMsg').style.display = 'none';
+    document.getElementById('draftWrap').style.display = 'block';
+    document.getElementById('leagueTitle').textContent = league.name;
+    document.getElementById('leagueSubtitle').textContent = league.starters_count+' starters, '+league.bench_count+' bench \u00b7 $'+league.budget+' budget';
+    document.getElementById('startersLabel').textContent = 'Starters (0/'+league.starters_count+')';
+    document.getElementById('benchLabel').textContent = 'Bench (0/'+league.bench_count+')';
+
+    if(!league.draft_open){
+      document.getElementById('submitMsg').style.display = 'block';
+      document.getElementById('submitMsg').className = 'msg error';
+      document.getElementById('submitMsg').textContent = 'Your teacher has closed this draft.';
+      document.getElementById('submitBtn').disabled = true;
+    }
+
+    renderRoster();
+    renderSectorPills();
+    loadPopularStocks();
+  }catch(e){
+    document.getElementById('loadingMsg').textContent = 'Could not load the draft - try refreshing.';
+  }
+}
+
+function renderRoster(){
+  document.getElementById('startersLabel').textContent = 'Starters ('+myRoster.starters.length+'/'+league.starters_count+')';
+  document.getElementById('benchLabel').textContent = 'Bench ('+myRoster.bench.length+'/'+league.bench_count+')';
+
+  const renderSlots = (arr, type) => arr.map((t,i) => `
+    <div class="roster-slot filled">
+      <div><span class="ticker">${t}</span> <span class="price">$${(myRoster.draft_prices[t]||0).toFixed(0)}</span></div>
+      <span class="remove" onclick="removePick('${type}',${i})">\u00d7</span>
+    </div>
+  `).join('');
+  const emptySlot = '<div class="roster-slot">Empty slot</div>';
+
+  document.getElementById('startersList').innerHTML = renderSlots(myRoster.starters, 'starters')
+    + Array(Math.max(0, league.starters_count - myRoster.starters.length)).fill(emptySlot).join('');
+  document.getElementById('benchList').innerHTML = renderSlots(myRoster.bench, 'bench')
+    + Array(Math.max(0, league.bench_count - myRoster.bench.length)).fill(emptySlot).join('');
+
+  const spent = budgetSpent();
+  const remaining = league.budget - spent;
+  const budgetEl = document.getElementById('budgetDisplay');
+  budgetEl.textContent = '$'+remaining.toFixed(0);
+  budgetEl.className = 'budget-amount' + (remaining < 0 ? ' over' : '');
+  document.getElementById('budgetTotal').textContent = '$'+spent.toFixed(0)+' spent of $'+league.budget;
+}
+
+function removePick(type, idx){
+  myRoster[type].splice(idx, 1);
+  renderRoster();
+  renderStockGrid(window._lastStocks || []);
+}
+
+function isPicked(ticker){
+  return myRoster.starters.includes(ticker) || myRoster.bench.includes(ticker);
+}
+
+function pickStock(ticker){
+  if(isPicked(ticker)) return;
+  const price = priceFor(ticker);
+  if(price == null){
+    alert('This stock doesn\u2019t have a price yet - try another one.');
+    return;
+  }
+  const spent = budgetSpent();
+  if(spent + price > league.budget){
+    alert('Not enough budget left for this pick.');
+    return;
+  }
+  if(myRoster.starters.length < league.starters_count){
+    myRoster.starters.push(ticker);
+  } else if(myRoster.bench.length < league.bench_count){
+    myRoster.bench.push(ticker);
+  } else {
+    alert('Your roster is full - remove a pick first.');
+    return;
+  }
+  myRoster.draft_prices[ticker] = price;
+  renderRoster();
+  renderStockGrid(window._lastStocks || []);
+}
+
+function renderSectorPills(){
+  const sectors = [...new Set(Object.values(SP500_SECTORS))].sort();
+  const wrap = document.getElementById('sectorPills');
+  wrap.innerHTML = '<div class="pill active" id="pill_all" onclick="filterBySector(null)">All</div>'
+    + sectors.map(s => `<div class="pill" id="pill_${s.replace(/[^a-zA-Z]/g,'')}" onclick="filterBySector('${s}')">${SECTOR_ABBREV[s]||s}</div>`).join('');
+}
+
+async function setActiveSectorPill(sector){
+  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  const id = sector ? 'pill_'+sector.replace(/[^a-zA-Z]/g,'') : 'pill_all';
+  const el = document.getElementById(id);
+  if(el) el.classList.add('active');
+}
+
+async function loadPopularStocks(){
+  const grid = document.getElementById('stockGrid');
+  grid.innerHTML = '<div class="loading">Loading stocks...</div>';
+  try{
+    const res = await fetch(BACKEND+'/api/quotes?symbols='+POPULAR.join(','));
+    const data = await res.json();
+    const quotes = data?.quoteResponse?.result || [];
+    quotes.forEach(q => { quoteCache[q.symbol] = q; });
+    window._lastStocks = quotes;
+    renderStockGrid(quotes);
+  }catch(e){
+    grid.innerHTML = '<div class="loading">Could not load stocks right now.</div>';
+  }
+}
+
+async function filterBySector(sector){
+  setActiveSectorPill(sector);
+  if(!sector){ loadPopularStocks(); return; }
+  const grid = document.getElementById('stockGrid');
+  grid.innerHTML = '<div class="loading">Loading '+sector+'...</div>';
+  const tickers = Object.keys(SP500_SECTORS).filter(t => SP500_SECTORS[t] === sector).sort().slice(0, 30);
+  try{
+    const res = await fetch(BACKEND+'/api/quotes?symbols='+tickers.join(','));
+    const data = await res.json();
+    const quotes = data?.quoteResponse?.result || [];
+    quotes.forEach(q => { quoteCache[q.symbol] = q; });
+    window._lastStocks = quotes;
+    renderStockGrid(quotes);
+  }catch(e){
+    grid.innerHTML = '<div class="loading">Could not load '+sector+' stocks.</div>';
+  }
+}
+
+async function doSearch(){
+  const q = document.getElementById('searchInput').value.trim().toUpperCase();
+  if(!q){ loadPopularStocks(); return; }
+  const grid = document.getElementById('stockGrid');
+  grid.innerHTML = '<div class="loading">Searching...</div>';
+  const matches = Object.keys(SP500_SECTORS).filter(t => t.includes(q)).slice(0, 20);
+  if(!matches.length){
+    grid.innerHTML = '<div class="loading">No S&amp;P 500 match for "'+escapeHtml(q)+'".</div>';
+    return;
+  }
+  try{
+    const res = await fetch(BACKEND+'/api/quotes?symbols='+matches.join(','));
+    const data = await res.json();
+    const quotes = data?.quoteResponse?.result || [];
+    quotes.forEach(q2 => { quoteCache[q2.symbol] = q2; });
+    window._lastStocks = quotes;
+    renderStockGrid(quotes);
+  }catch(e){
+    grid.innerHTML = '<div class="loading">Search failed - try again.</div>';
+  }
+}
+
+function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+
+function renderStockGrid(quotes){
+  const grid = document.getElementById('stockGrid');
+  if(!quotes.length){ grid.innerHTML = '<div class="loading">No stocks to show.</div>'; return; }
+  grid.innerHTML = quotes.map(q => {
+    const chg = q.regularMarketChangePercent || 0;
+    const up = chg >= 0;
+    const mine = isPicked(q.symbol);
+    const price = priceFor(q.symbol);
+    const noPriceYet = price == null;
+    return `
+      <div class="stock-card ${mine?'mine':''} ${noPriceYet?'disabled':''}" data-ticker="${q.symbol}">
+        <div class="tk">${q.symbol}</div>
+        <div class="nm">${escapeHtml(q.shortName || q.longName || '')}</div>
+        <div class="pr">$${(q.regularMarketPrice||0).toFixed(2)}</div>
+        <div class="chg" style="color:${up?'var(--green)':'var(--red)'}">${up?'+':''}${chg.toFixed(2)}%</div>
+        ${noPriceYet ? '<div class="price-tag" style="background:var(--red-l);color:var(--red)">No draft price yet</div>' : '<div class="price-tag">Draft: $'+price.toFixed(0)+'</div>'}
+        ${mine ? '<div style="font-size:11px;color:var(--green);font-weight:700;margin-top:4px">\u2713 On your roster</div>' : ''}
+      </div>
+    `;
+  }).join('');
+  grid.querySelectorAll('.stock-card:not(.disabled)').forEach(card => {
+    card.addEventListener('click', () => pickStock(card.dataset.ticker));
+  });
+}
+
+async function submitDraft(){
+  const total = myRoster.starters.length + myRoster.bench.length;
+  const need = league.starters_count + league.bench_count;
+  if(total < need){
+    if(!confirm('You\u2019ve only filled '+total+' of '+need+' slots. Submit anyway?')) return;
+  }
+  const btn = document.getElementById('submitBtn');
+  btn.textContent = 'Submitting...'; btn.disabled = true;
+  try{
+    const uid = getUid();
+    await sbWrite('class_fantasy_rosters', {
+      league_id: league.id, user_id: uid, nickname: getName(),
+      starters: myRoster.starters, bench: myRoster.bench, draft_prices: myRoster.draft_prices,
+      submitted: true, submitted_at: new Date().toISOString()
+    }, 'POST', 'on_conflict=league_id,user_id');
+    showDone({ starters: myRoster.starters, bench: myRoster.bench, draft_prices: myRoster.draft_prices });
+  }catch(e){
+    document.getElementById('submitMsg').style.display = 'block';
+    document.getElementById('submitMsg').className = 'msg error';
+    document.getElementById('submitMsg').textContent = 'Could not submit - try again.';
+    btn.textContent = 'Submit My Roster'; btn.disabled = false;
+  }
+}
+
+function showDone(roster){
+  document.getElementById('loadingMsg').style.display = 'none';
+  document.getElementById('draftWrap').style.display = 'none';
+  const wrap = document.getElementById('doneWrap');
+  wrap.style.display = 'block';
+  const picks = [...(roster.starters||[]), ...(roster.bench||[])];
+  wrap.innerHTML = `
+    <div class="done-banner">
+      <div style="font-size:40px;margin-bottom:10px">\u2705</div>
+      <h1 style="font-size:22px;margin-bottom:8px">Your roster is submitted</h1>
+      <p style="color:var(--muted);margin-bottom:24px">Your teacher can see your picks and how they're doing on the class Fantasy tab.</p>
+      <div class="card" style="max-width:400px;margin:0 auto;text-align:left">
+        <div style="font-weight:700;margin-bottom:10px">Your Roster</div>
+        ${picks.map(t => `<div class="roster-slot filled"><span class="ticker">${t}</span><span class="price">$${(roster.draft_prices?.[t]||0).toFixed(0)}</span></div>`).join('')}
+      </div>
+    </div>
+  `;
+}
+
+init();
+</script>
+</body>
+</html>
