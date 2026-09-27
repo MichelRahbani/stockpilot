@@ -11785,8 +11785,40 @@ const pullVirtualMarketFromCloud = async () => {
 };
 
 // ── Budget Class Submission ──
+// Gets a valid, non-expired Supabase access token, refreshing via the
+// stored refresh_token if the current one is stale or missing - a bare
+// localStorage read here would silently send a dead token and get
+// rejected by RLS, which is exactly what was happening before this.
+async function getFreshSupabaseToken(SUPA_URL, SUPA_KEY){
+  const stored = localStorage.getItem('supabase_token');
+  let expired = true;
+  if(stored){
+    try{ expired = JSON.parse(atob(stored.split('.')[1])).exp * 1000 < Date.now(); }catch(e){ expired = true; }
+  }
+  if(stored && !expired) return stored;
+  const refreshToken = localStorage.getItem('supabase_refresh_token');
+  if(!refreshToken) return null;
+  try{
+    const r = await fetch(SUPA_URL+'/auth/v1/token?grant_type=refresh_token', {
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Content-Type':'application/json'},
+      body: JSON.stringify({refresh_token: refreshToken})
+    });
+    if(!r.ok) return null;
+    const data = await r.json();
+    if(!data.access_token) return null;
+    localStorage.setItem('supabase_token', data.access_token);
+    if(data.refresh_token) localStorage.setItem('supabase_refresh_token', data.refresh_token);
+    return data.access_token;
+  }catch(e){
+    return null;
+  }
+}
+
 window.submitBudgetToClass = async function() {
-  const token = localStorage.getItem('supabase_token');
+  const SUPA_URL_EARLY = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+  const SUPA_KEY_EARLY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+  const token = await getFreshSupabaseToken(SUPA_URL_EARLY, SUPA_KEY_EARLY);
   if (!token) {
     const msg = document.getElementById('submitBudgetMsg');
     if (msg) { msg.textContent = 'Sign in first to submit your budget.'; msg.style.color='#dc2626'; msg.style.display='block'; }
