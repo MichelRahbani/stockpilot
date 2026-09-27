@@ -255,6 +255,24 @@ tr:hover td{background:#fafafa}
           <button class="btn btn-primary" onclick="openModal('createModal')">+ New Class</button>
         </div>
       </div>
+      <div id="allSectionsSummary" style="display:none;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px">
+        <div class="card" style="text-align:center;padding:16px">
+          <div style="font-size:24px;font-weight:800;color:var(--green)" id="sumSections">0</div>
+          <div style="font-size:12px;color:var(--muted)">Sections</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px">
+          <div style="font-size:24px;font-weight:800;color:var(--green)" id="sumStudents">0</div>
+          <div style="font-size:12px;color:var(--muted)">Total Students</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px">
+          <div style="font-size:24px;font-weight:800;color:var(--green)" id="sumTrades">0</div>
+          <div style="font-size:12px;color:var(--muted)">Total Trades</div>
+        </div>
+        <div class="card" style="text-align:center;padding:16px">
+          <div style="font-size:24px;font-weight:800;color:var(--green)" id="sumActive">0</div>
+          <div style="font-size:12px;color:var(--muted)">Active Traders</div>
+        </div>
+      </div>
       <div id="classList">
         <div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>
       </div>
@@ -759,17 +777,46 @@ async function loadMyClasses(){
   const uid = getUid();
   const classes = await sbGet('classes','instructor_id=eq.'+uid+'&order=created_at.desc');
   const el = document.getElementById('classList');
+  const summaryEl = document.getElementById('allSectionsSummary');
   if(!classes.length){
     el.innerHTML = '<div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>';
+    summaryEl.style.display = 'none';
     return;
   }
+
+  // Batch: one query for every section's members, one for every member's
+  // trades - instead of N+1 queries per class, which gets slow fast once
+  // a teacher has more than a couple sections.
+  const classIds = classes.map(c => c.id).join(',');
+  let allMembers = [];
+  try { allMembers = await sbGet('class_members', 'class_id=in.('+classIds+')'); } catch(e){}
+  const memberCountByClass = {};
+  const allUids = new Set();
+  allMembers.forEach(m => {
+    memberCountByClass[m.class_id] = (memberCountByClass[m.class_id]||0) + 1;
+    allUids.add(m.user_id);
+  });
+
+  let allTrades = [];
+  if(allUids.size){
+    try { allTrades = await sbGet('trades', 'user_id=in.('+Array.from(allUids).join(',')+')'); } catch(e){}
+  }
+  const activeTraderUids = new Set(allTrades.map(t => t.user_id));
+
+  summaryEl.style.display = 'grid';
+  document.getElementById('sumSections').textContent = classes.length;
+  document.getElementById('sumStudents').textContent = allMembers.length;
+  document.getElementById('sumTrades').textContent = allTrades.length;
+  document.getElementById('sumActive').textContent = activeTraderUids.size;
+
   el.innerHTML = classes.map(c=>`
     <div class="class-card" onclick="openDashboard('${c.id}')">
       <div class="class-card-left">
         <h3>${c.name}</h3>
         <p>${c.course_code||'No course code'} ${c.freeze_date ? '· Freezes '+c.freeze_date : ''}</p>
       </div>
-      <div style="display:flex;align-items:center;gap:10px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <span style="font-size:13px;color:var(--muted)">👥 ${memberCountByClass[c.id]||0} student${(memberCountByClass[c.id]||0)===1?'':'s'}</span>
         <span class="class-code">${c.join_code}</span>
         <span style="color:var(--muted);font-size:18px">›</span>
       </div>
