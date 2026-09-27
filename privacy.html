@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Privacy & Data | StockPilot</title>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<link rel="apple-touch-icon" href="https://mystockspilot.com/logo.jpg"/>
+<meta name="description" content="How StockPilot handles student and user data - what's collected, how it's stored, and what it's never used for."/>
+<link rel="canonical" href="https://mystockspilot.com/privacy.html" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g900:#12161f;--g600:#5a6478;--g400:#9aa3b4;--g100:#e4e7ed;--off:#f7f8fa;--green:#1a9e6e;--green-l:#e8f7f2;--red:#dc2626}
+body{font-family:'DM Sans',sans-serif;color:var(--g900);line-height:1.6}
+a{color:var(--green);text-decoration:none}
+a:hover{text-decoration:underline}
+nav{padding:16px 24px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--g900)}
+.logo img{height:28px;width:28px;border-radius:6px}
+.page{max-width:760px;margin:0 auto;padding:48px 24px 80px}
+h1{font-family:'Fraunces',serif;font-size:36px;font-weight:700;margin-bottom:8px}
+.updated{color:var(--g400);font-size:13px;margin-bottom:32px}
+.lead{font-size:17px;color:var(--g600);margin-bottom:36px;padding:18px 20px;background:var(--green-l);border-radius:12px;border-left:3px solid var(--green)}
+h2{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin:36px 0 12px}
+h3{font-size:15px;font-weight:600;margin:20px 0 8px}
+p{margin-bottom:14px;color:var(--g600)}
+ul{margin:0 0 14px 20px;color:var(--g600)}
+li{margin-bottom:6px}
+strong{color:var(--g900)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+@media(max-width:640px){.grid{grid-template-columns:1fr}}
+.card{border:1px solid var(--g100);border-radius:12px;padding:16px 18px}
+.card .label{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:6px}
+.no-list li{list-style:none;margin-left:-20px;padding-left:24px;position:relative}
+.no-list li::before{content:"✕";position:absolute;left:0;color:var(--red);font-weight:700}
+.yes-list li{list-style:none;margin-left:-20px;padding-left:24px;position:relative}
+.yes-list li::before{content:"✓";position:absolute;left:0;color:var(--green);font-weight:700}
+footer{border-top:1px solid var(--g100);padding:24px;text-align:center;font-size:13px;color:var(--g400)}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo"><img src="/logo.jpg" alt="StockPilot"/>StockPilot</a>
+  <a href="/">← Back to StockPilot</a>
+</nav>
+
+<div class="page">
+  <h1>Privacy &amp; Data</h1>
+  <div class="updated">Last updated September 2026</div>
+
+  <div class="lead">
+    The short version: StockPilot doesn't touch real money, doesn't connect to real bank or brokerage accounts, and doesn't sell or share your data. Everything you trade with is virtual. Here's the full picture of what we collect and why.
+  </div>
+
+  <h2>What we collect</h2>
+  <p>To create an account, we collect an email address and a display name. That's the core of it. Beyond that, what gets stored depends on which parts of StockPilot you use:</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="label">Account</div>
+      Email, display name, and a password (handled by our authentication provider, Supabase - we never see or store your raw password).
+    </div>
+    <div class="card">
+      <div class="label">Virtual trading</div>
+      Your simulated portfolio: virtual cash balance, virtual positions, and trade history. None of this touches real money or a real brokerage.
+    </div>
+    <div class="card">
+      <div class="label">Budget tool</div>
+      Numbers you type in yourself - income, expenses, savings goals. We never connect to a real bank account or pull real financial data.
+    </div>
+    <div class="card">
+      <div class="label">Classroom</div>
+      If a teacher adds you to a class: your class membership, quiz scores, assignment completions, and fantasy draft picks, visible to that teacher only.
+    </div>
+  </div>
+
+  <h2>What we never collect</h2>
+  <ul class="no-list">
+    <li>Real bank account or brokerage account access</li>
+    <li>Payment card or financial account numbers</li>
+    <li>Social Security numbers or other government ID numbers</li>
+    <li>Your physical address or phone number</li>
+    <li>Anything beyond what's needed to run the app</li>
+  </ul>
+
+  <h2>What we never do with your data</h2>
+  <ul class="no-list">
+    <li>Sell it to advertisers or data brokers</li>
+    <li>Show you ads or let advertisers target you</li>
+    <li>Share it with anyone outside the infrastructure that runs StockPilot (our database and hosting providers)</li>
+    <li>Use it for anything other than running the features you're using</li>
+  </ul>
+
+  <h2>For schools and teachers</h2>
+  <p>When a teacher creates a class in StockPilot Classroom, students join with a class code. Here's what that teacher can and can't see:</p>
+  <ul class="yes-list">
+    <li>A student's display name and their activity within that specific class - trades, budget submissions, quiz scores, assignment completions, fantasy draft picks</li>
+    <li>Aggregate class performance and standings</li>
+  </ul>
+  <ul class="no-list">
+    <li>A student's email, password, or any account details outside that class</li>
+    <li>Activity from any other class the student may be in</li>
+    <li>Anything from outside StockPilot</li>
+  </ul>
+  <p>Student data collected through Classroom is used only for the educational purpose it was collected for: tracking coursework and progress within that class. We don't use it for advertising, and we don't sell it. If a school needs a formal data processing agreement for procurement purposes, reach out and we'll work with you on one.</p>
+
+  <h2>How data is stored</h2>
+  <p>StockPilot's data is stored with Supabase, a hosted database provider, with access controls that scope what each part of the app can read or write. We don't run our own servers storing raw personal data outside of that.</p>
+
+  <h2>Your choices</h2>
+  <p>You can stop using StockPilot at any time. If you'd like your account and associated data deleted, contact us and we'll take care of it.</p>
+
+  <h2>Questions</h2>
+  <p>If you're a teacher, administrator, or student with a question about how your data is handled, reach out through the contact options on the main site. We're a small, independent team and genuinely read every message.</p>
+</div>
+
+<footer>© 2026 StockPilot · Educational use only · Not financial advice</footer>
+
+</body>
+</html>
