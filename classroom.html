@@ -509,6 +509,12 @@ tr:hover td{background:#fafafa}
         <div style="font-size:16px;font-weight:700;margin-bottom:12px">📎 Class Materials</div>
         <div id="sdMaterialsList" style="margin-bottom:20px"></div>
 
+        <!-- Fantasy draft -->
+        <div id="sdFantasyWrap" style="display:none;margin-bottom:20px">
+          <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏈 Fantasy Draft</div>
+          <div id="sdFantasyCard"></div>
+        </div>
+
         <!-- Class leaderboard (names only, no private details) -->
         <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏆 Class Standings</div>
         <div class="table-wrap">
@@ -1028,6 +1034,7 @@ async function openStudentDashboard(classId){
   document.getElementById('studentClassList').style.display = 'none';
   document.getElementById('studentDashboard').style.display = 'block';
   loadStudentMaterials(classId);
+  loadStudentFantasy(classId);
 
   // Get all members
   const members = await sbGet('class_members','class_id=eq.'+classId);
@@ -1216,6 +1223,51 @@ async function loadStudentMaterials(classId){
     wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Could not load materials.</p>';
   }
 }
+async function loadStudentFantasy(classId){
+  const outerWrap = document.getElementById('sdFantasyWrap');
+  const wrap = document.getElementById('sdFantasyCard');
+  try {
+    const leagues = await sbGet('class_fantasy_leagues', 'class_id=eq.'+classId+'&order=created_at.desc&limit=1');
+    if(!leagues.length){
+      outerWrap.style.display = 'none';
+      return;
+    }
+    outerWrap.style.display = 'block';
+    const league = leagues[0];
+    const uid = getUid();
+    const rosters = await sbGet('class_fantasy_rosters', 'league_id=eq.'+league.id+'&user_id=eq.'+uid);
+    const cardStyle = 'border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center';
+
+    if(rosters.length && rosters[0].submitted){
+      const picks = [...(rosters[0].starters||[]), ...(rosters[0].bench||[])];
+      wrap.innerHTML = `<div style="${cardStyle}">
+        <div>
+          <div style="font-weight:600;font-size:14px">${escapeHtmlLocal(league.name)}</div>
+          <div style="font-size:12px;color:var(--muted)">Submitted - ${picks.length} picks</div>
+        </div>
+        <a href="/classroom-draft.html?class=${classId}" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:600">View Roster →</a>
+      </div>`;
+    } else if(!league.draft_open){
+      wrap.innerHTML = `<div style="${cardStyle}">
+        <div>
+          <div style="font-weight:600;font-size:14px">${escapeHtmlLocal(league.name)}</div>
+          <div style="font-size:12px;color:var(--muted)">Draft is closed</div>
+        </div>
+      </div>`;
+    } else {
+      wrap.innerHTML = `<div style="${cardStyle}">
+        <div>
+          <div style="font-weight:600;font-size:14px">${escapeHtmlLocal(league.name)}</div>
+          <div style="font-size:12px;color:var(--muted)">$${league.budget} budget - ${league.starters_count} starters, ${league.bench_count} bench</div>
+        </div>
+        <a href="/classroom-draft.html?class=${classId}" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:600">${rosters.length ? 'Continue Draft →' : 'Draft Your Team →'}</a>
+      </div>`;
+    }
+  } catch(e){
+    outerWrap.style.display = 'none';
+  }
+}
+
 
 async function loadStudentAssignments(classId, uid){
   const wrap = document.getElementById('sdAssignmentsList');
