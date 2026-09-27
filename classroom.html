@@ -473,6 +473,19 @@ tr:hover td{background:#fafafa}
               <tbody id="fantasyStandingsBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
             </table>
           </div>
+
+          <div class="card" style="margin-top:20px">
+            <div style="font-weight:600;margin-bottom:6px">🌪️ Market Stress Test</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:14px">See what each student's actual roster would have done during a real historical crash - same tickers, same weights, real market data from that period. A live teaching moment on risk and diversification, without touching anyone's real portfolio.</p>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select id="stressScenario" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+                <option value="covid">COVID Crash (Feb 19 - Mar 23, 2020) - S&P fell ~34%</option>
+                <option value="bear2022">2022 Bear Market (Jan 3 - Oct 12, 2022) - S&P fell ~25%</option>
+              </select>
+              <button class="btn btn-primary btn-sm" onclick="runStressTest()" id="stressTestBtn">Run Stress Test</button>
+            </div>
+            <div id="stressTestResults" style="margin-top:16px"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2052,6 +2065,102 @@ async function loadFantasyStandings(){
     `).join('');
   } catch(e){
     body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Could not load standings.</td></tr>';
+  }
+}
+
+// ── Market Stress Test - tests each student's real drafted roster
+// against a real historical crash window, using actual market data
+// for that period. Doesn't touch anyone's live portfolio - it's a
+// what-if against the picks they already made. ──
+const STRESS_SCENARIOS = {
+  covid: { label: 'COVID Crash', start: '2020-02-19', end: '2020-03-23' },
+  bear2022: { label: '2022 Bear Market', start: '2022-01-03', end: '2022-10-12' }
+};
+
+function closestClose(timestamps, closes, targetDateStr){
+  const target = new Date(targetDateStr).getTime() / 1000;
+  let bestIdx = -1, bestDiff = Infinity;
+  timestamps.forEach((t, i) => {
+    if(closes[i] == null) return;
+    const diff = Math.abs(t - target);
+    if(diff < bestDiff){ bestDiff = diff; bestIdx = i; }
+  });
+  return bestIdx >= 0 ? closes[bestIdx] : null;
+}
+
+async function runStressTest(){
+  if(!currentFantasyLeague) return;
+  const scenarioKey = document.getElementById('stressScenario').value;
+  const scenario = STRESS_SCENARIOS[scenarioKey];
+  const btn = document.getElementById('stressTestBtn');
+  const resultsEl = document.getElementById('stressTestResults');
+  btn.textContent = 'Running...'; btn.disabled = true;
+  resultsEl.innerHTML = '<p style="font-size:13px;color:var(--muted)">Pulling real historical prices for every drafted stock...</p>';
+
+  try{
+    const rosters = await sbGet('class_fantasy_rosters', 'league_id=eq.'+currentFantasyLeague.id+'&submitted=eq.true');
+    if(!rosters.length){
+      resultsEl.innerHTML = '<p style="font-size:13px;color:var(--muted)">No submitted rosters to test yet.</p>';
+      return;
+    }
+    const allTickers = new Set();
+    rosters.forEach(r => { [...(r.starters||[]), ...(r.bench||[])].forEach(t => allTickers.add(t)); });
+
+    const pctChangeByTicker = {};
+    await Promise.all(Array.from(allTickers).map(async t => {
+      try{
+        const res = await fetch(FANTASY_BACKEND+'/api/history?symbol='+t+'&range=10y&interval=1d');
+        const data = await res.json();
+        const result = data?.chart?.result?.[0];
+        const timestamps = result?.timestamp || [];
+        const closes = result?.indicators?.quote?.[0]?.close || [];
+        const startClose = closestClose(timestamps, closes, scenario.start);
+        const endClose = closestClose(timestamps, closes, scenario.end);
+        if(startClose && endClose){
+          pctChangeByTicker[t] = (endClose - startClose) / startClose;
+        }
+      }catch(e){ /* leave this ticker out if its history fails */ }
+    }));
+
+    const rows = rosters.map(r => {
+      const picks = [...(r.starters||[]), ...(r.bench||[])];
+      const draftPrices = r.draft_prices || {};
+      let spent = 0, stressedValue = 0, pricedPicks = 0;
+      picks.forEach(t => {
+        const paid = draftPrices[t] || 0;
+        spent += paid;
+        const chg = pctChangeByTicker[t];
+        if(chg != null){ stressedValue += paid * (1 + chg); pricedPicks++; }
+        else { stressedValue += paid; }
+      });
+      const budgetLeft = (currentFantasyLeague.budget || 100) - spent;
+      const totalStressed = stressedValue + Math.max(budgetLeft, 0);
+      const startBudget = currentFantasyLeague.budget || 100;
+      const stressedReturn = startBudget > 0 ? ((totalStressed - startBudget) / startBudget) * 100 : 0;
+      return { nickname: r.nickname || 'Student', stressedReturn, totalStressed, pricedPicks, totalPicks: picks.length };
+    }).sort((a,b) => b.stressedReturn - a.stressedReturn);
+
+    resultsEl.innerHTML = `
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">If the <strong>${scenario.label}</strong> happened again, starting from today's drafted picks:</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Stressed Value</th><th>Stressed Return</th></tr></thead>
+          <tbody>
+            ${rows.map(r => `
+              <tr>
+                <td><strong>${escapeHtmlLocal(r.nickname)}</strong>${r.pricedPicks < r.totalPicks ? ' <span style="font-size:11px;color:var(--muted)">('+r.pricedPicks+'/'+r.totalPicks+' priced)</span>' : ''}</td>
+                <td>$${r.totalStressed.toFixed(2)}</td>
+                <td style="color:${r.stressedReturn>=0?'var(--green)':'var(--red)'}">${r.stressedReturn>=0?'+':''}${r.stressedReturn.toFixed(1)}%</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }catch(e){
+    resultsEl.innerHTML = '<p style="font-size:13px;color:var(--red)">Could not run the stress test - try again.</p>';
+  }finally{
+    btn.textContent = 'Run Stress Test'; btn.disabled = false;
   }
 }
 
