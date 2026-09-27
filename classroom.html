@@ -295,6 +295,7 @@ tr:hover td{background:#fafafa}
         <button class="tab" onclick="switchTab('budgets',this)">💰 Budgets</button>
         <button class="tab" onclick="switchTab('assignments',this)">📝 Assignments</button>
         <button class="tab" onclick="switchTab('materials',this)">📎 Materials</button>
+        <button class="tab" onclick="switchTab('fantasy',this)">🏈 Fantasy</button>
       </div>
 
       <div id="tabLeaderboard">
@@ -409,6 +410,49 @@ tr:hover td{background:#fafafa}
         </div>
         <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Materials for this class</div>
         <div id="materialsList"><p style="font-size:13px;color:var(--muted)">No materials uploaded yet.</p></div>
+      </div>
+
+      <div id="tabFantasy" style="display:none">
+        <div id="fantasyLoadingMsg" style="font-size:13px;color:var(--muted)">Loading...</div>
+        <div id="fantasySetupWrap" style="display:none">
+          <div class="card">
+            <div style="font-weight:600;margin-bottom:12px">🏈 Set Up a Fantasy Draft</div>
+            <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Students draft a portfolio within a budget - no live turns to coordinate, everyone drafts on their own time. You create it, you don't play in it.</p>
+            <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px">
+              <input type="text" id="fantasyLeagueName" placeholder="e.g. Q4 Portfolio Draft" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
+              <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Budget ($)</label>
+                <input type="number" id="fantasyBudget" value="100" min="10" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+              <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Starters</label>
+                <input type="number" id="fantasyStarters" value="7" min="1" max="15" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+              <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Bench</label>
+                <input type="number" id="fantasyBench" value="3" min="0" max="10" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+            </div>
+            <button class="btn btn-primary" onclick="createFantasyLeague()">Create Draft</button>
+          </div>
+        </div>
+        <div id="fantasyActiveWrap" style="display:none">
+          <div class="card" style="margin-bottom:20px">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+              <div style="font-weight:600" id="fantasyActiveName"></div>
+              <div style="display:flex;gap:8px;align-items:center">
+                <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)">
+                  <input type="checkbox" id="fantasyDraftOpenToggle" onchange="toggleDraftOpen()"> Draft open
+                </label>
+                <button class="btn btn-ghost btn-sm" onclick="deleteFantasyLeague()">🗑 Delete</button>
+              </div>
+            </div>
+            <div style="font-size:13px;color:var(--muted)" id="fantasyActiveMeta"></div>
+          </div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Standings <button class="btn btn-ghost btn-sm" onclick="loadFantasyStandings()" style="margin-left:8px">↻ Refresh</button></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Student</th><th>Roster</th><th>Budget Used</th><th>Portfolio Value</th><th>Return</th></tr></thead>
+              <tbody id="fantasyStandingsBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -918,9 +962,11 @@ function switchTab(tab, btn){
   document.getElementById('tabBudgets').style.display = tab==='budgets'?'block':'none';
   document.getElementById('tabAssignments').style.display = tab==='assignments'?'block':'none';
   document.getElementById('tabMaterials').style.display = tab==='materials'?'block':'none';
+  document.getElementById('tabFantasy').style.display = tab==='fantasy'?'block':'none';
   if(tab==='assignments') loadAssignments();
   if(tab==='materials') loadMaterials();
   if(tab==='budgets') loadBudgetSubmissions();
+  if(tab==='fantasy') loadFantasyTab();
 }
 
 // ── Join class ──
@@ -1716,6 +1762,134 @@ async function deleteMaterial(id, filePath){
     });
     await loadMaterials();
   } catch(e){ alert('Could not delete: '+e.message); }
+}
+
+// ── Fantasy Draft (teacher side) ──
+const FANTASY_BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+let currentFantasyLeague = null;
+
+async function loadFantasyTab(){
+  if(!currentClass) return;
+  document.getElementById('fantasyLoadingMsg').style.display = 'block';
+  document.getElementById('fantasySetupWrap').style.display = 'none';
+  document.getElementById('fantasyActiveWrap').style.display = 'none';
+  try {
+    const leagues = await sbGet('class_fantasy_leagues', 'class_id=eq.'+currentClass.id+'&order=created_at.desc&limit=1');
+    document.getElementById('fantasyLoadingMsg').style.display = 'none';
+    if(!leagues.length){
+      document.getElementById('fantasySetupWrap').style.display = 'block';
+      currentFantasyLeague = null;
+      return;
+    }
+    currentFantasyLeague = leagues[0];
+    document.getElementById('fantasyActiveWrap').style.display = 'block';
+    document.getElementById('fantasyActiveName').textContent = currentFantasyLeague.name;
+    document.getElementById('fantasyActiveMeta').textContent = '$'+currentFantasyLeague.budget+' budget \u00b7 '+currentFantasyLeague.starters_count+' starters, '+currentFantasyLeague.bench_count+' bench';
+    document.getElementById('fantasyDraftOpenToggle').checked = !!currentFantasyLeague.draft_open;
+    await loadFantasyStandings();
+  } catch(e){
+    document.getElementById('fantasyLoadingMsg').textContent = 'Could not load fantasy draft.';
+  }
+}
+
+async function createFantasyLeague(){
+  if(!currentClass) return;
+  const name = document.getElementById('fantasyLeagueName').value.trim() || 'Fantasy Draft';
+  const budget = parseFloat(document.getElementById('fantasyBudget').value) || 100;
+  const starters = parseInt(document.getElementById('fantasyStarters').value) || 7;
+  const bench = parseInt(document.getElementById('fantasyBench').value) || 3;
+  try {
+    await sbPost('class_fantasy_leagues', {
+      class_id: currentClass.id, name, budget,
+      starters_count: starters, bench_count: bench, draft_open: true
+    });
+    await loadFantasyTab();
+  } catch(e){ alert('Could not create draft: '+e.message); }
+}
+
+async function toggleDraftOpen(){
+  if(!currentFantasyLeague) return;
+  const open = document.getElementById('fantasyDraftOpenToggle').checked;
+  try {
+    await fetch(SUPA_URL+'/rest/v1/class_fantasy_leagues?id=eq.'+currentFantasyLeague.id, {
+      method: 'PATCH', headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer '+writeAuthToken(), 'Content-Type': 'application/json'},
+      body: JSON.stringify({draft_open: open})
+    });
+    currentFantasyLeague.draft_open = open;
+  } catch(e){ alert('Could not update: '+e.message); }
+}
+
+async function deleteFantasyLeague(){
+  if(!currentFantasyLeague) return;
+  if(!confirm("Delete this fantasy draft? This removes every student's roster too.")) return;
+  try {
+    await fetch(SUPA_URL+'/rest/v1/class_fantasy_rosters?league_id=eq.'+currentFantasyLeague.id, {
+      method: 'DELETE', headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer '+writeAuthToken()}
+    });
+    await fetch(SUPA_URL+'/rest/v1/class_fantasy_leagues?id=eq.'+currentFantasyLeague.id, {
+      method: 'DELETE', headers: {'apikey': SUPA_KEY, 'Authorization': 'Bearer '+writeAuthToken()}
+    });
+    currentFantasyLeague = null;
+    await loadFantasyTab();
+  } catch(e){ alert('Could not delete: '+e.message); }
+}
+
+async function loadFantasyStandings(){
+  if(!currentFantasyLeague) return;
+  const body = document.getElementById('fantasyStandingsBody');
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
+  try {
+    const rosters = await sbGet('class_fantasy_rosters', 'league_id=eq.'+currentFantasyLeague.id);
+    if(!rosters.length){
+      body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No one has drafted yet.</td></tr>';
+      return;
+    }
+    // Collect every unique ticker across every roster for one batched quote call
+    const allTickers = new Set();
+    rosters.forEach(r => {
+      (r.starters||[]).forEach(t => allTickers.add(t));
+      (r.bench||[]).forEach(t => allTickers.add(t));
+    });
+    let priceMap = {};
+    if(allTickers.size){
+      try{
+        const res = await fetch(FANTASY_BACKEND+'/api/quotes?symbols='+Array.from(allTickers).join(','));
+        const data = await res.json();
+        (data?.quoteResponse?.result||[]).forEach(q => { priceMap[q.symbol] = q.regularMarketPrice; });
+      }catch(e){ /* fall back to draft prices below if quotes fail */ }
+    }
+
+    const rows = rosters.map(r => {
+      const picks = [...(r.starters||[]), ...(r.bench||[])];
+      const draftPrices = r.draft_prices || {};
+      let spent = 0, currentValue = 0;
+      picks.forEach(t => {
+        const paid = draftPrices[t] || 0;
+        spent += paid;
+        const now = priceMap[t] != null ? priceMap[t] : paid;
+        // scale: what this pick is "worth" now relative to what it cost
+        currentValue += paid > 0 ? paid * (now / (draftPrices[t] || now || 1)) : now;
+      });
+      const budgetLeft = (currentFantasyLeague.budget || 100) - spent;
+      const totalValue = currentValue + Math.max(budgetLeft, 0);
+      const startBudget = currentFantasyLeague.budget || 100;
+      const returnPct = startBudget > 0 ? ((totalValue - startBudget) / startBudget) * 100 : 0;
+      return { nickname: r.nickname || 'Student', pickCount: picks.length, spent, totalValue, returnPct, submitted: r.submitted };
+    }).sort((a,b) => b.totalValue - a.totalValue);
+
+    body.innerHTML = rows.map((r,i) => `
+      <tr>
+        <td>${i===0?'\ud83e\udd47':i===1?'\ud83e\udd48':i===2?'\ud83e\udd49':(i+1)}</td>
+        <td><strong>${escapeHtmlLocal(r.nickname)}</strong>${r.submitted?'':' <span style="font-size:11px;color:var(--muted)">(drafting)</span>'}</td>
+        <td>${r.pickCount}</td>
+        <td>$${r.spent.toFixed(0)}</td>
+        <td><strong>$${r.totalValue.toFixed(2)}</strong></td>
+        <td style="color:${r.returnPct>=0?'var(--green)':'var(--red)'}">${r.returnPct>=0?'+':''}${r.returnPct.toFixed(1)}%</td>
+      </tr>
+    `).join('');
+  } catch(e){
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Could not load standings.</td></tr>';
+  }
 }
 
 // ── Copy an assignment or material to other classes - the fix for a
