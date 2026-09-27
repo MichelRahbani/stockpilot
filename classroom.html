@@ -308,6 +308,8 @@ tr:hover td{background:#fafafa}
 
       <div class="stats-row" id="dashStats"></div>
 
+      <div id="atRiskPanel" style="display:none;margin-bottom:20px"></div>
+
       <div class="tabs">
         <button class="tab active" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
         <button class="tab" onclick="switchTab('trades',this)">📋 Trade History</button>
@@ -953,6 +955,45 @@ async function loadDashboard(){
     <div class="stat-card"><div class="val" style="color:${avgReturn>=0?'var(--green)':'var(--red)'}">${avgReturn>=0?'+':''}${avgReturn.toFixed(1)}%</div><div class="lbl">Avg Return</div></div>
     <div class="stat-card"><div class="val">${students.filter(s=>s.trades>0).length}</div><div class="lbl">Active Traders</div></div>
   `;
+
+  // At-risk panel - flags students who haven't traded at all, or who are
+  // failing more assignments than they're passing. Pure automation off
+  // data already on hand, nothing for the teacher to check manually.
+  try {
+    const completions = uids.length ? await sbGet('assignment_completions', 'class_id=eq.'+currentClass.id+'&user_id=in.('+uids.join(',')+')') : [];
+    const completionsByUser = {};
+    completions.forEach(c => { (completionsByUser[c.user_id] = completionsByUser[c.user_id]||[]).push(c); });
+
+    const flagged = [];
+    members.forEach(m => {
+      const s = studentStats[m.user_id];
+      const reasons = [];
+      if((s?.trades||0) === 0) reasons.push('hasn\u2019t made a trade yet');
+      const userCompletions = completionsByUser[m.user_id] || [];
+      if(userCompletions.length >= 2){
+        const failed = userCompletions.filter(c => !c.passed).length;
+        if(failed > userCompletions.length / 2) reasons.push('failing more assignments than passing (' + failed + '/' + userCompletions.length + ')');
+      }
+      if(reasons.length) flagged.push({ name: memberMap[m.user_id], reasons });
+    });
+
+    const panel = document.getElementById('atRiskPanel');
+    if(flagged.length){
+      panel.style.display = 'block';
+      panel.innerHTML = `
+        <div class="card" style="border-color:#fde68a;background:#fffbeb">
+          <div style="font-weight:600;margin-bottom:10px;color:#92400e">\u26a0\ufe0f Needs Attention (${flagged.length})</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            ${flagged.map(f => `<div style="font-size:13px"><strong>${escapeHtmlLocal(f.name)}</strong> <span style="color:#92400e">- ${f.reasons.join(', ')}</span></div>`).join('')}
+          </div>
+        </div>
+      `;
+    } else {
+      panel.style.display = 'none';
+    }
+  } catch(e){
+    document.getElementById('atRiskPanel').style.display = 'none';
+  }
 
   // Leaderboard
   const medals = ['🥇','🥈','🥉'];
