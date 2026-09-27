@@ -332,7 +332,7 @@ async function sbWrite(table, body, method='POST', extraQs=''){
 const urlParams = new URLSearchParams(location.search);
 const classId = urlParams.get('class');
 let league = null;
-let myRoster = { starters: [], bench: [], draft_prices: {} };
+let myRoster = { starters: [], bench: [], draft_prices: {}, draft_real_prices: {} };
 let tierData = null;
 
 function priceFor(ticker){ return tierData?.prices?.[ticker]?.price ?? null; }
@@ -366,6 +366,7 @@ async function init(){
       myRoster.starters = rosters[0].starters || [];
       myRoster.bench = rosters[0].bench || [];
       myRoster.draft_prices = rosters[0].draft_prices || {};
+      myRoster.draft_real_prices = rosters[0].draft_real_prices || {};
     }
 
     const tierRes = await fetch(BACKEND+'/api/sp500-tiers');
@@ -449,6 +450,8 @@ function pickStock(ticker){
     return;
   }
   myRoster.draft_prices[ticker] = price;
+  const realPrice = quoteCache[ticker]?.regularMarketPrice;
+  if(realPrice != null) myRoster.draft_real_prices = { ...(myRoster.draft_real_prices||{}), [ticker]: realPrice };
   renderRoster();
   renderStockGrid(window._lastStocks || []);
 }
@@ -571,7 +574,7 @@ async function submitDraft(){
     const uid = getUid();
     await sbWrite('class_fantasy_rosters', {
       league_id: league.id, user_id: uid, nickname: getName(),
-      starters: myRoster.starters, bench: myRoster.bench, draft_prices: myRoster.draft_prices,
+      starters: myRoster.starters, bench: myRoster.bench, draft_prices: myRoster.draft_prices, draft_real_prices: myRoster.draft_real_prices,
       submitted: true, submitted_at: new Date().toISOString()
     }, 'POST', 'on_conflict=league_id,user_id');
     showDone({ starters: myRoster.starters, bench: myRoster.bench, draft_prices: myRoster.draft_prices });
