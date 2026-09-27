@@ -64,7 +64,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 2
 
 <nav>
   <a href="/classroom.html" class="nav-logo"><img src="/logo.jpg" alt="StockPilot"/>StockPilot <span class="nav-badge">CLASSROOM</span></a>
-  <a href="/classroom.html" class="btn btn-ghost btn-sm">\u2190 Back to Class</a>
+  <a href="/classroom.html" class="btn btn-ghost btn-sm">← Back to Class</a>
 </nav>
 
 <div class="page">
@@ -432,12 +432,12 @@ function pickStock(ticker){
   if(isPicked(ticker)) return;
   const price = priceFor(ticker);
   if(price == null){
-    alert('This stock doesn\u2019t have a price yet - try another one.');
+    showToast('This stock doesn\u2019t have a price yet - try another one.');
     return;
   }
   const spent = budgetSpent();
   if(spent + price > league.budget){
-    alert('Not enough budget left for this pick.');
+    showToast('Not enough budget left for this pick.');
     return;
   }
   if(myRoster.starters.length < league.starters_count){
@@ -445,7 +445,7 @@ function pickStock(ticker){
   } else if(myRoster.bench.length < league.bench_count){
     myRoster.bench.push(ticker);
   } else {
-    alert('Your roster is full - remove a pick first.');
+    showToast('Your roster is full - remove a pick first.');
     return;
   }
   myRoster.draft_prices[ticker] = price;
@@ -523,6 +523,16 @@ async function doSearch(){
 }
 
 function escapeHtml(s){ const d = document.createElement('div'); d.textContent = s||''; return d.innerHTML; }
+
+let toastTimer = null;
+function showToast(msg, type){
+  const el = document.getElementById('submitMsg');
+  el.textContent = msg;
+  el.className = 'msg ' + (type || 'error');
+  el.style.display = 'block';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3000);
+}
 
 function renderStockGrid(quotes){
   const grid = document.getElementById('stockGrid');
