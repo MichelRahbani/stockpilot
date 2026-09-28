@@ -572,11 +572,27 @@ async function submitDraft(){
   btn.textContent = 'Submitting...'; btn.disabled = true;
   try{
     const uid = getUid();
-    await sbWrite('class_fantasy_rosters', {
-      league_id: league.id, user_id: uid, nickname: getName(),
+    // S&P 500 price at the moment of submission: alpha scoring measures every pick against it
+    let spyPrice = null;
+    try{
+      const q = await (await fetch(BACKEND+'/api/quotes?symbols=SPY')).json();
+      spyPrice = (q && q.quoteResponse && q.quoteResponse.result && q.quoteResponse.result[0] && q.quoteResponse.result[0].regularMarketPrice) || null;
+    }catch(e){}
+    const entry_benchmark = {};
+    if(spyPrice) [...myRoster.starters, ...myRoster.bench].forEach(t => { entry_benchmark[t] = spyPrice; });
+    let nickname = getName();
+    try{
+      const mem = await sbGet('class_members', 'class_id=eq.'+classId+'&user_id=eq.'+uid);
+      if(mem && mem[0] && mem[0].nickname) nickname = mem[0].nickname;
+    }catch(e){}
+    const saved = await sbWrite('class_fantasy_rosters', {
+      league_id: league.id, user_id: uid, nickname,
       starters: myRoster.starters, bench: myRoster.bench, draft_prices: myRoster.draft_prices, draft_real_prices: myRoster.draft_real_prices,
+      entry_benchmark,
       submitted: true, submitted_at: new Date().toISOString()
     }, 'POST', 'on_conflict=league_id,user_id');
+    // Never claim success unless the row actually came back
+    if(!Array.isArray(saved) || !saved[0]) throw new Error((saved && saved.message) || 'save failed');
     showDone({ starters: myRoster.starters, bench: myRoster.bench, draft_prices: myRoster.draft_prices });
   }catch(e){
     document.getElementById('submitMsg').style.display = 'block';
