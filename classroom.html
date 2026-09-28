@@ -469,12 +469,17 @@ tr:hover td{background:#fafafa}
               </div>
             </div>
             <div style="font-size:13px;color:var(--muted)" id="fantasyActiveMeta"></div>
+            <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)">
+              <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="fantasyMovesOpen" onchange="saveMovesSettings()"> Roster moves open (free agents, trades, swaps)</label>
+              <label style="display:flex;align-items:center;gap:6px">Free-agent / trade moves per student per week <input type="number" id="fantasyMoveLimit" min="0" max="20" style="width:60px;padding:4px 6px;border:1px solid var(--border);border-radius:6px" onchange="saveMovesSettings()"></label>
+              <span id="fantasyMovesMsg"></span>
+            </div>
           </div>
           <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Standings <button class="btn btn-ghost btn-sm" onclick="loadFantasyStandings()" style="margin-left:8px">↻ Refresh</button></div>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>#</th><th>Student</th><th>Roster</th><th>Budget Used</th><th>Portfolio Value</th><th>Return</th></tr></thead>
-              <tbody id="fantasyStandingsBody"><tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
+              <thead><tr><th>#</th><th>Student</th><th>Score</th><th>Return</th><th>Alpha</th><th>Diversif.</th><th>Moves (wk)</th></tr></thead>
+              <tbody id="fantasyStandingsBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
             </table>
           </div>
 
@@ -604,6 +609,7 @@ tr:hover td{background:#fafafa}
 
 </div>
 
+<script src="/fantasy-core.js"></script>
 <script>
 const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
@@ -2084,6 +2090,8 @@ async function loadFantasyTab(){
     document.getElementById('fantasyActiveMeta').textContent = '$'+currentFantasyLeague.budget+' budget \u00b7 '+currentFantasyLeague.starters_count+' starters, '+currentFantasyLeague.bench_count+' bench';
     document.getElementById('fantasyDraftOpenToggle').checked = !!currentFantasyLeague.draft_open;
     document.getElementById('fantasyHubLink').href = '/classroom-league.html?class=' + currentClass.id;
+    document.getElementById('fantasyMovesOpen').checked = currentFantasyLeague.moves_open !== false;
+    document.getElementById('fantasyMoveLimit').value = currentFantasyLeague.weekly_move_limit == null ? 3 : currentFantasyLeague.weekly_move_limit;
     await loadFantasyStandings();
   } catch(e){
     document.getElementById('fantasyLoadingMsg').textContent = 'Could not load fantasy draft.';
@@ -2132,70 +2140,52 @@ async function deleteFantasyLeague(){
   } catch(e){ alert('Could not delete: '+e.message); }
 }
 
+async function saveMovesSettings(){
+  if(!currentFantasyLeague) return;
+  const msg = document.getElementById('fantasyMovesMsg');
+  const open = document.getElementById('fantasyMovesOpen').checked;
+  let lim = parseInt(document.getElementById('fantasyMoveLimit').value, 10);
+  if(isNaN(lim) || lim < 0) lim = 3;
+  try{
+    const r = await fetch(SUPA_URL+'/rest/v1/class_fantasy_leagues?id=eq.'+currentFantasyLeague.id, {
+      method:'PATCH', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json','Prefer':'return=representation'},
+      body: JSON.stringify({moves_open: open, weekly_move_limit: lim})
+    });
+    const rows = await r.json();
+    if(!Array.isArray(rows) || !rows.length) throw new Error((rows && rows.message) || 'not saved');
+    currentFantasyLeague.moves_open = open; currentFantasyLeague.weekly_move_limit = lim;
+    msg.style.color = 'var(--green)'; msg.textContent = 'Saved';
+  }catch(e){ msg.style.color = 'var(--red)'; msg.textContent = 'Could not save: ' + e.message; }
+  setTimeout(()=>{ msg.textContent = ''; }, 3000);
+}
+
 async function loadFantasyStandings(){
   if(!currentFantasyLeague) return;
   const body = document.getElementById('fantasyStandingsBody');
-  body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
+  body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr>';
   try {
     const rosters = await sbGet('class_fantasy_rosters', 'league_id=eq.'+currentFantasyLeague.id);
     if(!rosters.length){
-      body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No one has drafted yet.</td></tr>';
+      body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No one has drafted yet.</td></tr>';
       return;
     }
-    // Collect every unique ticker across every roster for one batched quote call
-    const allTickers = new Set();
-    rosters.forEach(r => {
-      (r.starters||[]).forEach(t => allTickers.add(t));
-      (r.bench||[]).forEach(t => allTickers.add(t));
-    });
-    let priceMap = {};
-    if(allTickers.size){
-      try{
-        const res = await fetch(FANTASY_BACKEND+'/api/quotes?symbols='+Array.from(allTickers).join(','));
-        const data = await res.json();
-        (data?.quoteResponse?.result||[]).forEach(q => { priceMap[q.symbol] = q.regularMarketPrice; });
-      }catch(e){ /* fall back to draft prices below if quotes fail */ }
-    }
-
-    const rows = rosters.map(r => {
-      const picks = [...(r.starters||[]), ...(r.bench||[])];
-      const draftPrices = r.draft_prices || {};
-      const draftRealPrices = r.draft_real_prices || {};
-      let spent = 0, currentValue = 0;
-      picks.forEach(t => {
-        const paid = draftPrices[t] || 0; // fantasy dollars spent on this pick
-        spent += paid;
-        const realThen = draftRealPrices[t]; // actual market price the moment it was drafted
-        const realNow = priceMap[t];
-        // Apply the real percent change since draft day to the fantasy
-        // dollars spent - the tier price ($18, $3, etc) and the real
-        // market price are different scales and must never be divided
-        // against each other directly.
-        if(realThen && realNow != null){
-          currentValue += paid * (realNow / realThen);
-        } else {
-          currentValue += paid; // no real-price data yet for this pick - treat as flat
-        }
-      });
-      const budgetLeft = (currentFantasyLeague.budget || 100) - spent;
-      const totalValue = currentValue + Math.max(budgetLeft, 0);
-      const startBudget = currentFantasyLeague.budget || 100;
-      const returnPct = startBudget > 0 ? ((totalValue - startBudget) / startBudget) * 100 : 0;
-      return { nickname: r.nickname || 'Student', pickCount: picks.length, spent, totalValue, returnPct, submitted: r.submitted };
-    }).sort((a,b) => b.totalValue - a.totalValue);
-
-    body.innerHTML = rows.map((r,i) => `
+    const FC = window.FantasyCore;
+    const market = await FC.loadMarket(FANTASY_BACKEND, rosters);
+    const ranked = FC.rank(rosters, currentFantasyLeague, r => FC.ctxFor(market, r));
+    const num = n => '<span style="color:'+(n>=0?'var(--green)':'var(--red)')+'">'+(n>=0?'+':'')+n.toFixed(2)+'</span>';
+    body.innerHTML = ranked.map((x,i) => `
       <tr>
-        <td>${i===0?'\ud83e\udd47':i===1?'\ud83e\udd48':i===2?'\ud83e\udd49':(i+1)}</td>
-        <td><strong>${escapeHtmlLocal(r.nickname)}</strong>${r.submitted?'':' <span style="font-size:11px;color:var(--muted)">(drafting)</span>'}</td>
-        <td>${r.pickCount}</td>
-        <td>$${r.spent.toFixed(0)}</td>
-        <td><strong>$${r.totalValue.toFixed(2)}</strong></td>
-        <td style="color:${r.returnPct>=0?'var(--green)':'var(--red)'}">${r.returnPct>=0?'+':''}${r.returnPct.toFixed(1)}%</td>
+        <td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1)}</td>
+        <td><strong>${escapeHtmlLocal(x.r.nickname || 'Student')}</strong>${x.r.submitted?'':' <span style="font-size:11px;color:var(--muted)">(drafting)</span>'}</td>
+        <td><strong>${(x.s.score>=0?'+':'')+x.s.score.toFixed(2)}</strong></td>
+        <td>${num(x.s.retPct)}%</td>
+        <td>${num(x.s.alphaPts)}</td>
+        <td>${num(x.s.divPts)} <span style="font-size:11px;color:var(--muted)">(${x.s.uniqueSectors} sec)</span></td>
+        <td>${FC.movesThisWeek(x.r)}</td>
       </tr>
     `).join('');
   } catch(e){
-    body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Could not load standings.</td></tr>';
+    body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Could not load standings.</td></tr>';
   }
 }
 
@@ -2264,7 +2254,7 @@ async function runStressTest(){
         if(chg != null){ stressedValue += paid * (1 + chg); pricedPicks++; }
         else { stressedValue += paid; }
       });
-      const budgetLeft = (currentFantasyLeague.budget || 100) - spent;
+      const budgetLeft = (currentFantasyLeague.budget || 100) - spent + (r.realized_pnl || 0);
       const totalStressed = stressedValue + Math.max(budgetLeft, 0);
       const startBudget = currentFantasyLeague.budget || 100;
       const stressedReturn = startBudget > 0 ? ((totalStressed - startBudget) / startBudget) * 100 : 0;
