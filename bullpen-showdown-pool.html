@@ -178,7 +178,7 @@ async function getMyEquity(){
 // position value - same rule as the proven Virtual Market
 // implementation this was ported from.
 async function getShowdownBuyingPower(){
-  if(!myEntry.margin_enabled) return myEntry.cash;
+  if(!ruleMarginOn() || !myEntry.margin_enabled) return myEntry.cash;
   const equity = await getMyEquity();
   return Math.max(myEntry.cash, equity * 2);
 }
@@ -458,14 +458,7 @@ async function renderActive(){
 
   const daysLeft = Math.max(0, Math.ceil((new Date(tournament.end_date) - new Date()) / 86400000));
 
-  const holdingsHtml = Object.entries(me.holdings || {}).length
-    ? await Promise.all(Object.entries(me.holdings).map(async ([ticker, shares]) => {
-        const price = await getPrice(ticker);
-        const isShort = shares < 0;
-        const label = isShort ? `${ticker} · SHORT ${Math.abs(shares)} sh` : `${ticker} · ${shares} sh`;
-        return `<div class="holding-row"><span${isShort ? ' style="color:var(--red)"' : ''}>${label}</span><span style="color:${isShort?'var(--red)':'inherit'}">$${(shares*price).toFixed(2)}</span></div>`;
-      }))
-    : ['<div style="color:var(--muted);font-size:13px">No holdings yet</div>'];
+  const holdingsHtml = await buildHoldingsTable(me);
 
   app.innerHTML = `
     <div class="t-header">
@@ -485,12 +478,12 @@ async function renderActive(){
       <h2>💹 Trade</h2>
       <input type="text" id="tradeTicker" placeholder="Ticker, e.g. AAPL" style="text-transform:uppercase;width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:10px">
       <div id="tickerInfo"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+      ${ruleMarginOn() ? `<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:8px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
         <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer">
           <input type="checkbox" id="showdownMarginToggle" onchange="toggleShowdownMargin()" style="cursor:pointer">
           📊 Trade on margin <small style="opacity:0.55">(2x buying power, real risk)</small>
         </label>
-      </div>
+      </div>` : ''}
       <div id="showdownMarginStatus" style="display:none;font-size:11px;padding:8px 10px;margin-bottom:10px;border-radius:8px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.25);color:#ffc107"></div>
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <button class="pct-btn" id="showdownOrderTypeMarket" onclick="setShowdownOrderType('market')" style="flex:1;background:var(--bg3);border-color:var(--green)">Market</button>
@@ -510,35 +503,40 @@ async function renderActive(){
         <button class="pct-btn" onclick="setPct(100)">100%</button>
         <span style="font-size:11px;color:var(--muted);align-self:center;margin-left:4px">of buying power</span>
       </div>
-      <div style="font-size:11px;color:var(--muted);margin:10px 0 14px">Sell more than you own to open a short position. A limit order waits and fills automatically once the price crosses your trigger.</div>
-      <div id="showdownProtectRow" style="display:none;margin-bottom:14px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
-        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">🛡️ Protect a position</div>
-        <select id="showdownProtectTicker" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;margin-bottom:8px"></select>
-        <div style="display:flex;gap:8px">
-          <input type="number" id="showdownStopLoss" placeholder="Stop loss (sell if drops to)" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
-          <input type="number" id="showdownTakeProfit" placeholder="Take profit (sell if rises to)" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+      <div style="font-size:11px;color:var(--muted);margin:10px 0 14px">${ruleShortOn() ? 'Sell more than you own to open a short position. ' : ''}A limit order waits and fills automatically once the price crosses your trigger.</div>
+      <details style="margin-bottom:14px">
+        <summary style="cursor:pointer;font-size:12px;font-weight:600;color:var(--muted);padding:8px 0">More order types — stop loss, take profit, price alerts</summary>
+        <div id="showdownProtectRow" style="display:none;margin:10px 0;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">🛡️ Protect a position</div>
+          <select id="showdownProtectTicker" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:13px;margin-bottom:8px"></select>
+          <div style="display:flex;gap:8px">
+            <input type="number" id="showdownStopLoss" placeholder="Stop loss (sell if drops to)" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+            <input type="number" id="showdownTakeProfit" placeholder="Take profit (sell if rises to)" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+          </div>
+          <button class="btn-buy" onclick="setShowdownProtection()" style="width:100%;margin-top:8px;font-size:13px">Set Protection</button>
         </div>
-        <button class="btn-buy" onclick="setShowdownProtection()" style="width:100%;margin-top:8px;font-size:13px">Set Protection</button>
-      </div>
-      <div style="margin-bottom:14px;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
-        <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">🔔 Price Alert</div>
-        <div style="display:flex;gap:8px;margin-bottom:8px">
-          <input type="text" id="showdownAlertTicker" placeholder="Ticker" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;text-transform:uppercase">
-          <select id="showdownAlertDirection" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
-            <option value="above">Goes above</option>
-            <option value="below">Goes below</option>
-          </select>
-          <input type="number" id="showdownAlertPrice" placeholder="Price" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+        <div style="margin:10px 0;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px">
+          <div style="font-size:12px;font-weight:600;color:var(--muted);margin-bottom:8px">🔔 Price Alert</div>
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input type="text" id="showdownAlertTicker" placeholder="Ticker" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px;text-transform:uppercase">
+            <select id="showdownAlertDirection" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+              <option value="above">Goes above</option>
+              <option value="below">Goes below</option>
+            </select>
+            <input type="number" id="showdownAlertPrice" placeholder="Price" min="0.01" step="0.01" style="flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:12px">
+          </div>
+          <button class="btn-buy" onclick="createShowdownPriceAlert()" style="width:100%;font-size:13px">Set Alert</button>
+          <div id="showdownAlertsList" style="margin-top:8px"></div>
         </div>
-        <button class="btn-buy" onclick="createShowdownPriceAlert()" style="width:100%;font-size:13px">Set Alert</button>
-        <div id="showdownAlertsList" style="margin-top:8px"></div>
-      </div>
+      </details>
       <div id="showdownPendingOrders"></div>
       <h2 style="font-size:15px;margin-top:4px">Your Holdings</h2>
       ${holdingsHtml.join('')}
     </div>
 
-    <div class="card">
+    ${rulesPanelHtml()}
+
+    ${ruleOptionsOn() ? `<div class="card">
       <h2>🎯 Options</h2>
       <input type="text" id="optTicker" placeholder="Ticker, e.g. AAPL" style="text-transform:uppercase;width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:10px">
       <div class="trade-row" style="grid-template-columns:1fr 1fr">
@@ -556,7 +554,7 @@ async function renderActive(){
       <button class="btn-buy" id="optExecBtn" onclick="executeShowdownOption()" style="width:100%">Enter a strike price</button>
       <p style="font-size:11px;color:var(--muted);margin-top:10px;line-height:1.5">Priced with Black-Scholes using real volatility and the real current 10-Year Treasury rate - a genuine theoretical value from real data, not a live bid/ask.</p>
       <div id="myShowdownOptions" style="margin-top:14px"></div>
-    </div>
+    </div>` : ''}
 
     <div class="card">
       <h2>📊 Trade Performance</h2>
@@ -584,6 +582,103 @@ async function renderActive(){
   checkShowdownOptionExpirations();
   checkShowdownDividends();
   renderMyShowdownOptions();
+}
+
+// Weighted-average cost basis from this entry's own trade log, per
+// ticker. Handles a position flipping from long to short (or back)
+// by resetting the basis at the point it crosses zero - the cost
+// basis of a fresh position on the other side has nothing to do
+// with the price paid on the side that just closed out.
+function costBasisFromTrades(trades, ticker){
+  let position = 0, basis = 0;
+  trades.filter(t => t.ticker === ticker).forEach(t => {
+    const signed = t.action === 'buy' ? t.shares : -t.shares;
+    const next = position + signed;
+    const sameDirection = position === 0 || (position > 0) === (signed > 0);
+    if(sameDirection){
+      const cost = basis * Math.abs(position) + t.price * Math.abs(signed);
+      basis = next !== 0 ? cost / Math.abs(next) : 0;
+    } else if(Math.abs(signed) > Math.abs(position)){
+      basis = t.price; // flipped through zero - new side starts fresh at this trade's price
+    }
+    position = next;
+  });
+  return basis;
+}
+
+async function buildHoldingsTable(entry){
+  const tickers = Object.keys(entry.holdings || {});
+  if(!tickers.length) return ['<div style="color:var(--muted);font-size:13px">No holdings yet</div>'];
+  const trades = await sbGet('bullpen_showdown_trades', `entry_id=eq.${entry.id}&order=created_at.asc`);
+  const equity = await getMyEquity();
+  const rows = await Promise.all(tickers.map(async ticker => {
+    const shares = entry.holdings[ticker];
+    const price = await getPrice(ticker);
+    const basis = costBasisFromTrades(trades, ticker);
+    const isShort = shares < 0;
+    const marketValue = shares * price;
+    // For a short, you gain when price falls below what you sold at; for a long, when it rises above what you paid.
+    const gainDollar = isShort ? (basis - price) * Math.abs(shares) : (price - basis) * shares;
+    const gainPct = basis ? (isShort ? (basis - price) / basis : (price - basis) / basis) * 100 : 0;
+    const ofPortfolio = equity ? (Math.abs(marketValue) / equity) * 100 : 0;
+    const gc = gainDollar >= 0 ? 'var(--green)' : 'var(--red)';
+    return `<div class="holding-row" style="flex-direction:column;align-items:stretch;gap:4px;padding:12px 0">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-weight:700">${ticker}${isShort ? ' <span style="color:var(--red);font-size:11px;font-weight:600">SHORT</span>' : ''}</span>
+        <span style="font-weight:700">$${marketValue.toFixed(2)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)">
+        <span>${Math.abs(shares)} sh @ avg $${basis.toFixed(2)}</span>
+        <span>now $${price.toFixed(2)}</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:11.5px">
+        <span style="color:${gc}">${gainDollar>=0?'+':''}$${Math.abs(gainDollar).toFixed(2)} (${gainPct>=0?'+':''}${gainPct.toFixed(1)}%)</span>
+        <span style="color:var(--muted)">${ofPortfolio.toFixed(1)}% of portfolio</span>
+      </div>
+    </div>`;
+  }));
+  return rows;
+}
+
+// ---------- Tournament rules (commissioner-set, everyone enforced) ----------
+// Columns may not exist on an older tournament row - never treat a
+// missing/undefined value as "off" or every existing showdown would
+// silently lose options, margin, and shorting the moment this shipped.
+function ruleOptionsOn(){ return tournament.options_enabled !== false; }
+function ruleMarginOn(){ return tournament.margin_enabled !== false; }
+function ruleShortOn(){ return tournament.short_enabled !== false; }
+function isCommissioner(){ return !!(tournament.commissioner_user_id && myUid && tournament.commissioner_user_id === myUid); }
+
+function rulesPanelHtml(){
+  if(!isCommissioner()) return '';
+  return `<div class="card">
+    <h2 style="font-size:15px">⚙️ Tournament Rules</h2>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="ruleOptions" ${ruleOptionsOn()?'checked':''} onchange="saveRule('options_enabled', this.checked)"> Allow options trading
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="ruleMargin" ${ruleMarginOn()?'checked':''} onchange="saveRule('margin_enabled', this.checked)"> Allow margin trading
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer">
+        <input type="checkbox" id="ruleShort" ${ruleShortOn()?'checked':''} onchange="saveRule('short_enabled', this.checked)"> Allow short selling
+      </label>
+    </div>
+    <div id="rulesMsg" style="font-size:11px;color:var(--muted);margin-top:8px"></div>
+  </div>`;
+}
+async function saveRule(field, value){
+  const msg = document.getElementById('rulesMsg');
+  try{
+    await sbPatch('bullpen_showdown_tournaments', 'id=eq.'+tournament.id, {[field]: value});
+    tournament[field] = value;
+    msg.textContent = 'Saved.'; msg.style.color = 'var(--green)';
+    if(field === 'margin_enabled' && !value && myEntry.margin_enabled){
+      await sbPatch('bullpen_showdown_entries', 'id=eq.'+myEntry.id, {margin_enabled: false});
+      myEntry.margin_enabled = false;
+    }
+    await load();
+  }catch(e){ msg.textContent = 'Could not save - try again.'; msg.style.color = 'var(--red)'; }
 }
 
 async function getHistory(ticker){
@@ -973,6 +1068,7 @@ async function updateShowdownOptionSummary(){
 });
 
 async function executeShowdownOption(){
+  if(!ruleOptionsOn()){ showToast('Options are off for this showdown.', 'error'); return; }
   const ticker = document.getElementById('optTicker').value.trim().toUpperCase();
   const strike = parseFloat(document.getElementById('optStrike').value);
   const days = parseInt(document.getElementById('optExpiry').value);
@@ -1135,6 +1231,10 @@ async function doTrade(action){
     // the math already works correctly with negative share counts, so
     // this is the same formula either way, just with a risk cap on shorts.
     if(newHolding < 0){
+      if(!ruleShortOn()){
+        showToast('Short selling is off for this showdown — you can only sell shares you already own.', 'error');
+        return;
+      }
       const shortExposure = Math.abs(newHolding) * price;
       if(shortExposure > myEntry.starting_cash * 2){
         showToast('That short position would be too large — capped at 2x your starting cash.', 'error');
