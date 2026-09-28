@@ -119,6 +119,7 @@ function esc(s){const d=document.createElement('div');d.textContent=s==null?'':s
 const classId=new URLSearchParams(location.search).get('class');
 let uid=null,cls=null,league=null,isTeacher=false,myNick='Student';
 let members=[],rosters=[],priceMap={},expanded=new Set(),posts=[];
+let reportHeight=()=>{};
 
 function pickChange(roster,t){
   const then=(roster.draft_real_prices||{})[t],now=priceMap[t];
@@ -326,9 +327,17 @@ if(EMBED){
   document.body.style.background = 'transparent';
   document.body.style.minHeight = '0';
   const base = document.createElement('base'); base.target = '_top'; document.head.appendChild(base);
-  const sendHeight = () => parent.postMessage({type:'leagueHeight', h: document.body.offsetHeight}, location.origin);
-  new ResizeObserver(sendHeight).observe(document.body);
-  window.addEventListener('load', sendHeight);
+  reportHeight = () => parent.postMessage({type:'leagueHeight', h: document.body.offsetHeight}, location.origin);
+  // Report after every render, not only on resize: ResizeObserver alone
+  // isn't reliable in every browser state, and a frame that doesn't grow
+  // with its content clips the bottom of the discussion.
+  ['renderStandings','renderRoster','renderPosts','showTab'].forEach(n => {
+    const fn = window[n];
+    window[n] = function(){ const r = fn.apply(this, arguments); reportHeight(); return r; };
+  });
+  new ResizeObserver(reportHeight).observe(document.body);
+  window.addEventListener('load', reportHeight);
+  setTimeout(reportHeight, 500); setTimeout(reportHeight, 1500);
 }
 
 init();
