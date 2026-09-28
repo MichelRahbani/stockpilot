@@ -527,6 +527,14 @@ tr:hover td{background:#fafafa}
           <a id="sdCertLink" href="#" style="font-size:13px;color:var(--green);font-weight:600;text-decoration:none;white-space:nowrap">Get Certificate →</a>
         </div>
 
+        <div class="tabs" id="sdTabs">
+          <button class="tab active" data-sdtab="overview" onclick="switchStudentTab('overview')">🏠 Overview</button>
+          <button class="tab" data-sdtab="assignments" onclick="switchStudentTab('assignments')">📝 Assignments</button>
+          <button class="tab" data-sdtab="materials" onclick="switchStudentTab('materials')">📎 Materials</button>
+          <button class="tab" id="sdTabFantasy" data-sdtab="fantasy" style="display:none" onclick="switchStudentTab('fantasy')">🏈 Fantasy</button>
+        </div>
+
+        <div id="sdPaneOverview">
         <!-- My stats -->
         <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:12px;padding:20px;margin-bottom:20px">
           <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--green);margin-bottom:12px">My Portfolio</div>
@@ -537,25 +545,6 @@ tr:hover td{background:#fafafa}
             <div><div style="font-size:24px;font-weight:700" id="sdMyTrades">0</div><div style="font-size:12px;color:var(--muted)">My Trades</div></div>
           </div>
           <a href="/trade" class="btn btn-primary btn-sm" style="display:inline-block;margin-top:14px;text-decoration:none">📈 Go Trade →</a>
-        </div>
-
-        <!-- My assignments -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div style="font-size:16px;font-weight:700">📝 My Assignments</div>
-          <div style="font-size:13px;color:var(--muted)" id="sdAssignmentsScore"></div>
-        </div>
-        <div id="sdAssignmentsWrap" style="margin-bottom:20px">
-          <div id="sdAssignmentsList"></div>
-        </div>
-
-        <!-- Lecture materials -->
-        <div style="font-size:16px;font-weight:700;margin-bottom:12px">📎 Class Materials</div>
-        <div id="sdMaterialsList" style="margin-bottom:20px"></div>
-
-        <!-- Fantasy draft -->
-        <div id="sdFantasyWrap" style="display:none;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏈 Fantasy Draft</div>
-          <div id="sdFantasyCard"></div>
         </div>
 
         <!-- Class leaderboard (names only, no private details) -->
@@ -578,6 +567,36 @@ tr:hover td{background:#fafafa}
             </tr></thead>
             <tbody id="sdMyTrades_table"></tbody>
           </table>
+        </div>
+        </div>
+
+        <div id="sdPaneAssignments" style="display:none">
+        <!-- My assignments -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <div style="font-size:16px;font-weight:700">📝 My Assignments</div>
+          <div style="font-size:13px;color:var(--muted)" id="sdAssignmentsScore"></div>
+        </div>
+        <div id="sdAssignmentsWrap" style="margin-bottom:20px">
+          <div id="sdAssignmentsList"></div>
+        </div>
+
+        </div>
+
+        <div id="sdPaneMaterials" style="display:none">
+        <!-- Lecture materials -->
+        <div style="font-size:16px;font-weight:700;margin-bottom:12px">📎 Class Materials</div>
+        <div id="sdMaterialsList" style="margin-bottom:20px"></div>
+
+        </div>
+
+        <div id="sdPaneFantasy" style="display:none">
+        <!-- Fantasy draft -->
+        <div id="sdFantasyWrap" style="display:none;margin-bottom:20px">
+          <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏈 Fantasy Draft</div>
+          <div id="sdFantasyCard"></div>
+        </div>
+
+          <iframe id="sdLeagueFrame" title="League Hub" style="width:100%;height:600px;border:0;display:block"></iframe>
         </div>
       </div>
     </div>
@@ -1154,6 +1173,10 @@ async function openStudentDashboard(classId){
   document.getElementById('studentDashboard').style.display = 'block';
   loadStudentMaterials(classId);
   loadStudentFantasy(classId);
+  window._sdClassId = classId;
+  const lf = document.getElementById('sdLeagueFrame');
+  if(lf){ lf.removeAttribute('src'); lf.dataset.loaded = ''; }
+  switchStudentTab('overview');
 
   // Get all members
   const members = await sbGet('class_members','class_id=eq.'+classId);
@@ -1342,6 +1365,27 @@ async function loadStudentMaterials(classId){
     wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">Could not load materials.</p>';
   }
 }
+function switchStudentTab(tab){
+  ['overview','assignments','materials','fantasy'].forEach(t => {
+    const pane = document.getElementById('sdPane' + t[0].toUpperCase() + t.slice(1));
+    if(pane) pane.style.display = (t === tab) ? 'block' : 'none';
+  });
+  document.querySelectorAll('#sdTabs .tab').forEach(b => b.classList.toggle('active', b.dataset.sdtab === tab));
+  if(tab === 'fantasy'){
+    const f = document.getElementById('sdLeagueFrame');
+    // Load the League Hub lazily, only when someone actually opens the tab
+    if(f && !f.dataset.loaded && window._sdClassId){
+      f.src = '/classroom-league.html?class=' + window._sdClassId + '&embed=1';
+      f.dataset.loaded = '1';
+    }
+  }
+}
+window.addEventListener('message', e => {
+  if(e.origin !== location.origin || !e.data || e.data.type !== 'leagueHeight') return;
+  const f = document.getElementById('sdLeagueFrame');
+  if(f) f.style.height = (e.data.h + 10) + 'px';
+});
+
 async function loadStudentFantasy(classId){
   const outerWrap = document.getElementById('sdFantasyWrap');
   const wrap = document.getElementById('sdFantasyCard');
@@ -1349,9 +1393,11 @@ async function loadStudentFantasy(classId){
     const leagues = await sbGet('class_fantasy_leagues', 'class_id=eq.'+classId+'&order=created_at.desc&limit=1');
     if(!leagues.length){
       outerWrap.style.display = 'none';
+      document.getElementById('sdTabFantasy').style.display = 'none';
       return;
     }
     outerWrap.style.display = 'block';
+    document.getElementById('sdTabFantasy').style.display = '';
     const league = leagues[0];
     const uid = getUid();
     const rosters = await sbGet('class_fantasy_rosters', 'league_id=eq.'+league.id+'&user_id=eq.'+uid);
@@ -1382,9 +1428,9 @@ async function loadStudentFantasy(classId){
         <a href="/classroom-draft.html?class=${classId}" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:600">${rosters.length ? 'Continue Draft →' : 'Draft Your Team →'}</a>
       </div>`;
     }
-    wrap.insertAdjacentHTML('beforeend', '<div style="margin-top:8px"><a href="/classroom-league.html?class='+classId+'" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:600">🏟 League Hub: standings, your roster &amp; discussion →</a></div>');
   } catch(e){
     outerWrap.style.display = 'none';
+    document.getElementById('sdTabFantasy').style.display = 'none';
   }
 }
 
