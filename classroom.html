@@ -1642,7 +1642,7 @@ async function generateWeeklyDigest(){
     const lines = [];
     lines.push(`Weekly Digest - ${currentClass.name} - ${dateStr}`);
     lines.push('');
-    lines.push(`${tradersThisWeek.size} of ${members.length} students traded this week (${tradesThisWeek.length} trades total). Class average return: ${avgReturn>=0?'+':''}${avgReturn.toFixed(1)}%.`);
+    lines.push(`${tradersThisWeek.size} of ${members.length} student${members.length===1?'':'s'} traded this week (${tradesThisWeek.length} trade${tradesThisWeek.length===1?'':'s'} total). Class average return: ${avgReturn>=0?'+':''}${avgReturn.toFixed(1)}%.`);
     if(leader) lines.push(`Leading the class: ${leader.name} at $${leader.portfolioValue.toLocaleString(undefined,{maximumFractionDigits:0})}.`);
     lines.push('');
     if(neverTraded.length){
