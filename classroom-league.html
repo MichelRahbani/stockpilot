@@ -318,6 +318,19 @@ document.getElementById('postsWrap').addEventListener('click',async ev=>{
   }
 });
 
+// Embed mode: used when the hub sits inside the student's Fantasy tab
+const EMBED = new URLSearchParams(location.search).get('embed') === '1';
+if(EMBED){
+  document.querySelector('nav').style.display = 'none';
+  document.querySelector('.page').style.padding = '0 0 16px';
+  document.body.style.background = 'transparent';
+  document.body.style.minHeight = '0';
+  const base = document.createElement('base'); base.target = '_top'; document.head.appendChild(base);
+  const sendHeight = () => parent.postMessage({type:'leagueHeight', h: document.body.offsetHeight}, location.origin);
+  new ResizeObserver(sendHeight).observe(document.body);
+  window.addEventListener('load', sendHeight);
+}
+
 init();
 </script>
 </body>
