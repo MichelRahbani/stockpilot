@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>League Hub | StockPilot Classroom</title>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#16a34a;--green-l:#f0fdf4;--green-b:#bbf7d0;--red:#dc2626;--red-l:#fef2f2;--blue:#2563eb;--blue-l:#eff6ff;--border:#e5e7eb;--bg:#f9fafb;--white:#fff;--text:#111827;--muted:#6b7280;--gold:#fef9e7;--gold-b:#fde68a}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:16px;color:var(--text)}
+.nav-logo img{height:28px;width:28px;border-radius:6px}
+.badge{background:#dcfce7;color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:.05em}
+.btn{padding:8px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;border:none}
+.btn-primary{background:var(--green);color:#fff}.btn-primary:disabled{background:#9ca3af}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);text-decoration:none;display:inline-block}
+.btn-sm{padding:5px 12px;font-size:12px}
+.page{max-width:900px;margin:0 auto;padding:24px 20px 80px}
+h1{font-size:24px;font-weight:800}
+.sub{color:var(--muted);font-size:14px;margin:2px 0 18px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 16px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;border-bottom:2px solid transparent;font-family:inherit}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--border)}
+td{padding:12px;border-bottom:1px solid var(--border)}
+tr.row{cursor:pointer}tr.row:hover{background:var(--bg)}
+tr.me td{background:var(--green-l)}
+.up{color:var(--green);font-weight:600}.down{color:var(--red);font-weight:600}
+.picks{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:6px 0}
+.pick{border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px;background:var(--white)}
+.pick .tk{font-weight:800}.pick .pc{font-size:12px}
+.muted{color:var(--muted);font-size:13px}
+.empty{text-align:center;padding:40px;color:var(--muted)}
+textarea{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:inherit;font-size:14px;resize:vertical;min-height:70px}
+input.small{padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit}
+.post{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:14px 16px;margin-bottom:10px}
+.post.teacher{border-color:var(--gold-b);background:var(--gold)}
+.post-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;font-size:13px}
+.post-head .who{font-weight:700}.post-head .when{color:var(--muted);font-size:12px}
+.tag{font-size:10px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 7px;border-radius:10px;margin-left:6px}
+.post-body{font-size:14px;line-height:1.55;white-space:pre-wrap;word-wrap:break-word}
+.actions{display:flex;gap:12px;margin-top:8px;font-size:12px}
+.actions a{color:var(--muted);cursor:pointer;text-decoration:none;font-weight:600}.actions a:hover{color:var(--text)}
+.replies{margin:10px 0 0 18px;padding-left:12px;border-left:2px solid var(--border)}
+.reply{padding:8px 0;border-bottom:1px solid var(--border)}.reply:last-child{border-bottom:none}
+.grade-badge{display:inline-block;margin-top:8px;background:var(--green-l);border:1px solid var(--green-b);color:var(--green);font-size:12px;font-weight:600;padding:4px 10px;border-radius:8px}
+.grade-box{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:12px}
+.msg{font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;display:none}
+.msg.error{background:var(--red-l);color:var(--red)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/classroom.html" class="nav-logo"><img src="/logo.jpg" alt=""/>StockPilot <span class="badge">CLASSROOM</span></a>
+  <a href="/classroom.html" class="btn btn-ghost btn-sm">← Back to Class</a>
+</nav>
+
+<div class="page">
+  <div id="loadingMsg" class="empty">Loading league...</div>
+  <div id="hub" style="display:none">
+    <h1 id="leagueTitle"></h1>
+    <div class="sub" id="leagueSub"></div>
+    <div class="tabs">
+      <button class="tab active" id="tabBtnStandings" onclick="showTab('standings')">🏆 Standings</button>
+      <button class="tab" id="tabBtnRoster" onclick="showTab('roster')">📋 My Roster</button>
+      <button class="tab" id="tabBtnDiscuss" onclick="showTab('discuss')">💬 Discussion</button>
+    </div>
+
+    <div id="paneStandings"></div>
+    <div id="paneRoster" style="display:none"></div>
+    <div id="paneDiscuss" style="display:none">
+      <div class="card">
+        <textarea id="newPostBody" placeholder="Share a take on the market, defend a pick, or ask the class something..."></textarea>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+          <span class="muted" id="postAs"></span>
+          <button class="btn btn-primary" id="postBtn" onclick="submitPost(null)">Post</button>
+        </div>
+      </div>
+      <div id="discussMsg" class="msg error"></div>
+      <div id="postsWrap"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL='https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+const BACKEND='https://stockpilot-production-c94f.up.railway.app';
+
+function isExpired(t){try{const p=JSON.parse(atob(t.split('.')[1]));return !p.exp||p.exp*1000<Date.now();}catch(e){return true;}}
+async function getFreshToken(){
+  const s=localStorage.getItem('supabase_token');
+  if(s&&!isExpired(s))return s;
+  const rt=localStorage.getItem('supabase_refresh_token');
+  if(!rt)return null;
+  try{
+    const r=await fetch(SUPA_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPA_KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:rt})});
+    if(!r.ok)return null;
+    const d=await r.json();if(!d.access_token)return null;
+    localStorage.setItem('supabase_token',d.access_token);
+    if(d.refresh_token)localStorage.setItem('supabase_refresh_token',d.refresh_token);
+    return d.access_token;
+  }catch(e){return null;}
+}
+function getUid(){const t=localStorage.getItem('supabase_token');if(!t)return null;try{return JSON.parse(atob(t.split('.')[1])).sub;}catch(e){return null;}}
+async function sbGet(table,qs=''){const r=await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}});return r.json();}
+async function sbWrite(table,body,method='POST',qs=''){
+  const token=await getFreshToken();
+  const r=await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{method,headers:{apikey:SUPA_KEY,Authorization:'Bearer '+(token||SUPA_KEY),'Content-Type':'application/json',Prefer:method==='POST'?'return=representation':'return=minimal'},body:body?JSON.stringify(body):undefined});
+  if(method==='POST')return r.json();
+  return r.ok;
+}
+function esc(s){const d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}
+
+const classId=new URLSearchParams(location.search).get('class');
+let uid=null,cls=null,league=null,isTeacher=false,myNick='Student';
+let members=[],rosters=[],priceMap={},expanded=new Set(),posts=[];
+
+function pickChange(roster,t){
+  const then=(roster.draft_real_prices||{})[t],now=priceMap[t];
+  if(then&&now!=null)return (now/then-1)*100;
+  return null;
+}
+function rosterRow(r){
+  const picks=[...(r.starters||[]),...(r.bench||[])];
+  const dp=r.draft_prices||{};
+  let spent=0,value=0;
+  picks.forEach(t=>{
+    const paid=dp[t]||0;spent+=paid;
+    const c=pickChange(r,t);
+    value+=paid*(c==null?1:(1+c/100));
+  });
+  const budget=league.budget||100;
+  const total=value+Math.max(budget-spent,0);
+  return {r,picks,spent,total,ret:(total-budget)/budget*100};
+}
+function pct(n){return n==null?'<span class="muted">-</span>':'<span class="'+(n>=0?'up':'down')+'">'+(n>=0?'+':'')+n.toFixed(1)+'%</span>';}
+
+async function init(){
+  uid=getUid();
+  if(!uid||!classId){document.getElementById('loadingMsg').textContent='Open this from your class page (and make sure you are signed in).';return;}
+  try{
+    const cs=await sbGet('classes','id=eq.'+classId);
+    if(!cs.length){document.getElementById('loadingMsg').textContent='Class not found.';return;}
+    cls=cs[0];
+    isTeacher=cls.instructor_id===uid;
+    const ls=await sbGet('class_fantasy_leagues','class_id=eq.'+classId+'&order=created_at.desc&limit=1');
+    if(!ls.length){document.getElementById('loadingMsg').textContent='No fantasy league has been set up for this class yet.';return;}
+    league=ls[0];
+    members=await sbGet('class_members','class_id=eq.'+classId);
+    const mine=members.find(m=>m.user_id===uid);
+    if(!isTeacher&&!mine){document.getElementById('loadingMsg').textContent='You are not a member of this class.';return;}
+    myNick=isTeacher?(cls.instructor_name||'Teacher'):(mine.nickname||'Student');
+    rosters=await sbGet('class_fantasy_rosters','league_id=eq.'+league.id+'&submitted=eq.true');
+
+    const tickers=new Set();
+    rosters.forEach(r=>[...(r.starters||[]),...(r.bench||[])].forEach(t=>tickers.add(t)));
+    if(tickers.size){
+      try{
+        const res=await fetch(BACKEND+'/api/quotes?symbols='+Array.from(tickers).join(','));
+        const d=await res.json();
+        (d?.quoteResponse?.result||[]).forEach(q=>{priceMap[q.symbol]=q.regularMarketPrice;});
+      }catch(e){}
+    }
+
+    document.getElementById('loadingMsg').style.display='none';
+    document.getElementById('hub').style.display='block';
+    document.getElementById('leagueTitle').textContent=league.name;
+    document.getElementById('leagueSub').textContent=cls.name+' \u00b7 $'+league.budget+' budget \u00b7 '+league.starters_count+' starters, '+league.bench_count+' bench';
+    document.getElementById('postAs').textContent='Posting as '+myNick+(isTeacher?' (teacher)':'');
+    if(isTeacher)document.getElementById('tabBtnRoster').style.display='none';
+    renderStandings();renderRoster();loadPosts();
+  }catch(e){document.getElementById('loadingMsg').textContent='Could not load the league - try refreshing.';}
+}
+
+function showTab(t){
+  ['standings','roster','discuss'].forEach(x=>{
+    document.getElementById('pane'+x[0].toUpperCase()+x.slice(1)).style.display=x===t?'block':'none';
+  });
+  document.getElementById('tabBtnStandings').classList.toggle('active',t==='standings');
+  document.getElementById('tabBtnRoster').classList.toggle('active',t==='roster');
+  document.getElementById('tabBtnDiscuss').classList.toggle('active',t==='discuss');
+}
+
+function renderStandings(){
+  const pane=document.getElementById('paneStandings');
+  const myRoster=rosters.find(r=>r.user_id===uid);
+  const canSee=isTeacher||!!myRoster;
+  const rows=rosters.map(rosterRow).sort((a,b)=>b.total-a.total);
+  const drafted=new Set(rosters.map(r=>r.user_id));
+  const notYet=members.filter(m=>!drafted.has(m.user_id));
+  if(!rows.length){pane.innerHTML='<div class="card empty">No one has submitted a roster yet.</div>';return;}
+  let html='<div class="card" style="padding:0;overflow:hidden"><table><thead><tr><th>#</th><th>Student</th><th>Picks</th><th>Value</th><th>Return</th></tr></thead><tbody>';
+  rows.forEach((x,i)=>{
+    const me=x.r.user_id===uid;
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    html+='<tr class="row'+(me?' me':'')+'" data-uid="'+x.r.user_id+'"><td>'+medal+'</td><td><strong>'+esc(x.r.nickname||'Student')+'</strong>'+(me?' <span class="muted">(you)</span>':'')+'</td><td>'+x.picks.length+'</td><td>$'+x.total.toFixed(2)+'</td><td>'+pct(x.ret)+'</td></tr>';
+    if(expanded.has(x.r.user_id)){
+      html+='<tr><td colspan="5" style="background:var(--bg)">';
+      if(canSee){
+        html+='<div class="picks">'+x.picks.map(t=>'<div class="pick"><div class="tk">'+esc(t)+'</div><div class="pc">'+pct(pickChange(x.r,t))+'</div></div>').join('')+'</div>';
+      }else{
+        html+='<div class="muted">Submit your own roster to see how classmates drafted.</div>';
+      }
+      html+='</td></tr>';
+    }
+  });
+  html+='</tbody></table></div>';
+  if(notYet.length)html+='<div class="muted" style="margin-top:6px">Still drafting: '+notYet.map(m=>esc(m.nickname||'Student')).join(', ')+'</div>';
+  html+='<div class="muted" style="margin-top:6px">Click a student to see their picks. Returns are real price moves since each stock was drafted.</div>';
+  pane.innerHTML=html;
+  pane.querySelectorAll('tr.row').forEach(tr=>tr.addEventListener('click',()=>{
+    const u=tr.dataset.uid;expanded.has(u)?expanded.delete(u):expanded.add(u);renderStandings();
+  }));
+}
+
+function renderRoster(){
+  const pane=document.getElementById('paneRoster');
+  const mine=rosters.find(r=>r.user_id===uid);
+  if(!mine){
+    pane.innerHTML='<div class="card empty">You have not submitted a roster yet.<br/><br/>'+(league.draft_open?'<a class="btn btn-primary" href="/classroom-draft.html?class='+classId+'">Draft Your Team \u2192</a>':'The draft is closed.')+'</div>';
+    return;
+  }
+  const x=rosterRow(mine);
+  const dp=mine.draft_prices||{};
+  const card=(t,label)=>'<div class="pick"><div class="tk">'+esc(t)+'</div><div class="muted">'+label+' \u00b7 $'+(dp[t]||0)+'</div><div class="pc">'+pct(pickChange(mine,t))+' since draft</div></div>';
+  pane.innerHTML='<div class="card"><div class="muted">Your roster value</div><div style="font-size:28px;font-weight:800">$'+x.total.toFixed(2)+' '+pct(x.ret)+'</div><div class="muted">$'+x.spent.toFixed(0)+' of $'+league.budget+' spent</div></div>'
+    +'<div class="card"><div style="font-weight:700;margin-bottom:6px">Starters</div><div class="picks">'+(mine.starters||[]).map(t=>card(t,'Starter')).join('')+'</div>'
+    +((mine.bench||[]).length?'<div style="font-weight:700;margin:12px 0 6px">Bench</div><div class="picks">'+mine.bench.map(t=>card(t,'Bench')).join('')+'</div>':'')+'</div>';
+}
+
+// ---------- Discussion ----------
+function showDiscussErr(m){const e=document.getElementById('discussMsg');e.textContent=m;e.style.display=m?'block':'none';if(m)setTimeout(()=>{e.style.display='none';},4000);}
+
+async function loadPosts(){
+  try{posts=await sbGet('class_fantasy_posts','league_id=eq.'+league.id+'&order=created_at.asc');}catch(e){posts=[];}
+  renderPosts();
+}
+function when(ts){return new Date(ts).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
+
+function postHtml(p,isReply){
+  const mine=p.user_id===uid;
+  const canDelete=mine||isTeacher;
+  const graded=p.grade!=null;
+  let h='<div class="'+(isReply?'reply':'post'+(p.is_teacher?' teacher':''))+'" data-post="'+p.id+'">';
+  h+='<div class="post-head"><span class="who">'+esc(p.nickname||'Student')+(p.is_teacher?'<span class="tag">TEACHER</span>':'')+'</span><span class="when">'+when(p.created_at)+'</span></div>';
+  h+='<div class="post-body">'+esc(p.body)+'</div>';
+  if(graded&&(mine||isTeacher)){
+    h+='<div class="grade-badge">\ud83d\udcdd Grade: '+p.grade+'/10'+(p.grade_feedback?' \u2014 '+esc(p.grade_feedback):'')+'</div>';
+  }
+  if(isTeacher&&!p.is_teacher){
+    h+='<div class="grade-box"><input class="small g-score" type="number" min="0" max="10" step="0.5" style="width:64px" placeholder="0-10" value="'+(graded?p.grade:'')+'"/><input class="small g-fb" type="text" style="flex:1;min-width:120px" placeholder="Feedback (optional)" value="'+esc(p.grade_feedback||'')+'"/><button class="btn btn-ghost btn-sm" data-act="grade" data-id="'+p.id+'">'+(graded?'Update grade':'Grade')+'</button></div>';
+  }
+  h+='<div class="actions">';
+  if(!isReply)h+='<a data-act="reply" data-id="'+p.id+'">Reply</a>';
+  if(canDelete)h+='<a data-act="delete" data-id="'+p.id+'">Delete</a>';
+  h+='</div>';
+  if(!isReply)h+='<!--REPLIES--><div class="reply-box" id="rb_'+p.id+'"></div>';
+  return h+'</div>';
+}
+
+function renderPosts(){
+  const wrap=document.getElementById('postsWrap');
+  const tops=posts.filter(p=>!p.parent_id).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+  if(!tops.length){wrap.innerHTML='<div class="card empty">No posts yet. Start the conversation.</div>';return;}
+  const byParent={};
+  posts.filter(p=>p.parent_id).forEach(p=>{(byParent[p.parent_id]=byParent[p.parent_id]||[]).push(p);});
+  wrap.innerHTML=tops.map(p=>{
+    const reps=(byParent[p.id]||[]);
+    let h=postHtml(p,false);
+    h=h.replace('<!--REPLIES-->',reps.length?'<div class="replies">'+reps.map(r=>postHtml(r,true)).join('')+'</div>':'');
+    return h;
+  }).join('');
+}
+
+async function submitPost(parentId,bodyOverride,btn){
+  const ta=parentId?document.getElementById('rt_'+parentId):document.getElementById('newPostBody');
+  const body=(ta.value||'').trim();
+  if(!body){showDiscussErr('Write something first.');return;}
+  const b=btn||document.getElementById('postBtn');
+  b.disabled=true;
+  try{
+    const res=await sbWrite('class_fantasy_posts',{league_id:league.id,parent_id:parentId||null,user_id:uid,nickname:myNick,is_teacher:isTeacher,body});
+    if(!Array.isArray(res)||!res[0]){showDiscussErr('Could not post: '+((res&&res.message)||'unknown error'));b.disabled=false;return;}
+    ta.value='';
+    await loadPosts();
+  }catch(e){showDiscussErr('Could not post - try again.');}
+  b.disabled=false;
+}
+
+document.getElementById('postsWrap').addEventListener('click',async ev=>{
+  const el=ev.target.closest('[data-act]');if(!el)return;
+  const act=el.dataset.act,id=el.dataset.id;
+  if(act==='reply'){
+    const box=document.getElementById('rb_'+id);
+    if(box.innerHTML){box.innerHTML='';return;}
+    box.innerHTML='<div style="margin-top:8px"><textarea id="rt_'+id+'" style="min-height:50px" placeholder="Write a reply..."></textarea><div style="text-align:right;margin-top:6px"><button class="btn btn-primary btn-sm" data-act="sendreply" data-id="'+id+'">Reply</button></div></div>';
+  }else if(act==='sendreply'){
+    submitPost(id,null,el);
+  }else if(act==='delete'){
+    // two-click confirm, no blocking browser dialog
+    if(el.dataset.armed!=='1'){el.dataset.armed='1';el.textContent='Sure? Click again';setTimeout(()=>{el.dataset.armed='';el.textContent='Delete';},3000);return;}
+    const ok=await sbWrite('class_fantasy_posts',null,'DELETE','id=eq.'+id);
+    if(!ok)showDiscussErr('Could not delete.');
+    await loadPosts();
+  }else if(act==='grade'){
+    const wrap=el.closest('.grade-box');
+    const score=parseFloat(wrap.querySelector('.g-score').value);
+    if(isNaN(score)||score<0||score>10){showDiscussErr('Enter a grade from 0 to 10.');return;}
+    const fb=wrap.querySelector('.g-fb').value.trim();
+    const ok=await sbWrite('class_fantasy_posts',{grade:score,grade_feedback:fb||null,graded_at:new Date().toISOString()},'PATCH','id=eq.'+id);
+    if(!ok)showDiscussErr('Could not save grade.');
+    await loadPosts();
+  }
+});
+
+init();
+</script>
+</body>
+</html>
