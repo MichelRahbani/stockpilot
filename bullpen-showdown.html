@@ -250,6 +250,21 @@ body::before{
       <input type="date" id="tEndDate">
       <div class="field-hint">Trading stops and the winner is locked in at midnight this day.</div>
     </div>
+    <div class="field">
+      <label>Rules</label>
+      <div style="display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,0.03);border:1px solid var(--line);border-radius:6px;padding:12px 14px">
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer">
+          <input type="checkbox" id="tOptions" checked style="cursor:pointer"> Allow options trading
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer">
+          <input type="checkbox" id="tMargin" checked style="cursor:pointer"> Allow margin trading (2x buying power)
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer">
+          <input type="checkbox" id="tShort" checked style="cursor:pointer"> Allow short selling
+        </label>
+      </div>
+      <div class="field-hint">You can change these later from inside the showdown.</div>
+    </div>
     <button class="btn-full-modal" id="createBtn" onclick="createTournament()">Create & Get Code →</button>
   </div>
 </div>
@@ -462,7 +477,10 @@ async function createTournament(){
   try {
     const tourney = await sbPost('bullpen_showdown_tournaments', {
       code: currentCode, name, commissioner_name: manager, commissioner_user_id: uid,
-      starting_cash: startingCash, end_date: endDate, status: 'active'
+      starting_cash: startingCash, end_date: endDate, status: 'active',
+      options_enabled: document.getElementById('tOptions').checked,
+      margin_enabled: document.getElementById('tMargin').checked,
+      short_enabled: document.getElementById('tShort').checked
     });
     if(!tourney || !tourney[0]) throw new Error('Could not create showdown');
     const tournamentId = tourney[0].id;
