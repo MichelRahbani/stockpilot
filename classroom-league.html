@@ -51,6 +51,23 @@ input.small{padding:6px 8px;border:1px solid var(--border);border-radius:6px;fon
 .grade-box{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px;font-size:12px}
 .msg{font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;display:none}
 .msg.error{background:var(--red-l);color:var(--red)}
+
+.tabs{overflow-x:auto;white-space:nowrap}
+.pill{display:inline-block;padding:4px 11px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--border);background:var(--white);cursor:pointer;color:var(--muted);margin:0 6px 6px 0}
+.pill.active{background:var(--text);color:#fff;border-color:var(--text)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.fa-card{border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--white)}
+.fa-card .tk{font-weight:800}.fa-card .nm{font-size:11px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.fa-card .cost{display:inline-block;margin-top:6px;font-size:11px;background:var(--blue-l);color:var(--blue);padding:2px 8px;border-radius:12px;font-weight:700}
+.panel{background:var(--gold);border:1px solid var(--gold-b);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+select.small{padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;background:#fff;max-width:100%}
+.stat3{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-top:10px}
+.stat3 .n{font-size:18px;font-weight:800}.stat3 .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+details.how{margin-top:10px;font-size:13px;color:var(--muted)}details.how summary{cursor:pointer;font-weight:600}
+.tr{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}.tr:last-child{border-bottom:none}
+.st{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:#f3f4f6;color:var(--muted)}
+.st.accepted{background:var(--green-l);color:var(--green)}.st.declined,.st.cancelled{background:var(--red-l);color:var(--red)}
+.ok{display:none;font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;background:var(--green-l);color:var(--green)}
 </style>
 </head>
 <body>
@@ -64,14 +81,20 @@ input.small{padding:6px 8px;border:1px solid var(--border);border-radius:6px;fon
   <div id="hub" style="display:none">
     <h1 id="leagueTitle"></h1>
     <div class="sub" id="leagueSub"></div>
+    <div id="globalMsg" class="msg error"></div>
+    <div id="globalOk" class="ok"></div>
     <div class="tabs">
       <button class="tab active" id="tabBtnStandings" onclick="showTab('standings')">🏆 Standings</button>
       <button class="tab" id="tabBtnRoster" onclick="showTab('roster')">📋 My Roster</button>
+      <button class="tab" id="tabBtnFa" onclick="showTab('fa')">🔎 Free Agents</button>
+      <button class="tab" id="tabBtnTrades" onclick="showTab('trades')">🤝 Trades</button>
       <button class="tab" id="tabBtnDiscuss" onclick="showTab('discuss')">💬 Discussion</button>
     </div>
 
     <div id="paneStandings"></div>
     <div id="paneRoster" style="display:none"></div>
+    <div id="paneFa" style="display:none"></div>
+    <div id="paneTrades" style="display:none"></div>
     <div id="paneDiscuss" style="display:none">
       <div class="card">
         <textarea id="newPostBody" placeholder="Share a take on the market, defend a pick, or ask the class something..."></textarea>
@@ -86,6 +109,7 @@ input.small{padding:6px 8px;border:1px solid var(--border);border-radius:6px;fon
   </div>
 </div>
 
+<script src="/fantasy-core.js"></script>
 <script>
 const SUPA_URL='https://xkfxofcmrmpazfjviatq.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
@@ -116,122 +140,287 @@ async function sbWrite(table,body,method='POST',qs=''){
 }
 function esc(s){const d=document.createElement('div');d.textContent=s==null?'':s;return d.innerHTML;}
 
-const classId=new URLSearchParams(location.search).get('class');
+
+
+const FC = window.FantasyCore;
+const $ = id => document.getElementById(id);
+async function sbMut(table, method, body, qs){
+  const token = await getFreshToken();
+  const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{method,headers:{apikey:SUPA_KEY,Authorization:'Bearer '+(token||SUPA_KEY),'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});
+  try{ return await r.json(); }catch(e){ return null; }
+}
+const SECTOR_ABBR={'Information Technology':'TECH','Health Care':'HLTH','Financials':'FIN','Consumer Discretionary':'CD','Communication Services':'COMM','Industrials':'IND','Consumer Staples':'CS','Energy':'ENGY','Utilities':'UTIL','Real Estate':'RE','Materials':'MATL'};
+const POPULAR=['AAPL','NVDA','TSLA','MSFT','META','AMZN','GOOGL','NFLX','AMD','JPM','V','DIS','KO','XOM','WMT','COST'];
+
 let uid=null,cls=null,league=null,isTeacher=false,myNick='Student';
-let members=[],rosters=[],priceMap={},expanded=new Set(),posts=[];
+let members=[],rosters=[],trades=[],posts=[],expanded=new Set();
+let market={priceMap:{},spyNow:null,spyEst:{}};
+let tierPrices=null, faQuotes={}, faList=[], faSector=null, faPickT=null, tradeDraft={to:'',give:'',get:''};
+const classId=new URLSearchParams(location.search).get('class');
 let reportHeight=()=>{};
 
-function pickChange(roster,t){
-  const then=(roster.draft_real_prices||{})[t],now=priceMap[t];
-  if(then&&now!=null)return (now/then-1)*100;
-  return null;
-}
-function rosterRow(r){
-  const picks=[...(r.starters||[]),...(r.bench||[])];
-  const dp=r.draft_prices||{};
-  let spent=0,value=0;
-  picks.forEach(t=>{
-    const paid=dp[t]||0;spent+=paid;
-    const c=pickChange(r,t);
-    value+=paid*(c==null?1:(1+c/100));
-  });
-  const budget=league.budget||100;
-  const total=value+Math.max(budget-spent,0);
-  return {r,picks,spent,total,ret:(total-budget)/budget*100};
-}
+const ctxFor = r => FC.ctxFor(market, r);
+const myRoster = () => rosters.find(r=>r.user_id===uid);
+const money = n => '$'+n.toFixed(2);
+const sgn = n => (n>=0?'+':'')+n.toFixed(2);
 function pct(n){return n==null?'<span class="muted">-</span>':'<span class="'+(n>=0?'up':'down')+'">'+(n>=0?'+':'')+n.toFixed(1)+'%</span>';}
+function pts(n){return n==null?'<span class="muted">-</span>':'<span class="'+(n>=0?'up':'down')+'">'+sgn(n)+'</span>';}
+function nick(u){const m=members.find(x=>x.user_id===u);if(m&&m.nickname)return m.nickname;const r=rosters.find(x=>x.user_id===u);return (r&&r.nickname)||'Student';}
+function flash(kind,msg){
+  const e=$(kind==='ok'?'globalOk':'globalMsg'), o=$(kind==='ok'?'globalMsg':'globalOk');
+  o.style.display='none'; e.textContent=msg; e.style.display=msg?'block':'none';
+  clearTimeout(flash.t); if(msg) flash.t=setTimeout(()=>{e.style.display='none';},5000);
+  reportHeight();
+}
+async function saveRoster(r, fields){
+  const res = await sbMut('class_fantasy_rosters','PATCH',fields,'id=eq.'+r.id);
+  if(!Array.isArray(res)||!res.length) throw new Error((res&&res.message)||'the save did not go through');
+  return res[0];
+}
+async function fetchRosters(){ return sbGet('class_fantasy_rosters','league_id=eq.'+league.id+'&submitted=eq.true'); }
+async function fetchTrades(){ const t=await sbGet('class_fantasy_trades','league_id=eq.'+league.id+'&order=created_at.desc'); return Array.isArray(t)?t:[]; }
+async function ensureTier(){ if(tierPrices) return; try{ const d=await (await fetch(BACKEND+'/api/sp500-tiers')).json(); tierPrices=d.prices||{}; }catch(e){ tierPrices={}; } }
+async function refresh(){ rosters=await fetchRosters(); trades=await fetchTrades(); renderAll(); }
+function renderAll(){ renderStandings(); renderRoster(); renderFA(); renderTrades(); }
 
 async function init(){
   uid=getUid();
-  if(!uid||!classId){document.getElementById('loadingMsg').textContent='Open this from your class page (and make sure you are signed in).';return;}
+  if(!uid||!classId){$('loadingMsg').textContent='Open this from your class page (and make sure you are signed in).';return;}
   try{
     const cs=await sbGet('classes','id=eq.'+classId);
-    if(!cs.length){document.getElementById('loadingMsg').textContent='Class not found.';return;}
-    cls=cs[0];
-    isTeacher=cls.instructor_id===uid;
+    if(!cs.length){$('loadingMsg').textContent='Class not found.';return;}
+    cls=cs[0]; isTeacher=cls.instructor_id===uid;
     const ls=await sbGet('class_fantasy_leagues','class_id=eq.'+classId+'&order=created_at.desc&limit=1');
-    if(!ls.length){document.getElementById('loadingMsg').textContent='No fantasy league has been set up for this class yet.';return;}
+    if(!ls.length){$('loadingMsg').textContent='No fantasy league has been set up for this class yet.';return;}
     league=ls[0];
     members=await sbGet('class_members','class_id=eq.'+classId);
     const mine=members.find(m=>m.user_id===uid);
-    if(!isTeacher&&!mine){document.getElementById('loadingMsg').textContent='You are not a member of this class.';return;}
+    if(!isTeacher&&!mine){$('loadingMsg').textContent='You are not a member of this class.';return;}
     myNick=isTeacher?(cls.instructor_name||'Teacher'):(mine.nickname||'Student');
-    rosters=await sbGet('class_fantasy_rosters','league_id=eq.'+league.id+'&submitted=eq.true');
-
-    const tickers=new Set();
-    rosters.forEach(r=>[...(r.starters||[]),...(r.bench||[])].forEach(t=>tickers.add(t)));
-    if(tickers.size){
-      try{
-        const res=await fetch(BACKEND+'/api/quotes?symbols='+Array.from(tickers).join(','));
-        const d=await res.json();
-        (d?.quoteResponse?.result||[]).forEach(q=>{priceMap[q.symbol]=q.regularMarketPrice;});
-      }catch(e){}
-    }
-
-    document.getElementById('loadingMsg').style.display='none';
-    document.getElementById('hub').style.display='block';
-    document.getElementById('leagueTitle').textContent=league.name;
-    document.getElementById('leagueSub').textContent=cls.name+' \u00b7 $'+league.budget+' budget \u00b7 '+league.starters_count+' starters, '+league.bench_count+' bench';
-    document.getElementById('postAs').textContent='Posting as '+myNick+(isTeacher?' (teacher)':'');
-    if(isTeacher)document.getElementById('tabBtnRoster').style.display='none';
-    renderStandings();renderRoster();loadPosts();
-  }catch(e){document.getElementById('loadingMsg').textContent='Could not load the league - try refreshing.';}
+    rosters=await fetchRosters();
+    market=await FC.loadMarket(BACKEND, rosters);
+    trades=await fetchTrades();
+    $('loadingMsg').style.display='none'; $('hub').style.display='block';
+    $('leagueTitle').textContent=league.name;
+    $('leagueSub').textContent=cls.name+' \u00b7 $'+league.budget+' budget \u00b7 '+league.starters_count+' starters, '+league.bench_count+' bench';
+    $('postAs').textContent='Posting as '+myNick+(isTeacher?' (teacher)':'');
+    if(isTeacher){$('tabBtnRoster').style.display='none';$('tabBtnFa').style.display='none';}
+    renderAll(); loadPosts();
+  }catch(e){$('loadingMsg').textContent='Could not load the league - try refreshing.';}
 }
 
+const TABS=['standings','roster','fa','trades','discuss'];
+const PANE={standings:'paneStandings',roster:'paneRoster',fa:'paneFa',trades:'paneTrades',discuss:'paneDiscuss'};
+const BTN={standings:'tabBtnStandings',roster:'tabBtnRoster',fa:'tabBtnFa',trades:'tabBtnTrades',discuss:'tabBtnDiscuss'};
 function showTab(t){
-  ['standings','roster','discuss'].forEach(x=>{
-    document.getElementById('pane'+x[0].toUpperCase()+x.slice(1)).style.display=x===t?'block':'none';
-  });
-  document.getElementById('tabBtnStandings').classList.toggle('active',t==='standings');
-  document.getElementById('tabBtnRoster').classList.toggle('active',t==='roster');
-  document.getElementById('tabBtnDiscuss').classList.toggle('active',t==='discuss');
+  TABS.forEach(x=>{ $(PANE[x]).style.display=x===t?'block':'none'; $(BTN[x]).classList.toggle('active',x===t); });
+  if(t==='fa' && !faList.length) initFA();
 }
 
+// ---------- Standings ----------
 function renderStandings(){
-  const pane=document.getElementById('paneStandings');
-  const myRoster=rosters.find(r=>r.user_id===uid);
-  const canSee=isTeacher||!!myRoster;
-  const rows=rosters.map(rosterRow).sort((a,b)=>b.total-a.total);
+  const pane=$('paneStandings');
+  const canSee=isTeacher||!!myRoster();
+  const ranked=FC.rank(rosters,league,ctxFor);
   const drafted=new Set(rosters.map(r=>r.user_id));
   const notYet=members.filter(m=>!drafted.has(m.user_id));
-  if(!rows.length){pane.innerHTML='<div class="card empty">No one has submitted a roster yet.</div>';return;}
-  let html='<div class="card" style="padding:0;overflow:hidden"><table><thead><tr><th>#</th><th>Student</th><th>Picks</th><th>Value</th><th>Return</th></tr></thead><tbody>';
-  rows.forEach((x,i)=>{
-    const me=x.r.user_id===uid;
+  if(!ranked.length){pane.innerHTML='<div class="card empty">No one has submitted a roster yet.</div>';return;}
+  let h='<div class="card" style="padding:0;overflow:hidden"><table><thead><tr><th>#</th><th>Student</th><th>Score</th><th>Return</th><th>Alpha</th><th>Diversif.</th></tr></thead><tbody>';
+  ranked.forEach((x,i)=>{
+    const me=x.r.user_id===uid, s=x.s;
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-    html+='<tr class="row'+(me?' me':'')+'" data-uid="'+x.r.user_id+'"><td>'+medal+'</td><td><strong>'+esc(x.r.nickname||'Student')+'</strong>'+(me?' <span class="muted">(you)</span>':'')+'</td><td>'+x.picks.length+'</td><td>$'+x.total.toFixed(2)+'</td><td>'+pct(x.ret)+'</td></tr>';
+    h+='<tr class="row'+(me?' me':'')+'" data-uid="'+x.r.user_id+'"><td>'+medal+'</td><td><strong>'+esc(x.r.nickname||'Student')+'</strong>'+(me?' <span class="muted">(you)</span>':'')+'</td><td><strong>'+sgn(s.score)+'</strong></td><td>'+pct(s.retPct)+'</td><td>'+pts(s.alphaPts)+'</td><td>'+pts(s.divPts)+' <span class="muted">('+s.uniqueSectors+' sec)</span></td></tr>';
     if(expanded.has(x.r.user_id)){
-      html+='<tr><td colspan="5" style="background:var(--bg)">';
+      h+='<tr><td colspan="6" style="background:var(--bg)">';
       if(canSee){
-        html+='<div class="picks">'+x.picks.map(t=>'<div class="pick"><div class="tk">'+esc(t)+'</div><div class="pc">'+pct(pickChange(x.r,t))+'</div></div>').join('')+'</div>';
-      }else{
-        html+='<div class="muted">Submit your own roster to see how classmates drafted.</div>';
-      }
-      html+='</td></tr>';
+        h+='<table style="font-size:13px"><thead><tr><th>Stock</th><th>Slot</th><th>Return</th><th>vs S&amp;P</th><th>Alpha pts</th></tr></thead><tbody>'+s.rows.map(p=>'<tr><td><strong>'+esc(p.t)+'</strong></td><td>'+p.slot+'</td><td>'+pct(p.ret)+'</td><td>'+pct(p.alpha)+'</td><td>'+pts(p.aPts)+'</td></tr>').join('')+'</tbody></table>';
+        h+='<div class="muted" style="margin-top:6px">Diversification: '+s.uniqueSectors+' sector'+(s.uniqueSectors===1?'':'s')+' among starters (baseline '+s.baseline+') = '+sgn(s.divPts)+' &middot; Cash: '+money(s.cash)+' &middot; Moves this week: '+FC.movesThisWeek(x.r)+'</div>';
+      }else h+='<div class="muted">Submit your own roster to see how classmates drafted.</div>';
+      h+='</td></tr>';
     }
   });
-  html+='</tbody></table></div>';
-  if(notYet.length)html+='<div class="muted" style="margin-top:6px">Still drafting: '+notYet.map(m=>esc(m.nickname||'Student')).join(', ')+'</div>';
-  html+='<div class="muted" style="margin-top:6px">Click a student to see their picks. Returns are real price moves since each stock was drafted.</div>';
-  pane.innerHTML=html;
-  pane.querySelectorAll('tr.row').forEach(tr=>tr.addEventListener('click',()=>{
-    const u=tr.dataset.uid;expanded.has(u)?expanded.delete(u):expanded.add(u);renderStandings();
-  }));
+  h+='</tbody></table></div>';
+  if(notYet.length)h+='<div class="muted" style="margin-top:6px">Still drafting: '+notYet.map(m=>esc(m.nickname||'Student')).join(', ')+'</div>';
+  h+='<details class="how"><summary>How the score works</summary><div style="margin-top:6px;line-height:1.6"><strong>Score = Return + Alpha + Diversification.</strong><br/><strong>Return</strong> is the real change in your roster\'s value since you drafted (including gains you locked in by dropping or trading a stock).<br/><strong>Alpha</strong> rewards beating the real S&amp;P 500: each stock earns 0.3 &times; its share of your budget &times; how far it beat (or trailed) the S&amp;P over the time you held it.<br/><strong>Diversification</strong> is +0.5 for each sector among your starters above '+FC.divBaseline(league)+', and \u22120.5 for each below. Putting everything in one sector costs you.</div></details>';
+  h+='<div class="muted" style="margin-top:6px">Click a student to see their picks.</div>';
+  pane.innerHTML=h;
+  pane.querySelectorAll('tr.row').forEach(tr=>tr.addEventListener('click',()=>{const u=tr.dataset.uid;expanded.has(u)?expanded.delete(u):expanded.add(u);renderStandings();}));
 }
 
+// ---------- My Roster ----------
+function movesBanner(r){
+  if(league.moves_open===false) return '<span class="down">Roster moves are closed by your teacher.</span>';
+  const left=FC.movesLeft(r,league), lim=league.weekly_move_limit==null?3:league.weekly_move_limit;
+  return 'Free agent / trade moves left this week: <strong>'+left+' of '+lim+'</strong> &middot; bench swaps are unlimited';
+}
 function renderRoster(){
-  const pane=document.getElementById('paneRoster');
-  const mine=rosters.find(r=>r.user_id===uid);
+  const pane=$('paneRoster');
+  const mine=myRoster();
   if(!mine){
     pane.innerHTML='<div class="card empty">You have not submitted a roster yet.<br/><br/>'+(league.draft_open?'<a class="btn btn-primary" href="/classroom-draft.html?class='+classId+'">Draft Your Team \u2192</a>':'The draft is closed.')+'</div>';
     return;
   }
-  const x=rosterRow(mine);
-  const dp=mine.draft_prices||{};
-  const card=(t,label)=>'<div class="pick"><div class="tk">'+esc(t)+'</div><div class="muted">'+label+' \u00b7 $'+(dp[t]||0)+'</div><div class="pc">'+pct(pickChange(mine,t))+' since draft</div></div>';
-  pane.innerHTML='<div class="card"><div class="muted">Your roster value</div><div style="font-size:28px;font-weight:800">$'+x.total.toFixed(2)+' '+pct(x.ret)+'</div><div class="muted">$'+x.spent.toFixed(0)+' of $'+league.budget+' spent</div></div>'
-    +'<div class="card"><div style="font-weight:700;margin-bottom:6px">Starters</div><div class="picks">'+(mine.starters||[]).map(t=>card(t,'Starter')).join('')+'</div>'
-    +((mine.bench||[]).length?'<div style="font-weight:700;margin:12px 0 6px">Bench</div><div class="picks">'+mine.bench.map(t=>card(t,'Bench')).join('')+'</div>':'')+'</div>';
+  const s=FC.score(mine,league,ctxFor(mine));
+  const byT={}; s.rows.forEach(p=>byT[p.t]=p);
+  const card=(t,isBench)=>{
+    const p=byT[t]||{};
+    let c='<div class="pick"><div class="tk">'+esc(t)+'</div><div class="muted">'+(isBench?'Bench':'Starter')+' \u00b7 $'+FC.paidOf(mine,t).toFixed(0)+'</div><div class="pc">'+pct(p.ret)+' <span class="muted">since added</span></div><div class="pc muted">vs S&amp;P '+pct(p.alpha)+'</div>';
+    if(isBench&&(mine.starters||[]).length){
+      c+='<div style="margin-top:6px"><select class="small swap-sel" data-bench="'+esc(t)+'"><option value="">Swap with...</option>'+mine.starters.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('')+'</select> <button class="btn btn-ghost btn-sm" data-act="doswap" data-bench="'+esc(t)+'">Swap</button></div>';
+    }
+    return c+'</div>';
+  };
+  const log=(mine.moves_log||[]).slice(-6).reverse().map(m=>{
+    const when=new Date(m.at).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+    const txt=m.type==='swap'?('Swapped '+esc(m.out)+' to bench, '+esc(m.in)+' to starters'):m.type==='fa'?((m.dropped?('Dropped '+esc(m.dropped)+', '):'')+'picked up '+esc(m.added)):('Traded '+esc(m.gave)+' for '+esc(m.got));
+    return '<div class="tr"><span>'+txt+'</span><span class="muted">'+when+'</span></div>';
+  }).join('');
+  pane.innerHTML='<div class="card"><div class="muted">Your score</div><div style="font-size:30px;font-weight:800">'+sgn(s.score)+'</div>'
+    +'<div class="stat3"><div><div class="n">'+pct(s.retPct)+'</div><div class="l">Return</div></div><div><div class="n">'+pts(s.alphaPts)+'</div><div class="l">Alpha pts</div></div><div><div class="n">'+pts(s.divPts)+'</div><div class="l">Diversif. ('+s.uniqueSectors+' sectors)</div></div><div><div class="n">'+money(s.total)+'</div><div class="l">Roster value</div></div><div><div class="n">'+money(s.cash)+'</div><div class="l">Cash</div></div></div>'
+    +'<div class="muted" style="margin-top:10px">'+movesBanner(mine)+'</div></div>'
+    +'<div class="card"><div style="font-weight:700;margin-bottom:6px">Starters</div><div class="picks">'+(mine.starters||[]).map(t=>card(t,false)).join('')+'</div>'
+    +((mine.bench||[]).length?'<div style="font-weight:700;margin:12px 0 6px">Bench</div><div class="picks">'+mine.bench.map(t=>card(t,true)).join('')+'</div>':'')+'</div>'
+    +(log?'<div class="card"><div style="font-weight:700;margin-bottom:4px">Your moves</div>'+log+'</div>':'');
+}
+async function doSwap(benchT){
+  const mine=myRoster(); if(!mine) return;
+  const sel=document.querySelector('.swap-sel[data-bench="'+benchT+'"]');
+  const starterT=sel&&sel.value; if(!starterT){flash('err','Choose which starter to swap out.');return;}
+  const ok=FC.canMove(mine,league,'swap'); if(ok.error){flash('err',ok.error);return;}
+  const res=FC.swapBenchStarter(mine,starterT,benchT); if(res.error){flash('err',res.error);return;}
+  try{ await saveRoster(mine,res.fields); await refresh(); flash('ok','Swapped '+starterT+' out and '+benchT+' in.'); }
+  catch(e){ flash('err','Could not swap: '+e.message); }
+}
+
+// ---------- Free Agents ----------
+async function initFA(){ await ensureTier(); await loadFA(POPULAR); }
+async function loadFA(tickers){
+  const need=tickers.filter(t=>!faQuotes[t]);
+  if(need.length){
+    try{
+      const d=await (await fetch(BACKEND+'/api/quotes?symbols='+need.join(','))).json();
+      ((d&&d.quoteResponse&&d.quoteResponse.result)||[]).forEach(q=>{faQuotes[q.symbol]={price:q.regularMarketPrice,name:q.shortName||q.longName||'',chg:q.regularMarketChangePercent||0};market.priceMap[q.symbol]=q.regularMarketPrice;});
+    }catch(e){}
+  }
+  faList=tickers.filter(t=>faQuotes[t]);
+  renderFA();
+}
+function renderFA(){
+  const pane=$('paneFa');
+  if(isTeacher){pane.innerHTML='';return;}
+  const mine=myRoster();
+  if(!mine){pane.innerHTML='<div class="card empty">Draft your roster first.</div>';return;}
+  const sectors=[...new Set(Object.values(FC.SECTORS))].sort();
+  let h='<div class="card"><div class="muted">'+movesBanner(mine)+' &middot; Cash available: <strong>'+money(FC.cashOf(mine,league))+'</strong></div></div>';
+  if(faPickT){
+    const cost=(tierPrices&&tierPrices[faPickT]&&tierPrices[faPickT].price)||null;
+    const roomy=(mine.starters||[]).length<league.starters_count||(mine.bench||[]).length<league.bench_count;
+    const s=FC.score(mine,league,ctxFor(mine)); const byT={}; s.rows.forEach(p=>byT[p.t]=p);
+    h+='<div class="panel"><div style="font-weight:700;margin-bottom:6px">Pick up '+esc(faPickT)+(cost!=null?' for '+money(cost):'')+'</div><div class="muted" style="margin-bottom:8px">Whoever you drop is sold at today\'s value and the gain or loss is locked into your score. Your cash covers the price.</div><select class="small" id="faDrop"><option value="">'+(roomy?'(add to an empty slot, no drop)':'Choose who to drop...')+'</option>'+FC.picksOf(mine).map(t=>'<option value="'+esc(t)+'">Drop '+esc(t)+' ('+(byT[t]&&byT[t].ret!=null?(byT[t].ret>=0?'+':'')+byT[t].ret.toFixed(1)+'%':'-')+')</option>').join('')+'</select> <button class="btn btn-primary btn-sm" data-act="confirmfa">Confirm move</button> <button class="btn btn-ghost btn-sm" data-act="cancelfa">Cancel</button></div>';
+  }
+  h+='<div style="margin:6px 0 10px"><input class="small" id="faSearch" style="width:60%;min-width:160px" placeholder="Search a ticker (e.g. XOM)"/> <button class="btn btn-ghost btn-sm" data-act="fasearch">Search</button></div>';
+  h+='<div>'+'<span class="pill'+(faSector?'':' active')+'" data-act="fasector" data-sector="">Popular</span>'+sectors.map(s=>'<span class="pill'+(faSector===s?' active':'')+'" data-act="fasector" data-sector="'+esc(s)+'">'+(SECTOR_ABBR[s]||s)+'</span>').join('')+'</div>';
+  const owned=new Set(FC.picksOf(mine));
+  h+='<div class="grid">'+(faList.length?faList.map(t=>{
+    const q=faQuotes[t], cost=(tierPrices&&tierPrices[t]&&tierPrices[t].price)||null, has=owned.has(t);
+    return '<div class="fa-card"><div class="tk">'+esc(t)+'</div><div class="nm">'+esc(q.name)+'</div><div>'+money(q.price)+' '+pct(q.chg)+'</div>'+(cost!=null?'<span class="cost">Cost '+money(cost)+'</span>':'<span class="muted">no price</span>')+'<div style="margin-top:6px">'+(has?'<span class="muted">On your roster</span>':(cost!=null?'<button class="btn btn-ghost btn-sm" data-act="pickfa" data-t="'+esc(t)+'">Pick up</button>':''))+'</div></div>';
+  }).join(''):'<div class="muted">Loading players...</div>')+'</div>';
+  pane.innerHTML=h;
+}
+async function faFilterSector(sector){
+  faSector=sector||null; faPickT=null; await ensureTier();
+  if(!sector){await loadFA(POPULAR);return;}
+  const list=Object.keys(FC.SECTORS).filter(t=>FC.SECTORS[t]===sector).sort().slice(0,30);
+  await loadFA(list);
+}
+async function faSearch(){
+  const q=(($('faSearch')||{}).value||'').trim().toUpperCase(); if(!q)return;
+  faSector=null; faPickT=null; await ensureTier();
+  const list=Object.keys(FC.SECTORS).filter(t=>t.includes(q)).slice(0,20);
+  if(!list.length){faList=[];renderFA();flash('err','No S&P 500 ticker matches "'+q+'".');return;}
+  await loadFA(list);
+}
+async function confirmFA(){
+  const mine=myRoster(); if(!mine||!faPickT) return;
+  const dropT=($('faDrop')||{}).value||null;
+  const can=FC.canMove(mine,league,'fa'); if(can.error){flash('err',can.error);return;}
+  try{
+    // fresh roster + fresh prices right before any money move
+    rosters=await fetchRosters(); const fresh=myRoster();
+    market=await FC.loadMarket(BACKEND,rosters,[faPickT]);
+    const cost=tierPrices[faPickT].price;
+    const res=FC.freeAgent(fresh,league,ctxFor(fresh),dropT,faPickT,cost);
+    if(res.error){flash('err',res.error);renderAll();return;}
+    await saveRoster(fresh,res.fields);
+    const added=faPickT; faPickT=null; await refresh(); flash('ok','Picked up '+added+(dropT?' and dropped '+dropT:'')+'.');
+  }catch(e){ flash('err','Could not complete the move: '+e.message); }
+}
+
+// ---------- Trades ----------
+function tradeValueLine(A,B,give,get){
+  const res=FC.trade(A,B,league,FC.ctxFor(market,A),give,get);
+  if(res.error) return {error:res.error};
+  return {text:'You give '+give+' (worth '+money(res.vGive)+') and get '+get+' (worth '+money(res.vGet)+'). Trades settle at today\'s market value; the difference comes out of (or goes into) your cash.'};
+}
+function renderTrades(){
+  const pane=$('paneTrades');
+  const mine=myRoster();
+  const pending=trades.filter(t=>t.status==='pending');
+  let h='';
+  if(!isTeacher){
+    if(!mine){pane.innerHTML='<div class="card empty">Draft your roster first.</div>';return;}
+    const others=rosters.filter(r=>r.user_id!==uid);
+    const theirs=others.find(r=>r.user_id===tradeDraft.to);
+    let preview='';
+    if(theirs&&tradeDraft.give&&tradeDraft.get){
+      const v=tradeValueLine(mine,theirs,tradeDraft.give,tradeDraft.get);
+      preview=v.error?'<div class="down" style="font-size:13px;margin-top:8px">'+esc(v.error)+'</div>':'<div class="muted" style="margin-top:8px">'+esc(v.text)+'</div>';
+    }
+    h+='<div class="card"><div style="font-weight:700;margin-bottom:8px">Propose a trade</div>'
+      +(others.length?'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select class="small" id="tdTo"><option value="">Trade with...</option>'+others.map(r=>'<option value="'+r.user_id+'"'+(tradeDraft.to===r.user_id?' selected':'')+'>'+esc(r.nickname||'Student')+'</option>').join('')+'</select>'
+        +'<select class="small" id="tdGive"><option value="">You give...</option>'+FC.picksOf(mine).map(t=>'<option'+(tradeDraft.give===t?' selected':'')+'>'+esc(t)+'</option>').join('')+'</select>'
+        +'<select class="small" id="tdGet"><option value="">You get...</option>'+(theirs?FC.picksOf(theirs).map(t=>'<option'+(tradeDraft.get===t?' selected':'')+'>'+esc(t)+'</option>').join(''):'')+'</select>'
+        +'<button class="btn btn-primary btn-sm" data-act="sendtrade">Send proposal</button></div>'+preview
+        :'<div class="muted">No classmates have submitted rosters yet.</div>')+'</div>';
+    const incoming=pending.filter(t=>t.to_user_id===uid), outgoing=pending.filter(t=>t.from_user_id===uid);
+    h+='<div class="card"><div style="font-weight:700;margin-bottom:4px">Waiting on you</div>'+(incoming.length?incoming.map(t=>'<div class="tr"><span><strong>'+esc(t.from_nickname||'A classmate')+'</strong> offers <strong>'+esc(t.give_ticker)+'</strong> for your <strong>'+esc(t.get_ticker)+'</strong></span><span><button class="btn btn-primary btn-sm" data-act="acceptt" data-id="'+t.id+'">Accept</button> <button class="btn btn-ghost btn-sm" data-act="declinet" data-id="'+t.id+'">Decline</button></span></div>').join(''):'<div class="muted">No offers right now.</div>')+'</div>';
+    h+='<div class="card"><div style="font-weight:700;margin-bottom:4px">Your open offers</div>'+(outgoing.length?outgoing.map(t=>'<div class="tr"><span>You offered <strong>'+esc(t.give_ticker)+'</strong> to <strong>'+esc(t.to_nickname||'a classmate')+'</strong> for their <strong>'+esc(t.get_ticker)+'</strong></span><button class="btn btn-ghost btn-sm" data-act="cancelt" data-id="'+t.id+'">Cancel</button></div>').join(''):'<div class="muted">None.</div>')+'</div>';
+  }
+  const done=trades.filter(t=>t.status!=='pending').slice(0,12);
+  h+='<div class="card"><div style="font-weight:700;margin-bottom:4px">'+(isTeacher?'All trades in this league':'Recent league trades')+'</div>'+((isTeacher?trades:done).length?(isTeacher?trades:done).map(t=>'<div class="tr"><span>'+esc(t.from_nickname||'?')+' \u2192 '+esc(t.to_nickname||'?')+': '+esc(t.give_ticker)+' for '+esc(t.get_ticker)+'</span><span class="st '+t.status+'">'+t.status+'</span></div>').join(''):'<div class="muted">No trades yet.</div>')+'</div>';
+  pane.innerHTML=h;
+}
+async function sendTrade(){
+  const mine=myRoster(); const {to,give,get}=tradeDraft;
+  if(!mine||!to||!give||!get){flash('err','Pick a classmate, what you give, and what you get.');return;}
+  const can=FC.canMove(mine,league,'trade'); if(can.error){flash('err',can.error);return;}
+  const theirs=rosters.find(r=>r.user_id===to);
+  const v=FC.trade(mine,theirs,league,FC.ctxFor(market,mine),give,get); if(v.error){flash('err',v.error);return;}
+  const res=await sbMut('class_fantasy_trades','POST',{league_id:league.id,from_user_id:uid,from_nickname:myNick,to_user_id:to,to_nickname:nick(to),give_ticker:give,get_ticker:get});
+  if(!Array.isArray(res)||!res[0]){flash('err','Could not send: '+((res&&res.message)||'unknown error'));return;}
+  tradeDraft={to:'',give:'',get:''}; await refresh(); flash('ok','Trade proposal sent.');
+}
+async function setTradeStatus(id,status){
+  const res=await sbMut('class_fantasy_trades','PATCH',{status,resolved_at:new Date().toISOString()},'id=eq.'+id+'&status=eq.pending');
+  return Array.isArray(res)&&res.length>0;
+}
+async function acceptTrade(id){
+  try{
+    const cur=(await sbGet('class_fantasy_trades','id=eq.'+id))[0];
+    if(!cur||cur.status!=='pending'||cur.to_user_id!==uid){flash('err','That offer is no longer available.');await refresh();return;}
+    rosters=await fetchRosters();
+    const rA=rosters.find(r=>r.user_id===cur.from_user_id), rB=rosters.find(r=>r.user_id===uid);
+    if(!rA||!rB){flash('err','One of the rosters could not be found.');return;}
+    for(const r of [rA,rB]){ const c=FC.canMove(r,league,'trade'); if(c.error){flash('err',(r===rA?cur.from_nickname+': ':'You: ')+c.error);return;} }
+    market=await FC.loadMarket(BACKEND,rosters,[cur.give_ticker,cur.get_ticker]);
+    const res=FC.trade(rA,rB,league,FC.ctxFor(market,rA),cur.give_ticker,cur.get_ticker);
+    if(res.error){flash('err',res.error);return;}
+    await saveRoster(rA,res.a);
+    try{ await saveRoster(rB,res.b); }
+    catch(e){ await saveRoster(rA,{starters:rA.starters,bench:rA.bench,draft_prices:rA.draft_prices,draft_real_prices:rA.draft_real_prices,entry_benchmark:rA.entry_benchmark||{},realized_pnl:rA.realized_pnl||0,realized_alpha:rA.realized_alpha||0,moves_log:rA.moves_log||[]}); throw e; }
+    await setTradeStatus(id,'accepted');
+    await refresh(); flash('ok','Trade complete: you now have '+cur.give_ticker+'.');
+  }catch(e){ flash('err','Could not complete the trade: '+e.message); }
 }
 
 // ---------- Discussion ----------
@@ -319,6 +508,31 @@ document.getElementById('postsWrap').addEventListener('click',async ev=>{
   }
 });
 
+
+
+// ---------- event wiring ----------
+document.addEventListener('click', async ev=>{
+  const el=ev.target.closest('[data-act]'); if(!el||el.closest('#postsWrap')) return;
+  const a=el.dataset.act;
+  if(a==='doswap') doSwap(el.dataset.bench);
+  else if(a==='fasector') faFilterSector(el.dataset.sector);
+  else if(a==='fasearch') faSearch();
+  else if(a==='pickfa'){ faPickT=el.dataset.t; renderFA(); }
+  else if(a==='cancelfa'){ faPickT=null; renderFA(); }
+  else if(a==='confirmfa') confirmFA();
+  else if(a==='sendtrade') sendTrade();
+  else if(a==='acceptt') acceptTrade(el.dataset.id);
+  else if(a==='declinet'){ await setTradeStatus(el.dataset.id,'declined'); await refresh(); flash('ok','Offer declined.'); }
+  else if(a==='cancelt'){ await setTradeStatus(el.dataset.id,'cancelled'); await refresh(); flash('ok','Offer cancelled.'); }
+});
+document.addEventListener('change', ev=>{
+  const id=ev.target.id;
+  if(id==='tdTo'){ tradeDraft={to:ev.target.value,give:tradeDraft.give,get:''}; renderTrades(); }
+  else if(id==='tdGive'){ tradeDraft.give=ev.target.value; renderTrades(); }
+  else if(id==='tdGet'){ tradeDraft.get=ev.target.value; renderTrades(); }
+});
+document.addEventListener('keydown', ev=>{ if(ev.key==='Enter' && ev.target.id==='faSearch') faSearch(); });
+
 // Embed mode: used when the hub sits inside the student's Fantasy tab
 const EMBED = new URLSearchParams(location.search).get('embed') === '1';
 if(EMBED){
@@ -328,10 +542,8 @@ if(EMBED){
   document.body.style.minHeight = '0';
   const base = document.createElement('base'); base.target = '_top'; document.head.appendChild(base);
   reportHeight = () => parent.postMessage({type:'leagueHeight', h: document.body.offsetHeight}, location.origin);
-  // Report after every render, not only on resize: ResizeObserver alone
-  // isn't reliable in every browser state, and a frame that doesn't grow
-  // with its content clips the bottom of the discussion.
-  ['renderStandings','renderRoster','renderPosts','showTab'].forEach(n => {
+  // Report after every render, not only on resize: ResizeObserver alone isn't reliable in every browser state
+  ['renderStandings','renderRoster','renderFA','renderTrades','renderPosts','showTab'].forEach(n => {
     const fn = window[n];
     window[n] = function(){ const r = fn.apply(this, arguments); reportHeight(); return r; };
   });
