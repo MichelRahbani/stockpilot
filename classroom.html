@@ -302,6 +302,7 @@ tr:hover td{background:#fafafa}
           <button class="btn btn-ghost btn-sm" onclick="shareCode()" title="Get a pre-written message to share with students">📤 Share</button>
           <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Trades CSV</button>
           <button class="btn btn-ghost btn-sm" onclick="exportGrades()" title="Export final grades for all students">🎓 Export Grades</button>
+          <button class="btn btn-ghost btn-sm" onclick="generateWeeklyDigest()" title="A plain-language summary of this week - copy it into an email to yourself for now">📨 Weekly Digest</button>
           <button class="btn btn-primary btn-sm" onclick="loadDashboard()">↻ Refresh</button>
         </div>
       </div>
@@ -309,6 +310,8 @@ tr:hover td{background:#fafafa}
       <div class="stats-row" id="dashStats"></div>
 
       <div id="atRiskPanel" style="display:none;margin-bottom:20px"></div>
+
+      <div id="weeklyDigestPanel" style="display:none;margin-bottom:20px"></div>
 
       <div class="tabs">
         <button class="tab active" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
@@ -461,6 +464,7 @@ tr:hover td{background:#fafafa}
                 <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)">
                   <input type="checkbox" id="fantasyDraftOpenToggle" onchange="toggleDraftOpen()"> Draft open
                 </label>
+                <a class="btn btn-ghost btn-sm" id="fantasyHubLink" href="#" style="text-decoration:none">🏟 League Hub</a>
                 <button class="btn btn-ghost btn-sm" onclick="deleteFantasyLeague()">🗑 Delete</button>
               </div>
             </div>
@@ -1378,6 +1382,7 @@ async function loadStudentFantasy(classId){
         <a href="/classroom-draft.html?class=${classId}" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:600">${rosters.length ? 'Continue Draft →' : 'Draft Your Team →'}</a>
       </div>`;
     }
+    wrap.insertAdjacentHTML('beforeend', '<div style="margin-top:8px"><a href="/classroom-league.html?class='+classId+'" style="font-size:13px;color:var(--green);text-decoration:none;font-weight:600">🏟 League Hub: standings, your roster &amp; discussion →</a></div>');
   } catch(e){
     outerWrap.style.display = 'none';
   }
@@ -1548,6 +1553,85 @@ function copyCode(){
     const orig = el.textContent;
     el.textContent = 'Copied!';
     setTimeout(()=>el.textContent=orig, 1500);
+  });
+}
+
+// ── Weekly Digest - turns the same data already on the dashboard into
+// a plain-language summary a teacher can act on in under a minute.
+// No email service exists yet to send this automatically, so for now
+// it's copy-and-paste into whatever the teacher already uses - the
+// hard part (turning numbers into "here's what needs your attention")
+// is what this builds; wiring up actual auto-send later is the easy
+// part once that infrastructure exists. ──
+async function generateWeeklyDigest(){
+  if(!currentClass) return;
+  const panel = document.getElementById('weeklyDigestPanel');
+  panel.style.display = 'block';
+  panel.innerHTML = '<div class="card"><p style="font-size:13px;color:var(--muted)">Building this week\'s digest...</p></div>';
+
+  try{
+    const members = await sbGet('class_members', 'class_id=eq.'+currentClass.id);
+    const uids = members.map(m=>m.user_id);
+    const memberMap = {};
+    members.forEach(m => memberMap[m.user_id] = m.nickname || 'Student');
+
+    const weekAgo = new Date(Date.now() - 7*24*60*60*1000);
+    const tradesThisWeek = allTrades.filter(t => new Date(t.created_at) >= weekAgo);
+    const tradersThisWeek = new Set(tradesThisWeek.map(t => t.user_id));
+    const neverTraded = members.filter(m => !(allStudentStats[m.user_id]?.trades > 0));
+
+    const completions = uids.length ? await sbGet('assignment_completions', 'class_id=eq.'+currentClass.id+'&user_id=in.('+uids.join(',')+')') : [];
+    const completionsByUser = {};
+    completions.forEach(c => { (completionsByUser[c.user_id] = completionsByUser[c.user_id]||[]).push(c); });
+    const strugglingStudents = members.filter(m => {
+      const uc = completionsByUser[m.user_id] || [];
+      return uc.length >= 2 && uc.filter(c=>!c.passed).length > uc.length/2;
+    });
+
+    const students = Object.values(allStudentStats).sort((a,b)=>b.portfolioValue-a.portfolioValue);
+    const leader = students[0];
+    const avgReturn = students.length ? students.reduce((a,s)=>a+((s.portfolioValue-100000)/100000*100),0)/students.length : 0;
+
+    const dateStr = new Date().toLocaleDateString(undefined, {month:'long', day:'numeric', year:'numeric'});
+    const lines = [];
+    lines.push(`Weekly Digest - ${currentClass.name} - ${dateStr}`);
+    lines.push('');
+    lines.push(`${tradersThisWeek.size} of ${members.length} students traded this week (${tradesThisWeek.length} trades total). Class average return: ${avgReturn>=0?'+':''}${avgReturn.toFixed(1)}%.`);
+    if(leader) lines.push(`Leading the class: ${leader.name} at $${leader.portfolioValue.toLocaleString(undefined,{maximumFractionDigits:0})}.`);
+    lines.push('');
+    if(neverTraded.length){
+      lines.push(`Needs attention - hasn\u2019t traded yet: ${neverTraded.map(m=>memberMap[m.user_id]).join(', ')}.`);
+    }
+    if(strugglingStudents.length){
+      lines.push(`Needs attention - failing more assignments than passing: ${strugglingStudents.map(m=>memberMap[m.user_id]).join(', ')}.`);
+    }
+    if(!neverTraded.length && !strugglingStudents.length){
+      lines.push('Nothing flagged this week - the whole class is engaged and on track.');
+    }
+    const digestText = lines.join('\n');
+
+    panel.innerHTML = `
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-weight:600">\ud83d\udce8 This Week's Digest</div>
+          <button class="btn btn-ghost btn-sm" onclick="copyDigestText()">Copy Text</button>
+        </div>
+        <pre id="digestTextContent" style="white-space:pre-wrap;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);line-height:1.7;margin:0">${escapeHtmlLocal(digestText)}</pre>
+      </div>
+    `;
+    window._digestText = digestText;
+  }catch(e){
+    panel.innerHTML = '<div class="card"><p style="font-size:13px;color:var(--red)">Could not build the digest - try again.</p></div>';
+  }
+}
+
+function copyDigestText(){
+  if(!window._digestText) return;
+  navigator.clipboard.writeText(window._digestText).then(()=>{
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(()=>btn.textContent=orig, 1500);
   });
 }
 
@@ -1953,6 +2037,7 @@ async function loadFantasyTab(){
     document.getElementById('fantasyActiveName').textContent = currentFantasyLeague.name;
     document.getElementById('fantasyActiveMeta').textContent = '$'+currentFantasyLeague.budget+' budget \u00b7 '+currentFantasyLeague.starters_count+' starters, '+currentFantasyLeague.bench_count+' bench';
     document.getElementById('fantasyDraftOpenToggle').checked = !!currentFantasyLeague.draft_open;
+    document.getElementById('fantasyHubLink').href = '/classroom-league.html?class=' + currentClass.id;
     await loadFantasyStandings();
   } catch(e){
     document.getElementById('fantasyLoadingMsg').textContent = 'Could not load fantasy draft.';
