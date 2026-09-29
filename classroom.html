@@ -314,7 +314,8 @@ tr:hover td{background:#fafafa}
       <div id="weeklyDigestPanel" style="display:none;margin-bottom:20px"></div>
 
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
+        <button class="tab active" onclick="switchTab('stream',this)">📢 Stream</button>
+        <button class="tab" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
         <button class="tab" onclick="switchTab('trades',this)">📋 Trade History</button>
         <button class="tab" onclick="switchTab('budgets',this)">💰 Budgets</button>
         <button class="tab" onclick="switchTab('assignments',this)">📝 Assignments</button>
@@ -322,7 +323,19 @@ tr:hover td{background:#fafafa}
         <button class="tab" onclick="switchTab('fantasy',this)">🏈 Fantasy</button>
       </div>
 
-      <div id="tabLeaderboard">
+      <div id="tabStream">
+        <div class="card" style="margin-bottom:16px">
+          <textarea id="newStreamBody" placeholder="Share an announcement with your class..." style="width:100%;min-height:70px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;resize:vertical"></textarea>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+            <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><input type="checkbox" id="newStreamPinned"> Pin to top</label>
+            <button class="btn btn-primary btn-sm" onclick="postStreamItem()">Post</button>
+          </div>
+        </div>
+        <div id="streamMsg" style="display:none;font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;background:#fef2f2;color:#dc2626"></div>
+        <div id="streamList"><p style="font-size:13px;color:var(--muted)">Loading...</p></div>
+      </div>
+
+      <div id="tabLeaderboard" style="display:none">
         <div class="table-wrap">
           <table>
             <thead><tr>
@@ -533,13 +546,19 @@ tr:hover td{background:#fafafa}
         </div>
 
         <div class="tabs" id="sdTabs">
-          <button class="tab active" data-sdtab="overview" onclick="switchStudentTab('overview')">🏠 Overview</button>
+          <button class="tab active" data-sdtab="stream" onclick="switchStudentTab('stream')">📢 Stream</button>
+          <button class="tab" data-sdtab="overview" onclick="switchStudentTab('overview')">🏠 Overview</button>
           <button class="tab" data-sdtab="assignments" onclick="switchStudentTab('assignments')">📝 Assignments</button>
           <button class="tab" data-sdtab="materials" onclick="switchStudentTab('materials')">📎 Materials</button>
           <button class="tab" id="sdTabFantasy" data-sdtab="fantasy" style="display:none" onclick="switchStudentTab('fantasy')">🏈 Fantasy</button>
         </div>
 
-        <div id="sdPaneOverview">
+        <div id="sdPaneStream">
+          <div id="sdStreamMsg" style="display:none;font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;background:#fef2f2;color:#dc2626"></div>
+          <div id="sdStreamList"><p style="font-size:13px;color:var(--muted)">Loading...</p></div>
+        </div>
+
+        <div id="sdPaneOverview" style="display:none">
         <!-- My stats -->
         <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:12px;padding:20px;margin-bottom:20px">
           <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--green);margin-bottom:12px">My Portfolio</div>
@@ -888,6 +907,7 @@ async function openDashboard(classId){
   }
   showView('dashboardView');
   loadDashboard();
+  loadStream();
 }
 
 // ── Load dashboard data with LIVE prices ──
@@ -1099,12 +1119,14 @@ function filterTrades(){
 function switchTab(tab, btn){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   btn.classList.add('active');
+  document.getElementById('tabStream').style.display = tab==='stream'?'block':'none';
   document.getElementById('tabLeaderboard').style.display = tab==='leaderboard'?'block':'none';
   document.getElementById('tabTrades').style.display = tab==='trades'?'block':'none';
   document.getElementById('tabBudgets').style.display = tab==='budgets'?'block':'none';
   document.getElementById('tabAssignments').style.display = tab==='assignments'?'block':'none';
   document.getElementById('tabMaterials').style.display = tab==='materials'?'block':'none';
   document.getElementById('tabFantasy').style.display = tab==='fantasy'?'block':'none';
+  if(tab==='stream') loadStream();
   if(tab==='assignments') loadAssignments();
   if(tab==='materials') loadMaterials();
   if(tab==='budgets') loadBudgetSubmissions();
@@ -1182,13 +1204,14 @@ async function openStudentDashboard(classId){
   window._sdClassId = classId;
   const lf = document.getElementById('sdLeagueFrame');
   if(lf){ lf.removeAttribute('src'); lf.dataset.loaded = ''; }
-  switchStudentTab('overview');
+  switchStudentTab('stream');
 
   // Get all members
   const members = await sbGet('class_members','class_id=eq.'+classId);
   const uids = members.map(m=>m.user_id);
   const memberMap = {};
   members.forEach(m=>memberMap[m.user_id]=m.nickname||'Student');
+  window._sdNickname = memberMap[uid] || myName;
 
   // Get trades for all members (used for trade counts only - real
   // current value comes from live holdings below, not trade snapshots)
@@ -1372,11 +1395,12 @@ async function loadStudentMaterials(classId){
   }
 }
 function switchStudentTab(tab){
-  ['overview','assignments','materials','fantasy'].forEach(t => {
+  ['stream','overview','assignments','materials','fantasy'].forEach(t => {
     const pane = document.getElementById('sdPane' + t[0].toUpperCase() + t.slice(1));
     if(pane) pane.style.display = (t === tab) ? 'block' : 'none';
   });
   document.querySelectorAll('#sdTabs .tab').forEach(b => b.classList.toggle('active', b.dataset.sdtab === tab));
+  if(tab === 'stream') loadStream(true, window._sdClassId);
   if(tab === 'fantasy'){
     const f = document.getElementById('sdLeagueFrame');
     // Load the League Hub lazily, only when someone actually opens the tab
@@ -1599,6 +1623,140 @@ async function submitQuiz(){
 }
 
 // ── Copy code ──
+// ── Stream ──
+let streamPosts = [];
+let streamComments = {};
+let streamExpanded = new Set();
+
+function streamShowMsg(m){
+  const el = document.getElementById('streamMsg');
+  el.textContent = m; el.style.display = m ? 'block' : 'none';
+  if(m) setTimeout(()=>{ el.style.display = 'none'; }, 4000);
+}
+
+async function loadStream(isStudent, classId){
+  const cid = classId || (currentClass && currentClass.id);
+  if(!cid) return;
+  const listEl = document.getElementById(isStudent ? 'sdStreamList' : 'streamList');
+  if(!listEl) return;
+  try{
+    streamPosts = await sbGet('class_stream_posts', 'class_id=eq.'+cid+'&order=created_at.desc');
+    const ids = streamPosts.map(p=>p.id);
+    streamComments = {};
+    if(ids.length){
+      const allComments = await sbGet('class_stream_comments', 'post_id=in.('+ids.join(',')+')&order=created_at.asc');
+      allComments.forEach(c => { (streamComments[c.post_id] = streamComments[c.post_id]||[]).push(c); });
+    }
+    renderStream(isStudent);
+  }catch(e){
+    listEl.innerHTML = '<p style="font-size:13px;color:var(--muted)">Could not load the stream.</p>';
+  }
+}
+
+function renderStream(isStudent){
+  const listEl = document.getElementById(isStudent ? 'sdStreamList' : 'streamList');
+  if(!listEl) return;
+  if(!streamPosts.length){
+    listEl.innerHTML = '<p style="font-size:13px;color:var(--muted)">No announcements yet.</p>';
+    return;
+  }
+  const uid = getUid();
+  const sorted = [...streamPosts].sort((a,b) => (b.pinned - a.pinned) || (new Date(b.created_at) - new Date(a.created_at)));
+  listEl.innerHTML = sorted.map(p => {
+    const canManage = isStudent ? false : true; // only the teacher dashboard renders manage controls
+    const comments = streamComments[p.id] || [];
+    const expanded = streamExpanded.has(p.id);
+    return `
+      <div class="card" style="margin-bottom:12px;${p.pinned ? 'border-color:#fbbf24;background:#fffbeb' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+          <div style="font-size:13px"><strong>${escapeHtmlLocal(p.nickname||'Teacher')}</strong>${p.is_teacher ? ' <span style="font-size:10px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 7px;border-radius:10px">TEACHER</span>' : ''}${p.pinned ? ' 📌' : ''}<div style="color:var(--muted);font-size:11px;margin-top:1px">${new Date(p.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</div></div>
+          ${canManage ? `<div style="display:flex;gap:10px;font-size:12px">
+            <a href="#" onclick="event.preventDefault();toggleStreamPin('${p.id}',${!p.pinned})" style="color:var(--muted);text-decoration:none">${p.pinned?'Unpin':'Pin'}</a>
+            <a href="#" onclick="event.preventDefault();deleteStreamPost('${p.id}')" style="color:#dc2626;text-decoration:none">Delete</a>
+          </div>` : ''}
+        </div>
+        <div style="font-size:14px;margin-top:8px;white-space:pre-wrap">${escapeHtmlLocal(p.body)}</div>
+        <div style="margin-top:10px">
+          <a href="#" onclick="event.preventDefault();toggleStreamThread('${p.id}',${isStudent})" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">${comments.length ? comments.length+' comment'+(comments.length===1?'':'s') : 'Add class comment'}</a>
+          <div id="streamThread_${p.id}" style="display:${expanded?'block':'none'};margin-top:8px">
+            ${comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:8px">TEACHER</span>':''} <span style="color:var(--muted)">${new Date(c.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('')}
+            <div style="display:flex;gap:6px;margin-top:8px">
+              <input type="text" id="streamCommentInput_${p.id}" placeholder="Add a class comment..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:'DM Sans',sans-serif">
+              <button class="btn btn-ghost btn-sm" onclick="postStreamComment('${p.id}',${isStudent})">Send</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleStreamThread(postId, isStudent){
+  streamExpanded.has(postId) ? streamExpanded.delete(postId) : streamExpanded.add(postId);
+  renderStream(isStudent);
+}
+
+async function postStreamItem(){
+  const body = document.getElementById('newStreamBody').value.trim();
+  if(!body){ streamShowMsg('Write something first.'); return; }
+  if(!currentClass) return;
+  try{
+    const res = await sbWriteReturn('class_stream_posts', {
+      class_id: currentClass.id, user_id: getUid(), nickname: currentClass.instructor_name || 'Teacher',
+      is_teacher: true, body, pinned: document.getElementById('newStreamPinned').checked
+    });
+    if(!res) throw new Error('save failed');
+    document.getElementById('newStreamBody').value = '';
+    document.getElementById('newStreamPinned').checked = false;
+    await loadStream();
+  }catch(e){ streamShowMsg('Could not post: ' + e.message); }
+}
+
+async function postStreamComment(postId, isStudent){
+  const input = document.getElementById('streamCommentInput_'+postId);
+  const body = input.value.trim();
+  if(!body) return;
+  const nickname = isStudent ? (window._sdNickname || 'Student') : (currentClass.instructor_name || 'Teacher');
+  try{
+    const res = await sbWriteReturn('class_stream_comments', { post_id: postId, user_id: getUid(), nickname, is_teacher: !isStudent, body });
+    if(!res) throw new Error('save failed');
+    input.value = '';
+    streamExpanded.add(postId);
+    await loadStream(isStudent);
+  }catch(e){ streamShowMsg('Could not comment: ' + e.message); }
+}
+
+async function toggleStreamPin(postId, pinned){
+  try{
+    await fetch(SUPA_URL+'/rest/v1/class_stream_posts?id=eq.'+postId, {
+      method:'PATCH', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json'},
+      body: JSON.stringify({pinned})
+    });
+    await loadStream();
+  }catch(e){ streamShowMsg('Could not update: ' + e.message); }
+}
+
+async function deleteStreamPost(postId){
+  if(!confirm('Delete this post? Its comments will be removed too.')) return;
+  try{
+    await fetch(SUPA_URL+'/rest/v1/class_stream_posts?id=eq.'+postId, { method:'DELETE', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken()} });
+    await loadStream();
+  }catch(e){ streamShowMsg('Could not delete: ' + e.message); }
+}
+
+// Generic write-then-return-row helper for the new tables - keeps every
+// new insert honest about whether it actually saved, matching the fix
+// made earlier today after the draft page once showed success on a
+// failed save.
+async function sbWriteReturn(table, body){
+  const r = await fetch(SUPA_URL+'/rest/v1/'+table, {
+    method:'POST', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json',Prefer:'return=representation'},
+    body: JSON.stringify(body)
+  });
+  const rows = await r.json();
+  return Array.isArray(rows) && rows[0] ? rows[0] : null;
+}
+
 function copyCode(){
   navigator.clipboard.writeText(currentClass?.join_code||'').then(()=>{
     const el = document.getElementById('dashCode');
