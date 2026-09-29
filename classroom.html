@@ -386,6 +386,13 @@ tr:hover td{background:#fafafa}
             <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Due Date</label>
               <input type="date" id="newAsgDue" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
           </div>
+          <div style="margin-bottom:10px">
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Unit (optional)</label>
+            <div style="display:flex;gap:8px">
+              <select id="newAsgUnit" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"><option value="">No unit</option></select>
+              <button type="button" class="btn btn-ghost btn-sm" onclick="createUnitPrompt()">+ New Unit</button>
+            </div>
+          </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
             <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Type</label>
               <select id="newAsgType" onchange="updateAsgCriteriaLabel()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
@@ -569,6 +576,11 @@ tr:hover td{background:#fafafa}
             <div><div style="font-size:24px;font-weight:700" id="sdMyTrades">0</div><div style="font-size:12px;color:var(--muted)">My Trades</div></div>
           </div>
           <a href="/trade" class="btn btn-primary btn-sm" style="display:inline-block;margin-top:14px;text-decoration:none">📈 Go Trade →</a>
+        </div>
+
+        <div id="sdWhatsDueWrap" style="display:none;margin-bottom:20px">
+          <div style="font-size:16px;font-weight:700;margin-bottom:12px">📅 What's Due</div>
+          <div id="sdWhatsDueList"></div>
         </div>
 
         <!-- Class leaderboard (names only, no private details) -->
@@ -1201,6 +1213,7 @@ async function openStudentDashboard(classId){
   document.getElementById('studentDashboard').style.display = 'block';
   loadStudentMaterials(classId);
   loadStudentFantasy(classId);
+  loadWhatsDue(classId, uid);
   window._sdClassId = classId;
   const lf = document.getElementById('sdLeagueFrame');
   if(lf){ lf.removeAttribute('src'); lf.dataset.loaded = ''; }
@@ -1623,6 +1636,35 @@ async function submitQuiz(){
 }
 
 // ── Copy code ──
+// ── What's Due (student Overview) ──
+async function loadWhatsDue(classId, uid){
+  const wrap = document.getElementById('sdWhatsDueWrap');
+  const list = document.getElementById('sdWhatsDueList');
+  try{
+    const assignments = await sbGet('class_assignments', 'class_id=eq.'+classId+'&due_date=not.is.null&order=due_date.asc');
+    if(!assignments.length){ wrap.style.display = 'none'; return; }
+    const completions = await sbGet('assignment_completions', 'class_id=eq.'+classId+'&user_id=eq.'+uid);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const pending = assignments.filter(a => {
+      const c = completions.find(x=>x.assignment_id===a.id);
+      return !(c && c.passed);
+    });
+    if(!pending.length){ wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    list.innerHTML = pending.map(a => {
+      const due = new Date(a.due_date+'T00:00:00');
+      const overdue = due < today;
+      const dueText = due.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid ${overdue?'#fecaca':'var(--border)'};background:${overdue?'#fef2f2':'#fff'};border-radius:8px;margin-bottom:6px">
+        <span style="font-size:13px">${escapeHtmlLocal(a.title)}</span>
+        <span style="font-size:12px;font-weight:600;color:${overdue?'#dc2626':'var(--muted)'}">${overdue?'Overdue · ':'Due '}${dueText}</span>
+      </div>`;
+    }).join('');
+  }catch(e){
+    wrap.style.display = 'none';
+  }
+}
+
 // ── Stream ──
 let streamPosts = [];
 let streamComments = {};
@@ -1977,6 +2019,9 @@ function exportBudgetsCSV(){
 // ── Assignments (named, point-valued, pass/fail, auto-graded) ──
 let allAssignments = [];
 let currentClassMemberCount = 0;
+let currentClassMembers = [];
+let currentAsgCompletions = [];
+let asgExpanded = new Set();
 const ASG_CRITERIA_LABELS = {
   trading: 'Minimum trades required',
   budget: 'Minimum budget score (0-100)',
@@ -2061,6 +2106,7 @@ async function createAssignment(){
   const title = document.getElementById('newAsgTitle').value.trim();
   const points = parseInt(document.getElementById('newAsgPoints').value) || 5;
   const due = document.getElementById('newAsgDue').value || null;
+  const unit_id = document.getElementById('newAsgUnit').value || null;
   const type = document.getElementById('newAsgType').value;
   const critValue = parseFloat(document.getElementById('newAsgCriteria').value) || 1;
 
@@ -2076,7 +2122,7 @@ async function createAssignment(){
   try {
     await sbPost('class_assignments', {
       class_id: currentClass.id,
-      title, points, due_date: due, type, pass_criteria,
+      title, points, due_date: due, unit_id, type, pass_criteria,
       quiz_questions: type==='quiz' ? quizQuestions : null,
       sort_order: allAssignments.length
     });
@@ -2095,8 +2141,11 @@ async function loadAssignments(){
   try {
     const members = await sbGet('class_members','class_id=eq.'+currentClass.id);
     currentClassMemberCount = members.length;
+    currentClassMembers = members;
     allAssignments = await sbGet('class_assignments','class_id=eq.'+currentClass.id+'&order=sort_order.asc');
     const completions = await sbGet('assignment_completions','class_id=eq.'+currentClass.id);
+    currentAsgCompletions = completions;
+    await loadUnits();
     renderAssignments(completions);
   } catch(e){
     document.getElementById('assignmentsBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">Could not load assignments.</td></tr>';
@@ -2108,22 +2157,73 @@ const ASG_TYPE_LABELS = {
   budget_challenge: '🎯 Budget Challenge', daily_challenge: '📅 Daily Challenge'
 };
 
+let currentClassUnits = [];
+
+async function loadUnits(){
+  if(!currentClass) return;
+  try{
+    currentClassUnits = await sbGet('class_units', 'class_id=eq.'+currentClass.id+'&order=sort_order.asc');
+    const sel = document.getElementById('newAsgUnit');
+    if(sel){
+      const prev = sel.value;
+      sel.innerHTML = '<option value="">No unit</option>' + currentClassUnits.map(u=>'<option value="'+u.id+'">'+escapeHtmlLocal(u.title)+'</option>').join('');
+      sel.value = prev;
+    }
+  }catch(e){ currentClassUnits = []; }
+}
+
+async function createUnitPrompt(){
+  const title = prompt('Name this unit (e.g. "Week 1: Diversification"):');
+  if(!title || !title.trim()) return;
+  try{
+    await sbPost('class_units', { class_id: currentClass.id, title: title.trim(), sort_order: currentClassUnits.length });
+    await loadUnits();
+    const sel = document.getElementById('newAsgUnit');
+    const match = currentClassUnits.find(u=>u.title===title.trim());
+    if(sel && match) sel.value = match.id;
+  }catch(e){ alert('Could not create unit: ' + e.message); }
+}
+
 function renderAssignments(completions){
   if(!allAssignments.length){
     document.getElementById('assignmentsBody').innerHTML = '<tr><td colspan="6" style="text-align:center;padding:24px;color:var(--muted)">No assignments yet. Add one above.</td></tr>';
     return;
   }
-  document.getElementById('assignmentsBody').innerHTML = allAssignments.map(a=>{
+  const groups = [{id:null, title:'No Unit'}, ...currentClassUnits].map(u => ({
+    unit: u, items: allAssignments.filter(a => (a.unit_id||null) === u.id)
+  })).filter(g => g.items.length);
+
+  document.getElementById('assignmentsBody').innerHTML = groups.map(g => {
+    const header = g.unit.id ? '<tr><td colspan="6" style="background:#f3f4f6;font-weight:700;font-size:12px;padding:8px 14px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)">'+escapeHtmlLocal(g.unit.title)+'</td></tr>' : '';
+    return header + g.items.map(a=>{
     const passedCount = (completions||[]).filter(c=>c.assignment_id===a.id && c.passed).length;
-    return '<tr>'
+    const expanded = asgExpanded.has(a.id);
+    let rows = '<tr class="asg-row" data-asg="'+a.id+'" style="cursor:pointer">'
       +'<td><strong>'+a.title+'</strong></td>'
       +'<td>'+(ASG_TYPE_LABELS[a.type]||a.type)+'</td>'
       +'<td>'+a.points+' pts</td>'
       +'<td>'+(a.due_date?new Date(a.due_date+'T00:00:00').toLocaleDateString():'—')+'</td>'
-      +'<td>'+passedCount+' / '+(currentClassMemberCount||'?')+'</td>'
-      +'<td><button class="btn btn-ghost btn-sm" onclick="openCopyPicker(\'assignment\',\''+a.id+'\')" title="Copy to another class" style="margin-right:6px">📋</button><button class="btn btn-ghost btn-sm" onclick="deleteAssignment(\''+a.id+'\')" title="Delete">🗑</button></td>'
+      +'<td>'+passedCount+' / '+(currentClassMemberCount||'?')+' <span style="color:var(--muted);font-size:11px">'+(expanded?'▲':'▼')+'</span></td>'
+      +'<td><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openCopyPicker(\'assignment\',\''+a.id+'\')" title="Copy to another class" style="margin-right:6px">📋</button><button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteAssignment(\''+a.id+'\')" title="Delete">🗑</button></td>'
       +'</tr>';
+    if(expanded){
+      const statusList = currentClassMembers.map(m => {
+        const c = currentAsgCompletions.find(x=>x.assignment_id===a.id && x.user_id===m.user_id);
+        const done = c && c.passed;
+        return '<span style="display:inline-block;margin:2px 8px 2px 0;font-size:12px;padding:2px 9px;border-radius:10px;background:'+(done?'#dcfce7':'#f3f4f6')+';color:'+(done?'#166534':'#6b7280')+'">'+(done?'✅ ':'⏳ ')+escapeHtmlLocal(m.nickname||'Student')+'</span>';
+      }).join('');
+      rows += '<tr><td colspan="6" style="background:var(--bg,#f9fafb);padding:12px 14px">'+(statusList||'<span style="color:var(--muted);font-size:12px">No students yet.</span>')+'</td></tr>';
+    }
+    return rows;
   }).join('');
+  }).join('');
+  document.querySelectorAll('#assignmentsBody .asg-row').forEach(tr => {
+    tr.addEventListener('click', () => {
+      const id = tr.dataset.asg;
+      asgExpanded.has(id) ? asgExpanded.delete(id) : asgExpanded.add(id);
+      renderAssignments(currentAsgCompletions);
+    });
+  });
 }
 
 async function deleteAssignment(id){
