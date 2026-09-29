@@ -104,6 +104,8 @@ tr:hover td{background:#fafafa}
 .freeze-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:20px;background:#eff6ff;color:var(--blue);font-weight:600}
 
 @media(max-width:600px){.hero h1{font-size:26px}.field-row{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}}
+@keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+.ticker-tape { overflow:hidden; white-space:nowrap; background:#111827; color:#fff; border-radius:8px; padding:8px 0; margin-bottom:16px }
 </style>
 </head>
 <body>
@@ -308,6 +310,8 @@ tr:hover td{background:#fafafa}
       </div>
 
       <div class="stats-row" id="dashStats"></div>
+
+      <div class="ticker-tape" id="teacherTickerTape"></div>
 
       <div id="atRiskPanel" style="display:none;margin-bottom:20px"></div>
 
@@ -566,9 +570,13 @@ tr:hover td{background:#fafafa}
         </div>
 
         <div id="sdPaneOverview" style="display:none">
+        <div class="ticker-tape" id="sdTickerTape"></div>
         <!-- My stats -->
         <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:12px;padding:20px;margin-bottom:20px">
-          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--green);margin-bottom:12px">My Portfolio</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--green)">My Portfolio</div>
+            <div id="sdStreakBadge" style="font-size:12px;font-weight:700;color:#c2410c"></div>
+          </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px">
             <div><div style="font-size:24px;font-weight:700" id="sdMyValue">$100,000</div><div style="font-size:12px;color:var(--muted)">Portfolio Value</div></div>
             <div><div style="font-size:24px;font-weight:700" id="sdMyReturn">+0.00%</div><div style="font-size:12px;color:var(--muted)">My Return</div></div>
@@ -576,6 +584,7 @@ tr:hover td{background:#fafafa}
             <div><div style="font-size:24px;font-weight:700" id="sdMyTrades">0</div><div style="font-size:12px;color:var(--muted)">My Trades</div></div>
           </div>
           <a href="/trade" class="btn btn-primary btn-sm" style="display:inline-block;margin-top:14px;text-decoration:none">📈 Go Trade →</a>
+          <div id="sdBadgeRow" style="margin-top:12px"></div>
         </div>
 
         <div id="sdWhatsDueWrap" style="display:none;margin-bottom:20px">
@@ -943,6 +952,7 @@ async function loadDashboard(){
     trades = Array.isArray(tradesData) ? tradesData : [];
   }
   allTrades = trades;
+  renderTickerTape('teacherTickerTape', trades, memberMap);
 
   // Get each student's portfolio from virtual_portfolios (has positions + cash)
   const studentStats = {};
@@ -1233,6 +1243,8 @@ async function openStudentDashboard(classId){
     const t = await sbGet('trades','user_id=in.('+uids.join(',')+')&order=created_at.desc&limit=1000');
     trades = Array.isArray(t) ? t : [];
   }
+  renderTickerTape('sdTickerTape', trades, memberMap);
+  updateStreak(classId, uid, window._sdNickname);
 
   // My trades only
   const myTrades = trades.filter(t=>t.user_id===uid);
@@ -1294,6 +1306,7 @@ async function openStudentDashboard(classId){
   document.getElementById('sdMyReturn').textContent = (myReturn>=0?'+':'')+myReturn.toFixed(2)+'%';
   document.getElementById('sdMyReturn').style.color = myReturn>=0?'var(--green)':'var(--red)';
   document.getElementById('sdMyTrades').textContent = myTrades.length;
+  checkPortfolioBadges(classId, uid, window._sdNickname || myName, myStats, myTrades.length);
 
   // Leaderboard — all students ranked
   const ranked = Object.values(studentStats).sort((a,b)=>b.value-a.value);
@@ -1505,6 +1518,7 @@ async function loadStudentAssignments(classId, uid){
   } catch(e){
     completions = [];
   }
+  checkQuizBadge(classId, uid, window._sdNickname || getName(), completions, assignments);
 
   if(!assignments.length){
     wrap.innerHTML = '<p style="font-size:13px;color:var(--muted)">No assignments posted yet.</p>';
@@ -1545,14 +1559,88 @@ async function loadStudentAssignments(classId, uid){
       actionHtml = '<a href="'+link.url+'" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">'+link.label+' →</a>';
     }
 
-    return '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'
+    return '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px">'
+      + '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'
       + '<div>'
       +   '<div style="font-weight:600;font-size:14px">'+a.title+'</div>'
       +   '<div style="font-size:12px;color:var(--muted);margin-top:2px">'+(dueText?'Due '+dueText:'No due date')+'</div>'
       + '</div>'
       + '<div style="display:flex;align-items:center;gap:12px">'+statusBadge+actionHtml+'</div>'
+      + '</div>'
+      + '<div style="margin-top:8px"><a href="#" onclick="event.preventDefault();toggleAsgComments(\''+a.id+'\')" style="font-size:12px;color:var(--muted);text-decoration:none">💬 Ask about this assignment</a>'
+      + '<div id="asgComments_'+a.id+'" style="display:none;margin-top:8px"></div></div>'
       + '</div>';
   }).join('');
+}
+
+// ── Private assignment comments (student <-> teacher, one thread per student per assignment) ──
+async function toggleAsgComments(assignmentId){
+  const el = document.getElementById('asgComments_'+assignmentId);
+  if(!el) return;
+  if(el.style.display !== 'none'){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<p style="font-size:12px;color:var(--muted)">Loading...</p>';
+  const uid = getUid();
+  const cid = window._sdClassId;
+  try{
+    const comments = await sbGet('assignment_comments', 'assignment_id=eq.'+assignmentId+'&student_user_id=eq.'+uid+'&order=created_at.asc');
+    renderAsgComments(assignmentId, comments, true);
+  }catch(e){ el.innerHTML = '<p style="font-size:12px;color:var(--muted)">Could not load comments.</p>'; }
+}
+function renderAsgComments(assignmentId, comments, isStudent){
+  const el = document.getElementById('asgComments_'+assignmentId);
+  if(!el) return;
+  const thread = comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:8px">TEACHER</span>':''} <span style="color:var(--muted)">${new Date(c.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('');
+  el.innerHTML = (thread || '<p style="font-size:12px;color:var(--muted)">No messages yet - only you and your teacher can see this.</p>')
+    + '<div style="display:flex;gap:6px;margin-top:8px">'
+    + '<input type="text" id="asgCommentInput_'+assignmentId+'" placeholder="Ask a question about this..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:\'DM Sans\',sans-serif">'
+    + '<button class="btn btn-ghost btn-sm" onclick="postAsgComment(\''+assignmentId+'\','+isStudent+')">Send</button>'
+    + '</div>';
+}
+async function postAsgComment(assignmentId, isStudent){
+  const input = document.getElementById('asgCommentInput_'+assignmentId);
+  const body = input.value.trim();
+  if(!body) return;
+  const uid = getUid();
+  const studentUserId = isStudent ? uid : window._teacherViewingStudent;
+  const cid = isStudent ? window._sdClassId : currentClass.id;
+  const nickname = isStudent ? (window._sdNickname || 'Student') : (currentClass.instructor_name || 'Teacher');
+  try{
+    const res = await sbWriteReturn('assignment_comments', {
+      assignment_id: assignmentId, class_id: cid, student_user_id: studentUserId,
+      user_id: uid, nickname, is_teacher: !isStudent, body
+    });
+    if(!res) throw new Error('save failed');
+    input.value = '';
+    if(isStudent){
+      const comments = await sbGet('assignment_comments', 'assignment_id=eq.'+assignmentId+'&student_user_id=eq.'+uid+'&order=created_at.asc');
+      renderAsgComments(assignmentId, comments, true);
+    } else {
+      loadTeacherAsgThread(assignmentId, studentUserId);
+    }
+  }catch(e){ alert('Could not send: ' + e.message); }
+}
+async function loadTeacherAsgThread(assignmentId, studentUserId){
+  window._teacherViewingStudent = studentUserId;
+  const holderId = 'teacherAsgThread_'+assignmentId+'_'+studentUserId;
+  const el = document.getElementById(holderId);
+  if(!el) return;
+  el.innerHTML = '<p style="font-size:12px;color:var(--muted)">Loading...</p>';
+  const comments = await sbGet('assignment_comments', 'assignment_id=eq.'+assignmentId+'&student_user_id=eq.'+studentUserId+'&order=created_at.asc');
+  const thread = comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:8px">TEACHER</span>':''}<div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('');
+  el.innerHTML = (thread || '<p style="font-size:12px;color:var(--muted)">No messages yet.</p>')
+    + '<div style="display:flex;gap:6px;margin-top:8px">'
+    + '<input type="text" id="asgCommentInput_'+assignmentId+'" placeholder="Reply to this student..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:\'DM Sans\',sans-serif">'
+    + '<button class="btn btn-ghost btn-sm" onclick="postAsgComment(\''+assignmentId+'\',false)">Send</button>'
+    + '</div>';
+}
+async function toggleTeacherAsgThread(assignmentId, studentUserId){
+  const holderId = 'teacherAsgThread_'+assignmentId+'_'+studentUserId;
+  const el = document.getElementById(holderId);
+  if(!el) return;
+  if(el.style.display !== 'none' && el.innerHTML){ el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'block';
+  loadTeacherAsgThread(assignmentId, studentUserId);
 }
 
 // ── Take a quiz ──
@@ -1636,6 +1724,90 @@ async function submitQuiz(){
 }
 
 // ── Copy code ──
+// ── Badges ──
+const BADGE_DEFS = {
+  first_trade: { emoji: '🎯', label: 'First Trade', desc: 'Made your first trade' },
+  profitable: { emoji: '📈', label: 'In the Green', desc: 'Portfolio value above your starting $100,000' },
+  diversified: { emoji: '🧺', label: 'Diversified', desc: 'Holding 3 or more different stocks at once' },
+  quiz_ace: { emoji: '🏅', label: 'Quiz Ace', desc: 'Scored 100% on a quiz' }
+};
+let myEarnedBadges = new Set();
+
+async function loadMyBadges(classId, uid){
+  try{
+    const rows = await sbGet('student_badges', 'class_id=eq.'+classId+'&user_id=eq.'+uid);
+    myEarnedBadges = new Set(rows.map(r=>r.badge_key));
+    renderBadgeRow();
+  }catch(e){}
+}
+function renderBadgeRow(){
+  const wrap = document.getElementById('sdBadgeRow');
+  if(!wrap) return;
+  if(!myEarnedBadges.size){ wrap.innerHTML = ''; return; }
+  wrap.innerHTML = [...myEarnedBadges].map(k => {
+    const b = BADGE_DEFS[k]; if(!b) return '';
+    return '<span title="'+escapeHtmlLocal(b.desc)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:4px 10px;border-radius:20px;margin:0 6px 6px 0">'+b.emoji+' '+b.label+'</span>';
+  }).join('');
+}
+async function awardBadgeIfNew(classId, uid, nickname, key){
+  if(myEarnedBadges.has(key)) return;
+  try{
+    const res = await sbWriteReturn('student_badges', { class_id: classId, user_id: uid, nickname, badge_key: key });
+    if(res){ myEarnedBadges.add(key); renderBadgeRow(); }
+  }catch(e){ /* unique constraint just means it's already there - fine */ }
+}
+async function checkPortfolioBadges(classId, uid, nickname, myStats, tradeCount){
+  await loadMyBadges(classId, uid);
+  if(tradeCount > 0) awardBadgeIfNew(classId, uid, nickname, 'first_trade');
+  if(myStats.value > 100000) awardBadgeIfNew(classId, uid, nickname, 'profitable');
+  if(Object.keys(myStats.positions||{}).filter(t => (myStats.positions[t].qty||0) > 0).length >= 3) awardBadgeIfNew(classId, uid, nickname, 'diversified');
+}
+async function checkQuizBadge(classId, uid, nickname, completions, assignments){
+  const hasAce = completions.some(c => {
+    const a = assignments.find(x=>x.id===c.assignment_id);
+    return a && a.type === 'quiz' && a.points > 0 && c.points_awarded >= a.points;
+  });
+  if(hasAce) awardBadgeIfNew(classId, uid, nickname, 'quiz_ace');
+}
+
+// ── Streaks ──
+async function updateStreak(classId, uid, nickname){
+  const el = document.getElementById('sdStreakBadge');
+  try{
+    const rows = await sbGet('student_streaks', 'class_id=eq.'+classId+'&user_id=eq.'+uid);
+    const today = new Date().toISOString().slice(0,10);
+    let row = rows[0];
+    if(!row){
+      row = { current_streak: 1, longest_streak: 1, last_active_date: today };
+      await sbWriteReturn('student_streaks', { class_id: classId, user_id: uid, ...row });
+    } else if(row.last_active_date !== today){
+      const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+      const newCurrent = row.last_active_date === yesterday ? row.current_streak + 1 : 1;
+      const newLongest = Math.max(row.longest_streak||0, newCurrent);
+      await fetch(SUPA_URL+'/rest/v1/student_streaks?id=eq.'+row.id, {
+        method:'PATCH', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json'},
+        body: JSON.stringify({current_streak: newCurrent, longest_streak: newLongest, last_active_date: today, updated_at: new Date().toISOString()})
+      });
+      row = { current_streak: newCurrent, longest_streak: newLongest };
+    }
+    if(el) el.textContent = '🔥 ' + row.current_streak + ' day' + (row.current_streak===1?'':'s') + ' streak';
+  }catch(e){ if(el) el.textContent = ''; }
+}
+
+// ── Ticker-tape activity feed ──
+function renderTickerTape(elId, trades, memberMap){
+  const el = document.getElementById(elId);
+  if(!el) return;
+  if(!trades.length){ el.innerHTML = ''; return; }
+  const recent = trades.slice(0, 20);
+  const items = recent.map(t => {
+    const name = escapeHtmlLocal(memberMap[t.user_id] || 'A student');
+    const up = t.action === 'buy';
+    return '<span style="display:inline-block;padding:0 24px;font-size:12.5px;font-weight:600;white-space:nowrap">'+name+' <span style="color:'+(up?'var(--green)':'#dc2626')+'">'+(up?'bought':'sold')+'</span> '+t.shares+' '+t.ticker+'</span>';
+  }).join('<span style="opacity:0.3">•</span>');
+  el.innerHTML = '<div style="display:inline-block;animation:ticker-scroll 32s linear infinite">'+items+items+'</div>';
+}
+
 // ── What's Due (student Overview) ──
 async function loadWhatsDue(classId, uid){
   const wrap = document.getElementById('sdWhatsDueWrap');
@@ -2210,9 +2382,10 @@ function renderAssignments(completions){
       const statusList = currentClassMembers.map(m => {
         const c = currentAsgCompletions.find(x=>x.assignment_id===a.id && x.user_id===m.user_id);
         const done = c && c.passed;
-        return '<span style="display:inline-block;margin:2px 8px 2px 0;font-size:12px;padding:2px 9px;border-radius:10px;background:'+(done?'#dcfce7':'#f3f4f6')+';color:'+(done?'#166534':'#6b7280')+'">'+(done?'✅ ':'⏳ ')+escapeHtmlLocal(m.nickname||'Student')+'</span>';
+        return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;font-size:12px;padding:2px 9px;border-radius:10px;background:'+(done?'#dcfce7':'#f3f4f6')+';color:'+(done?'#166534':'#6b7280')+'">'+(done?'✅ ':'⏳ ')+escapeHtmlLocal(m.nickname||'Student')+' <a href="#" onclick="event.preventDefault();toggleTeacherAsgThread(\''+a.id+'\',\''+m.user_id+'\')" style="color:inherit;text-decoration:underline;font-size:11px">💬</a></span>';
       }).join('');
-      rows += '<tr><td colspan="6" style="background:var(--bg,#f9fafb);padding:12px 14px">'+(statusList||'<span style="color:var(--muted);font-size:12px">No students yet.</span>')+'</td></tr>';
+      const threadHolders = currentClassMembers.map(m => '<div id="teacherAsgThread_'+a.id+'_'+m.user_id+'" style="display:none;margin:6px 0 0 8px;padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:8px"></div>').join('');
+      rows += '<tr><td colspan="6" style="background:var(--bg,#f9fafb);padding:12px 14px">'+(statusList||'<span style="color:var(--muted);font-size:12px">No students yet.</span>')+threadHolders+'</td></tr>';
     }
     return rows;
   }).join('');
