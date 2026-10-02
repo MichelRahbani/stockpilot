@@ -344,7 +344,7 @@ tr:hover td{background:#fafafa}
         <div class="table-wrap">
           <table>
             <thead><tr>
-              <th>#</th><th>Student</th><th>Portfolio Value</th><th>Return</th><th>Cash Left</th><th>Trades</th><th>Last Trade</th>
+              <th>#</th><th>Student</th><th>Portfolio Value</th><th>Return</th><th>Cash Left</th><th>Trades</th><th>Last Trade</th><th></th>
             </tr></thead>
             <tbody id="leaderboardBody"><tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">Loading...</td></tr></tbody>
           </table>
@@ -406,9 +406,14 @@ tr:hover td{background:#fafafa}
                 <option value="budget_challenge">Budget Challenge</option>
                 <option value="daily_challenge">Daily Budget Challenge</option>
                 <option value="quiz">Quiz</option>
+                <option value="written">Written Response</option>
               </select></div>
             <div id="newAsgCriteriaWrap"><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px" id="newAsgCriteriaLabel">Minimum trades required</label>
               <input type="number" id="newAsgCriteria" value="5" min="1" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+          </div>
+          <div id="writtenPromptWrap" style="display:none;margin-bottom:12px">
+            <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Prompt for students</label>
+            <textarea id="newAsgPrompt" placeholder="e.g. In 150-200 words, explain why diversification reduces risk." style="width:100%;min-height:70px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical"></textarea>
           </div>
           <div id="quizBuilderWrap" style="display:none;background:var(--bg-alt,#f7f7f5);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -477,6 +482,11 @@ tr:hover td{background:#fafafa}
                 <input type="number" id="fantasyStarters" value="7" min="1" max="15" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
               <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Bench</label>
                 <input type="number" id="fantasyBench" value="3" min="0" max="10" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+            </div>
+            <div style="margin-bottom:14px">
+              <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Season ends (optional)</label>
+              <input type="date" id="fantasyEndDate" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
+              <div style="font-size:11px;color:var(--muted);margin-top:4px">Shows a final-standings recap to everyone once this date passes. Leave blank to run indefinitely.</div>
             </div>
             <button class="btn btn-primary" onclick="createFantasyLeague()">Create Draft</button>
           </div>
@@ -960,6 +970,7 @@ async function loadDashboard(){
   allStudentStats = {};
   members.forEach(m=>{
     studentStats[m.user_id] = {
+      uid: m.user_id,
       name: memberMap[m.user_id],
       cash: 100000,
       positions: {},
@@ -1106,8 +1117,9 @@ async function loadDashboard(){
       <td>$${s.cash.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0})}</td>
       <td>${s.trades}</td>
       <td style="color:var(--muted)">${lastTradeStr}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="removeStudent('${s.uid}','${escapeHtmlLocal(s.name||'this student')}')" title="Remove from class">🗑</button></td>
     </tr>`;
-  }).join('') : '<tr><td colspan="7" style="text-align:center;padding:24px;color:var(--muted)">No students yet — share your class code!</td></tr>';
+  }).join('') : '<tr><td colspan="8" style="text-align:center;padding:24px;color:var(--muted)">No students yet — share your class code!</td></tr>';
 
   // Trade history tab
   renderTradesTable(trades, members);
@@ -1367,7 +1379,7 @@ async function selfGradeAssignments(assignments, classId, uid){
     const bestBudgetChallenge = (Array.isArray(budgetChallenges)?budgetChallenges:[]).reduce((m,b)=>Math.max(m,b.score||0),0);
     const dailyCount = Array.isArray(dailyChallenges) ? dailyChallenges.length : 0;
 
-    const rows = assignments.filter(a => a.type !== 'quiz').map(a=>{
+    const rows = assignments.filter(a => a.type !== 'quiz' && a.type !== 'written').map(a=>{
       const crit = a.pass_criteria||{};
       let passed = false;
       if(a.type==='trading') passed = tradeCount >= (crit.min_trades||1);
@@ -1519,6 +1531,7 @@ async function loadStudentAssignments(classId, uid){
   } catch(e){
     completions = [];
   }
+  studentAssignmentsState.completions = completions;
   checkQuizBadge(classId, uid, window._sdNickname || getName(), completions, assignments);
 
   if(!assignments.length){
@@ -1540,7 +1553,18 @@ async function loadStudentAssignments(classId, uid){
     const link = ASG_TYPE_LINK[a.type] || {url:'/trade', label:'Go do this'};
 
     let statusBadge, actionHtml;
-    if(a.type === 'quiz'){
+    if(a.type === 'written'){
+      if(c && c.graded_at){
+        statusBadge = '<span class="tag tag-green">✅ Graded · '+c.points_awarded+'/'+a.points+' pts</span>';
+        actionHtml = '<a href="#" onclick="event.preventDefault();toggleWrittenSubmit(\''+a.id+'\')" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">View Response →</a>';
+      } else if(c && c.submission_text){
+        statusBadge = '<span class="tag" style="background:#f3f4f6;color:#6b7280">⏳ Submitted, awaiting grade</span>';
+        actionHtml = '<a href="#" onclick="event.preventDefault();toggleWrittenSubmit(\''+a.id+'\')" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">Edit Response →</a>';
+      } else {
+        statusBadge = '<span class="tag" style="background:#f3f4f6;color:#6b7280">📝 Not submitted</span>';
+        actionHtml = '<a href="#" onclick="event.preventDefault();toggleWrittenSubmit(\''+a.id+'\')" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">Write Response →</a>';
+      }
+    } else if(a.type === 'quiz'){
       if(c){
         const pct = a.points ? Math.round((c.points_awarded/a.points)*100) : 0;
         statusBadge = '<span class="tag" style="background:'+(pct>=70?'#dcfce7':'#fee2e2')+';color:'+(pct>=70?'#166534':'#b91c1c')+'">'+c.points_awarded+'/'+a.points+' pts ('+pct+'%)</span>';
@@ -1568,10 +1592,73 @@ async function loadStudentAssignments(classId, uid){
       + '</div>'
       + '<div style="display:flex;align-items:center;gap:12px">'+statusBadge+actionHtml+'</div>'
       + '</div>'
+      + (a.type==='written' ? '<div id="writtenSubmit_'+a.id+'" style="display:none;margin-top:10px"></div>' : '')
       + '<div style="margin-top:8px"><a href="#" onclick="event.preventDefault();toggleAsgComments(\''+a.id+'\')" style="font-size:12px;color:var(--muted);text-decoration:none">💬 Ask about this assignment</a>'
       + '<div id="asgComments_'+a.id+'" style="display:none;margin-top:8px"></div></div>'
       + '</div>';
   }).join('');
+}
+
+// ── Written/essay assignments ──
+function toggleWrittenSubmit(assignmentId){
+  const el = document.getElementById('writtenSubmit_'+assignmentId);
+  if(!el) return;
+  if(el.style.display !== 'none' && el.innerHTML){ el.style.display = 'none'; return; }
+  const a = studentAssignmentsState.assignments.find(x=>x.id===assignmentId);
+  const c = (studentAssignmentsState.completions||[]).find(x=>x.assignment_id===assignmentId);
+  const prompt = (a.pass_criteria||{}).prompt || '';
+  const graded = c && c.graded_at;
+  el.style.display = 'block';
+  el.innerHTML = (prompt ? '<div style="font-size:13px;color:var(--muted);margin-bottom:8px;font-style:italic">'+escapeHtmlLocal(prompt)+'</div>' : '')
+    + (graded ? '<div class="grade-badge" style="display:inline-block;margin-bottom:8px;background:var(--green-l,#f0fdf4);border:1px solid var(--green-b,#bbf7d0);color:var(--green,#16a34a);font-size:12px;font-weight:600;padding:4px 10px;border-radius:8px">Grade: '+c.points_awarded+'/'+a.points+(c.feedback?' — '+escapeHtmlLocal(c.feedback):'')+'</div>' : '')
+    + '<textarea id="writtenText_'+assignmentId+'" '+(graded?'readonly':'')+' placeholder="Write your response here..." style="width:100%;min-height:120px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:\'DM Sans\',sans-serif;resize:vertical">'+escapeHtmlLocal((c && c.submission_text) || '')+'</textarea>'
+    + (graded ? '' : '<div style="text-align:right;margin-top:6px"><button class="btn btn-primary btn-sm" onclick="submitWrittenResponse(\''+assignmentId+'\')">Submit</button></div>');
+}
+async function toggleWrittenGrade(assignmentId, studentUserId){
+  const el = document.getElementById('writtenGrade_'+assignmentId+'_'+studentUserId);
+  if(!el) return;
+  if(el.style.display !== 'none' && el.innerHTML){ el.style.display = 'none'; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<p style="font-size:12px;color:var(--muted)">Loading...</p>';
+  const a = allAssignments.find(x=>x.id===assignmentId);
+  const c = (await sbGet('assignment_completions', 'assignment_id=eq.'+assignmentId+'&user_id=eq.'+studentUserId))[0];
+  if(!c || !c.submission_text){
+    el.innerHTML = '<p style="font-size:12px;color:var(--muted)">No submission yet.</p>';
+    return;
+  }
+  el.innerHTML = '<div style="font-size:13px;white-space:pre-wrap;margin-bottom:10px;padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:6px">'+escapeHtmlLocal(c.submission_text)+'</div>'
+    + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
+    + '<input type="number" id="writtenScore_'+assignmentId+'_'+studentUserId+'" min="0" max="'+a.points+'" placeholder="0-'+a.points+'" value="'+(c.graded_at?c.points_awarded:'')+'" style="width:70px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px">'
+    + '<input type="text" id="writtenFeedback_'+assignmentId+'_'+studentUserId+'" placeholder="Feedback (optional)" value="'+escapeHtmlLocal(c.feedback||'')+'" style="flex:1;min-width:140px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px">'
+    + '<button class="btn btn-primary btn-sm" onclick="saveWrittenGrade(\''+assignmentId+'\',\''+studentUserId+'\')">'+(c.graded_at?'Update Grade':'Save Grade')+'</button>'
+    + '</div>';
+}
+async function saveWrittenGrade(assignmentId, studentUserId){
+  const a = allAssignments.find(x=>x.id===assignmentId);
+  const score = parseFloat(document.getElementById('writtenScore_'+assignmentId+'_'+studentUserId).value);
+  if(isNaN(score) || score < 0 || score > a.points){ alert('Enter a score from 0 to '+a.points+'.'); return; }
+  const feedback = document.getElementById('writtenFeedback_'+assignmentId+'_'+studentUserId).value.trim();
+  try{
+    await fetch(SUPA_URL+'/rest/v1/assignment_completions?assignment_id=eq.'+assignmentId+'&user_id=eq.'+studentUserId, {
+      method:'PATCH', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json'},
+      body: JSON.stringify({passed: score >= a.points*0.6, points_awarded: score, feedback: feedback||null, graded_at: new Date().toISOString()})
+    });
+    await loadAssignments();
+  }catch(e){ alert('Could not save grade: ' + e.message); }
+}
+
+async function submitWrittenResponse(assignmentId){
+  const text = document.getElementById('writtenText_'+assignmentId).value.trim();
+  if(!text){ alert('Write something before submitting.'); return; }
+  const classId = studentAssignmentsState.classId, uid = studentAssignmentsState.uid;
+  try{
+    await fetch(SUPA_URL+'/rest/v1/assignment_completions?on_conflict=assignment_id,user_id', {
+      method:'POST',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},
+      body: JSON.stringify([{assignment_id: assignmentId, class_id: classId, user_id: uid, nickname: getName()||'Student', submission_text: text, passed: false, points_awarded: 0, evaluated_at: new Date().toISOString()}])
+    });
+    await loadStudentAssignments(classId, uid);
+  }catch(e){ alert('Could not submit: ' + e.message); }
 }
 
 // ── Private assignment comments (student <-> teacher, one thread per student per assignment) ──
@@ -1972,6 +2059,17 @@ async function sbWriteReturn(table, body){
   return Array.isArray(rows) && rows[0] ? rows[0] : null;
 }
 
+async function removeStudent(userId, name){
+  if(!confirm('Remove ' + name + ' from this class? Their trades and portfolio stay as-is, they just lose access to this class.')) return;
+  try{
+    const r = await fetch(SUPA_URL+'/rest/v1/class_members?class_id=eq.'+currentClass.id+'&user_id=eq.'+userId, {
+      method:'DELETE', headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken()}
+    });
+    if(!r.ok) throw new Error('request failed');
+    loadDashboard();
+  }catch(e){ alert('Could not remove student: ' + e.message); }
+}
+
 function copyCode(){
   navigator.clipboard.writeText(currentClass?.join_code||'').then(()=>{
     const el = document.getElementById('dashCode');
@@ -2208,10 +2306,13 @@ let quizQuestions = [];
 function updateAsgCriteriaLabel(){
   const type = document.getElementById('newAsgType').value;
   document.getElementById('newAsgCriteriaLabel').textContent = ASG_CRITERIA_LABELS[type] || 'Minimum required';
-  document.getElementById('newAsgCriteriaWrap').style.display = type === 'quiz' ? 'none' : 'block';
+  document.getElementById('newAsgCriteriaWrap').style.display = (type === 'quiz' || type === 'written') ? 'none' : 'block';
   document.getElementById('quizBuilderWrap').style.display = type === 'quiz' ? 'block' : 'none';
+  document.getElementById('writtenPromptWrap').style.display = type === 'written' ? 'block' : 'none';
   document.getElementById('newAsgHelpText').textContent = type === 'quiz'
     ? 'Scored proportionally by how many questions a student gets right - not pass/fail. Students can retake it since this is meant for practice.'
+    : type === 'written'
+    ? "Students submit a written response. You grade it yourself and leave feedback - this one isn't auto-graded."
     : "Students pass or fail — no partial credit. Grading runs automatically off what they've already done in the app, so nothing to grade by hand.";
 }
 
@@ -2291,6 +2392,7 @@ async function createAssignment(){
   else if(type==='budget') pass_criteria = {min_score: critValue};
   else if(type==='budget_challenge') pass_criteria = {min_score: critValue};
   else if(type==='daily_challenge') pass_criteria = {min_count: critValue};
+  else if(type==='written') pass_criteria = {prompt: document.getElementById('newAsgPrompt').value.trim()};
 
   try {
     await sbPost('class_assignments', {
@@ -2300,6 +2402,7 @@ async function createAssignment(){
       sort_order: allAssignments.length
     });
     document.getElementById('newAsgTitle').value = '';
+    document.getElementById('newAsgPrompt').value = '';
     quizQuestions = [];
     renderQuizQuestionList();
     await loadAssignments();
@@ -2327,7 +2430,8 @@ async function loadAssignments(){
 
 const ASG_TYPE_LABELS = {
   trading: '📈 Trading', budget: '💰 Budget Planner',
-  budget_challenge: '🎯 Budget Challenge', daily_challenge: '📅 Daily Challenge'
+  budget_challenge: '🎯 Budget Challenge', daily_challenge: '📅 Daily Challenge',
+  written: '✍️ Written'
 };
 
 let currentClassUnits = [];
@@ -2369,7 +2473,7 @@ function renderAssignments(completions){
   document.getElementById('assignmentsBody').innerHTML = groups.map(g => {
     const header = g.unit.id ? '<tr><td colspan="6" style="background:#f3f4f6;font-weight:700;font-size:12px;padding:8px 14px;text-transform:uppercase;letter-spacing:0.04em;color:var(--muted)">'+escapeHtmlLocal(g.unit.title)+'</td></tr>' : '';
     return header + g.items.map(a=>{
-    const passedCount = (completions||[]).filter(c=>c.assignment_id===a.id && c.passed).length;
+    const passedCount = (completions||[]).filter(c=>c.assignment_id===a.id && (a.type==='written' ? c.graded_at : c.passed)).length;
     const expanded = asgExpanded.has(a.id);
     let rows = '<tr class="asg-row" data-asg="'+a.id+'" style="cursor:pointer">'
       +'<td><strong>'+a.title+'</strong></td>'
@@ -2382,10 +2486,11 @@ function renderAssignments(completions){
     if(expanded){
       const statusList = currentClassMembers.map(m => {
         const c = currentAsgCompletions.find(x=>x.assignment_id===a.id && x.user_id===m.user_id);
-        const done = c && c.passed;
-        return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;font-size:12px;padding:2px 9px;border-radius:10px;background:'+(done?'#dcfce7':'#f3f4f6')+';color:'+(done?'#166534':'#6b7280')+'">'+(done?'✅ ':'⏳ ')+escapeHtmlLocal(m.nickname||'Student')+' <a href="#" onclick="event.preventDefault();toggleTeacherAsgThread(\''+a.id+'\',\''+m.user_id+'\')" style="color:inherit;text-decoration:underline;font-size:11px">💬</a></span>';
+        const done = a.type==='written' ? (c && !!c.graded_at) : (c && c.passed);
+        const gradeLink = a.type==='written' ? ' <a href="#" onclick="event.preventDefault();toggleWrittenGrade(\''+a.id+'\',\''+m.user_id+'\')" style="color:inherit;text-decoration:underline;font-size:11px">'+(c&&c.submission_text?'📄 grade':'none yet')+'</a>' : '';
+        return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;font-size:12px;padding:2px 9px;border-radius:10px;background:'+(done?'#dcfce7':'#f3f4f6')+';color:'+(done?'#166534':'#6b7280')+'">'+(done?'✅ ':'⏳ ')+escapeHtmlLocal(m.nickname||'Student')+gradeLink+' <a href="#" onclick="event.preventDefault();toggleTeacherAsgThread(\''+a.id+'\',\''+m.user_id+'\')" style="color:inherit;text-decoration:underline;font-size:11px">💬</a></span>';
       }).join('');
-      const threadHolders = currentClassMembers.map(m => '<div id="teacherAsgThread_'+a.id+'_'+m.user_id+'" style="display:none;margin:6px 0 0 8px;padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:8px"></div>').join('');
+      const threadHolders = currentClassMembers.map(m => '<div id="teacherAsgThread_'+a.id+'_'+m.user_id+'" style="display:none;margin:6px 0 0 8px;padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:8px"></div><div id="writtenGrade_'+a.id+'_'+m.user_id+'" style="display:none;margin:6px 0 0 8px;padding:8px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px"></div>').join('');
       rows += '<tr><td colspan="6" style="background:var(--bg,#f9fafb);padding:12px 14px">'+(statusList||'<span style="color:var(--muted);font-size:12px">No students yet.</span>')+threadHolders+'</td></tr>';
     }
     return rows;
@@ -2536,10 +2641,11 @@ async function createFantasyLeague(){
   const budget = parseFloat(document.getElementById('fantasyBudget').value) || 100;
   const starters = parseInt(document.getElementById('fantasyStarters').value) || 7;
   const bench = parseInt(document.getElementById('fantasyBench').value) || 3;
+  const end_date = document.getElementById('fantasyEndDate').value || null;
   try {
     await sbPost('class_fantasy_leagues', {
       class_id: currentClass.id, name, budget,
-      starters_count: starters, bench_count: bench, draft_open: true
+      starters_count: starters, bench_count: bench, draft_open: true, end_date
     });
     await loadFantasyTab();
   } catch(e){ alert('Could not create draft: '+e.message); }
