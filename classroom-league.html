@@ -190,7 +190,9 @@ async function init(){
   try{
     const cs=await sbGet('classes','id=eq.'+classId);
     if(!cs.length){$('loadingMsg').textContent='Class not found.';return;}
-    cls=cs[0]; isTeacher=cls.instructor_id===uid;
+    cls=cs[0];
+    const coTeach = await sbGet('class_co_teachers','class_id=eq.'+classId+'&user_id=eq.'+uid);
+    isTeacher = cls.instructor_id===uid || coTeach.length>0;
     const ls=await sbGet('class_fantasy_leagues','class_id=eq.'+classId+'&order=created_at.desc&limit=1');
     if(!ls.length){$('loadingMsg').textContent='No fantasy league has been set up for this class yet.';return;}
     league=ls[0];
