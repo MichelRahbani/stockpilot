@@ -81,6 +81,7 @@ details.how{margin-top:10px;font-size:13px;color:var(--muted)}details.how summar
   <div id="hub" style="display:none">
     <h1 id="leagueTitle"></h1>
     <div class="sub" id="leagueSub"></div>
+    <div id="recapBanner" style="display:none"></div>
     <div id="globalMsg" class="msg error"></div>
     <div id="globalOk" class="ok"></div>
     <div class="tabs">
@@ -205,8 +206,23 @@ async function init(){
     $('leagueSub').textContent=cls.name+' \u00b7 $'+league.budget+' budget \u00b7 '+league.starters_count+' starters, '+league.bench_count+' bench';
     $('postAs').textContent='Posting as '+myNick+(isTeacher?' (teacher)':'');
     if(isTeacher){$('tabBtnRoster').style.display='none';$('tabBtnFa').style.display='none';}
+    renderRecap();
     renderAll(); loadPosts();
   }catch(e){$('loadingMsg').textContent='Could not load the league - try refreshing.';}
+}
+
+function renderRecap(){
+  const banner = $('recapBanner');
+  if(!league.end_date || league.end_date > new Date().toISOString().split('T')[0]){ banner.style.display='none'; return; }
+  const ranked = FC.rank(rosters, league, r => FC.ctxFor(market, r));
+  if(!ranked.length){ banner.style.display='none'; return; }
+  const medal = i => i===0?'\ud83e\udd47':i===1?'\ud83e\udd48':i===2?'\ud83e\udd49':(i+1)+'.';
+  banner.style.display = 'block';
+  banner.innerHTML = `<div class="card" style="background:#fffbeb;border-color:#fde68a">
+    <div style="font-weight:700;font-size:15px;margin-bottom:2px">\ud83c\udfc1 Season Complete</div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:10px">This league ended ${new Date(league.end_date+'T00:00:00').toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})}. Final standings:</div>
+    ${ranked.slice(0,5).map((x,i)=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>${medal(i)} ${esc(x.r.nickname||'Student')}</span><span style="font-weight:600">${(x.s.score>=0?'+':'')+x.s.score.toFixed(2)}</span></div>`).join('')}
+  </div>`;
 }
 
 const TABS=['standings','roster','fa','trades','discuss'];
