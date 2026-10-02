@@ -119,7 +119,7 @@ tr:hover td{background:#fafafa}
   <div class="nav-right">
     <span id="navUser" style="font-size:13px;color:var(--muted);display:none"></span>
     <div style="position:relative;display:inline-block" id="notifWrap">
-      <button class="btn btn-ghost btn-sm" onclick="toggleNotifPanel()" title="Notifications" style="position:relative"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg></span><span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red,#dc2626);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 5px;line-height:1.3">0</span></button>
+      <button class="btn btn-ghost btn-sm" onclick="toggleNotifPanel()" title="Notifications" style="position:relative">🔔<span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red,#dc2626);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 5px;line-height:1.3">0</span></button>
       <div id="notifPanel" style="display:none;position:absolute;right:0;top:36px;width:280px;max-height:360px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.12);z-index:50"></div>
     </div>
     <a href="/trade" class="btn btn-ghost btn-sm">Virtual Market</a>
@@ -241,17 +241,17 @@ tr:hover td{background:#fafafa}
     <div class="page" style="padding-top:0">
       <div class="card-grid">
         <div class="card">
-          <div style="margin-bottom:10px;color:var(--green)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+          <div style="font-size:28px;margin-bottom:10px">📊</div>
           <h2>Live Leaderboard</h2>
           <p style="font-size:13px;color:var(--muted);margin-top:6px">See every student's portfolio value and return % in real time. Updated every time they trade.</p>
         </div>
         <div class="card">
-          <div style="margin-bottom:10px;color:var(--green)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></div>
+          <div style="font-size:28px;margin-bottom:10px">📋</div>
           <h2>Full Trade History</h2>
           <p style="font-size:13px;color:var(--muted);margin-top:6px">Every buy and sell is logged with timestamp, price, shares, and P&L. Export to CSV anytime.</p>
         </div>
         <div class="card">
-          <div style="margin-bottom:10px;color:var(--green)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="M9.5 12.5 11 14l3.5-3.5"/></svg></div>
+          <div style="font-size:28px;margin-bottom:10px">🔒</div>
           <h2>Freeze Portfolios</h2>
           <p style="font-size:13px;color:var(--muted);margin-top:6px">Set an end date and portfolios lock automatically — perfect for semester-end evaluation.</p>
         </div>
@@ -270,9 +270,9 @@ tr:hover td{background:#fafafa}
         </div>
         <div style="display:flex;gap:8px">
           <button class="btn btn-ghost btn-sm" onclick="showView('landingView')">← Back</button>
-          <a href="/classroom-pricing.html" class="btn btn-ghost btn-sm" style="text-decoration:none"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg></span>Pricing &amp; Upgrade</a>
-          <button class="btn btn-ghost" onclick="openModal('coTeacherJoinModal')"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Join as Co-Teacher</button>
-          <button class="btn btn-primary" onclick="openModal('createModal')"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg></span>New Class</button>
+          <a href="/classroom-pricing.html" class="btn btn-ghost btn-sm" style="text-decoration:none">💳 Pricing &amp; Upgrade</a>
+          <button class="btn btn-ghost" onclick="openModal('coTeacherJoinModal')">🤝 Join as Co-Teacher</button>
+          <button class="btn btn-primary" onclick="openModal('createModal')">+ New Class</button>
         </div>
       </div>
       <div id="allSectionsSummary" style="display:none;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px">
@@ -294,7 +294,7 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
       <div id="classList">
-        <div class="empty"><div class="icon" style="color:#c7cdd6"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 8-4 8 4"/><path d="M18 10v11"/><path d="M6 10v11"/><path d="M12 10v11"/><path d="M4 10h16"/><path d="M4 6v4"/><path d="M20 6v4"/></svg></div><p>No classes yet. Create your first class above.</p></div>
+        <div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>
       </div>
     </div>
   </div>
@@ -308,7 +308,7 @@ tr:hover td{background:#fafafa}
           <div class="section-title" id="dashClassName" style="margin-bottom:4px"></div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <span id="dashCourseCode" style="font-size:13px;color:var(--muted)"></span>
-            <span id="dashFreeze" class="freeze-badge" style="display:none"><span class="icn" style="display:inline-flex;vertical-align:-2px;margin-right:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Freezes <span id="dashFreezeDate"></span></span>
+            <span id="dashFreeze" class="freeze-badge" style="display:none">🔒 Freezes <span id="dashFreezeDate"></span></span>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
@@ -318,11 +318,11 @@ tr:hover td{background:#fafafa}
             <div style="font-size:11px;color:var(--green);margin-top:2px;cursor:pointer" onclick="copyCode()">click to copy</div>
           </div>
           <span id="freezeCountdown" style="font-size:12px;color:var(--muted);margin-right:8px"></span>
-          <button class="btn btn-ghost btn-sm" onclick="shareCode()" title="Get a pre-written message to share with students"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg></span>Share</button>
+          <button class="btn btn-ghost btn-sm" onclick="shareCode()" title="Get a pre-written message to share with students">📤 Share</button>
           <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Trades CSV</button>
-          <button class="btn btn-ghost btn-sm" onclick="exportGrades()" title="Export final grades for all students"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg></span>Export Grades</button>
-          <button class="btn btn-ghost btn-sm" onclick="generateWeeklyDigest()" title="A plain-language summary of this week - copy it into an email to yourself for now"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 5L2 7"/></svg></span>Weekly Digest</button>
-          <button class="btn btn-ghost btn-sm" onclick="toggleRosterPanel()"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span>Roster</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportGrades()" title="Export final grades for all students">🎓 Export Grades</button>
+          <button class="btn btn-ghost btn-sm" onclick="generateWeeklyDigest()" title="A plain-language summary of this week - copy it into an email to yourself for now">📨 Weekly Digest</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleRosterPanel()">📋 Roster</button>
           <button class="btn btn-primary btn-sm" onclick="loadDashboard()">↻ Refresh</button>
         </div>
       </div>
@@ -338,13 +338,13 @@ tr:hover td{background:#fafafa}
       <div id="weeklyDigestPanel" style="display:none;margin-bottom:20px"></div>
 
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('stream',this)"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>Stream</button>
-        <button class="tab" onclick="switchTab('leaderboard',this)"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></span>Leaderboard</button>
-        <button class="tab" onclick="switchTab('trades',this)"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg></span>Trade History</button>
-        <button class="tab" onclick="switchTab('budgets',this)"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span>Budgets</button>
-        <button class="tab" onclick="switchTab('assignments',this)"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span>Assignments</button>
-        <button class="tab" onclick="switchTab('materials',this)"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span>Materials</button>
-        <button class="tab" onclick="switchTab('fantasy',this)"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>Fantasy</button>
+        <button class="tab active" onclick="switchTab('stream',this)">📢 Stream</button>
+        <button class="tab" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
+        <button class="tab" onclick="switchTab('trades',this)">📋 Trade History</button>
+        <button class="tab" onclick="switchTab('budgets',this)">💰 Budgets</button>
+        <button class="tab" onclick="switchTab('assignments',this)">📝 Assignments</button>
+        <button class="tab" onclick="switchTab('materials',this)">📎 Materials</button>
+        <button class="tab" onclick="switchTab('fantasy',this)">🏈 Fantasy</button>
       </div>
 
       <div id="tabStream">
@@ -458,7 +458,7 @@ tr:hover td{background:#fafafa}
           <span style="font-size:13px;color:var(--muted)">Assignments for this class</span>
           <div style="display:flex;gap:8px">
             <button class="btn btn-ghost btn-sm" id="runGradingBtn" onclick="runGrading()">↻ Run Grading</button>
-            <button class="btn btn-ghost btn-sm" onclick="exportAssignmentGrades()"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/></svg></span>Export Assignment Grades</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportAssignmentGrades()">🎓 Export Assignment Grades</button>
           </div>
         </div>
         <div class="table-wrap">
@@ -518,8 +518,8 @@ tr:hover td{background:#fafafa}
                 <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)">
                   <input type="checkbox" id="fantasyDraftOpenToggle" onchange="toggleDraftOpen()"> Draft open
                 </label>
-                <a class="btn btn-ghost btn-sm" id="fantasyHubLink" href="#" style="text-decoration:none"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>League Hub</a>
-                <button class="btn btn-ghost btn-sm" onclick="deleteFantasyLeague()"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span>Delete</button>
+                <a class="btn btn-ghost btn-sm" id="fantasyHubLink" href="#" style="text-decoration:none">🏟 League Hub</a>
+                <button class="btn btn-ghost btn-sm" onclick="deleteFantasyLeague()">🗑 Delete</button>
               </div>
             </div>
             <div style="font-size:13px;color:var(--muted)" id="fantasyActiveMeta"></div>
@@ -587,11 +587,11 @@ tr:hover td{background:#fafafa}
         </div>
 
         <div class="tabs" id="sdTabs">
-          <button class="tab active" data-sdtab="stream" onclick="switchStudentTab('stream')"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span>Stream</button>
+          <button class="tab active" data-sdtab="stream" onclick="switchStudentTab('stream')">📢 Stream</button>
           <button class="tab" data-sdtab="overview" onclick="switchStudentTab('overview')">🏠 Overview</button>
-          <button class="tab" data-sdtab="assignments" onclick="switchStudentTab('assignments')"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span>Assignments</button>
-          <button class="tab" data-sdtab="materials" onclick="switchStudentTab('materials')"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg></span>Materials</button>
-          <button class="tab" id="sdTabFantasy" data-sdtab="fantasy" style="display:none" onclick="switchStudentTab('fantasy')"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>Fantasy</button>
+          <button class="tab" data-sdtab="assignments" onclick="switchStudentTab('assignments')">📝 Assignments</button>
+          <button class="tab" data-sdtab="materials" onclick="switchStudentTab('materials')">📎 Materials</button>
+          <button class="tab" id="sdTabFantasy" data-sdtab="fantasy" style="display:none" onclick="switchStudentTab('fantasy')">🏈 Fantasy</button>
         </div>
 
         <div id="sdPaneStream">
@@ -613,7 +613,7 @@ tr:hover td{background:#fafafa}
             <div><div style="font-size:24px;font-weight:700" id="sdMyRank">#-</div><div style="font-size:12px;color:var(--muted)">My Rank</div></div>
             <div><div style="font-size:24px;font-weight:700" id="sdMyTrades">0</div><div style="font-size:12px;color:var(--muted)">My Trades</div></div>
           </div>
-          <a href="/trade" class="btn btn-primary btn-sm" style="display:inline-block;margin-top:14px;text-decoration:none"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>Go Trade →</a>
+          <a href="/trade" class="btn btn-primary btn-sm" style="display:inline-block;margin-top:14px;text-decoration:none">📈 Go Trade →</a>
           <div id="sdBadgeRow" style="margin-top:12px"></div>
         </div>
 
@@ -634,7 +634,7 @@ tr:hover td{background:#fafafa}
         </div>
 
         <!-- My trade history -->
-        <div style="font-size:16px;font-weight:700;margin:20px 0 12px"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></span>My Trade History</div>
+        <div style="font-size:16px;font-weight:700;margin:20px 0 12px">📋 My Trade History</div>
         <div class="table-wrap">
           <table>
             <thead><tr>
@@ -667,7 +667,7 @@ tr:hover td{background:#fafafa}
         <div id="sdPaneFantasy" style="display:none">
         <!-- Fantasy draft -->
         <div id="sdFantasyWrap" style="display:none;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700;margin-bottom:12px"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/></svg></span>Fantasy Draft</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏈 Fantasy Draft</div>
           <div id="sdFantasyCard"></div>
         </div>
 
@@ -909,7 +909,7 @@ async function loadMyClasses(){
   const el = document.getElementById('classList');
   const summaryEl = document.getElementById('allSectionsSummary');
   if(!classes.length){
-    el.innerHTML = '<div class="empty"><div class="icon" style="color:#c7cdd6"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m4 6 8-4 8 4"/><path d="M18 10v11"/><path d="M6 10v11"/><path d="M12 10v11"/><path d="M4 10h16"/><path d="M4 6v4"/><path d="M20 6v4"/></svg></div><p>No classes yet. Create your first class above.</p></div>';
+    el.innerHTML = '<div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>';
     summaryEl.style.display = 'none';
     return;
   }
@@ -942,7 +942,7 @@ async function loadMyClasses(){
   el.innerHTML = classes.map(c=>`
     <div class="class-card" onclick="openDashboard('${c.id}')">
       <div class="class-card-left">
-        <h3>${c.name}${c.instructor_id!==uid ? ' <span style="font-size:11px;font-weight:600;background:#eff6ff;color:#2563eb;padding:1px 8px;border-radius:10px;vertical-align:middle"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>Co-teaching</span>' : ''}</h3>
+        <h3>${c.name}${c.instructor_id!==uid ? ' <span style="font-size:11px;font-weight:600;background:#eff6ff;color:#2563eb;padding:1px 8px;border-radius:10px;vertical-align:middle">🤝 Co-teaching</span>' : ''}</h3>
         <p>${c.course_code||'No course code'} ${c.freeze_date ? '· Freezes '+c.freeze_date : ''}</p>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
@@ -1127,7 +1127,7 @@ async function loadDashboard(){
   if(freezeEl && currentClass.freeze_date){
     const fd = new Date(currentClass.freeze_date);
     const daysLeft = Math.ceil((fd - new Date())/(1000*60*60*24));
-    if(daysLeft > 0) freezeEl.innerHTML = '<span class="icn" style="display:inline-flex;vertical-align:-2px;margin-right:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>Freezes in <strong>'+daysLeft+'</strong> day'+(daysLeft===1?'':'s')+' &middot; '+fd.toLocaleDateString();
+    if(daysLeft > 0) freezeEl.innerHTML = '🔒 Freezes in <strong>'+daysLeft+'</strong> day'+(daysLeft===1?'':'s')+' &middot; '+fd.toLocaleDateString();
     else freezeEl.innerHTML = '🔒 <strong>Frozen</strong> since '+fd.toLocaleDateString();
     freezeEl.style.color = daysLeft <= 7 ? '#dc2626' : 'var(--muted)';
   } else if(freezeEl){ freezeEl.textContent=''; }
@@ -1994,7 +1994,7 @@ async function renderRosterPanel(){
   const matched = expected.filter(e => joinedNames.has(e.name.trim().toLowerCase()));
   const missing = expected.filter(e => !joinedNames.has(e.name.trim().toLowerCase()));
 
-  let html = '<div class="card"><div style="font-weight:600;margin-bottom:8px"><span class="icn" style="display:inline-flex;vertical-align:-3px;margin-right:5px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span>Expected Roster</div>';
+  let html = '<div class="card"><div style="font-weight:600;margin-bottom:8px">📋 Expected Roster</div>';
   if(expected.length){
     html += '<div style="font-size:13px;color:var(--muted);margin-bottom:10px">'+matched.length+' of '+expected.length+' expected students have joined'+(missing.length?', using a nickname that matches exactly what you pasted':'')+'.</div>';
     if(missing.length){
