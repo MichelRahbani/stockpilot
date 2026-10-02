@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Classroom Pricing | StockPilot</title>
+<meta name="description" content="StockPilot Classroom pricing - free for a single class, paid plans for instructors running multiple sections."/>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--g900:#12161f;--g600:#5a6478;--g400:#9aa3b4;--g100:#e4e7ed;--off:#f7f8fa;--green:#1a9e6e;--green-l:#e8f7f2}
+body{font-family:'DM Sans',sans-serif;color:var(--g900);background:#fff}
+a{color:var(--green)}
+nav{padding:16px 24px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-weight:700;font-size:18px;color:var(--g900);text-decoration:none}
+.logo img{height:28px;width:28px;border-radius:6px}
+.page{max-width:1000px;margin:0 auto;padding:56px 24px 80px;text-align:center}
+h1{font-family:'Fraunces',serif;font-size:36px;font-weight:700;margin-bottom:10px}
+.lead{font-size:16px;color:var(--g600);margin-bottom:48px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;text-align:left}
+@media(max-width:800px){.plans{grid-template-columns:1fr}}
+.plan{border:1px solid var(--g100);border-radius:16px;padding:28px 24px;display:flex;flex-direction:column}
+.plan.featured{border-color:var(--green);border-width:2px;position:relative}
+.featured-tag{position:absolute;top:-12px;left:24px;background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:3px 12px;border-radius:20px;letter-spacing:0.03em}
+.plan-name{font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--g400);margin-bottom:10px}
+.plan-price{font-family:'Fraunces',serif;font-size:36px;font-weight:700;margin-bottom:2px}
+.plan-period{font-size:13px;color:var(--g400);margin-bottom:18px}
+.plan ul{list-style:none;margin-bottom:24px;flex:1}
+.plan li{font-size:14px;color:var(--g600);padding:7px 0;border-top:1px solid var(--off)}
+.plan li:first-child{border-top:none}
+.plan li::before{content:"✓ ";color:var(--green);font-weight:700}
+.btn{display:block;text-align:center;padding:11px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:inherit;text-decoration:none}
+.btn-green{background:var(--green);color:#fff}
+.btn-outline{background:transparent;color:var(--g900);border:1px solid var(--g100)}
+.note{font-size:13px;color:var(--g400);margin-top:36px}
+#msg{display:none;max-width:460px;margin:0 auto 24px;padding:12px 16px;border-radius:10px;font-size:13px}
+#msg.error{background:#fef2f2;color:#dc2626;display:block}
+footer{border-top:1px solid var(--g100);padding:24px;text-align:center;font-size:13px;color:var(--g400);margin-top:40px}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/classroom.html" class="logo"><img src="/logo.jpg" alt=""/>StockPilot Classroom</a>
+  <a href="/classroom.html" style="font-size:14px;text-decoration:none;color:var(--g600)">← Back to Class</a>
+</nav>
+
+<div class="page">
+  <h1>Simple pricing for every classroom</h1>
+  <p class="lead">Every student feature is free, forever. Paid plans add more sections, more students, and tools for running a whole department.</p>
+
+  <div id="msg"></div>
+
+  <div class="plans">
+    <div class="plan">
+      <div class="plan-name">Pilot</div>
+      <div class="plan-price">$0</div>
+      <div class="plan-period">forever</div>
+      <ul>
+        <li>1 section</li>
+        <li>Up to 75 students</li>
+        <li>Trading, budgeting, quizzes, materials</li>
+        <li>Fantasy draft &amp; league hub</li>
+        <li>Full gradebook export</li>
+      </ul>
+      <a href="/classroom.html" class="btn btn-outline">Your current plan</a>
+    </div>
+
+    <div class="plan featured">
+      <div class="featured-tag">MOST POPULAR</div>
+      <div class="plan-name">Instructor</div>
+      <div class="plan-price">$299</div>
+      <div class="plan-period">per term</div>
+      <ul>
+        <li>Up to 3 sections</li>
+        <li>Up to 250 students</li>
+        <li>Everything in Pilot</li>
+        <li>Copy assignments &amp; materials across sections</li>
+        <li>Multi-section dashboard</li>
+        <li>Priority support</li>
+      </ul>
+      <button class="btn btn-green" id="btnInstructor" onclick="startCheckout('instructor')">Upgrade to Instructor</button>
+    </div>
+
+    <div class="plan">
+      <div class="plan-name">Department</div>
+      <div class="plan-price">$2,500</div>
+      <div class="plan-period">per year</div>
+      <ul>
+        <li>Up to 10 instructors</li>
+        <li>Up to 1,500 students</li>
+        <li>Everything in Instructor</li>
+        <li>Shared templates across instructors</li>
+        <li>Department-level analytics</li>
+      </ul>
+      <button class="btn btn-outline" id="btnDepartment" onclick="startCheckout('department')">Contact Us</button>
+    </div>
+  </div>
+
+  <p class="note">Need a University or High School / District plan? <a href="mailto:hello@mystockspilot.com">Reach out</a> and we'll put something together.</p>
+</div>
+
+<footer>© 2026 StockPilot · Educational use only · Not financial advice</footer>
+
+<script>
+const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+const BACKEND = 'https://stockpilot-production-c94f.up.railway.app';
+
+function getUid(){
+  const t = localStorage.getItem('supabase_token');
+  if(!t) return null;
+  try{ return JSON.parse(atob(t.split('.')[1])).sub; }catch(e){ return null; }
+}
+function showMsg(m){
+  const el = document.getElementById('msg');
+  el.textContent = m; el.className = 'error';
+}
+
+async function startCheckout(tier){
+  const uid = getUid();
+  if(!uid){ showMsg('Sign in to StockPilot first, then come back to upgrade.'); return; }
+  if(tier === 'department'){ window.location.href = 'mailto:hello@mystockspilot.com?subject=Department Plan'; return; }
+  const btn = document.getElementById('btn' + tier[0].toUpperCase() + tier.slice(1));
+  btn.textContent = 'Loading...'; btn.disabled = true;
+  try{
+    const res = await fetch(BACKEND + '/api/stripe/create-checkout-session', {
+      method: 'POST', headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ tier, userId: uid })
+    });
+    const data = await res.json();
+    if(!data.url) throw new Error(data.error || 'Could not start checkout');
+    window.location.href = data.url;
+  }catch(e){
+    showMsg('Could not start checkout: ' + e.message);
+    btn.textContent = tier === 'instructor' ? 'Upgrade to Instructor' : 'Contact Us';
+    btn.disabled = false;
+  }
+}
+
+// Highlight current plan if we know it
+(async function(){
+  const uid = getUid();
+  if(!uid) return;
+  try{
+    const res = await fetch(SUPA_URL + '/rest/v1/instructor_subscriptions?user_id=eq.' + uid, {
+      headers: {apikey: SUPA_KEY, Authorization: 'Bearer ' + SUPA_KEY}
+    });
+    const rows = await res.json();
+    if(rows[0] && rows[0].tier === 'instructor'){
+      document.getElementById('btnInstructor').textContent = 'Your current plan';
+      document.getElementById('btnInstructor').className = 'btn btn-outline';
+      document.getElementById('btnInstructor').disabled = true;
+    }
+  }catch(e){}
+})();
+</script>
+</body>
+</html>
