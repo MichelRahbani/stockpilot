@@ -180,12 +180,16 @@ FC.TICKERS = ["PENN", "JOUT", "HZO", "1361.HK", "FWONA",  "LULU", "XPOF", "7309.
 // elsewhere, just priced relative to this smaller, different pool
 // instead of the S&P 500.
 FC.TIER_PRICES = [18, 14, 10, 6, 3];
+// Draft tier is hand-assigned from real knowledge of each company's size
+// within this universe, NOT fetched live. Found live during testing: asking
+// this feed for market cap across 70 symbols is unreliable - a repeated
+// batch request reliably returns real quotes but drops market cap for
+// almost everything past the first handful of symbols, which left most
+// of the universe undraftable. The price itself (what you see, what moves)
+// still comes from a real live quote; only the draft COST is fixed.
+FC.TIER_INDEX = {"NKE": 0, "CMCSA": 0, "WBD": 0, "ADDYY": 0, "DKNG": 0, "FLUT": 1, "FOXA": 1, "FOX": 1, "PARA": 1, "TKO": 1, "LULU": 1, "SIRI": 1, "MANU": 1, "PTON": 1, "RBLX": 1, "EA": 1, "TTWO": 1, "ONON": 2, "DKS": 2, "PENN": 2, "YETI": 2, "PII": 2, "PLNT": 2, "UAA": 2, "UA": 2, "MSGS": 2, "BC": 2, "LYV": 2, "FWONK": 2, "FWONA": 2, "COLM": 2, "ASO": 2, "DECK": 2, "2020.HK": 2, "PUM.DE": 2, "MTN": 3, "RSI": 3, "SRAD": 3, "CROX": 3, "BATRA": 3, "BATRK": 3, "MSGE": 3, "RCI": 3, "BVB.DE": 3, "JUVE.MI": 3, "MBUU": 3, "WWW": 3, "HZO": 3, "MCFT": 3, "7936.T": 3, "7309.T": 3, "GIII": 3, "1368.HK": 3, "LNW": 3, "CLAR": 3, "BALY": 3, "AJAX.AS": 3, "SSL.MI": 3, "GENI": 4, "GAME": 4, "XPOF": 4, "LTH": 4, "JOUT": 4, "ESCA": 4, "1361.HK": 4, "9921.TW": 4, "9914.TW": 4, "8022.T": 4, "7272.T": 4};
 FC.loadSportsTiers = async (backend) => {
   const prices = {};
-  // Found live: requesting all 70 symbols in one batch makes the backend's
-  // data provider drop marketCap for most of them (only ~6 of 69 came back
-  // with it). Smaller chunks reliably return full data, so fetch in chunks
-  // of 15 instead of one giant request.
   const chunkSize = 15;
   const rows = [];
   for (let i = 0; i < FC.TICKERS.length; i += chunkSize) {
@@ -196,17 +200,10 @@ FC.loadSportsTiers = async (backend) => {
       rows.push(...((data && data.quoteResponse && data.quoteResponse.result) || []));
     } catch (e) {}
   }
-  const withCap = rows.filter(q => q.marketCap > 0).sort((a, b) => b.marketCap - a.marketCap);
-  const n = withCap.length;
-  withCap.forEach((q, i) => {
-    const tier = Math.min(4, Math.floor((i / n) * 5)); // 0-4, biggest caps first
-    prices[q.symbol] = { price: FC.TIER_PRICES[tier], tier: tier + 1, name: q.shortName || q.longName, marketCap: q.marketCap, quote: q.regularMarketPrice };
-  });
-  // Any ticker whose quote came back but with no marketCap still gets a
-  // price - worst tier by default - rather than being silently undraftable.
   rows.forEach(q => {
-    if (!prices[q.symbol] && q.regularMarketPrice > 0) {
-      prices[q.symbol] = { price: FC.TIER_PRICES[4], tier: 5, name: q.shortName || q.longName, marketCap: null, quote: q.regularMarketPrice };
+    if (q.regularMarketPrice > 0) {
+      const tier = FC.TIER_INDEX[q.symbol] != null ? FC.TIER_INDEX[q.symbol] : 4;
+      prices[q.symbol] = { price: FC.TIER_PRICES[tier], tier: tier + 1, name: q.shortName || q.longName, marketCap: q.marketCap || null, quote: q.regularMarketPrice };
     }
   });
   return prices;
