@@ -182,18 +182,33 @@ FC.TICKERS = ["PENN", "JOUT", "HZO", "1361.HK", "FWONA",  "LULU", "XPOF", "7309.
 FC.TIER_PRICES = [18, 14, 10, 6, 3];
 FC.loadSportsTiers = async (backend) => {
   const prices = {};
-  try {
-    const res = await fetch(backend + '/api/quotes?symbols=' + FC.TICKERS.join(','));
-    const data = await res.json();
-    const rows = ((data && data.quoteResponse && data.quoteResponse.result) || [])
-      .filter(q => q.marketCap > 0)
-      .sort((a, b) => b.marketCap - a.marketCap);
-    const n = rows.length;
-    rows.forEach((q, i) => {
-      const tier = Math.min(4, Math.floor((i / n) * 5)); // 0-4, biggest caps first
-      prices[q.symbol] = { price: FC.TIER_PRICES[tier], tier: tier + 1, name: q.shortName || q.longName, marketCap: q.marketCap, quote: q.regularMarketPrice };
-    });
-  } catch (e) {}
+  // Found live: requesting all 70 symbols in one batch makes the backend's
+  // data provider drop marketCap for most of them (only ~6 of 69 came back
+  // with it). Smaller chunks reliably return full data, so fetch in chunks
+  // of 15 instead of one giant request.
+  const chunkSize = 15;
+  const rows = [];
+  for (let i = 0; i < FC.TICKERS.length; i += chunkSize) {
+    const chunk = FC.TICKERS.slice(i, i + chunkSize);
+    try {
+      const res = await fetch(backend + '/api/quotes?symbols=' + chunk.join(','));
+      const data = await res.json();
+      rows.push(...((data && data.quoteResponse && data.quoteResponse.result) || []));
+    } catch (e) {}
+  }
+  const withCap = rows.filter(q => q.marketCap > 0).sort((a, b) => b.marketCap - a.marketCap);
+  const n = withCap.length;
+  withCap.forEach((q, i) => {
+    const tier = Math.min(4, Math.floor((i / n) * 5)); // 0-4, biggest caps first
+    prices[q.symbol] = { price: FC.TIER_PRICES[tier], tier: tier + 1, name: q.shortName || q.longName, marketCap: q.marketCap, quote: q.regularMarketPrice };
+  });
+  // Any ticker whose quote came back but with no marketCap still gets a
+  // price - worst tier by default - rather than being silently undraftable.
+  rows.forEach(q => {
+    if (!prices[q.symbol] && q.regularMarketPrice > 0) {
+      prices[q.symbol] = { price: FC.TIER_PRICES[4], tier: 5, name: q.shortName || q.longName, marketCap: null, quote: q.regularMarketPrice };
+    }
+  });
   return prices;
 };
 
