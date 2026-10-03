@@ -158,6 +158,7 @@ function renderRound(){
       <div>
         <div class="ticker-name">${symbol} <span style="font-weight:500;color:var(--muted);font-size:15px">${TICKER_POOL[symbol] || ''}</span></div>
         <div class="ticker-sub">${chartPoints.length} trading days shown - what happens next?</div>
+        <div class="ticker-sub" style="font-size:12px;opacity:0.75">${new Date(chartPoints[0].t*1000).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})} \u2013 ${new Date(chartPoints[chartPoints.length-1].t*1000).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})} \u00b7 a new random period each round, so the same stock can show up more than once with completely different results</div>
       </div>
     </div>
     <div class="chart-box">${svg}</div>
@@ -211,6 +212,7 @@ function makeGuess(direction){
 
   document.getElementById('gameCard').innerHTML = `
     <div class="reveal">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:4px">${new Date(points[guessIdx].t*1000).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})} → ${new Date(points[guessIdx+1].t*1000).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'})}</div>
       <div class="reveal-move ${actualDirection === 'up' ? 'up' : 'down'}">${actualDirection === 'up' ? '▲' : '▼'} ${pctMove > 0 ? '+' : ''}${pctMove}%</div>
       <div class="reveal-verdict ${correct ? 'correct' : 'wrong'}">${correct ? '✓ Correct! Streak continues.' : '✗ Wrong - streak ends.'}</div>
       ${correct
