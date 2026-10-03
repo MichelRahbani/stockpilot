@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Sports Stock Fantasy | StockPilot Bullpen</title>
+<meta name="description" content="Draft a fantasy team of publicly-traded sports companies - team ownership groups, apparel, betting, sports media, and more. Real prices, real scoring, FPL-style budget draft."/>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#16a34a;--green-l:#f0fdf4;--green-b:#bbf7d0;--red:#dc2626;--red-l:#fef2f2;--border:#e5e7eb;--bg:#f9fafb;--white:#fff;--text:#111827;--muted:#6b7280}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:16px;color:var(--text)}
+.nav-logo img{height:28px;width:28px;border-radius:6px}
+.badge{background:#dcfce7;color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px}
+.page{max-width:760px;margin:0 auto;padding:40px 20px 80px}
+h1{font-size:28px;font-weight:800;margin-bottom:6px}
+.sub{color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.6}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+@media(max-width:640px){.cards{grid-template-columns:1fr}}
+.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:22px}
+.card h2{font-size:17px;margin-bottom:6px}
+.card p{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5}
+.field{margin-bottom:12px}
+.field label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
+.field input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:inherit;width:100%}
+.btn-primary{background:var(--green);color:#fff}
+.btn-primary:disabled{background:#9ca3af}
+.msg{font-size:13px;padding:8px 12px;border-radius:8px;margin-top:10px;display:none}
+.msg.error{background:var(--red-l);color:var(--red)}
+.msg.success{background:var(--green-l);color:var(--green)}
+.universe-note{background:var(--green-l);border:1px solid var(--green-b);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.6;margin-bottom:24px}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/bullpen.html" class="nav-logo"><img src="/logo.jpg" alt=""/>StockPilot <span class="badge">BULLPEN</span></a>
+  <a href="/bullpen.html" class="btn" style="width:auto;background:transparent;border:1px solid var(--border);color:var(--muted)">← Bullpen</a>
+</nav>
+
+<div class="page">
+  <h1>🏟️ Sports Stock Fantasy</h1>
+  <p class="sub">Same FPL-style budget draft as our other fantasy games, pointed at a different universe: real, publicly-traded companies connected to sports - team ownership groups, apparel, equipment, betting, media, and more. Real prices, real scoring.</p>
+
+  <div class="universe-note">
+    <strong>71 real tickers</strong>, verified against live market data - team ownership (Manchester United, Madison Square Garden Sports, Atlanta Braves Holdings, Borussia Dortmund, and more), apparel & footwear, equipment & retail, betting & sports data, sports media, boats & powersports, fitness, and esports. Spread across US, European, and Asian exchanges.
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <h2>Create a League</h2>
+      <p>Get a code to share with your club or friends.</p>
+      <div class="field"><label>League Name</label><input type="text" id="cName" placeholder="e.g. Oregon Sports Fund"/></div>
+      <div class="field"><label>Your Name</label><input type="text" id="cManager" placeholder="How you'll appear"/></div>
+      <div class="row2">
+        <div class="field"><label>Starters</label><input type="number" id="cStarters" value="7" min="1" max="15"/></div>
+        <div class="field"><label>Bench</label><input type="number" id="cBench" value="3" min="0" max="10"/></div>
+      </div>
+      <div class="field"><label>Budget ($)</label><input type="number" id="cBudget" value="100" min="10"/></div>
+      <button class="btn btn-primary" id="createBtn" onclick="createLeague()">Create League →</button>
+      <div class="msg" id="createMsg"></div>
+    </div>
+    <div class="card">
+      <h2>Join a League</h2>
+      <p>Enter the code someone shared with you.</p>
+      <div class="field"><label>League Code</label><input type="text" id="joinCode" placeholder="ABC123" maxlength="6" style="text-transform:uppercase;font-family:monospace;font-size:18px;letter-spacing:2px" oninput="this.value=this.value.toUpperCase()"/></div>
+      <button class="btn btn-primary" onclick="goToLeague()">Go to League →</button>
+      <div class="msg" id="joinMsg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPA_URL = 'https://xkfxofcmrmpazfjviatq.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhrZnhvZmNtcm1wYXpmanZpYXRxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNzE5MDcsImV4cCI6MjA5Mzk0NzkwN30.DiO5Xo-gh-t_gq_IuSiqXlwX6_LIw3YvZgugknz1o_Q';
+
+function getUid(){ const t = localStorage.getItem('supabase_token'); if(!t) return null; try{ return JSON.parse(atob(t.split('.')[1])).sub; }catch(e){ return null; } }
+function getName(){ return localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || ''; }
+function genCode(){ const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s=''; for(let i=0;i<6;i++) s+=c[Math.floor(Math.random()*c.length)]; return s; }
+function showMsg(id, text, type){ const el=document.getElementById(id); el.textContent=text; el.className='msg '+type; el.style.display='block'; }
+
+async function createLeague(){
+  const uid = getUid();
+  if(!uid){ showMsg('createMsg','Sign in to StockPilot first.','error'); return; }
+  const name = document.getElementById('cName').value.trim() || 'Sports Stock Fantasy';
+  const manager = document.getElementById('cManager').value.trim() || getName() || 'Commissioner';
+  const starters = parseInt(document.getElementById('cStarters').value) || 7;
+  const bench = parseInt(document.getElementById('cBench').value) || 3;
+  const budget = parseFloat(document.getElementById('cBudget').value) || 100;
+  const btn = document.getElementById('createBtn');
+  btn.disabled = true; btn.textContent = 'Creating...';
+  try{
+    let code = genCode();
+    const r = await fetch(SUPA_URL+'/rest/v1/sports_fantasy_leagues', {
+      method:'POST', headers:{apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY, 'Content-Type':'application/json', Prefer:'return=representation'},
+      body: JSON.stringify({ code, name, commissioner_name: manager, commissioner_user_id: uid, budget, starters_count: starters, bench_count: bench, draft_open: true })
+    });
+    const rows = await r.json();
+    if(!Array.isArray(rows) || !rows[0]) throw new Error((rows && rows.message) || 'could not create');
+    location.href = '/bullpen-sports-league.html?code='+code;
+  }catch(e){
+    showMsg('createMsg','Could not create league: '+e.message,'error');
+    btn.disabled = false; btn.textContent = 'Create League →';
+  }
+}
+function goToLeague(){
+  const code = document.getElementById('joinCode').value.trim().toUpperCase();
+  if(code.length !== 6){ showMsg('joinMsg','Enter a 6-character code.','error'); return; }
+  location.href = '/bullpen-sports-league.html?code='+code;
+}
+</script>
+</body>
+</html>
