@@ -968,7 +968,16 @@ const handlePortfolio = async (reqUrl) => {
   };
 };
 
+// Self-serve account deletion. Handles only /api/account/* and does nothing
+// unless SUPABASE_SERVICE_KEY is set. If it fails to load, everything else still runs.
+let accountApi = null;
+try { accountApi = require("./account-delete.js"); } catch (error) { console.error("Account deletion module not loaded:", error.message); }
+
 const server = http.createServer(async (req, res) => {
+  if (accountApi) {
+    try { if (await accountApi.handle(req, res)) return; }
+    catch (error) { console.error("Account module error:", error.message); if (res.headersSent) return; }
+  }
   if (req.method === "OPTIONS") return send(res, 204, {});
 
   try {
