@@ -144,6 +144,7 @@ tr:hover td{background:#fafafa}
     <div class="field"><label>Email</label><input type="email" id="siEmail" placeholder="your@email.com"/></div>
     <div class="field"><label>Password</label><input type="password" id="siPass" placeholder="Your password"/></div>
     <button class="btn btn-primary" style="width:100%;margin-bottom:10px" id="siSubmitBtn" onclick="doSiSubmit()">Sign In</button>
+    <div id="siForgotRow" style="text-align:center;margin-bottom:4px"><a href="#" onclick="event.preventDefault();doForgot()" style="font-size:12px;color:var(--muted);text-decoration:underline">Forgot password?</a></div>
   </div>
 </div>
 
@@ -730,6 +731,7 @@ function setSiMode(mode){
   siMode = mode;
   document.getElementById('siNameField').style.display = mode==='up' ? 'block' : 'none';
   document.getElementById('siSubmitBtn').textContent = mode==='up' ? 'Create Account' : 'Sign In';
+  document.getElementById('siForgotRow').style.display = mode==='up' ? 'none' : 'block';
   const inTab = document.getElementById('siTabIn'), upTab = document.getElementById('siTabUp');
   if(mode==='up'){
     inTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer';
@@ -784,6 +786,25 @@ async function doSignin(){
     closeModal('signinModal');
     if(window._pendingFn){ const f=window._pendingFn; window._pendingFn=null; f(); }
   } catch(e){ showMsg('siMsg','Error signing in. Try again.','error'); }
+}
+
+async function doForgot(){
+  const email = document.getElementById('siEmail').value.trim();
+  if(!email){ showMsg('siMsg','Type your email above first, then tap "Forgot password?".','error'); return; }
+  showMsg('siMsg','Sending...','success');
+  try {
+    const r = await fetch(SUPA_URL+'/auth/v1/recover?redirect_to='+encodeURIComponent(location.origin+'/reset-password.html'),{
+      method:'POST', headers:{'Content-Type':'application/json','apikey':SUPA_KEY},
+      body: JSON.stringify({email})
+    });
+    if(r.status === 429){ showMsg('siMsg','Too many requests. Please wait a minute and try again.','error'); return; }
+    if(!r.ok){
+      const d = await r.json().catch(()=>({}));
+      console.warn('Reset email request failed', r.status, d);
+      showMsg('siMsg',"We couldn't send the email right now. Please try again in a few minutes.",'error'); return;
+    }
+    showMsg('siMsg',"If there's an account for that email, a reset link is on its way. Check your spam folder too.",'success');
+  } catch(e){ showMsg('siMsg','Network problem. Check your connection and try again.','error'); }
 }
 
 // ── Supabase helpers ──
