@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<script>
+/* Password-reset links from the email land on the site root with a one-time token
+   after the "#". Hand those off to the page that finishes the reset (token travels along). */
+(function(){var h=location.hash||'';if(/[#&]type=recovery/.test(h)||/error_code=otp_expired/.test(h)){location.replace('/reset-password.html'+h);}})();
+</script>
 <title>StockPilot — Free Virtual Stock Market & Investing App for Beginners</title>
 <link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
 <link rel="apple-touch-icon" href="https://mystockspilot.com/logo.jpg"/>
