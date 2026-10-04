@@ -714,6 +714,7 @@ setInterval(() => { const uid = getUid(); if(uid) loadNotifications(uid); }, 450
 
 function signOut(){
   localStorage.removeItem('supabase_token');
+  localStorage.removeItem('supabase_refresh_token');
   localStorage.removeItem('supabase_name');
   localStorage.removeItem('supabase_email');
   updateNavAuth();
@@ -723,6 +724,12 @@ function signOut(){
 function requireAuth(fn){
   if(getToken()){ fn(); return; }
   window._pendingFn = fn;
+  openModal('signinModal');
+}
+
+function openSigninModal(){
+  window._pendingFn = null;
+  setSiMode('in');
   openModal('signinModal');
 }
 
