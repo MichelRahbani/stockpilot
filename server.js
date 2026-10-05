@@ -71,6 +71,11 @@ const sendStaticFile = (res, filePath) => {
 };
 
 const cleanSymbol = (symbol) => String(symbol || "").trim().toUpperCase().replace(/[^A-Z0-9.\-=]/g, "");
+
+// BRK.B and BF.B are spelled with a dash by the data providers. If this module
+// is ever missing, everything behaves exactly as it did before.
+let classShare = { providerSymbol: (symbol) => symbol, rescueQuotes: async () => {} };
+try { classShare = require("./class-share.js"); } catch (error) { console.error("Class-share module not loaded:", error.message); }
 const finiteNumber = (value) => {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
@@ -313,6 +318,7 @@ const getQuotePayload = async (symbols) => {
   cleanSymbols.forEach((symbol) => {
     quoteMap[symbol] = { ...(quoteMap[symbol] || { symbol }), ...(finnhubMap[symbol] || {}) };
   });
+  await classShare.rescueQuotes(cleanSymbols, quoteMap, { fetchYahooChartQuote, getFinnhubQuoteMap }).catch(() => {});
   const result = cleanSymbols.map((symbol) => quoteMap[symbol]).filter((quote) => quote && Object.keys(quote).length > 1);
   if (!result.length && providerErrors.length) throw new Error(providerErrors.join("; "));
   return {
@@ -336,7 +342,8 @@ const getQuotePayload = async (symbols) => {
 const getHistoryPayload = async (symbol, range = "1y", interval = "1d", includeEvents = false) => {
   const clean = cleanSymbol(symbol);
   if (!clean) throw new Error("Missing symbol");
-  const url = new URL(`${YAHOO_CHART_BASE_URL}${encodeURIComponent(clean)}`);
+  const upstream = classShare.providerSymbol(clean);
+  const url = new URL(`${YAHOO_CHART_BASE_URL}${encodeURIComponent(upstream)}`);
   url.searchParams.set("range", range || "1y");
   url.searchParams.set("interval", interval || "1d");
   if (includeEvents) url.searchParams.set("events", "div");
@@ -354,7 +361,7 @@ const getHistoryPayload = async (symbol, range = "1y", interval = "1d", includeE
       }
     };
   } catch (error) {
-    return getFinnhubHistoryPayload(clean, range);
+    return getFinnhubHistoryPayload(upstream, range);
   }
 };
 
