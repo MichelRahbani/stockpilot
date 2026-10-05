@@ -8,9 +8,13 @@
  * Needs (set as Railway environment variables, never in code):
  *   SUPABASE_SERVICE_KEY       the Supabase "service_role" secret. Without it this
  *                              module does nothing and reports itself as disabled.
- *   ACCOUNT_DELETE_ALLOWLIST   optional, comma-separated emails. While set, ONLY
- *                              those accounts can delete (use it for the first test,
- *                              then remove it to open the feature to everyone).
+ *   ACCOUNT_DELETE_ALLOWLIST   comma-separated emails. While set, ONLY those accounts can
+ *                              delete. Use it for the first test.
+ *   ACCOUNT_DELETE_ENABLED     set to "true" to open the feature to everyone.
+ *
+ * The feature is OFF unless one of those two is set, even when the service key
+ * exists (the key is also used by the leaderboard jobs, so its presence alone must
+ * not switch on anything destructive).
  *
  * What it will and will not do:
  *   - Deletes everything tied to the signed-in person's account, then their login.
@@ -33,6 +37,7 @@ const MAX_BODY_BYTES = 10 * 1024;
 
 const baseUrl = () => process.env.SUPABASE_URL || DEFAULT_SUPABASE_URL;
 const serviceKey = () => process.env.SUPABASE_SERVICE_KEY || "";
+const switchedOn = () => !!serviceKey() && (process.env.ACCOUNT_DELETE_ENABLED === "true" || allowlist().length > 0);
 const allowlist = () => (process.env.ACCOUNT_DELETE_ALLOWLIST || "")
   .split(",").map((s) => s.trim().toLowerCase()).filter(Boolean);
 
@@ -279,7 +284,7 @@ const handle = async (req, res) => {
   try {
     // Is the feature switched on (for this person, if an allowlist is active)?
     if (req.method === "GET" && url.pathname === "/api/account/status") {
-      if (!serviceKey()) return json(res, 200, { enabled: false }, origin), true;
+      if (!switchedOn()) return json(res, 200, { enabled: false }, origin), true;
       const list = allowlist();
       if (!list.length) return json(res, 200, { enabled: true }, origin), true;
       const user = await verifyToken(bearer(req));
@@ -288,6 +293,7 @@ const handle = async (req, res) => {
 
     if (req.method === "POST" && url.pathname === "/api/account/delete") {
       if (!serviceKey()) return json(res, 503, { error: "not_configured" }, origin), true;
+      if (!switchedOn()) return json(res, 503, { error: "not_enabled" }, origin), true;
 
       const user = await verifyToken(bearer(req));
       if (!user) return json(res, 401, { error: "not_signed_in" }, origin), true;
