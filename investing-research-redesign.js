@@ -63,7 +63,7 @@
       btn.type = 'button';
       btn.className = 'research-subtab' + (i === 0 ? ' active' : '');
       btn.textContent = s.label;
-      btn.style.cssText = 'flex:0 0 auto;border:1px solid var(--sp-g100,#e4e7ed);border-radius:100px;background:transparent;color:var(--sp-g600,#3a4150);font-size:13px;font-weight:600;padding:7px 16px;cursor:pointer;white-space:nowrap;transition:all .15s';
+      btn.style.cssText = 'flex:0 0 auto;border:1px solid var(--sp-g100,#e4e7ed);border-radius:4px;background:transparent;color:var(--sp-g600,#3a4150);font-size:13px;font-weight:600;padding:7px 16px;cursor:pointer;white-space:nowrap;transition:all .15s';
       btn.addEventListener('click', function(){ showOnly(i); });
       bar.appendChild(btn);
     });

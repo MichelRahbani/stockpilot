@@ -25,7 +25,7 @@
 <meta name="keywords" content="fantasy stocks game, fantasy stock market, stock draft game, stock picking game, virtual stock league, stock market fantasy league, stock fantasy football"/>
 <meta name="description" content="The fantasy football of stocks. Draft 7 stocks, bench 3, compete with friends all season. Real prices, zero money, all bragging rights. Free to play."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wdth,wght@62..100,500..900&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -44,7 +44,7 @@
 }
 
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sp-font-sans);min-height:100vh;overflow-x:hidden}
 
 /* ── NAV ── */
 .bp-nav{
@@ -57,23 +57,23 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 }
 .bp-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
 .bp-logo-mark{
-  width:36px;height:36px;border-radius:8px;
+  width:36px;height:36px;border-radius:4px;
   background:linear-gradient(135deg,var(--green),#00bfa5);
   display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:20px;color:#000;
+  font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:20px;color:#000;
 }
-.bp-logo-text{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--text)}
+.bp-logo-text{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:22px;letter-spacing:2px;color:var(--text)}
 .bp-logo-sub{font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
 .bp-nav-right{display:flex;align-items:center;gap:12px}
-.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:8px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:8px 18px;border-radius:4px;font-size:13px;cursor:pointer;font-family:var(--sp-font-sans);transition:all 0.2s}
 .bp-hamburger{display:none;background:transparent;border:none;cursor:pointer;padding:6px;color:white}
 @media(max-width:640px){
   .bp-nav-desktop{display:none !important}
   .bp-hamburger{display:block}
 }
 .btn-ghost:hover{border-color:var(--green);color:var(--green)}
-.btn-primary{background:var(--green);border:none;color:#000;padding:8px 20px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s}
-.btn-primary:hover{background:var(--green-d);transform:translateY(-1px)}
+.btn-primary{background:var(--green);border:none;color:#000;padding:8px 20px;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sp-font-sans);transition:all 0.2s}
+.btn-primary:hover{background:var(--green-d);}
 .sp-link{font-size:12px;color:var(--muted);text-decoration:none}
 .sp-link:hover{color:var(--text)}
 
@@ -99,14 +99,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 .season-badge{
   display:inline-flex;align-items:center;gap:8px;
   background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.3);
-  border-radius:100px;padding:6px 16px;font-size:12px;color:var(--green);
+  border-radius:4px;padding:6px 16px;font-size:12px;color:var(--green);
   font-weight:500;letter-spacing:0.5px;margin-bottom:32px;
   animation:fadeUp 0.6s ease both;
 }
 .season-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
 .hero h1{
-  font-family:'Bebas Neue',sans-serif;
+  font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;
   font-size:clamp(72px,14vw,160px);
   line-height:0.9;letter-spacing:4px;
   color:#fff;
@@ -123,13 +123,13 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   animation:fadeUp 0.6s ease 0.3s both;
 }
 .btn-big{
-  padding:14px 32px;border-radius:10px;font-size:15px;font-weight:600;
-  cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;border:none;
+  padding:14px 32px;border-radius:6px;font-size:15px;font-weight:600;
+  cursor:pointer;font-family:var(--sp-font-sans);transition:all 0.2s;border:none;
 }
 .btn-big-green{background:var(--green);color:#000}
-.btn-big-green:hover{background:var(--green-d);transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,230,118,0.3)}
+.btn-big-green:hover{background:var(--green-d);box-shadow:none}
 .btn-big-outline{background:transparent;color:var(--text);border:1px solid var(--border)}
-.btn-big-outline:hover{border-color:rgba(255,255,255,0.3);transform:translateY(-2px)}
+.btn-big-outline:hover{border-color:rgba(255,255,255,0.3);}
 @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── STATS STRIP ── */
@@ -143,22 +143,22 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   border-right:1px solid var(--border);flex:1;max-width:200px;
 }
 .stat-item:last-child{border-right:none}
-.stat-num{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--green)}
+.stat-num{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:36px;color:var(--green)}
 .stat-label{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:0.5px}
 
 /* ── HOW IT WORKS ── */
 .section{padding:100px 24px;max-width:1100px;margin:0 auto}
 .section-label{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--green);font-weight:600;margin-bottom:16px}
-.section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(40px,6vw,72px);line-height:1;color:#fff;margin-bottom:48px}
+.section-title{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:clamp(40px,6vw,72px);line-height:1;color:#fff;margin-bottom:48px}
 
 .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:24px}
 .step{
-  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;
   padding:32px;position:relative;transition:border-color 0.2s;
 }
 .step:hover{border-color:rgba(0,230,118,0.3)}
 .step-num{
-  font-family:'Bebas Neue',sans-serif;font-size:64px;color:rgba(0,230,118,0.1);
+  font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:64px;color:rgba(0,230,118,0.1);
   line-height:1;position:absolute;top:16px;right:20px;
 }
 .step-icon{font-size:28px;margin-bottom:16px}
@@ -167,28 +167,28 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 /* ── DRAFT PREVIEW ── */
 .draft-preview{
-  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
   padding:32px;max-width:700px;margin:0 auto;
 }
 .draft-header{
   display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;
   padding-bottom:16px;border-bottom:1px solid var(--border);
 }
-.draft-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:1px}
-.pick-badge{background:rgba(0,230,118,0.15);color:var(--green);padding:4px 12px;border-radius:6px;font-size:12px;font-weight:600}
+.draft-title{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:24px;letter-spacing:1px}
+.pick-badge{background:rgba(0,230,118,0.15);color:var(--green);padding:4px 12px;border-radius:4px;font-size:12px;font-weight:600}
 .roster-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 .roster-section h4{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:10px}
 .roster-slots{display:flex;flex-direction:column;gap:6px}
 .slot{
   display:flex;align-items:center;gap:10px;
   background:rgba(255,255,255,0.03);border:1px solid var(--border);
-  border-radius:8px;padding:10px 12px;
+  border-radius:4px;padding:10px 12px;
 }
 .slot.filled{border-color:rgba(0,230,118,0.2);background:rgba(0,230,118,0.04)}
 .slot.bench-filled{border-color:rgba(255,214,0,0.2);background:rgba(255,214,0,0.04)}
-.slot-ticker{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:#fff;width:52px}
+.slot-ticker{font-family:var(--sp-font-mono);font-size:13px;font-weight:500;color:#fff;width:52px}
 .slot-name{font-size:12px;color:var(--muted);flex:1}
-.slot-return{font-family:'DM Mono',monospace;font-size:12px}
+.slot-return{font-family:var(--sp-font-mono);font-size:12px}
 .slot-return.up{color:var(--green)}
 .slot-return.down{color:var(--red)}
 .slot-empty{color:rgba(255,255,255,0.2);font-size:12px;flex:1}
@@ -196,12 +196,12 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 /* ── SEASONS ── */
 .seasons{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
 .season-card{
-  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  background:var(--card);border:1px solid var(--border);border-radius:6px;
   padding:20px;transition:all 0.2s;cursor:pointer;
 }
 .season-card.active{border-color:var(--green);background:rgba(0,230,118,0.06)}
 .season-card:hover:not(.active){border-color:rgba(255,255,255,0.2)}
-.season-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin-bottom:4px}
+.season-name{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:20px;letter-spacing:1px;margin-bottom:4px}
 .season-dates{font-size:12px;color:var(--muted)}
 .season-status{display:inline-block;margin-top:10px;font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
 .season-status.live{background:rgba(0,230,118,0.15);color:var(--green)}
@@ -210,15 +210,15 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 
 /* ── LEADERBOARD PREVIEW ── */
 .lb-preview{
-  background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;
 }
 .lb-header{
   padding:20px 24px;border-bottom:1px solid var(--border);
   display:flex;justify-content:space-between;align-items:center;
 }
-.lb-title{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px}
+.lb-title{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:22px;letter-spacing:1px}
 .lb-tabs{display:flex;gap:4px}
-.lb-tab{padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.2s}
+.lb-tab{padding:6px 14px;border-radius:4px;font-size:12px;cursor:pointer;border:none;font-family:var(--sp-font-sans);transition:all 0.2s}
 .lb-tab.active{background:var(--green);color:#000;font-weight:600}
 .lb-tab:not(.active){background:transparent;color:var(--muted)}
 .lb-tab:not(.active):hover{color:var(--text)}
@@ -229,14 +229,14 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
 }
 .lb-row:hover{background:rgba(255,255,255,0.02)}
 .lb-row:last-child{border-bottom:none}
-.lb-rank{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--muted)}
+.lb-rank{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:20px;color:var(--muted)}
 .lb-rank.gold{color:var(--gold)}
 .lb-rank.silver{color:#b0bec5}
 .lb-rank.bronze{color:#bf8a30}
 .lb-name{font-weight:500;font-size:14px}
 .lb-uni{font-size:11px;color:var(--muted)}
-.lb-picks{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
-.lb-return{font-family:'Bebas Neue',sans-serif;font-size:20px;text-align:right}
+.lb-picks{font-size:12px;color:var(--muted);font-family:var(--sp-font-mono)}
+.lb-return{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:20px;text-align:right}
 .lb-return.up{color:var(--green)}
 .lb-return.down{color:var(--red)}
 
@@ -246,7 +246,7 @@ body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min
   background:linear-gradient(180deg,transparent,rgba(0,230,118,0.05) 50%,transparent);
   border-top:1px solid var(--border);border-bottom:1px solid var(--border);
 }
-.cta-section h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(48px,8vw,96px);line-height:1;color:#fff;margin-bottom:16px}
+.cta-section h2{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:clamp(48px,8vw,96px);line-height:1;color:#fff;margin-bottom:16px}
 .cta-section p{font-size:16px;color:var(--muted);margin-bottom:40px}
 
 /* ── FOOTER ── */
@@ -262,7 +262,7 @@ footer a:hover{color:var(--text)}
 }
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{
-  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  background:var(--bg2);border:1px solid var(--border);border-radius:8px;
   width:100%;max-width:520px;max-height:90vh;overflow-y:auto;
   transform:translateY(16px);transition:transform 0.2s;
 }
@@ -270,9 +270,9 @@ footer a:hover{color:var(--text)}
 .modal-header{
   padding:24px 28px 0;display:flex;justify-content:space-between;align-items:center;
 }
-.modal-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px}
+.modal-title{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:28px;letter-spacing:1px}
 .modal-close{
-  width:32px;height:32px;border-radius:8px;background:var(--card);
+  width:32px;height:32px;border-radius:4px;background:var(--card);
   border:1px solid var(--border);color:var(--muted);cursor:pointer;
   display:flex;align-items:center;justify-content:center;font-size:18px;
   transition:all 0.15s;
@@ -283,14 +283,14 @@ footer a:hover{color:var(--text)}
 .form-label{display:block;font-size:13px;font-weight:500;margin-bottom:8px;color:var(--text)}
 .form-input{
   width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border);
-  border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;
-  font-family:'DM Sans',sans-serif;transition:border-color 0.15s;outline:none;
+  border-radius:6px;padding:12px 14px;color:var(--text);font-size:14px;
+  font-family:var(--sp-font-sans);transition:border-color 0.15s;outline:none;
 }
 .form-input:focus{border-color:rgba(0,230,118,0.5)}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .format-picker{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .format-opt{
-  background:var(--card);border:1px solid var(--border);border-radius:10px;
+  background:var(--card);border:1px solid var(--border);border-radius:6px;
   padding:14px;cursor:pointer;transition:all 0.15s;text-align:center;
 }
 .format-opt.selected{border-color:var(--green);background:rgba(0,230,118,0.08)}
@@ -298,14 +298,14 @@ footer a:hover{color:var(--text)}
 .format-opt-title{font-weight:600;font-size:14px;margin-bottom:4px}
 .format-opt-desc{font-size:11px;color:var(--muted)}
 .modal-footer{padding:0 28px 28px;display:flex;gap:10px}
-.btn-full{width:100%;padding:14px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.2s}
+.btn-full{width:100%;padding:14px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sp-font-sans);border:none;transition:all 0.2s}
 .btn-full-green{background:var(--green);color:#000}
 .btn-full-green:hover{background:var(--green-d)}
 .btn-full-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
 
 /* ── JOIN MODAL ── */
 .join-code-input{
-  text-align:center;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:8px;
+  text-align:center;font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:32px;letter-spacing:8px;
 }
 
 /* ── SCROLLED REVEAL ── */
@@ -325,13 +325,146 @@ footer a:hover{color:var(--text)}
 }
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Bullpen Fantasy Stocks","url":"https://mystockspilot.com/bullpen.html","description":"Fantasy stocks game — draft real stocks and compete with friends","applicationCategory":"GameApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<style id="sp-bullpen-home">
+@media(min-width:641px){.lb-row{grid-template-columns:40px minmax(0,1fr) auto 100px}.lb-picks{white-space:nowrap}}
+@media(min-width:641px) and (max-width:1023px){.seasons{grid-template-columns:repeat(2,minmax(0,1fr))}.season-card:nth-child(2n){border-right:none;margin-right:0}.season-card:nth-child(-n+2){border-bottom:1px solid var(--border)}}
+@media(min-width:1024px){.seasons{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.mode-card .mode-tag{text-wrap:balance;color:color-mix(in srgb,var(--mode) 70%,#fff)}
+.lb-tab{white-space:nowrap;border-radius:2px}
+.lb-tab:not(.active){box-shadow:inset 0 0 0 1px var(--border)}
+/* Bullpen home: dark field + Bullpen green kept; no glow, grid texture, pills or tinted cards */
+.bp-nav{height:64px;padding:0 40px;background:var(--bg);backdrop-filter:none}
+.bp-logo img{height:26px!important;width:auto!important}
+.bp-logo-text{font-size:20px;letter-spacing:0.02em}
+.bp-logo-sub span{background:none!important;border:1px solid rgba(0,230,118,0.5);border-radius:2px!important;font-family:var(--sp-font-mono);font-weight:500!important;font-size:9.5px!important;letter-spacing:0.08em!important}
+.btn-ghost{height:36px;display:inline-flex;align-items:center;padding:0 14px;border-radius:3px;color:var(--text)}
+.btn-ghost:hover{border-color:var(--text);color:var(--text)}
+.bp-nav .btn-primary{height:36px;padding:0 16px;border-radius:3px}
+#gamesMenu{border-radius:4px!important;padding:4px!important}
+#gamesMenu a{border-radius:2px!important}
+
+.hero{min-height:0;display:block;text-align:left;padding:156px max(40px,calc((100vw - 1200px)/2 + 40px)) 96px;border-bottom:1px solid var(--border)}
+.hero-bg,.hero-grid{display:none}
+.season-badge{background:none;border:none;border-radius:0;padding:0;font-family:var(--sp-font-mono);font-size:12.5px;letter-spacing:0.04em;margin-bottom:28px;animation:none}
+.season-dot{border-radius:0;width:7px;height:7px}
+.hero h1{font-weight:800;font-size:clamp(84px,13vw,188px);line-height:.84;letter-spacing:-0.01em;animation:none}
+.hero h1 span{color:inherit}
+.hero-sub{margin:32px 0 0;max-width:540px;font-size:19px;animation:none}
+.hero-ctas{justify-content:flex-start;margin-top:36px;animation:none}
+.btn-big{height:52px;padding:0 26px;border-radius:3px;font-size:15.5px}
+.btn-big-outline{border-color:rgba(255,255,255,0.22)}
+.btn-big-outline:hover{border-color:var(--text)}
+
+.stats-strip{justify-content:flex-start;background:var(--bg);padding:0 max(40px,calc((100vw - 1200px)/2 + 40px));border-top:none}
+.stat-item{flex:1 1 0;min-width:0;max-width:none;text-align:left;padding:26px 24px 28px 0;margin-right:24px}
+.stat-item:last-child{margin-right:0}
+.stat-num{font-size:52px;font-weight:800;line-height:1}
+.stat-label{font-size:13px;margin-top:8px;letter-spacing:0}
+
+.section{max-width:1200px;padding:104px 40px}
+.section-label{font-family:var(--sp-font-mono);font-size:12.5px;font-weight:500;letter-spacing:0.06em;margin-bottom:14px}
+.section-title{font-weight:800;font-size:clamp(48px,6.4vw,92px);line-height:.88;margin-bottom:48px}
+.reveal,.reveal.visible{opacity:1!important;transform:none!important;transition:none!important}
+
+/* Choose your mode */
+.mode-head{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-weight:800;font-size:clamp(40px,4.6vw,64px);line-height:.9;letter-spacing:0;margin:56px 0 12px}
+.mode-sub{color:var(--muted);font-size:16px;margin-bottom:36px}
+.mode-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:0;border-top:1px solid var(--border);border-left:1px solid var(--border)}
+.mode-card{display:flex;flex-direction:column;padding:24px 22px 22px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);box-shadow:inset 0 2px 0 var(--mode);transition:background-color .15s}
+.mode-card:hover{background:rgba(255,255,255,0.025)}
+.mode-name{font-weight:700;font-size:18px;letter-spacing:-0.01em;margin-bottom:6px}
+.mode-tag{font-family:var(--sp-font-mono);font-size:11.5px;color:var(--mode);letter-spacing:0.02em;margin-bottom:12px}
+.mode-desc{font-size:14px;color:rgba(255,255,255,0.68);line-height:1.55;margin-bottom:18px}
+.mode-link{margin-top:auto;align-self:flex-start;font-size:14px;font-weight:600;color:var(--text);text-decoration:none;border-bottom:1px solid var(--mode);padding-bottom:2px}
+.mode-link:hover{color:var(--mode)}
+
+/* Expandable info panels */
+.bp-details{max-width:none!important;margin:0 0 0!important;padding:20px 0!important;background:none;border:none;border-top:1px solid var(--border);border-radius:0}
+.section:has(.bp-details) + .section:has(.bp-details) .bp-details{border-bottom:1px solid var(--border)}
+.bp-summary-title{font-family:var(--sp-font-sans);font-stretch:100%;text-transform:none;font-size:18px;font-weight:700;letter-spacing:-0.01em}
+.bp-summary{display:flex;align-items:center;justify-content:space-between;gap:24px;cursor:pointer;list-style:none}
+.bp-summary::-webkit-details-marker{display:none}
+.bp-summary::marker{content:''}
+.bp-summary::after{content:'+';font-family:var(--sp-font-mono);font-size:20px;color:var(--muted)}
+details[open] > .bp-summary::after{content:'–'}
+.bp-details-body{margin-top:16px;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.8);max-width:760px}
+.bp-details-body p{margin-bottom:12px}
+
+/* Steps */
+.steps{grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--border)}
+.step{background:none;border:none;border-right:1px solid var(--border);border-radius:0;padding:24px 24px 0 0;margin-right:24px}
+.step:last-child{border-right:none;margin-right:0}
+.step-num{position:static;font-family:var(--sp-font-mono);font-stretch:100%;font-size:13px;color:var(--green);margin-bottom:16px}
+.step h3{font-size:18px;margin-bottom:8px}
+.step p{font-size:14.5px}
+
+/* Roster preview */
+.draft-preview{max-width:none;padding:0;background:none;border:none;border-top:2px solid var(--text);border-radius:0}
+.draft-header{padding:18px 0;margin-bottom:24px}
+.draft-title{font-size:30px;font-weight:800;letter-spacing:0}
+.pick-badge{background:none;border:none;font-family:var(--sp-font-mono);font-size:13px;padding:0}
+.roster-grid{gap:48px}
+.roster-section h4,.draft-preview h4{font-family:var(--sp-font-mono);font-size:12px;font-weight:500;letter-spacing:0.06em;color:var(--muted)}
+.roster-slots{gap:0;border-top:1px solid var(--border)}
+.slot,.slot.filled,.slot.bench-filled{background:none;border:none;border-bottom:1px solid var(--border);border-radius:0;padding:12px 4px 12px 12px}
+.slot.bench-filled .slot-ticker{color:var(--gold)}
+
+/* Seasons */
+.seasons{gap:0;border-top:1px solid var(--border)}
+.season-card{background:none;border:none;border-right:1px solid var(--border);border-radius:0;padding:22px 22px 4px 0;margin-right:22px}
+.season-card:last-child{border-right:none}
+.season-card.active{background:none;box-shadow:inset 0 2px 0 var(--green)}
+.season-name{font-size:26px;font-weight:800;letter-spacing:0}
+.season-status{border-radius:2px;font-family:var(--sp-font-mono);font-weight:500}
+
+/* Leaderboard */
+.lb-preview{background:none;border:none;border-top:2px solid var(--text);border-radius:0}
+.lb-header{padding:18px 0}
+.lb-title{font-size:26px;font-weight:800;letter-spacing:0}
+.lb-tab{border-radius:2px}
+.lb-row{padding:16px 0}
+.lb-rank,.lb-return{font-weight:700}
+
+/* Closing */
+.cta-section{background:none;text-align:left;padding:104px max(40px,calc((100vw - 1200px)/2 + 40px))}
+.cta-section h2{font-weight:800;font-size:clamp(64px,9vw,136px);line-height:.86}
+.cta-section > div{justify-content:flex-start!important}
+footer{text-align:left;padding:28px max(40px,calc((100vw - 1200px)/2 + 40px))}
+
+.modal{border-radius:6px}
+
+@media(max-width:900px){
+  .steps{grid-template-columns:1fr 1fr;row-gap:32px}
+  .step:nth-child(2){border-right:none;margin-right:0}
+}
+@media(max-width:640px){
+  .bp-nav{height:58px;padding:0 16px}
+  .hero{padding:110px 20px 56px}
+  .hero h1{font-size:84px}
+  .hero-sub{font-size:16px}
+  .hero-ctas{flex-direction:column}
+  .stats-strip{padding:0 20px}
+  .stat-item{flex:0 0 50%;margin-right:0;padding:20px 12px 20px 0}
+  .stat-num{font-size:40px}
+  .section{padding:64px 20px}
+  .section-title{font-size:52px}
+  .steps{grid-template-columns:1fr}
+  .step{border-right:none;margin-right:0;padding:20px 0;border-bottom:1px solid var(--border)}
+  .season-card{border-right:none;margin-right:0;border-bottom:1px solid var(--border)}
+  .cta-section{padding:64px 20px}
+  .cta-section h2{font-size:64px}
+  footer{padding:24px 20px}
+}
+</style>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 
 <!-- NAV -->
 <nav class="bp-nav">
   <a href="/" class="bp-logo">
-    <img src="/logo.jpg" alt="StockPilot" style="height:32px;width:32px;border-radius:6px;object-fit:cover"/>
+    <img src="/logo-mark-256.png" class="sp-mark" alt="StockPilot"/>
     <div>
       <div class="bp-logo-text">StockPilot</div>
       <div class="bp-logo-sub" style="display:flex;align-items:center;gap:4px">
@@ -345,24 +478,24 @@ footer a:hover{color:var(--text)}
     <a href="/trade" class="sp-link" title="Back to StockPilot" style="font-size:16px;padding:6px 4px">←</a>
 
     <div style="position:relative">
-      <button class="btn-ghost" id="gamesMenuBtn" onclick="toggleGamesMenu()" style="display:inline-flex;align-items:center;gap:4px">🎮 Games ▾</button>
-      <div id="gamesMenu" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:rgba(8,12,16,0.98);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:10px;padding:6px;min-width:160px;z-index:200;flex-direction:column;gap:2px">
-        <a href="/bullpen-madness.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">🏆 Madness</a>
-        <a href="/bullpen-showdown.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">📈 Showdown</a>
-        <a href="/bullpen-sports.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">🏟️ Sports Fantasy</a>
-        <a href="/bullpen-h2h.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">⚔️ 1v1</a>
-        <a href="/bullpen-teams.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">🛡️ Teams</a>
-        <a href="/bullpen-tycoon.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">🌍 Tycoon</a>
-        <a href="/bullpen-gridiron.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">⚽ Stock Tac Toe</a>
-        <a href="/bullpen-streak.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">🐂 Bull or Bear Streak</a>
-        <a href="/bullpen-speedround.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">⚡ Ticker Speed Round</a>
-        <a href="/bullpen-crash.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">⚠️ Market Crash Survival</a>
-        <a href="/bullpen-puzzle.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:7px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">🧩 Daily Portfolio Puzzle</a>
+      <button class="btn-ghost" id="gamesMenuBtn" onclick="toggleGamesMenu()" style="display:inline-flex;align-items:center;gap:4px">Games ▾</button>
+      <div id="gamesMenu" style="display:none;position:absolute;top:calc(100% + 8px);left:0;background:rgba(8,12,16,0.98);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:6px;padding:6px;min-width:160px;z-index:200;flex-direction:column;gap:2px">
+        <a href="/bullpen-madness.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Madness</a>
+        <a href="/bullpen-showdown.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Showdown</a>
+        <a href="/bullpen-sports.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Sports Fantasy</a>
+        <a href="/bullpen-h2h.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">1v1</a>
+        <a href="/bullpen-teams.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Teams</a>
+        <a href="/bullpen-tycoon.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Tycoon</a>
+        <a href="/bullpen-gridiron.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Stock Tac Toe</a>
+        <a href="/bullpen-streak.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Bull or Bear Streak</a>
+        <a href="/bullpen-speedround.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Ticker Speed Round</a>
+        <a href="/bullpen-crash.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Market Crash Survival</a>
+        <a href="/bullpen-puzzle.html" style="text-decoration:none;color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;display:block" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='transparent'">Daily Portfolio Puzzle</a>
       </div>
     </div>
 
-    <button class="btn-ghost" id="myLeaguesBtn" onclick="openMyLeagues()" style="display:none">🏟️ My Leagues</button>
-    <a href="/my-account.html" id="navAccountLink" class="btn-ghost" onclick="if(!localStorage.getItem('supabase_token')){event.preventDefault();openSignin();}" style="text-decoration:none;display:inline-flex;align-items:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">👤 Sign In</a>
+    <button class="btn-ghost" id="myLeaguesBtn" onclick="openMyLeagues()" style="display:none">My Leagues</button>
+    <a href="/my-account.html" id="navAccountLink" class="btn-ghost" onclick="if(!localStorage.getItem('supabase_token')){event.preventDefault();openSignin();}" style="text-decoration:none;display:inline-flex;align-items:center;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">Sign In</a>
     <button class="btn-ghost" onclick="requireAuth(openJoin)">Join League</button>
     <button class="btn-primary" onclick="requireAuth(openCreate)">Create League</button>
   </div>
@@ -379,17 +512,17 @@ footer a:hover{color:var(--text)}
 
 <!-- Mobile menu -->
 <div id="bpMobileMenu" style="display:none;position:fixed;top:60px;left:0;right:0;background:rgba(8,12,16,0.98);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,0.08);padding:16px;z-index:999;flex-direction:column;gap:10px">
-  <div id="mobileUserPill" style="display:none;padding:10px 14px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);border-radius:9px;font-size:13px;color:var(--green);font-weight:500"></div>
-  <button onclick="closeBpMenu();requireAuth(openCreate)" style="width:100%;padding:13px;background:var(--green);color:#000;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif">Create League</button>
-  <button onclick="closeBpMenu();requireAuth(openJoin)" style="width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif">Join with Code</button>
-  <a href="/bullpen-madness.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(124,77,255,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">🏆 Bullpen Madness</a>
-  <a href="/bullpen-showdown.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(41,121,255,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">📈 Bullpen Showdown</a>
-  <a href="/bullpen-sports.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(22,163,74,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">🏟️ Sports Stock Fantasy</a>
-  <a href="/bullpen-h2h.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(224,95,209,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">⚔️ Bullpen 1v1</a>
-  <a href="/bullpen-teams.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(79,209,224,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">🛡️ Bullpen Teams</a>
-  <a href="/bullpen-tycoon.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(232,160,32,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">🌍 Bullpen Tycoon</a>
-  <a href="/bullpen-gridiron.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(62,207,142,0.4);border-radius:10px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:'DM Sans',sans-serif;box-sizing:border-box">⚽ Stock Tac Toe</a>
-  <button id="mobileSignInBtn" onclick="closeBpMenu();openSignin()" style="width:100%;padding:13px;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.08);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
+  <div id="mobileUserPill" style="display:none;padding:10px 14px;background:rgba(0,230,118,0.08);border:1px solid rgba(0,230,118,0.2);border-radius:4px;font-size:13px;color:var(--green);font-weight:500"></div>
+  <button onclick="closeBpMenu();requireAuth(openCreate)" style="width:100%;padding:13px;background:var(--green);color:#000;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;font-family:var(--sp-font-sans)">Create League</button>
+  <button onclick="closeBpMenu();requireAuth(openJoin)" style="width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:6px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--sp-font-sans)">Join with Code</button>
+  <a href="/bullpen-madness.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(124,77,255,0.4);border-radius:6px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:var(--sp-font-sans);box-sizing:border-box">Bullpen Madness</a>
+  <a href="/bullpen-showdown.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(41,121,255,0.4);border-radius:6px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:var(--sp-font-sans);box-sizing:border-box">Bullpen Showdown</a>
+  <a href="/bullpen-sports.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(22,163,74,0.4);border-radius:6px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:var(--sp-font-sans);box-sizing:border-box">Sports Stock Fantasy</a>
+  <a href="/bullpen-h2h.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(224,95,209,0.4);border-radius:6px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:var(--sp-font-sans);box-sizing:border-box">Bullpen 1v1</a>
+  <a href="/bullpen-teams.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(79,209,224,0.4);border-radius:6px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:var(--sp-font-sans);box-sizing:border-box">Bullpen Teams</a>
+  <a href="/bullpen-tycoon.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(232,160,32,0.4);border-radius:6px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:var(--sp-font-sans);box-sizing:border-box">Bullpen Tycoon</a>
+  <a href="/bullpen-gridiron.html" style="display:block;width:100%;padding:13px;background:transparent;color:var(--text);border:1px solid rgba(62,207,142,0.4);border-radius:6px;font-size:15px;font-weight:600;text-align:center;text-decoration:none;font-family:var(--sp-font-sans);box-sizing:border-box">Stock Tac Toe</a>
+  <button id="mobileSignInBtn" onclick="closeBpMenu();openSignin()" style="width:100%;padding:13px;background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.08);border-radius:6px;font-size:14px;font-weight:500;cursor:pointer;font-family:var(--sp-font-sans)">Sign In</button>
   <a href="/trade" style="display:block;text-align:center;font-size:13px;color:var(--muted);text-decoration:none;padding:8px">← Back to StockPilot</a>
 </div>
 
@@ -421,88 +554,78 @@ footer a:hover{color:var(--text)}
 
 <!-- CHOOSE YOUR MODE -->
 <div class="section" style="padding-top:24px;padding-bottom:0">
-  <h2 style="font-family:'Bebas Neue',sans-serif;font-size:28px;text-align:center;letter-spacing:0.5px;margin-bottom:6px">Choose Your Mode</h2>
-  <p style="text-align:center;color:var(--muted);font-size:14px;margin-bottom:28px">Not sure which one? Here's what each is actually like.</p>
-  <div style="max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+  <h2 class="mode-head">Choose Your Mode</h2>
+  <p class="mode-sub">Not sure which one? Here's what each is actually like.</p>
+  <div class="mode-grid">
 
-    <div style="background:rgba(41,121,255,0.05);border:1px solid rgba(41,121,255,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">📈</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">Showdown</div>
-      <div style="font-size:11px;color:#2979ff;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best if you're not sure what to pick</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">Trade freely with the same starting cash as everyone else until a deadline you set. No draft, no brackets, best return wins. The simplest way to jump in.</p>
-      <a href="/bullpen-showdown.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(41,121,255,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Play Showdown →</a>
+    <div class="mode-card" style="--mode:rgb(41,121,255)">
+      <div class="mode-name">Showdown</div>
+      <div class="mode-tag">Best if you're not sure what to pick</div>
+      <p class="mode-desc">Trade freely with the same starting cash as everyone else until a deadline you set. No draft, no brackets, best return wins. The simplest way to jump in.</p>
+      <a href="/bullpen-showdown.html" class="mode-link">Play Showdown →</a>
     </div>
 
-    <div style="background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">🏈</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">League</div>
-      <div style="font-size:11px;color:var(--green);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for a full season</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">Fantasy-football-style. Draft a 7-stock roster, either an NFL-style live draft where each stock only goes to one manager, or FPL-style where everyone gets a $100 budget to spend. Runs over weeks, real skill-based scoring.</p>
-      <a href="#" onclick="event.preventDefault();requireAuth(openCreate)" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(0,230,118,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600;cursor:pointer">Start a League →</a>
+    <div class="mode-card" style="--mode:rgb(0,230,118)">
+      <div class="mode-name">League</div>
+      <div class="mode-tag">Best for a full season</div>
+      <p class="mode-desc">Fantasy-football-style. Draft a 7-stock roster, either an NFL-style live draft where each stock only goes to one manager, or FPL-style where everyone gets a $100 budget to spend. Runs over weeks, real skill-based scoring.</p>
+      <a href="#" onclick="event.preventDefault();requireAuth(openCreate)" class="mode-link">Start a League →</a>
     </div>
 
-    <div style="background:rgba(224,95,209,0.05);border:1px solid rgba(224,95,209,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">⚔️</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">1v1</div>
-      <div style="font-size:11px;color:#e05fd1;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for settling a bet with a friend</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">Showdown, but just the two of you. Same starting cash, same deadline, no leaderboard to worry about, just who does better.</p>
-      <a href="/bullpen-h2h.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(224,95,209,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Challenge a Friend →</a>
+    <div class="mode-card" style="--mode:rgb(224,95,209)">
+      <div class="mode-name">1v1</div>
+      <div class="mode-tag">Best for settling a bet with a friend</div>
+      <p class="mode-desc">Showdown, but just the two of you. Same starting cash, same deadline, no leaderboard to worry about, just who does better.</p>
+      <a href="/bullpen-h2h.html" class="mode-link">Challenge a Friend →</a>
     </div>
 
-    <div style="background:rgba(79,209,224,0.05);border:1px solid rgba(79,209,224,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">🛡️</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">Team Mode</div>
-      <div style="font-size:11px;color:#4fd1e0;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for group work</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">Squads of up to 20 trade together, ranked by the team's average return. Good when you want to collaborate on decisions, not just compete solo.</p>
-      <a href="/bullpen-teams.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(79,209,224,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Build a Squad →</a>
+    <div class="mode-card" style="--mode:rgb(79,209,224)">
+      <div class="mode-name">Team Mode</div>
+      <div class="mode-tag">Best for group work</div>
+      <p class="mode-desc">Squads of up to 20 trade together, ranked by the team's average return. Good when you want to collaborate on decisions, not just compete solo.</p>
+      <a href="/bullpen-teams.html" class="mode-link">Build a Squad →</a>
     </div>
 
-    <div style="background:rgba(124,77,255,0.05);border:1px solid rgba(124,77,255,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">🏆</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">Madness</div>
-      <div style="font-size:11px;color:#7c4dff;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for a short, high-stakes event</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">A single- or double-elimination bracket, tables of 4 per round, up to 50 players. One bad week and you're out, win or go home.</p>
-      <a href="/bullpen-madness.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(124,77,255,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Enter Madness →</a>
+    <div class="mode-card" style="--mode:rgb(124,77,255)">
+      <div class="mode-name">Madness</div>
+      <div class="mode-tag">Best for a short, high-stakes event</div>
+      <p class="mode-desc">A single- or double-elimination bracket, tables of 4 per round, up to 50 players. One bad week and you're out, win or go home.</p>
+      <a href="/bullpen-madness.html" class="mode-link">Enter Madness →</a>
     </div>
 
-    <div style="background:rgba(62,207,142,0.05);border:1px solid rgba(62,207,142,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">⚽</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">Stock Tac Toe</div>
-      <div style="font-size:11px;color:#3ecf8e;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for a quick head-to-head</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">Join a friend with a code. Take turns claiming squares with S&amp;P 500 companies that fit both the row and column - Dow 30, Dividend Aristocrat, sector, HQ state. Three in a row wins.</p>
-      <a href="/bullpen-gridiron.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(62,207,142,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Play Stock Tac Toe →</a>
+    <div class="mode-card" style="--mode:rgb(62,207,142)">
+      <div class="mode-name">Stock Tac Toe</div>
+      <div class="mode-tag">Best for a quick head-to-head</div>
+      <p class="mode-desc">Join a friend with a code. Take turns claiming squares with S&amp;P 500 companies that fit both the row and column - Dow 30, Dividend Aristocrat, sector, HQ state. Three in a row wins.</p>
+      <a href="/bullpen-gridiron.html" class="mode-link">Play Stock Tac Toe →</a>
     </div>
 
-    <div style="background:rgba(255,193,7,0.05);border:1px solid rgba(255,193,7,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">🐂</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">Bull or Bear Streak</div>
-      <div style="font-size:11px;color:#ffc107;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for solo, no one else needed</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">See a real S&amp;P 500 price chart with the last day hidden. Guess up or down. Right keeps your streak alive and moves to a new stock, wrong ends it. Real data every round.</p>
-      <a href="/bullpen-streak.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(255,193,7,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Play Bull or Bear →</a>
+    <div class="mode-card" style="--mode:rgb(255,193,7)">
+      <div class="mode-name">Bull or Bear Streak</div>
+      <div class="mode-tag">Best for solo, no one else needed</div>
+      <p class="mode-desc">See a real S&amp;P 500 price chart with the last day hidden. Guess up or down. Right keeps your streak alive and moves to a new stock, wrong ends it. Real data every round.</p>
+      <a href="/bullpen-streak.html" class="mode-link">Play Bull or Bear →</a>
     </div>
 
-    <div style="background:rgba(41,121,255,0.05);border:1px solid rgba(41,121,255,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">⚡</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">Ticker Speed Round</div>
-      <div style="font-size:11px;color:#2979ff;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for solo, 60 seconds</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">A real company name flashes up, type the ticker before time runs out. As many as you can in 60 seconds. Fast, replayable, good for a class warmup.</p>
-      <a href="/bullpen-speedround.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(41,121,255,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Play Speed Round →</a>
+    <div class="mode-card" style="--mode:rgb(41,121,255)">
+      <div class="mode-name">Ticker Speed Round</div>
+      <div class="mode-tag">Best for solo, 60 seconds</div>
+      <p class="mode-desc">A real company name flashes up, type the ticker before time runs out. As many as you can in 60 seconds. Fast, replayable, good for a class warmup.</p>
+      <a href="/bullpen-speedround.html" class="mode-link">Play Speed Round →</a>
     </div>
 
-    <div style="background:rgba(255,92,92,0.05);border:1px solid rgba(255,92,92,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">⚠️</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">Market Crash Survival</div>
-      <div style="font-size:11px;color:#ff5c5c;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for solo, no one else needed</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">$10,000 and a real, genuinely volatile 20-day stretch from a real stock. Stay in, get out, get back in, before each day's real move happens. See how you actually do under pressure.</p>
-      <a href="/bullpen-crash.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(255,92,92,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Play Crash Survival →</a>
+    <div class="mode-card" style="--mode:rgb(255,92,92)">
+      <div class="mode-name">Market Crash Survival</div>
+      <div class="mode-tag">Best for solo, no one else needed</div>
+      <p class="mode-desc">$10,000 and a real, genuinely volatile 20-day stretch from a real stock. Stay in, get out, get back in, before each day's real move happens. See how you actually do under pressure.</p>
+      <a href="/bullpen-crash.html" class="mode-link">Play Crash Survival →</a>
     </div>
 
-    <div style="background:rgba(124,77,255,0.05);border:1px solid rgba(124,77,255,0.25);border-radius:14px;padding:20px">
-      <div style="font-size:24px;margin-bottom:8px">🧩</div>
-      <div style="font-weight:700;font-size:16px;margin-bottom:2px">Daily Portfolio Puzzle</div>
-      <div style="font-size:11px;color:#7c4dff;font-weight:700;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:10px">Best for a daily ritual, solo</div>
-      <p style="font-size:13px;color:rgba(255,255,255,0.75);line-height:1.5;margin-bottom:14px">Same 5 real companies for everyone today - rank them best to worst by actual year-to-date return. Scored instantly, new puzzle tomorrow.</p>
-      <a href="/bullpen-puzzle.html" style="display:block;text-align:center;padding:9px;background:transparent;border:1px solid rgba(124,77,255,0.4);border-radius:8px;color:var(--text);text-decoration:none;font-size:13px;font-weight:600">Play Today's Puzzle →</a>
+    <div class="mode-card" style="--mode:rgb(124,77,255)">
+      <div class="mode-name">Daily Portfolio Puzzle</div>
+      <div class="mode-tag">Best for a daily ritual, solo</div>
+      <p class="mode-desc">Same 5 real companies for everyone today - rank them best to worst by actual year-to-date return. Scored instantly, new puzzle tomorrow.</p>
+      <a href="/bullpen-puzzle.html" class="mode-link">Play Today's Puzzle →</a>
     </div>
 
   </div>
@@ -510,14 +633,14 @@ footer a:hover{color:var(--text)}
 
 <!-- NEW SCORING RULES -->
 <div class="section" style="padding-top:0;padding-bottom:0">
-  <details class="command-details" style="max-width:900px;margin:0 auto 24px;background:rgba(0,230,118,0.04);border:1px solid rgba(0,230,118,0.2);border-radius:16px;padding:20px 24px">
-    <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">
+  <details class="command-details bp-details">
+    <summary class="bp-summary">
       <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.5px">🆕 New: Scoring Now Rewards Real Skill</div>
+        <div class="bp-summary-title">New: Scoring Now Rewards Real Skill</div>
         <div style="font-size:13px;color:var(--muted);margin-top:2px">Real S&amp;P 500 stocks only, weighed like real fantasy positions</div>
       </div>
     </summary>
-    <div style="margin-top:16px;font-size:14px;line-height:1.7;color:rgba(255,255,255,0.85)">
+    <div class="bp-details-body">
       <p><strong>Volatility adjustment.</strong> A stock's move is weighed against how much it normally swings, in both directions. A wild stock's gain (or loss) counts for less; a calm stock's identical move counts for more. Stops someone from winning just by holding something explosive.</p>
       <p><strong>Alpha bonus.</strong> Beat the real S&amp;P 500 that week, earn extra credit. Lag the market, take a small hit. The same way real stock pickers are actually judged.</p>
       <p><strong>Diversification.</strong> Spread your 7 starters across different industries for a bonus. Stack them all in one, take a small penalty.</p>
@@ -528,14 +651,14 @@ footer a:hover{color:var(--text)}
 
 <!-- TEACHER GUIDE -->
 <div class="section" style="padding-top:0;padding-bottom:0">
-  <details class="command-details" style="max-width:900px;margin:0 auto 24px;background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.2);border-radius:16px;padding:20px 24px">
-    <summary style="cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between">
+  <details class="command-details bp-details">
+    <summary class="bp-summary">
       <div>
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.5px">🎓 Teacher Guide</div>
+        <div class="bp-summary-title">Teacher Guide</div>
         <div style="font-size:13px;color:var(--muted);margin-top:2px">New to Bullpen? Start here to set up your first class competition.</div>
       </div>
     </summary>
-    <div style="margin-top:16px;font-size:14px;line-height:1.7;color:rgba(255,255,255,0.85)">
+    <div class="bp-details-body">
 
       <p style="font-weight:700;margin-bottom:6px">Which mode fits your class?</p>
       <p><strong>Showdown</strong> — the simplest starting point. Everyone trades freely with the same starting cash until a deadline you set; best return wins. No draft, no brackets, just pick an end date and go. Good default if you're not sure which to pick.</p>
@@ -566,25 +689,21 @@ footer a:hover{color:var(--text)}
   <div class="steps reveal">
     <div class="step">
       <div class="step-num">01</div>
-      <div class="step-icon">🏟️</div>
       <h3>Create or Join</h3>
       <p>Start a private league with your crew or join with a code. Choose FPL style (same stocks allowed) or NFL snake draft.</p>
     </div>
     <div class="step">
       <div class="step-num">02</div>
-      <div class="step-icon">📋</div>
       <h3>Draft Day</h3>
       <p>Pick your 7 starters and 3 bench stocks. Every pick is live — watch your friends swipe the stocks you wanted.</p>
     </div>
     <div class="step">
       <div class="step-num">03</div>
-      <div class="step-icon">📈</div>
       <h3>Live Scoring</h3>
       <p>Your score = your starters' total return %. Prices update in real time. Watch the leaderboard flip every market day.</p>
     </div>
     <div class="step">
       <div class="step-num">04</div>
-      <div class="step-icon">🔄</div>
       <h3>Manage & Trade</h3>
       <p>2 free transfers per week. Swap bench for starters anytime. Extra trades cost -5% off your score — choose wisely.</p>
     </div>
@@ -599,12 +718,12 @@ footer a:hover{color:var(--text)}
   </div>
   <div class="draft-preview reveal">
     <div class="draft-header">
-      <div class="draft-title">🏟️ Michel's Squad</div>
+      <div class="draft-title">Michel's Squad</div>
       <div class="pick-badge">+12.4% this season</div>
     </div>
     <div class="roster-grid">
       <div>
-        <h4>⚡ Starters</h4>
+        <h4>Starters</h4>
         <div class="roster-slots">
           <div class="slot filled"><span class="slot-ticker">NVDA</span><span class="slot-name">Nvidia</span><span class="slot-return up">+31.2%</span></div>
           <div class="slot filled"><span class="slot-ticker">AAPL</span><span class="slot-name">Apple</span><span class="slot-return up">+8.4%</span></div>
@@ -616,15 +735,15 @@ footer a:hover{color:var(--text)}
         </div>
       </div>
       <div>
-        <h4>🪑 Bench</h4>
+        <h4>Bench</h4>
         <div class="roster-slots">
           <div class="slot bench-filled"><span class="slot-ticker">GOOGL</span><span class="slot-name">Alphabet</span><span class="slot-return up">+2.1%</span></div>
           <div class="slot bench-filled"><span class="slot-ticker">AMD</span><span class="slot-name">AMD</span><span class="slot-return down">-3.4%</span></div>
           <div class="slot bench-filled"><span class="slot-ticker">BRK.B</span><span class="slot-name">Berkshire</span><span class="slot-return up">+1.9%</span></div>
         </div>
-        <div style="margin-top:20px;padding:14px;background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.15);border-radius:10px">
+        <div style="margin-top:20px;padding:14px;background:rgba(0,230,118,0.05);border:1px solid rgba(0,230,118,0.15);border-radius:6px">
           <div style="font-size:11px;color:var(--green);font-weight:600;margin-bottom:4px">WEEKLY TRADES</div>
-          <div style="font-size:22px;font-family:'Bebas Neue',sans-serif">2 / 2 remaining</div>
+          <div style="font-size:22px;font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase">2 / 2 remaining</div>
           <div style="font-size:11px;color:var(--muted);margin-top:2px">Resets Monday</div>
         </div>
       </div>
@@ -670,7 +789,7 @@ footer a:hover{color:var(--text)}
   </div>
   <div class="lb-preview reveal">
     <div class="lb-header">
-      <div class="lb-title" id="lbSeasonTitle">🏆 Season 1 Standings</div>
+      <div class="lb-title" id="lbSeasonTitle">Season 1 Standings</div>
       <div class="lb-tabs">
         <button class="lb-tab active">All Time</button>
         <button class="lb-tab">This Week</button>
@@ -722,13 +841,13 @@ footer a:hover{color:var(--text)}
 <!-- FOOTER -->
 <footer>
   <p>Bullpen is part of <a href="/">StockPilot</a> · Educational use only · Not financial advice · <a href="/trade">Virtual Market</a> · <a href="/learn">Learn</a></p>
-</footer>
+<p class="sp-credit-line sp-credit-dark"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p></footer>
 
 <!-- CREATE LEAGUE MODAL -->
 <div class="modal-overlay" id="myLeaguesModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">🏟️ My Leagues &amp; Tournaments</div>
+      <div class="modal-title">My Leagues &amp; Tournaments</div>
       <button class="modal-close" onclick="closeMyLeagues()">✕</button>
     </div>
     <div class="modal-body">
@@ -754,11 +873,11 @@ footer a:hover{color:var(--text)}
         <label class="form-label">Draft Format</label>
         <div class="format-picker">
           <div class="format-opt selected" id="fplOpt" onclick="selectFormat('fpl')">
-            <div class="format-opt-title">⚽ FPL Style</div>
+            <div class="format-opt-title">FPL Style</div>
             <div class="format-opt-desc">Same stock can be picked by multiple managers</div>
           </div>
           <div class="format-opt" id="nflOpt" onclick="selectFormat('nfl')">
-            <div class="format-opt-title">🏈 NFL Style</div>
+            <div class="format-opt-title">NFL Style</div>
             <div class="format-opt-desc">Snake draft — once picked, a stock is gone</div>
           </div>
         </div>
@@ -767,11 +886,11 @@ footer a:hover{color:var(--text)}
         <label class="form-label">League Type</label>
         <div class="format-picker">
           <div class="format-opt selected" id="clubTypeOpt" onclick="selectLeagueType('club')">
-            <div class="format-opt-title">🎓 Club / Casual</div>
+            <div class="format-opt-title">Club / Casual</div>
             <div class="format-opt-desc">Just for fun - discussion posts aren't graded</div>
           </div>
           <div class="format-opt" id="classroomTypeOpt" onclick="selectLeagueType('classroom')">
-            <div class="format-opt-title">🏫 Classroom</div>
+            <div class="format-opt-title">Classroom</div>
             <div class="format-opt-desc">You're the teacher - lets you grade discussion posts</div>
           </div>
         </div>
@@ -844,13 +963,13 @@ footer a:hover{color:var(--text)}
 <div class="modal-overlay" id="successModal">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">League Created! 🎉</div>
+      <div class="modal-title">League Created!</div>
       <button class="modal-close" onclick="closeSuccess()">✕</button>
     </div>
     <div class="modal-body" style="text-align:center;padding-top:32px;padding-bottom:32px">
-      <div style="font-size:48px;margin-bottom:16px">🏟️</div>
+      <div style="font-size:48px;margin-bottom:16px"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><ellipse cx="12" cy="9" rx="9" ry="3.5"/><path d="M3 9v6c0 1.9 4 3.5 9 3.5s9-1.6 9-3.5V9"/></svg></div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Your league code</div>
-      <div id="leagueCodeDisplay" style="font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:12px;color:var(--green);margin-bottom:8px">ABC123</div>
+      <div id="leagueCodeDisplay" style="font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:56px;letter-spacing:12px;color:var(--green);margin-bottom:8px">ABC123</div>
       <div style="font-size:13px;color:var(--muted);margin-bottom:32px">Share this with your friends to invite them</div>
       <button class="btn-full btn-full-green" onclick="copyCode()" id="copyBtn" style="max-width:280px;margin:0 auto 12px">Copy Code</button>
       <br/>
@@ -946,7 +1065,7 @@ async function openMyLeagues(){
   }
 
   list.innerHTML = items.map(it => `
-    <a href="${it.url}" style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;text-decoration:none;color:var(--text)">
+    <a href="${it.url}" style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:6px;border:1px solid var(--border);margin-bottom:8px;text-decoration:none;color:var(--text)">
       <div style="font-size:22px">${it.icon}</div>
       <div style="flex:1">
         <div style="font-weight:700;font-size:14px">${it.name}</div>
@@ -1115,13 +1234,13 @@ function goToDraft() {
 </script>
 
 <!-- CONTINUE BANNER -->
-<div id="continueBanner" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;background:#0d1117;border:1px solid rgba(0,230,118,0.4);border-radius:12px;padding:14px 20px;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:320px">
+<div id="continueBanner" style="display:none;position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;background:#0d1117;border:1px solid rgba(0,230,118,0.4);border-radius:6px;padding:14px 20px;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,0.5);min-width:320px">
   <div style="flex:1">
     <div style="font-size:11px;color:#00e676;font-weight:700;letter-spacing:0.5px;text-transform:uppercase">Your League</div>
     <div id="continueLeagueName" style="font-weight:600;font-size:14px;margin-top:2px">Loading...</div>
     <div id="continueCode" style="font-size:11px;color:#7d8590;font-family:monospace"></div>
   </div>
-  <button onclick="goToMyLeague()" style="background:#00e676;color:#000;border:none;padding:10px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:DM Sans,sans-serif">Continue →</button>
+  <button onclick="goToMyLeague()" style="background:#00e676;color:#000;border:none;padding:10px 18px;border-radius:4px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--sp-font-sans)">Continue →</button>
   <button onclick="document.getElementById('continueBanner').style.display='none'" style="background:transparent;border:none;color:#7d8590;cursor:pointer;font-size:18px;padding:4px">✕</button>
 </div>
 
@@ -1142,7 +1261,7 @@ function checkContinueBanner(){
     if(!league) return;
     const banner = document.getElementById('continueBanner');
     const displayName = name || 'You';
-    document.getElementById('continueLeagueName').textContent = '🏟️ ' + league.name;
+    document.getElementById('continueLeagueName').textContent = '' + league.name;
     document.getElementById('continueCode').textContent = 'Code: ' + code + (displayName ? ' · ' + displayName : '');
     banner.style.display = 'flex';
   }).catch(()=>{});
@@ -1160,24 +1279,24 @@ checkContinueBanner();
 
 <!-- SIGNIN MODAL -->
 <div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-  <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
+  <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:32px;width:90%;max-width:400px;position:relative">
     <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">x</button>
-    <div style="font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:1px;color:white;margin-bottom:4px">Sign In to Play</div>
+    <div style="font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:28px;letter-spacing:1px;color:white;margin-bottom:4px">Sign In to Play</div>
     <div style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">You need a StockPilot account to create or join a Bullpen league.</div>
     <div style="display:flex;gap:8px;margin-bottom:16px">
-      <button type="button" id="siTabIn" onclick="setSiMode('in')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Sign In</button>
-      <button type="button" id="siTabUp" onclick="setSiMode('up')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif">Sign Up</button>
+      <button type="button" id="siTabIn" onclick="setSiMode('in')" style="flex:1;padding:9px;border-radius:4px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:var(--sp-font-sans)">Sign In</button>
+      <button type="button" id="siTabUp" onclick="setSiMode('up')" style="flex:1;padding:9px;border-radius:4px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:var(--sp-font-sans)">Sign Up</button>
     </div>
-    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
+    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:16px"></div>
     <div id="siNameField" style="display:none">
       <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Name</div>
-      <input id="siName" type="text" placeholder="Your name" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+      <input id="siName" type="text" placeholder="Your name" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:10px 14px;color:white;font-family:var(--sp-font-sans);font-size:14px;outline:none;margin-bottom:14px"/>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
-    <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+    <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:10px 14px;color:white;font-family:var(--sp-font-sans);font-size:14px;outline:none;margin-bottom:14px"/>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
-    <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
-    <button id="siSubmitBtn" onclick="doSiSubmit()" style="width:100%;padding:12px;background:#00e676;color:#000;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">Sign In to Bullpen</button>
+    <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:10px 14px;color:white;font-family:var(--sp-font-sans);font-size:14px;outline:none;margin-bottom:20px"/>
+    <button id="siSubmitBtn" onclick="doSiSubmit()" style="width:100%;padding:12px;background:#00e676;color:#000;border:none;border-radius:6px;font-family:var(--sp-font-sans);font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px">Sign In to Bullpen</button>
     <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
   </div>
 </div>
@@ -1196,11 +1315,11 @@ function setSiMode(mode){
   document.getElementById('siSubmitBtn').textContent = mode==='up' ? 'Create Account' : 'Sign In to Bullpen';
   const inTab=document.getElementById('siTabIn'), upTab=document.getElementById('siTabUp');
   if(mode==='up'){
-    inTab.style.cssText="flex:1;padding:9px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif";
-    upTab.style.cssText="flex:1;padding:9px;border-radius:8px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif";
+    inTab.style.cssText="flex:1;padding:9px;border-radius:4px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:var(--sp-font-sans)";
+    upTab.style.cssText="flex:1;padding:9px;border-radius:4px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:var(--sp-font-sans)";
   } else {
-    inTab.style.cssText="flex:1;padding:9px;border-radius:8px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif";
-    upTab.style.cssText="flex:1;padding:9px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif";
+    inTab.style.cssText="flex:1;padding:9px;border-radius:4px;border:1.5px solid #00e676;background:rgba(0,230,118,0.1);color:#00e676;font-weight:600;font-size:13px;cursor:pointer;font-family:var(--sp-font-sans)";
+    upTab.style.cssText="flex:1;padding:9px;border-radius:4px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);font-weight:600;font-size:13px;cursor:pointer;font-family:var(--sp-font-sans)";
   }
 }
 function doSiSubmit(){ return siMode==='up' ? doSignup() : doSignin(); }
@@ -1280,7 +1399,7 @@ function updateMobileAuth(){
   const userPill=document.getElementById('mobileUserPill');
   if(name){
     if(signInBtn) signInBtn.style.display='none';
-    if(userPill){userPill.style.display='block';userPill.textContent='👤 '+name;}
+    if(userPill){userPill.style.display='block';userPill.textContent=''+name;}
   } else {
     if(signInBtn) signInBtn.style.display='block';
     if(userPill) userPill.style.display='none';
@@ -1298,10 +1417,10 @@ function updateNavAuth(){
       // to stretch the nav - truncate and let the ellipsis/max-width
       // handle the rest.
       const shown = name.length > 16 ? name.slice(0, 14) + '…' : name;
-      link.textContent = '👤 ' + shown;
+      link.textContent = '' + shown;
       link.title = name;
     } else {
-      link.textContent = '👤 Sign In';
+      link.textContent = 'Sign In';
       link.title = '';
     }
   }
@@ -1368,13 +1487,13 @@ updateMobileAuth();
       current = card;
       card.classList.add('active');
       statusEl.className = 'season-status live';
-      statusEl.textContent = '🟢 Live Now';
+      statusEl.textContent = 'Live Now';
     } else if(now >= end){
       statusEl.className = 'season-status ended';
-      statusEl.textContent = '✅ Completed';
+      statusEl.textContent = 'Completed';
     } else {
       statusEl.className = 'season-status upcoming';
-      statusEl.textContent = '⏳ Upcoming';
+      statusEl.textContent = 'Upcoming';
     }
   });
   if(!current) return; // before Season 1 or after Season 4 - leave as-is
@@ -1391,7 +1510,7 @@ updateMobileAuth();
   }
 
   const lbTitle = document.getElementById('lbSeasonTitle');
-  if(lbTitle) lbTitle.textContent = '🏆 Season ' + seasonNum + ' Standings';
+  if(lbTitle) lbTitle.textContent = 'Season ' + seasonNum + ' Standings';
 
   const select = document.getElementById('seasonSelect');
   if(select) select.value = seasonNum;

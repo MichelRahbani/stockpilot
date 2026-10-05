@@ -1,0 +1,206 @@
+/* ==========================================================================
+   Virtual Market: trading-floor look.
+   Same layout, data, features and per-market accent (--accent) as before;
+   tighter chrome so the terminal starts higher, clearer panels, bigger
+   chart, a proper order ticket. Loaded after the page's own <style>.
+   ========================================================================== */
+
+body{
+  --mk-bg:#07080a; --mk-panel:#0b0d10; --mk-panel2:#0e1115;
+  --mk-line:rgba(255,255,255,.075); --mk-dim:#8a93a2; --mk-up:#4ade80; --mk-dn:#f87171;
+  background:var(--mk-bg);
+}
+
+/* ---------- Nav ---------- */
+nav{height:54px;padding:0 20px;background:#07080a;border-bottom:1px solid var(--mk-line)}
+.logo{font-size:17px;letter-spacing:-0.01em}
+.logo img.sp-mark{height:24px!important}
+.badge{background:none;border:1px solid var(--accent);color:var(--accent);font-family:var(--sp-font-mono);font-weight:500;letter-spacing:.08em;border-radius:2px;padding:2px 6px}
+.nav-btn{height:34px;display:inline-flex;align-items:center;padding:0 14px;border-radius:3px}
+
+/* ---------- Market bar: tabs with flags, accent underline on the active market ---------- */
+.market-switcher{top:54px;margin-top:54px;height:54px;gap:0;padding:0 8px;background:var(--mk-bg);border-bottom:1px solid var(--mk-line);position:sticky}
+.mkt-btn{position:relative;height:100%;border:none;border-radius:0;padding:0 16px;background:none;color:var(--mk-dim);transition:color .15s,background-color .15s}
+.mkt-btn:hover{background:rgba(255,255,255,.03);color:#fff}
+.mkt-btn.active{background:none;color:#fff;box-shadow:inset 0 -2px 0 var(--accent)}
+.mkt-btn + .mkt-btn::before{content:'';position:absolute;left:0;top:15px;bottom:15px;width:1px;background:var(--mk-line)}
+.mkt-name{font-size:12.5px;font-weight:600}
+.mkt-sub{font-family:var(--sp-font-mono);font-size:10px;color:#5d6573}
+.market-switcher.sp-sweep::after{content:'';position:absolute;left:0;bottom:0;height:2px;width:28%;background:var(--accent);animation:sp-sweep .7s cubic-bezier(.6,0,.2,1)}
+@keyframes sp-sweep{from{transform:translateX(-100%)}to{transform:translateX(360%)}}
+
+/* ---------- Info row with the fund buttons ---------- */
+.mkt-hint{display:flex;align-items:center;gap:18px;padding:8px 20px;background:none;border-bottom:1px solid var(--mk-line);font-family:var(--sp-font-mono);font-size:11.5px;color:var(--mk-dim)}
+.sp-hint-note{margin-left:auto;color:#5d6573}
+.sp-fundbar{display:flex;gap:8px}
+.sp-fund-btn{height:30px;padding:0 12px;border:1px solid rgba(255,255,255,.14);border-radius:3px;background:none;color:#d7dce3;font:600 12.5px var(--sp-font-sans);cursor:pointer;transition:border-color .15s,background-color .15s}
+.sp-fund-btn:hover{border-color:rgba(255,255,255,.4)}
+.sp-fund-btn.sp-fund-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.sp-fund-btn.sp-fund-primary:hover{background:var(--accent-d);border-color:var(--accent-d)}
+
+/* ---------- Tape ---------- */
+.ticker{height:34px;display:flex;align-items:center;padding:0;background:#050607;border-bottom:1px solid var(--mk-line);box-shadow:inset 0 1px 0 var(--accent)}
+.ticker-inner{gap:0;animation-duration:38s}
+.ticker:hover .ticker-inner{animation-play-state:paused}
+.ti{padding:0 18px;border-right:1px solid var(--mk-line);font-size:12px;color:rgba(255,255,255,.55);gap:8px;height:34px;align-items:center}
+.ti strong{font-weight:600}
+.ticker .up{color:var(--mk-up)}.ticker .dn{color:var(--mk-dn)}
+
+/* ---------- Market brief: a slim bar until it has something to say ---------- */
+.sp-brief{margin:14px 20px;background:var(--mk-panel);border:1px solid var(--mk-line);border-radius:4px}
+.sp-brief-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 12px 10px 16px}
+.sp-brief-title{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600;color:#fff}
+.sp-brief-title::before{content:'';width:7px;height:7px;background:var(--accent)}
+.sp-brief-btn{height:30px;padding:0 12px;border:none;border-radius:3px;background:var(--accent);color:#fff;font:600 12.5px var(--sp-font-sans);cursor:pointer;transition:background-color .15s}
+.sp-brief-btn:hover{background:var(--accent-d)}
+.sp-brief-body{padding:0 16px 12px 33px;font-size:13px;line-height:1.7;color:rgba(255,255,255,.5)}
+
+/* ---------- Terminal ---------- */
+.layout{border-top:1px solid var(--mk-line);border-bottom:1px solid var(--mk-line)}
+@media(min-width:901px){.layout{grid-template-columns:280px minmax(0,1fr) 300px;height:max(660px,calc(100vh - 120px))}}
+@media(min-width:901px) and (max-width:1180px){.layout{grid-template-columns:240px minmax(0,1fr) 270px}}
+.watchlist-panel,.portfolio-panel{background:var(--mk-panel)}
+.watchlist-panel{border-right:1px solid var(--mk-line)}
+.portfolio-panel{border-left:1px solid var(--mk-line)}
+.panel-head{font-family:var(--sp-font-mono);font-size:11px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;color:var(--mk-dim);padding:12px 16px;background:var(--mk-panel2);border-bottom:1px solid var(--mk-line)}
+
+/* Watchlist */
+.wl-item{padding:11px 16px;border-bottom:1px solid var(--mk-line);border-left:none}
+.wl-item:hover{background:rgba(255,255,255,.025)}
+.wl-item.active{background:rgba(255,255,255,.04);border-left:none;box-shadow:inset 2px 0 0 var(--accent)}
+.wl-sym{font-family:var(--sp-font-mono);font-size:13.5px;font-weight:600;letter-spacing:.01em}
+.wl-name{font-size:11px;color:#5d6573;margin-top:2px}
+.wl-price{font-size:13.5px;color:#f2f4f7}
+.wl-chg{display:inline-block;margin-top:4px;padding:1px 6px;border-radius:2px;font-size:11px;background:color-mix(in srgb,currentColor 14%,transparent)}
+
+/* Search */
+.search-bar{padding:12px 20px;background:var(--mk-panel2);border-bottom:1px solid var(--mk-line)}
+.search-inp{height:42px;background:var(--mk-bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a93a2' stroke-width='1.8'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='M15.5 15.5L21 21'/%3E%3C/svg%3E") no-repeat 12px 50%/16px;padding-left:38px;border:1px solid var(--mk-line);border-radius:3px;font-size:14px}
+.search-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.search-btn{height:42px;padding:0 18px;border-radius:3px}
+
+/* Quote */
+.quote-area{padding:22px 24px 18px}
+.q-header{align-items:flex-end;margin-bottom:6px}
+.q-sym{font-size:36px;letter-spacing:-0.025em;line-height:1}
+.q-name{font-size:13px;color:var(--mk-dim);margin-top:6px}
+.q-price{font-size:44px;letter-spacing:-0.035em;line-height:1}
+.q-chg{display:inline-block;margin-top:8px;padding:2px 8px;border-radius:2px;font-size:13px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.q-meta{gap:0;margin:16px 0 0;border:1px solid var(--mk-line);border-radius:3px;overflow:hidden}
+.qm{background:none;border-radius:0;border-right:1px solid var(--mk-line);text-align:left;padding:10px 12px}
+.qm:last-child{border-right:none}
+.qm-l{font-family:var(--sp-font-mono);font-size:10px;letter-spacing:.06em;color:#5d6573;margin-bottom:4px}
+.qm-v{font-size:13px;color:#f2f4f7}
+
+/* Chart: taller, integrated, draws in */
+.chart-wrap{margin:18px 0 12px;padding:0;background:none;border:none;border-radius:0}
+.chart-ranges{gap:0;margin-bottom:12px;border-bottom:1px solid var(--mk-line)}
+.chart-range-btn{padding:8px 14px;border-radius:0;background:none!important;color:var(--mk-dim);font-family:var(--sp-font-mono);font-size:11.5px}
+.chart-range-btn:hover{color:#fff}
+.chart-range-btn.active{color:#fff;box-shadow:inset 0 -2px 0 var(--accent)}
+.chart-canvas-wrap{height:240px}
+.chart-canvas-wrap canvas{height:240px!important;animation:sp-chart-in .8s cubic-bezier(.4,0,.2,1)}
+.chart-loading{height:240px}
+@keyframes sp-chart-in{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+
+.explain-card,.news-card{background:var(--mk-panel);border:1px solid var(--mk-line);border-radius:3px}
+.explain-card h4,.news-card h4{font-family:var(--sp-font-mono);font-weight:500;letter-spacing:.08em;color:var(--mk-dim)}
+
+/* Order ticket */
+.trade-area{padding:20px 24px 28px;border-top:1px solid var(--mk-line);background:var(--mk-panel)}
+.trade-tabs{gap:3px;padding:3px;background:var(--mk-bg);border:1px solid var(--mk-line);border-radius:4px}
+.ttab{border-radius:2px;padding:10px;font-weight:600;letter-spacing:.01em}
+.ttab:hover{color:#fff}
+.inp-label{font-family:var(--sp-font-mono);font-size:10.5px;letter-spacing:.08em;color:var(--mk-dim)}
+.inp{height:44px;background:var(--mk-bg);border:1px solid var(--mk-line);border-radius:3px;font-size:16px}
+.inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 22%,transparent)}
+.summary{background:none;border-radius:0;border-top:1px solid var(--mk-line);border-bottom:1px solid var(--mk-line);padding:10px 0}
+.sum-row{padding:4px 0}
+.exec-btn{height:50px;border-radius:3px;font-size:15px;letter-spacing:.01em}
+.exec-btn.buy:hover:not(:disabled){filter:brightness(1.08)}
+.exec-btn.sell:hover:not(:disabled){filter:brightness(1.08)}
+
+/* Portfolio */
+.port-head{padding:20px 18px 18px;border-bottom:1px solid var(--mk-line)}
+.port-value{font-size:30px;letter-spacing:-0.02em}
+.port-pnl{display:inline-block;margin-top:8px;padding:2px 7px;border-radius:2px;font-size:12px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.port-cash{font-family:var(--sp-font-mono);font-size:11.5px;margin-top:8px}
+.pos-item,.hist-item{border-bottom:1px solid var(--mk-line);transition:background-color .15s}
+.pos-item:hover,.hist-item:hover{background:rgba(255,255,255,.025)}
+.pos-sym,.hist-sym{font-family:var(--sp-font-mono);font-weight:600}
+.hist-badge{border-radius:2px;font-family:var(--sp-font-mono);font-weight:600;letter-spacing:.04em}
+.portfolio-panel.sp-filled{animation:sp-filled 1s ease-out}
+@keyframes sp-filled{0%{box-shadow:inset 0 0 0 1px var(--accent)}100%{box-shadow:inset 0 0 0 1px transparent}}
+.disc{background:var(--mk-panel2);border-top:1px solid var(--mk-line);font-family:var(--sp-font-mono);font-size:10.5px;color:#5d6573}
+
+/* Empty states */
+.quote-empty{padding:56px 32px}
+.sp-quick{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-width:540px}
+.sp-quick button{border-radius:3px!important}
+@media(max-width:359px){.sp-quick{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+/* No ticker picked yet: the empty order ticket takes no space */
+.trade-area:has(> #tradeForm[style*="display:none"]){display:none!important}
+.quote-area:has(> .quote-empty){flex:1 1 auto;border-bottom:none}
+.sp-empty-ico{display:flex;justify-content:center;margin-bottom:10px;color:rgba(255,255,255,.28)}
+.sp-empty-ico svg{width:26px;height:26px}
+
+/* Toast */
+.toast{border-radius:4px;background:var(--mk-panel2);border-color:var(--mk-line)}
+
+/* ---------- Below the terminal ---------- */
+.sp-about{max-width:1080px!important;margin:24px auto 16px!important;padding:16px 20px!important;border-radius:4px!important;background:var(--mk-panel)!important;border-color:var(--mk-line)!important}
+.sp-lb{max-width:1120px!important;padding:32px 20px 40px!important}
+.sp-lb h2{font-size:clamp(30px,3.6vw,44px)!important;letter-spacing:-0.035em}
+.sp-lb #lbRows > div{transition:background-color .15s}
+.sp-lb #lbRows > div:hover{background:rgba(255,255,255,.025)}
+.sp-rank{font-family:var(--sp-font-mono);font-size:14px;font-weight:600}
+.sp-rank-1{color:#ffd166}.sp-rank-2{color:#c7ced6}.sp-rank-3{color:#d79a5b}
+
+/* ---------- Mobile ---------- */
+@media(max-width:900px){
+  nav{height:52px;padding:0 14px}
+  .market-switcher{top:52px;margin-top:52px;height:52px}
+  .mkt-hint{flex-wrap:wrap;gap:8px 14px;padding:10px 14px}
+  .sp-hint-note{display:none}
+  .sp-fundbar{margin-left:auto}
+  .ticker{margin-top:0}
+  .sp-brief{margin:12px 14px}
+  .layout{grid-template-columns:minmax(0,1fr);height:auto}
+  .portfolio-panel{border-left:none;border-top:1px solid var(--mk-line)}
+  .search-bar{padding:12px 14px}
+  .chart-canvas-wrap,.chart-loading{height:190px}
+  .chart-canvas-wrap canvas{height:190px!important}
+  .q-price{font-size:34px}
+  .q-sym{font-size:30px}
+  .q-header{align-items:flex-start}
+  .qm:nth-child(3n){border-right:none}
+  .qm:nth-child(n+4){border-top:1px solid var(--mk-line)}
+}
+
+@media(max-width:640px){
+  .sp-fundbar{width:100%;margin-left:0}
+  .sp-fund-btn{flex:1;height:36px}
+  .sp-about{margin:16px 14px 12px!important;padding:14px 16px!important;max-width:none!important}
+  .sp-about > div:last-child{flex-direction:column;gap:8px!important}
+  #sp-ps-wrap{padding:0 14px!important}
+  .sp-lb{padding:28px 14px 36px!important}
+}
+/* Market tabs scroll sideways on narrow screens: fade the edge so it reads as scrollable */
+@media(max-width:1100px){
+  .market-switcher{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 48px),transparent)}
+  .market-switcher.sp-at-end{-webkit-mask-image:none;mask-image:none}
+}
+.search-inp{text-overflow:ellipsis}
+.search-inp::placeholder{color:#6b7383}
+.no-pos,.no-hist,.quote-empty{color:#7b8494}
+
+/* Standings table fits a phone: rank, name (truncates), return, value */
+@media(max-width:600px){
+  .sp-lb [style*="grid-template-columns:50px 1fr 100px 100px"]{grid-template-columns:44px minmax(0,1fr) 64px 72px!important;padding-left:12px!important;padding-right:12px!important;column-gap:8px}
+  .sp-lb #lbRows > div > div:nth-child(2){font-size:13.5px!important}
+  .sp-lb #lbRows > div > div:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
+
+/* Portfolio story (progress-story.js) lines up with the blocks around it */
+#sp-ps-wrap{max-width:1120px!important;padding:0 20px!important;margin:8px auto 24px!important}
+#sp-ps-card{background:var(--mk-panel)!important;border-color:var(--mk-line)!important;border-radius:4px!important}

@@ -45,7 +45,7 @@
                         'color: rgba(255,255,255,0.6)',
                         'font-size: 13px',
                         'padding: 6px 14px',
-                        'border-radius: 8px',
+                        'border-radius: 4px',
                         'cursor: pointer',
                         'transition: all 0.15s'
                       ].join(';');

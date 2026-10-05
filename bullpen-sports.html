@@ -12,40 +12,45 @@
   --bg:#0a0e14; --bg2:#0f1420; --bg3:#151b28; --border:#232b3a;
   --text:#e8ecf3; --muted:#8b95a8; --green:#3ecf8e; --green-d:#1f8f5f; --red:#ff5c5c; --gold:#ffc107;
 }
-body{font-family:'DM Sans',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:var(--sp-font-sans);background:var(--bg);color:var(--text);min-height:100vh}
 nav{background:var(--bg2);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
 .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:800;font-size:16px;color:var(--text)}
-.nav-logo img{height:28px;width:28px;border-radius:6px}
-.badge{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:0.04em}
+.nav-logo img{height:28px;width:28px;border-radius:4px}
+.badge{background:var(--bg3);border:1px solid var(--border);color:var(--muted);font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.04em}
 .page{max-width:760px;margin:0 auto;padding:40px 20px 80px}
 h1{font-size:28px;font-weight:800;margin-bottom:6px}
 .sub{color:var(--muted);font-size:14px;margin-bottom:24px;line-height:1.6}
 .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
 @media(max-width:640px){.cards{grid-template-columns:1fr}}
-.card{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:22px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:22px}
 .card h2{font-size:17px;margin-bottom:6px}
 .card p{font-size:13px;color:var(--muted);margin-bottom:14px;line-height:1.5}
 .field{margin-bottom:12px}
 .field label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px}
-.field input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:var(--bg3);color:var(--text)}
+.field input{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:4px;font-size:14px;font-family:inherit;background:var(--bg3);color:var(--text)}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.btn{padding:10px 18px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:inherit;width:100%}
+.btn{padding:10px 18px;border-radius:4px;font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:inherit;width:100%}
 .btn-primary{background:var(--green);color:#04140c}
 .btn-primary:disabled{background:#3a4254;color:var(--muted)}
-.msg{font-size:13px;padding:8px 12px;border-radius:8px;margin-top:10px;display:none}
+.msg{font-size:13px;padding:8px 12px;border-radius:4px;margin-top:10px;display:none}
 .msg.error{background:rgba(255,92,92,0.12);color:var(--red)}
 .msg.success{background:rgba(62,207,142,0.12);color:var(--green)}
-.universe-note{background:rgba(62,207,142,0.08);border:1px solid rgba(62,207,142,0.3);border-radius:10px;padding:14px 16px;font-size:13px;line-height:1.6;margin-bottom:24px;color:var(--text)}
+.universe-note{background:rgba(62,207,142,0.08);border:1px solid rgba(62,207,142,0.3);border-radius:6px;padding:14px 16px;font-size:13px;line-height:1.6;margin-bottom:24px;color:var(--text)}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wdth,wght@62..100,500..900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/sp-game.css"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 <nav>
-  <a href="/bullpen.html" class="nav-logo"><img src="/logo.jpg" alt=""/>StockPilot <span class="badge">BULLPEN</span></a>
+  <a href="/bullpen.html" class="nav-logo"><img src="/logo-mark-256.png" alt="" class="sp-mark"/>StockPilot <span class="badge">BULLPEN</span></a>
   <a href="/bullpen.html" class="btn" style="width:auto;background:transparent;border:1px solid var(--border);color:var(--muted)">← Bullpen</a>
 </nav>
 
 <div class="page">
-  <h1>🏟️ Sports Stock Fantasy</h1>
+  <h1>Sports Stock Fantasy</h1>
   <p class="sub">Same FPL-style budget draft as our other fantasy games, pointed at a different universe: real, publicly-traded companies connected to sports - team ownership groups, apparel, equipment, betting, media, and more. Real prices, real scoring.</p>
 
   <div class="universe-note">
@@ -115,5 +120,6 @@ function goToLeague(){
   location.href = '/bullpen-sports-league.html?code='+code;
 }
 </script>
+<p class="sp-credit-line sp-credit-dark"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html>

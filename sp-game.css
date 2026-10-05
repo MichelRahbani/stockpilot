@@ -1,0 +1,50 @@
+/* ==========================================================================
+   Small Bullpen game + utility pages (Crash, Puzzle, Speed Round, Streak,
+   Stock Tac Toe, Sports Fantasy, draft/league rooms).
+   Same dark field and accent colours; quieter chrome, consistent titles.
+   ========================================================================== */
+
+/* Top bar */
+.topbar,body > header,body > nav{min-height:60px;padding-top:0!important;padding-bottom:0!important;background:var(--bg)!important}
+.brand{font-weight:700;font-size:17px;letter-spacing:-0.01em;gap:10px}
+.brand img.sp-mark,.logo img.sp-mark,.nav-logo img.sp-mark{height:22px!important}
+.topbar .brand-badge,header .badge,nav .badge{background:none!important;border:1px solid currentColor!important;color:var(--green)!important;border-radius:2px!important;font-family:var(--sp-font-mono);font-weight:500!important;font-size:10px!important;letter-spacing:0.08em!important;padding:2px 6px!important}
+a.back,header nav a{font-size:13.5px;font-weight:500}
+
+/* Page titles in Bullpen's condensed face */
+.wrap > h1,main .hero h1,.page > h1{
+  font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;
+  font-weight:800;font-size:clamp(40px,6vw,56px);line-height:.92;letter-spacing:0;margin-bottom:10px;
+}
+.subtitle,.page > .sub{font-size:15px;line-height:1.55}
+
+/* Stats as ruled figures instead of pills */
+.stat-row{gap:0!important;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 0}
+.stat-pill{background:none!important;border:none!important;border-left:1px solid var(--border)!important;border-radius:0!important;padding:2px 22px!important;min-width:0!important}
+.stat-pill:first-child{border-left:none!important}
+.stat-pill .num{font-family:var(--sp-font-mono);font-weight:600}
+.stat-pill .lbl{letter-spacing:0.04em;font-size:10.5px}
+
+/* Section labels */
+.leaderboard h2{font-family:var(--sp-font-mono);font-weight:500;font-size:12.5px!important;letter-spacing:0.06em}
+.date-badge{font-family:var(--sp-font-mono);font-weight:500}
+
+/* Cards: flatter */
+.card{box-shadow:none}
+
+/* Brand link in the league/draft rooms never shows as a default blue link */
+.nav-logo,.nav-logo-text{color:var(--text)!important;text-decoration:none!important;font-weight:700}
+.nav .nav-badge{background:none!important;border:1px solid currentColor;color:var(--green)!important;border-radius:2px!important;font-family:var(--sp-font-mono);font-weight:500;font-size:10px;letter-spacing:0.08em;padding:2px 6px}
+
+/* Header on small phones: one line, same badge everywhere */
+body > nav .nav-badge,body > nav .badge{background:none!important;border:1px solid currentColor!important;color:var(--green)!important;border-radius:2px!important;font-family:var(--sp-font-mono)!important;font-weight:500!important;letter-spacing:.08em!important;white-space:nowrap}
+body > nav a,body > nav button{white-space:nowrap}
+@media(max-width:480px){
+  body > nav{padding-left:16px!important;padding-right:16px!important;gap:10px}
+  body > nav .nav-badge,body > nav .badge{font-size:9px!important;padding:2px 5px!important}
+  body > nav .btn,body > nav .btn-sm,body > nav .btn-ghost{padding:6px 10px!important;font-size:12px!important}
+  .nav-logo{gap:6px!important}
+}
+@media(max-width:380px){body > nav{flex-wrap:wrap;row-gap:10px}}
+/* Long game titles stay on one line on wide screens (the column is narrow on purpose) */
+@media(min-width:760px){.wrap > h1{margin-left:-80px;margin-right:-80px}}

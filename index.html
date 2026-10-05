@@ -18,143 +18,264 @@
 <meta name="keywords" content="virtual stock market, paper trading app, stock market simulator, learn investing for beginners, free stock trading practice, fantasy stocks game"/>
 <link rel="canonical" href="https://mystockspilot.com" />
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TZLSC36Y26');</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--g900:#12161f;--g600:#5a6478;--g400:#9aa3b4;--g100:#e4e7ed;--off:#f7f8fa;--green:#1a9e6e;--green-l:#e8f7f2;--red:#dc2626}
-body{font-family:'DM Sans',sans-serif;color:var(--g900);overflow-x:hidden;max-width:100vw}
-a{text-decoration:none}
-.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;white-space:nowrap}
-.btn-green{background:var(--green);color:white}.btn-green:hover{background:#147a55;transform:translateY(-1px)}
-.btn-outline{background:transparent;color:var(--g600);border:1px solid var(--g100)}.btn-outline:hover{background:var(--off)}
-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 40px;background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--g100)}
-.logo{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--g900);display:flex;align-items:center;gap:10px}
-.logo img{height:28px;width:auto}
-.nav-links{display:flex;align-items:center;gap:6px}
-.nav-link{font-size:13px;font-weight:500;color:var(--g600);padding:6px 12px;border-radius:8px;transition:all 0.15s}
-.nav-link:hover{background:var(--off);color:var(--g900)}
+:root{--g900:#12161f;--g700:#2b3240;--g600:#5a6478;--g400:#9aa3b4;--g200:#d3d8e0;--g100:#e4e7ed;--off:#f7f8fa;--green:#1a9e6e;--green-d:#147a55;--green-l:#e8f7f2;--red:#dc2626;--bp:#00e676;--bp-bg:#0b0f14}
+body{font-family:var(--sp-font-sans);color:var(--g900);background:#fff;overflow-x:hidden;max-width:100vw;font-size:16px;line-height:1.55}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1200px;margin:0 auto;padding:0 40px}
+
+/* Buttons: one shape, two weights */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 18px;border-radius:4px;font-family:var(--sp-font-sans);font-size:14px;font-weight:600;letter-spacing:-0.005em;cursor:pointer;transition:background-color .15s,border-color .15s,color .15s;border:1px solid transparent;white-space:nowrap}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:var(--green-d)}
+.btn-outline{background:transparent;color:var(--g900);border-color:var(--g200)}
+.btn-outline:hover{border-color:var(--g900)}
+.btn-hero{height:52px;padding:0 26px;font-size:16px}
+.btn-hero-secondary{height:52px;padding:0 24px;font-size:16px;background:#fff;color:var(--g900);border:1px solid var(--g200)}
+.btn-hero-secondary:hover{border-color:var(--g900)}
+
+/* Nav */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 40px;background:#fff;border-bottom:1px solid var(--g100)}
+.logo{font-family:var(--sp-font-display);font-size:19px;font-weight:700;letter-spacing:-0.02em;color:var(--g900);display:flex;align-items:center;gap:10px}
+.logo img{height:26px;width:auto}
+.nav-links{display:flex;align-items:center;gap:4px}
+.nav-link{font-size:14px;font-weight:500;color:var(--g600);padding:8px 12px;transition:color .15s}
+.nav-link:hover{color:var(--g900)}
 .nav-right{display:flex;gap:10px;align-items:center}
-.ticker-wrap{background:#0a0e17;overflow:hidden;padding:10px 0;margin-top:61px;display:block}
-.ticker-track{display:flex;gap:40px;animation:ticker 30s linear infinite;width:max-content}
+
+/* Ticker */
+.ticker-wrap{background:var(--g900);overflow:hidden;height:38px;display:flex;align-items:center;margin-top:64px;border-bottom:1px solid #000}
+.ticker-track{display:flex;animation:ticker 40s linear infinite;width:max-content}
 .ticker-track:hover{animation-play-state:paused}
-.ticker-item{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);white-space:nowrap;font-family:'DM Sans',sans-serif}
-.ticker-item strong{color:white}
-.up{color:#2ecc9a}.dn{color:#ef4444}
+.ticker-item{display:flex;align-items:center;gap:8px;padding:0 22px;border-right:1px solid rgba(255,255,255,0.09);font-family:var(--sp-font-mono);font-size:12.5px;font-weight:400;color:rgba(255,255,255,0.62);white-space:nowrap}
+.ticker-item strong{color:#fff;font-weight:500}
+.up{color:#2ecc9a}.dn{color:#f87171}
 @keyframes ticker{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.hero{display:flex;align-items:center;justify-content:center;text-align:center;padding:80px 24px 80px;background:#000;position:relative;overflow:hidden}
-.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 30%,rgba(26,158,110,0.14) 0%,transparent 70%)}
-.hero-content{position:relative;max-width:760px}
-.hero-pill{display:inline-flex;background:rgba(26,158,110,0.12);border:1px solid rgba(26,158,110,0.25);border-radius:100px;padding:6px 16px;font-size:13px;font-weight:600;color:#2ecc9a;margin-bottom:28px}
-h1{font-family:'Fraunces',serif;font-size:clamp(38px,6vw,72px);font-weight:700;color:white;line-height:1.05;letter-spacing:-0.03em;margin-bottom:20px}
-h1 em{font-style:italic;color:#2ecc9a;font-weight:300}
-.hero-sub{font-size:18px;color:rgba(255,255,255,0.5);line-height:1.65;max-width:520px;margin:0 auto 36px}
-.hero-cta{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
-.btn-hero{padding:16px 36px;font-size:16px;border-radius:14px}
-.btn-hero-secondary{padding:15px 28px;font-size:15px;border-radius:14px;background:rgba(255,255,255,0.08);color:rgba(255,255,255,0.8);border:1px solid rgba(255,255,255,0.15)}
-.btn-hero-secondary:hover{background:rgba(255,255,255,0.14);color:white}
-.hero-note{font-size:13px;color:rgba(255,255,255,0.2);margin-top:16px}
-.proof-bar{background:#0d1117;border-top:1px solid rgba(255,255,255,0.06);border-bottom:1px solid rgba(255,255,255,0.06);padding:24px 40px}
-.proof-inner{max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:center;gap:48px;flex-wrap:wrap}
-.proof-item{display:flex;flex-direction:column;align-items:center;gap:4px}
-.proof-num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:white}
-.proof-label{font-size:12px;color:rgba(255,255,255,0.35);font-weight:500;text-align:center}
-.proof-divider{width:1px;height:36px;background:rgba(255,255,255,0.08)}
-.tools{padding:100px 40px;background:white}
-.tools-inner{max-width:1060px;margin:0 auto}
-.label{font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--g400);text-align:center;margin-bottom:14px}
-h2.section{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;text-align:center;color:var(--g900);letter-spacing:-0.02em;margin-bottom:12px}
-.section-sub{font-size:16px;color:var(--g600);text-align:center;margin-bottom:56px}
-.tools-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
-.tool-card{border-radius:20px;padding:36px;border:1px solid var(--g100);background:white;transition:all 0.2s;position:relative;overflow:hidden}
-.tool-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.08);border-color:rgba(26,158,110,0.2)}
-.tool-card.featured{background:var(--g900);border-color:transparent}
-.tool-card.featured:hover{box-shadow:0 12px 40px rgba(0,0,0,0.3)}
-.tool-icon{font-size:36px;margin-bottom:16px;display:block}
-.tool-name{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:10px;letter-spacing:-0.01em}
-.tool-card.featured .tool-name{color:white}
-.tool-desc{font-size:15px;line-height:1.65;color:var(--g600);margin-bottom:20px}
-.tool-card.featured .tool-desc{color:rgba(255,255,255,0.5)}
-.tool-tag{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green);background:var(--green-l);padding:4px 10px;border-radius:20px;margin-bottom:16px}
-.tool-card.featured .tool-tag{background:rgba(46,204,154,0.1);color:#2ecc9a}
-.tool-link{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--green)}
+
+/* Hero */
+.hero{background:#fff;border-bottom:1px solid var(--g100)}
+.hero-grid{display:grid;grid-template-columns:minmax(0,1.22fr) minmax(0,.78fr);grid-template-areas:"head viz" "content viz" "facts facts";column-gap:72px;row-gap:0;align-items:start;padding-top:80px;padding-bottom:0}
+.hero-grid:has(.sp-viz-fail){grid-template-areas:"head head" "content content" "facts facts"}
+.hero-visual:has(.sp-viz-fail){display:none}
+@media(min-width:961px){.hero-head h1 br{display:none}}
+.hero-head{grid-area:head}
+.hero-content{grid-area:content;margin-top:36px}
+.hero-visual{grid-area:viz;align-self:center;position:relative;margin-top:8px}
+.hero-visual::before{content:"";position:absolute;inset:-56px -40px -56px -56px;background-image:radial-gradient(#cfd5de 1px,transparent 1.3px);background-size:18px 18px;-webkit-mask-image:radial-gradient(closest-side,#000 35%,transparent);mask-image:radial-gradient(closest-side,#000 35%,transparent);pointer-events:none}
+.hero-visual .sp-viz{position:relative}
+.hero-kicker{font-family:var(--sp-font-mono);font-size:13px;color:var(--green-d);margin-bottom:28px;letter-spacing:0}
+h1{font-family:var(--sp-font-display);font-size:clamp(40px,4.6vw,68px);font-weight:700;color:var(--g900);line-height:.98;letter-spacing:-0.042em}
+h1 em{color:inherit}
+.hero-sub{font-size:20px;color:var(--g600);line-height:1.5;max-width:560px;margin-bottom:36px}
+.hero-cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hero-note{font-size:13px;color:var(--g400);margin-top:18px}
+
+/* Facts: one ruled band under the hero */
+.facts{grid-area:facts;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));margin-top:80px;border-top:1px solid var(--g100)}
+.fact{display:flex;flex-direction:column;gap:8px;padding:28px 24px 34px;border-left:1px solid var(--g100)}
+.fact:first-child{border-left:none;padding-left:0}
+.proof-num{font-family:var(--sp-font-display);font-size:36px;font-weight:600;letter-spacing:-0.035em;color:var(--g900);line-height:1}
+.proof-label{font-size:14.5px;color:var(--g600)}
+
+/* Bullpen promo: keeps Bullpen's dark + green identity */
+.bullpen{position:relative;overflow:hidden;background:var(--bp-bg);color:#fff}
+.bullpen > .wrap{position:relative;z-index:1}
+/* Pitch markings and a scoreboard face, same language as the Bullpen pages */
+.bullpen::before{content:"";position:absolute;top:0;bottom:0;right:calc(max(40px,(100vw - 1120px)/2) + 220px);border-left:1.5px solid rgba(214,255,226,.06)}
+.bullpen::after{content:"";position:absolute;top:50%;right:calc(max(40px,(100vw - 1120px)/2) + 40px);width:360px;height:360px;margin-top:-180px;border:1.5px solid rgba(214,255,226,.06);border-radius:50%}
+.bp-stat-num{-webkit-mask-image:radial-gradient(circle,#000 58%,transparent 64%);-webkit-mask-size:4px 4px;mask-image:radial-gradient(circle,#000 58%,transparent 64%);mask-size:4px 4px;font-size:clamp(46px,4.2vw,60px)!important;white-space:nowrap}
+.bullpen-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:64px;align-items:center;padding-top:80px;padding-bottom:80px}
+.bp-kicker{display:flex;align-items:center;gap:10px;font-family:var(--sp-font-mono);font-size:12px;font-weight:500;color:var(--bp);letter-spacing:0.04em;text-transform:uppercase;margin-bottom:22px}
+.live-dot{width:7px;height:7px;background:var(--bp);display:inline-block;animation:live 1.8s ease-in-out infinite}
+@keyframes live{50%{opacity:.25}}
+.bp-title{font-family:var(--sp-font-sport);font-stretch:72%;text-transform:uppercase;font-size:clamp(46px,6.2vw,84px);font-weight:800;line-height:.92;letter-spacing:-0.005em;margin-bottom:18px}
+.bp-sub{font-size:16px;color:#97a1ad;max-width:420px;line-height:1.6;margin-bottom:30px}
+.bp-btn{display:inline-flex;align-items:center;height:48px;padding:0 24px;background:var(--bp);color:#04120a;border-radius:4px;font-size:15px;font-weight:700;transition:background-color .15s}
+.bp-btn:hover{background:#3df59a}
+.bp-stats{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid rgba(255,255,255,0.16)}
+.bp-stat{padding:22px 12px 0 22px;border-right:1px solid rgba(255,255,255,0.1)}
+.bp-stat:first-child{padding-left:0}
+.bp-stat:last-child{border-right:none}
+.bp-stat-num{font-family:var(--sp-font-sport);font-stretch:72%;font-size:54px;font-weight:800;line-height:1;color:var(--bp)}
+.bp-stat-label{font-size:13px;color:#97a1ad;margin-top:10px}
+
+/* Section scaffolding */
+.tools,.stories,.preview,.leaderboard-section,.cta{padding:104px 0}
+.sec-head{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:48px;align-items:end;margin-bottom:48px}
+.label{display:flex;align-items:center;gap:10px;font-family:var(--sp-font-mono);font-size:13px;color:var(--g600);margin-bottom:16px}
+.label::before{content:"";flex:none;width:7px;height:7px;background:var(--green)}
+h2.section{font-family:var(--sp-font-display);font-size:clamp(32px,3.8vw,50px);font-weight:700;color:var(--g900);letter-spacing:-0.035em;line-height:1.02}
+.section-sub{font-size:17px;color:var(--g600);line-height:1.55;max-width:420px}
+
+/* Tools: ruled 2x2 grid */
+.tools{background:#fff}
+.tools-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--g100);border:1px solid var(--g100)}
+.tool-card{position:relative;background:#fff;padding:36px 36px 32px;display:flex;flex-direction:column;min-height:280px;transition:background-color .2s}
+.tool-card::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--green);transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.4,0,.2,1)}
+.tool-card.featured::before{background:#2ecc9a}
+.tool-card:hover::before{transform:none}
+.tool-card:hover{background:#fbfcfd}
+.tool-card.featured{background:var(--g900)}
+.tool-card.featured:hover{background:#171c27}
+.tool-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px}
+.tool-icon{width:26px;height:26px;color:var(--green)}
+.tool-card.featured .tool-icon{color:#2ecc9a}
+.tool-tag{font-family:var(--sp-font-mono);font-size:12px;font-weight:500;color:var(--g600);padding:3px 8px;border:1px solid var(--g100);border-radius:2px}
+.tool-card.featured .tool-tag{color:#2ecc9a;border-color:rgba(46,204,154,0.35)}
+.tool-name{font-family:var(--sp-font-display);font-size:26px;font-weight:700;letter-spacing:-0.025em;margin-bottom:10px;color:var(--g900)}
+.tool-card.featured .tool-name{color:#fff}
+.tool-desc{font-size:15.5px;line-height:1.6;color:var(--g600);margin-bottom:28px;max-width:440px}
+.tool-card.featured .tool-desc{color:rgba(255,255,255,0.62)}
+.tool-link{margin-top:auto;display:inline-flex;align-items:center;gap:6px;font-size:14.5px;font-weight:600;color:var(--green-d);border-bottom:1px solid currentColor;align-self:flex-start;padding-bottom:2px}
 .tool-card.featured .tool-link{color:#2ecc9a}
-.tool-link:hover{gap:10px}
-.stories{padding:100px 40px;background:var(--off)}
-.stories-inner{max-width:1060px;margin:0 auto}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
-.card{border-radius:20px;padding:36px;transition:transform 0.2s}.card:hover{transform:translateY(-3px)}
-.card.dark{background:var(--g900)}
-.card.green{background:var(--green-l);border:1px solid rgba(26,158,110,0.15)}
-.card.light{background:white;border:1px solid var(--g100)}
-.card.red{background:#1a0505;border:1px solid rgba(220,38,38,0.2)}
-.card-num{font-size:11px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:16px}
-.card.dark .card-num{color:rgba(255,255,255,0.3)}.card.green .card-num{color:var(--green)}.card.light .card-num{color:var(--g400)}.card.red .card-num{color:rgba(220,38,38,0.5)}
-.card-icon{font-size:36px;margin-bottom:16px;display:block}
-.card-q{font-family:'Fraunces',serif;font-size:22px;font-weight:700;line-height:1.2;margin-bottom:12px;letter-spacing:-0.02em}
-.card.dark .card-q,.card.red .card-q{color:white}.card.green .card-q,.card.light .card-q{color:var(--g900)}
-.card-a{font-size:15px;line-height:1.65}
-.card.dark .card-a{color:rgba(255,255,255,0.55)}.card.green .card-a,.card.light .card-a{color:var(--g600)}.card.red .card-a{color:rgba(255,255,255,0.45)}
-.card-link{display:inline-flex;margin-top:20px;font-size:14px;font-weight:600;color:#2ecc9a}
-.preview{padding:100px 40px;background:var(--g900);text-align:center}
-.preview-inner{max-width:860px;margin:0 auto}
-.preview h2{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:14px}
-.preview-sub{font-size:16px;color:rgba(255,255,255,0.4);margin-bottom:48px}
-.browser{background:#111;border-radius:16px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}
-.browser-bar{background:#1a1a1a;padding:12px 16px;display:flex;align-items:center;gap:6px;border-bottom:1px solid rgba(255,255,255,0.06)}
-.dot{width:10px;height:10px;border-radius:50%}
-.browser-url{flex:1;background:rgba(255,255,255,0.06);border-radius:5px;padding:4px 12px;font-family:monospace;font-size:11px;color:rgba(255,255,255,0.25);margin-left:8px}
-.browser-body{padding:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-.stat{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px}
-.stat-label{font-size:10px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:6px}
-.stat-val{font-family:monospace;font-size:20px;font-weight:500;color:white}
-.stat-chg{font-family:monospace;font-size:12px;margin-top:2px}
-.positions{background:rgba(255,255,255,0.04);border-radius:10px;padding:16px;grid-column:span 3}
-.pos-title{font-size:11px;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:12px}
-.pos{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);font-size:13px}
-.pos:last-child{border:none}
-.sym{font-weight:600;color:white}.price{font-family:monospace;color:rgba(255,255,255,0.6)}.chg{font-family:monospace;font-size:12px}
-.leaderboard-section{padding:80px 40px;background:#000}
-.leaderboard-inner{max-width:700px;margin:0 auto;text-align:center}
-.cta{padding:100px 40px;background:white;text-align:center}
-.cta h2{font-family:'Fraunces',serif;font-size:clamp(32px,5vw,52px);font-weight:700;color:var(--g900);letter-spacing:-0.03em;margin-bottom:14px;line-height:1.1}
-.cta h2 em{font-style:italic;color:var(--green);font-weight:300}
-.cta p{font-size:17px;color:var(--g600);margin-bottom:32px}
+.tool-link:hover{color:var(--g900)}
+.tool-card.featured .tool-link:hover{color:#fff}
+
+/* Stories: numbered editorial list */
+.stories{background:var(--off);border-top:1px solid var(--g100);border-bottom:1px solid var(--g100)}
+.grid{display:grid;grid-template-columns:1fr 1fr;column-gap:64px;row-gap:56px}
+.card{border-top:2px solid var(--g900);padding-top:22px}
+.card.green{border-top-color:var(--green)}
+.card.light{border-top-color:var(--g400)}
+.card.red{border-top-color:var(--red)}
+.card-num{font-family:var(--sp-font-mono);font-size:12.5px;color:var(--g600);margin-bottom:18px}
+.card.green .card-num{color:var(--green-d)}
+.card.red .card-num{color:var(--red)}
+.card-q{font-family:var(--sp-font-display);font-size:25px;font-weight:700;line-height:1.18;margin-bottom:14px;letter-spacing:-0.025em;color:var(--g900);max-width:480px}
+.card-a{font-size:16px;line-height:1.65;color:var(--g600);max-width:520px}
+.card-link{display:inline-flex;margin-top:20px;font-size:14.5px;font-weight:600;color:var(--green-d);border-bottom:1px solid currentColor;padding-bottom:2px}
+.card-link:hover{color:var(--g900)}
+.card.red .card-link{color:var(--red)}
+
+/* Preview: product panel */
+.preview{background:var(--g900);color:#fff}
+.preview .sec-head{margin-bottom:40px}
+.preview h2{font-family:var(--sp-font-display);font-size:clamp(32px,3.8vw,50px);font-weight:700;color:#fff;letter-spacing:-0.035em;line-height:1.02}
+.preview-sub{font-size:17px;color:rgba(255,255,255,0.55);max-width:420px}
+.browser{background:#0d1118;border:1px solid rgba(255,255,255,0.1);border-radius:6px;overflow:hidden}
+.browser-bar{display:flex;align-items:center;justify-content:space-between;height:42px;padding:0 18px;border-bottom:1px solid rgba(255,255,255,0.08);background:#10151e}
+.browser-url{font-family:var(--sp-font-mono);font-size:12px;color:rgba(255,255,255,0.45)}
+.browser-meta{font-family:var(--sp-font-mono);font-size:11.5px;color:rgba(255,255,255,0.3)}
+.browser-body{display:grid;grid-template-columns:repeat(3,1fr)}
+.stat{padding:24px 24px 26px;border-right:1px solid rgba(255,255,255,0.07);border-bottom:1px solid rgba(255,255,255,0.07)}
+.stat:nth-child(3){border-right:none}
+.stat-label{font-size:12.5px;color:rgba(255,255,255,0.45);margin-bottom:10px}
+.stat-val{font-family:var(--sp-font-mono);font-size:26px;font-weight:500;color:#fff;letter-spacing:-0.02em}
+.stat-chg{font-family:var(--sp-font-mono);font-size:12.5px;margin-top:6px}
+.positions{grid-column:span 3;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));padding:0 24px 8px}
+.pos-title{grid-column:1/-1;font-size:12.5px;color:rgba(255,255,255,0.45);padding:16px 0 12px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.pos{display:flex;flex-direction:column;gap:6px;padding:18px 20px 20px;border-left:1px solid rgba(255,255,255,0.07);font-size:14px}
+.pos:nth-child(2){border-left:none;padding-left:0}
+.pos .price{text-align:left;font-size:19px;color:#fff}
+.pos .chg{text-align:left}
+.sym{font-family:var(--sp-font-mono);font-weight:600;color:#fff}
+.price{font-family:var(--sp-font-mono);color:rgba(255,255,255,0.7);text-align:right}
+.chg{font-family:var(--sp-font-mono);font-size:13px;text-align:right}
+
+/* Leaderboard */
+.leaderboard-section{background:#fff;border-bottom:1px solid var(--g100)}
+.lb-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:72px;align-items:start}
+.lb-title{font-family:var(--sp-font-display);font-size:clamp(32px,3.8vw,50px);font-weight:700;color:var(--g900);letter-spacing:-0.035em;line-height:1.02;margin-bottom:16px}
+.lb-sub{font-size:17px;color:var(--g600);margin-bottom:32px}
+.lb-table{border-top:2px solid var(--g900)}
+.lb-head{display:grid;grid-template-columns:64px 1fr 110px;padding:12px 0;border-bottom:1px solid var(--g100);font-family:var(--sp-font-mono);font-size:12px;color:var(--g600)}
+.lb-row{display:grid;grid-template-columns:64px 1fr 110px;padding:18px 0;border-bottom:1px solid var(--g100);align-items:baseline}
+.lb-rank{font-family:var(--sp-font-mono);font-size:14px;color:var(--g400)}
+.lb-name{font-weight:600;color:var(--g900);font-size:16px}
+.lb-ret{text-align:right;font-family:var(--sp-font-mono);font-weight:500;font-size:15px}
+.lb-empty{padding:32px 0;color:var(--g600);font-size:15px}
+
+/* Closing CTA */
+.cta{background:var(--off)}
+.cta-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:48px;align-items:end}
+.cta h2{font-family:var(--sp-font-display);font-size:clamp(40px,5.2vw,72px);font-weight:700;color:var(--g900);letter-spacing:-0.04em;line-height:1}
+.cta h2 em{color:var(--green)}
+.cta p{font-size:17px;color:var(--g600);margin-top:18px}
+.cta-actions{justify-self:end;text-align:left}
 .cta-note{font-size:13px;color:var(--g400);margin-top:14px}
-footer{background:var(--g900);padding:24px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
-.foot-copy{font-size:12px;color:rgba(255,255,255,0.2)}
-.foot-links{display:flex;gap:20px}
-footer a{font-size:12px;color:rgba(255,255,255,0.3)}
-footer a:hover{color:#2ecc9a}
+
+/* Built with */
+.built{background:#fff;border-top:1px solid var(--g100);padding:28px 0}
+.built-inner{display:flex;align-items:baseline;gap:28px;flex-wrap:wrap}
+.built-label{font-family:var(--sp-font-mono);font-size:12.5px;color:var(--g400)}
+.built-list{display:flex;flex-wrap:wrap;gap:0;font-size:14px;color:var(--g600)}
+.built-list span{padding:0 14px;border-left:1px solid var(--g100);line-height:1.2}
+.built-list span:first-child{padding-left:0;border-left:none}
+
+footer{background:var(--g900);padding:28px 40px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.foot-copy{font-size:13px;color:rgba(255,255,255,0.45)}
+.foot-links{display:flex;gap:22px;flex-wrap:wrap}
+footer a{font-size:13px;color:rgba(255,255,255,0.6);transition:color .15s}
+footer a:hover{color:#fff}
+
+@media(max-width:960px){
+  .hero-grid{grid-template-columns:1fr;grid-template-areas:"head" "content" "viz" "facts"}
+  .bullpen-grid,.sec-head,.lb-grid,.cta-grid{grid-template-columns:1fr;gap:40px}
+  .cta-actions{justify-self:start}
+  .section-sub,.preview-sub{max-width:none}
+}
 @media(max-width:768px){
-html,body{overflow-x:hidden;max-width:100vw}
-.ticker-wrap{display:none}
-nav{padding:12px 20px}
-.nav-links{display:none}
-.hero{padding:80px 20px 60px}
-h1{font-size:36px}
-.hero-sub{font-size:15px}
-.btn-hero{padding:13px 24px;font-size:14px}
-.proof-bar{padding:20px}
-.proof-inner{gap:20px}
-.proof-divider{display:none}
-.tools,.stories,.preview,.cta,.leaderboard-section{padding:60px 20px}
-.tools-grid,.grid{grid-template-columns:1fr}
-.tool-card,.card{padding:24px}
-.browser-body{grid-template-columns:1fr 1fr}
-.positions{grid-column:span 2}
-.preview h2,.cta h2{font-size:28px}
-footer{flex-direction:column;text-align:center;padding:20px}
-.foot-links{justify-content:center}
+  html,body{overflow-x:hidden;max-width:100vw}
+  .wrap{padding:0 20px}
+  .ticker-wrap{display:none}
+  nav{padding:0 20px;height:58px}
+  .nav-links{display:none}
+  .hero{margin-top:58px}
+  .hero-grid{padding-top:44px;padding-bottom:0;row-gap:0}
+  .hero-content{margin-top:24px}
+  .hero-visual{margin-top:40px}
+  .hero-visual::before{inset:-28px 0}
+  .facts{grid-template-columns:1fr 1fr;margin-top:44px}
+  .fact{padding:20px 0 22px 18px;border-top:1px solid var(--g100)}
+  .fact:nth-child(odd){border-left:none;padding-left:0}
+  .fact:first-child,.fact:nth-child(2){border-top:none}
+  .fact:last-child{grid-column:1/-1;border-left:none;padding-left:0}
+  h1{font-size:40px;letter-spacing:-0.035em}
+  h1 br{display:none}
+  .hero-kicker{margin-bottom:20px;font-size:11.5px;text-wrap:balance}
+  .hero-sub{font-size:17px}
+  .hero-cta .btn{width:100%}
+  .proof-num{font-size:30px}
+  .bullpen-grid{padding-top:56px;padding-bottom:56px}
+  .bp-stat{padding-left:16px}
+  .bp-stat-num{font-size:46px!important}
+  .bullpen::before,.bullpen::after{display:none}
+  .tools,.stories,.preview,.leaderboard-section,.cta{padding:64px 0}
+  .sec-head{margin-bottom:32px;gap:16px}
+  .tools-grid{grid-template-columns:1fr}
+  .tool-card{padding:28px 22px;min-height:0}
+  .tool-top{margin-bottom:28px}
+  .grid{grid-template-columns:1fr;row-gap:44px}
+  .stat{padding:16px 12px 18px}
+  .stat-label{font-size:11px;margin-bottom:8px}
+  .stat-val{font-size:16.5px}
+  .stat-chg{font-size:10.5px}
+  .positions{grid-template-columns:1fr 1fr;padding:0 14px 6px}
+  .pos{padding:14px 0 14px 14px;border-top:1px solid rgba(255,255,255,0.07)}
+  .pos:nth-child(2),.pos:nth-child(4){border-left:none;padding-left:0}
+  .pos:nth-child(2),.pos:nth-child(3){border-top:none}
+  .pos .price{font-size:16px}
+  .browser-meta{display:none}
+  .cta h2{font-size:44px}
+  footer{flex-direction:column;align-items:flex-start;padding:28px 20px}
+  .built-inner{flex-direction:column;gap:12px}
+  .built-list{display:grid;grid-template-columns:1fr 1fr;row-gap:8px;width:100%}
+  .built-list span{padding:0;border-left:none}
 }
 </style>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"StockPilot","url":"https://mystockspilot.com","description":"Free virtual stock market simulator and investing education app for beginners","applicationCategory":"FinanceApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<link rel="stylesheet" href="/sp-viz.css"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 
 <nav>
-  <a href="/" class="logo"><img src="/logo.jpg" alt="StockPilot"/>StockPilot</a>
+  <a href="/" class="logo"><img src="/logo-mark-256.png" class="sp-mark" alt="StockPilot"/>StockPilot</a>
   <div class="nav-links">
     <a href="/trade" class="nav-link">Virtual Market</a>
     <a href="/investing" class="nav-link">Portfolio</a>
@@ -177,92 +298,103 @@ footer{flex-direction:column;text-align:center;padding:20px}
 </div></div>
 
 <section class="hero">
-  <div class="hero-bg"></div>
-  <div class="hero-content">
-    <div class="hero-pill">Free forever · No real money · Real market data</div>
-    <h1>Your first investing account<br>should not be your <em>real one.</em></h1>
-    <p class="hero-sub">Practice trading with $100,000 of virtual cash. Plan your budget. Learn investing in plain English. All free, no account needed.</p>
-    <div class="hero-cta">
-      <a href="/trade" class="btn btn-green btn-hero">Get $100,000 Virtual Cash</a>
-      <a href="/learn" class="btn btn-hero-secondary">Explore 42 Free Lessons</a>
+  <div class="wrap hero-grid">
+    <div class="hero-head">
+      <p class="hero-kicker">Free forever · No real money · Real market data</p>
+      <h1>Your first investing account <br>should not be your <em>real one.</em></h1>
     </div>
-    <p class="hero-note">No account needed · Works on any device · 100% free</p>
+    <div class="hero-content">
+      <p class="hero-sub">Practice trading with $100,000 of virtual cash. Plan your budget. Learn investing in plain English. All free, no account needed.</p>
+      <div class="hero-cta">
+        <a href="/trade" class="btn btn-green btn-hero">Get $100,000 Virtual Cash</a>
+        <a href="/learn" class="btn btn-hero-secondary">Explore 42 Free Lessons</a>
+      </div>
+      <p class="hero-note">No account needed · Works on any device · 100% free</p>
+    </div>
+    <div class="hero-visual">
+      <div class="sp-viz sp-viz-dark sp-viz-live" data-main="SPY" data-range="1mo" aria-hidden="true">
+        <div class="sp-viz-bar"><img src="/logo-mark-256.png" alt=""/><i></i><i></i><i></i><span class="sp-viz-dot"></span></div>
+        <div class="sp-viz-main">
+          <div class="sp-viz-head"><b class="sp-viz-sym">SPY</b><span class="sp-viz-px">—</span><span class="sp-viz-ch">—</span></div>
+          <svg class="sp-viz-chart"></svg>
+        </div>
+        <div class="sp-viz-rows">
+          <div class="sp-viz-row" data-sym="AAPL"><b>AAPL</b><svg class="sp-viz-spark"></svg><span class="px">—</span><span class="ch">—</span></div>
+          <div class="sp-viz-row" data-sym="NVDA"><b>NVDA</b><svg class="sp-viz-spark"></svg><span class="px">—</span><span class="ch">—</span></div>
+          <div class="sp-viz-row" data-sym="MSFT"><b>MSFT</b><svg class="sp-viz-spark"></svg><span class="px">—</span><span class="ch">—</span></div>
+          <div class="sp-viz-row" data-sym="TSLA"><b>TSLA</b><svg class="sp-viz-spark"></svg><span class="px">—</span><span class="ch">—</span></div>
+        </div>
+      </div>
+    </div>
+    <dl class="facts">
+      <div class="fact"><dt class="proof-num">$100K</dt><dd class="proof-label">Virtual cash to start</dd></div>
+      <div class="fact"><dt class="proof-num">42</dt><dd class="proof-label">Free investing lessons</dd></div>
+      <div class="fact"><dt class="proof-num">4</dt><dd class="proof-label">Tools in one place</dd></div>
+      <div class="fact"><dt class="proof-num">$0</dt><dd class="proof-label">Forever free, always</dd></div>
+      <div class="fact"><dt class="proof-num">0</dt><dd class="proof-label">Signups required</dd></div>
+    </dl>
   </div>
 </section>
 
-<div class="proof-bar">
-  <div class="proof-inner">
-    <div class="proof-item"><div class="proof-num">$100K</div><div class="proof-label">Virtual cash to start</div></div>
-    <div class="proof-divider"></div>
-    <div class="proof-item"><div class="proof-num">42</div><div class="proof-label">Free investing lessons</div></div>
-    <div class="proof-divider"></div>
-    <div class="proof-item"><div class="proof-num">4</div><div class="proof-label">Tools in one place</div></div>
-    <div class="proof-divider"></div>
-    <div class="proof-item"><div class="proof-num">$0</div><div class="proof-label">Forever free, always</div></div>
-    <div class="proof-divider"></div>
-    <div class="proof-item"><div class="proof-num">0</div><div class="proof-label">Signups required</div></div>
-  </div>
-</div>
-
 
 <!-- BULLPEN PROMO -->
-<section style="background:linear-gradient(135deg,#080c10 0%,#0d1f14 100%);padding:72px 24px;border-top:1px solid rgba(0,230,118,0.12);border-bottom:1px solid rgba(0,230,118,0.12)">
-  <div style="max-width:900px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:40px;flex-wrap:wrap">
-    <div style="flex:1;min-width:260px">
-      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(0,230,118,0.1);border:1px solid rgba(0,230,118,0.25);border-radius:100px;padding:5px 14px;font-size:11px;color:#00e676;font-weight:700;letter-spacing:1px;margin-bottom:20px;text-transform:uppercase">
-        <span style="width:6px;height:6px;border-radius:50%;background:#00e676;display:inline-block"></span>
-        New &mdash; Season 3 Live
-      </div>
-      <h2 style="font-family:'Fraunces',serif;font-size:clamp(32px,5vw,52px);color:#fff;line-height:1.1;margin-bottom:12px">Fantasy Stocks<br/>is here.</h2>
-      <p style="font-size:15px;color:#7d8590;max-width:400px;line-height:1.6;margin-bottom:28px">Draft 7 stocks, bench 3. Compete with your crew all season. Real prices, zero money, all bragging rights.</p>
-      <a href="/bullpen.html" style="display:inline-block;background:#00e676;color:#000;padding:13px 32px;border-radius:10px;font-size:14px;font-weight:700;text-decoration:none">Play Bullpen &rarr;</a>
+<section class="bullpen">
+  <div class="wrap bullpen-grid">
+    <div>
+      <p class="bp-kicker"><span class="live-dot"></span>New &mdash; Season 3 Live</p>
+      <h2 class="bp-title">Fantasy Stocks<br/>is here.</h2>
+      <p class="bp-sub">Draft 7 stocks, bench 3. Compete with your crew all season. Real prices, zero money, all bragging rights.</p>
+      <a href="/bullpen.html" class="bp-btn">Play Bullpen &rarr;</a>
     </div>
-    <div style="display:flex;gap:24px;flex-wrap:wrap">
-      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;text-align:center;min-width:90px">
-        <div style="font-size:28px;font-weight:700;color:#00e676">7+3</div>
-        <div style="font-size:11px;color:#7d8590;margin-top:4px">Starters + Bench</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;text-align:center;min-width:90px">
-        <div style="font-size:28px;font-weight:700;color:#00e676">50</div>
-        <div style="font-size:11px;color:#7d8590;margin-top:4px">Max League Size</div>
-      </div>
-      <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:20px 24px;text-align:center;min-width:90px">
-        <div style="font-size:28px;font-weight:700;color:#00e676">Free</div>
-        <div style="font-size:11px;color:#7d8590;margin-top:4px">Always</div>
-      </div>
+    <div class="bp-stats">
+      <div class="bp-stat"><div class="bp-stat-num">7+3</div><div class="bp-stat-label">Starters + Bench</div></div>
+      <div class="bp-stat"><div class="bp-stat-num">50</div><div class="bp-stat-label">Max League Size</div></div>
+      <div class="bp-stat"><div class="bp-stat-num">Free</div><div class="bp-stat-label">Always</div></div>
     </div>
   </div>
 </section>
 <section class="tools">
-  <div class="tools-inner">
-    <p class="label">What is inside</p>
-    <h2 class="section">Four tools. One place.</h2>
-    <p class="section-sub">Everything a beginner needs to go from clueless to confident.</p>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="label">What is inside</p>
+        <h2 class="section">Four tools. One place.</h2>
+      </div>
+      <p class="section-sub">Everything a beginner needs to go from clueless to confident.</p>
+    </div>
     <div class="tools-grid">
       <div class="tool-card featured">
-        <span class="tool-tag">🔥 Most popular</span>
-        <span class="tool-icon">🎮</span>
+        <div class="tool-top">
+          <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M7 3.5v3M7 14.5v3.5M16 5.5v3M16 17v3"/><rect x="5" y="6.5" width="4" height="8"/><rect x="14" y="8.5" width="4" height="8.5"/></svg>
+          <span class="tool-tag">Most popular</span>
+        </div>
         <div class="tool-name">Virtual Market</div>
         <div class="tool-desc">Trade real stocks with $100,000 of virtual cash. Real prices from Finnhub. Zero risk. Compete on the leaderboard.</div>
         <a href="/trade" class="tool-link">Start trading free →</a>
       </div>
       <div class="tool-card">
-        <span class="tool-tag">🎓 42 lessons</span>
-        <span class="tool-icon">📖</span>
+        <div class="tool-top">
+          <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5z"/><path d="M12 6.5v13"/></svg>
+          <span class="tool-tag">42 lessons</span>
+        </div>
         <div class="tool-name">Investing Lessons</div>
         <div class="tool-desc">P/E ratios, diversification, compounding, inflation — explained in plain English. No jargon, no textbooks. 5 minutes each.</div>
         <a href="/learn" class="tool-link">Start learning free →</a>
       </div>
       <div class="tool-card">
-        <span class="tool-tag">💰 Free forever</span>
-        <span class="tool-icon">📊</span>
+        <div class="tool-top">
+          <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><rect x="3" y="6" width="18" height="13"/><path d="M3 10h18"/><path d="M16 14.5h2"/><path d="M6 6V4h11v2"/></svg>
+          <span class="tool-tag">Free forever</span>
+        </div>
         <div class="tool-name">Budget Planner</div>
         <div class="tool-desc">Track income, spending, and savings goals. Understand your cash flow before you invest a single dollar.</div>
         <a href="/budget" class="tool-link">Open Budget Planner →</a>
       </div>
       <div class="tool-card">
-        <span class="tool-tag">📈 Any ticker</span>
-        <span class="tool-icon">🗂</span>
+        <div class="tool-top">
+          <svg class="tool-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M12 3a9 9 0 1 0 9 9h-9z"/><path d="M15 3.5A9 9 0 0 1 20.5 9H15z"/></svg>
+          <span class="tool-tag">Any ticker</span>
+        </div>
         <div class="tool-name">Portfolio Simulator</div>
         <div class="tool-desc">Build a virtual portfolio with any ticker. See allocation, risk, beta, and volatility explained in plain English.</div>
         <a href="/investing" class="tool-link">Explore simulator →</a>
@@ -272,55 +404,54 @@ footer{flex-direction:column;text-align:center;padding:20px}
 </section>
 
 <section class="stories">
-  <div class="stories-inner">
-    <p class="label">Why StockPilot</p>
-    <h2 class="section">Four things worth knowing.</h2>
+  <div class="wrap">
+    <div class="sec-head">
+      <div>
+        <p class="label">Why StockPilot</p>
+        <h2 class="section">Four things worth knowing.</h2>
+      </div>
+    </div>
     <div class="grid">
       <div class="card dark">
         <div class="card-num">01 — What we are</div>
-        <span class="card-icon">🎮</span>
         <div class="card-q">A stock market simulator that uses real prices.</div>
         <div class="card-a">Buy and sell any stock at real market prices. Track your gains and losses. Learn what moves markets. No real money involved, ever.</div>
         <a href="/trade" class="card-link">Try the simulator</a>
       </div>
       <div class="card green">
         <div class="card-num">02 — Who it is for</div>
-        <span class="card-icon">🌱</span>
         <div class="card-q">Anyone who keeps saying they should really learn about investing.</div>
         <div class="card-a">Finance students, young professionals, complete beginners. If the stock market has ever felt intimidating, this is where you start safely.</div>
       </div>
       <div class="card light">
         <div class="card-num">03 — Why it exists</div>
-        <span class="card-icon">💡</span>
         <div class="card-q">Because not knowing how to invest costs you every single year.</div>
         <div class="card-a">Inflation erodes savings. Compounding rewards early starters. The gap between people who invest and those who do not grows over time. StockPilot helps you close that gap, starting today, for free.</div>
       </div>
       <div class="card red">
         <div class="card-num">04 — What it means for you</div>
-        <span class="card-icon">🚀</span>
         <div class="card-q">When you are ready to invest real money, you will not be guessing.</div>
         <div class="card-a">Practice here first. Learn what a P/E ratio is. Understand risk and diversification. Build a portfolio you believe in. When you open a real account, you will know exactly what you are doing.</div>
-        <a href="/trade" class="card-link" style="color:#fca5a5">Start for free</a>
+        <a href="/trade" class="card-link">Start for free</a>
       </div>
     </div>
   </div>
 </section>
 
 <section class="preview">
-  <div class="preview-inner">
-    <h2>See it in action.</h2>
-    <p class="preview-sub">Real prices. Real companies. Fake money. Real learning.</p>
+  <div class="wrap">
+    <div class="sec-head">
+      <h2>See it in action.</h2>
+      <p class="preview-sub">Real prices. Real companies. Fake money. Real learning.</p>
+    </div>
     <div class="browser">
       <div class="browser-bar">
-        <div class="dot" style="background:#ff5f57"></div>
-        <div class="dot" style="background:#febc2e"></div>
-        <div class="dot" style="background:#28c840"></div>
         <div class="browser-url">mystockspilot.com/trade</div>
       </div>
       <div class="browser-body">
         <div class="stat"><div class="stat-label">Portfolio Value</div><div class="stat-val">$112,430</div><div class="stat-chg up">+$12,430 (+12.4%)</div></div>
-        <div class="stat"><div class="stat-label">Cash Available</div><div class="stat-val">$34,200</div><div class="stat-chg" style="color:rgba(255,255,255,0.3)">Ready to invest</div></div>
-        <div class="stat"><div class="stat-label">Starting Cash</div><div class="stat-val">$100,000</div><div class="stat-chg" style="color:rgba(255,255,255,0.3)">Virtual only</div></div>
+        <div class="stat"><div class="stat-label">Cash Available</div><div class="stat-val">$34,200</div><div class="stat-chg" style="color:rgba(255,255,255,0.4)">Ready to invest</div></div>
+        <div class="stat"><div class="stat-label">Starting Cash</div><div class="stat-val">$100,000</div><div class="stat-chg" style="color:rgba(255,255,255,0.4)">Virtual only</div></div>
         <div class="positions">
           <div class="pos-title">My Positions</div>
           <div class="pos"><span class="sym">AAPL</span><span class="price">$294.80</span><span class="chg up">+1.38%</span></div>
@@ -334,38 +465,48 @@ footer{flex-direction:column;text-align:center;padding:20px}
 </section>
 
 <section class="leaderboard-section">
-  <div class="leaderboard-inner">
-    <p style="font-size:11px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:14px">Live competition</p>
-    <h2 style="font-family:'Fraunces',serif;font-size:clamp(28px,4vw,42px);font-weight:700;color:white;letter-spacing:-0.02em;margin-bottom:12px">🏆 Top Traders This Week</h2>
-    <p style="font-size:16px;color:rgba(255,255,255,0.4);margin-bottom:40px">Real people. Virtual cash. Real competition.</p>
-    <div id="landingLb" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:20px;overflow:hidden;margin-bottom:32px">
-      <div style="display:grid;grid-template-columns:50px 1fr 100px;padding:12px 24px;border-bottom:1px solid rgba(255,255,255,0.06);font-size:11px;font-weight:700;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:0.05em">
+  <div class="wrap lb-grid">
+    <div class="leaderboard-inner">
+      <p class="label">Live competition</p>
+      <h2 class="lb-title">Top Traders This Week</h2>
+      <p class="lb-sub">Real people. Virtual cash. Real competition.</p>
+      <a href="/trade" class="btn btn-green btn-hero">Join the leaderboard →</a>
+    </div>
+    <div id="landingLb" class="lb-table">
+      <div class="lb-head">
         <div>Rank</div><div>Trader</div><div style="text-align:right">Return</div>
       </div>
-      <div id="landingLbRows"><div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Loading...</div></div>
+      <div id="landingLbRows"><div class="lb-empty">Loading...</div></div>
     </div>
-    <a href="/trade" style="display:inline-flex;align-items:center;gap:8px;background:#1a9e6e;color:white;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:700;text-decoration:none">Join the leaderboard →</a>
   </div>
 </section>
 
 <section class="cta">
-  <h2>Ready to <em>practice?</em></h2>
-  <p>No account needed. No real money. No excuses.</p>
-  <a href="/trade" class="btn btn-green" style="padding:16px 40px;font-size:16px;border-radius:14px">Get $100,000 Virtual Cash</a>
-  <p class="cta-note">Free forever · Real prices · Zero risk</p>
+  <div class="wrap cta-grid">
+    <div>
+      <h2>Ready to <em>practice?</em></h2>
+      <p>No account needed. No real money. No excuses.</p>
+    </div>
+    <div class="cta-actions">
+      <a href="/trade" class="btn btn-green btn-hero">Get $100,000 Virtual Cash</a>
+      <p class="cta-note">Free forever · Real prices · Zero risk</p>
+    </div>
+  </div>
 </section>
 
-<section style="background:#f7f8fa;padding:48px 40px;text-align:center;border-top:1px solid #e4e7ed">
-  <p style="font-size:11px;font-weight:700;letter-spacing:0.1em;color:#9aa3b4;text-transform:uppercase;margin-bottom:20px">Built with</p>
-  <div style="display:flex;flex-wrap:wrap;justify-content:center;gap:12px;max-width:700px;margin:0 auto">
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Yahoo Finance API</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Finnhub API</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">FRED Macro API</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">SEC EDGAR</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Supabase</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Railway</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">GitHub Pages</span>
-    <span style="padding:6px 14px;border-radius:20px;background:#fff;border:1px solid #e4e7ed;font-size:12px;font-weight:600;color:#5a6478">Vanilla JS</span>
+<section class="built">
+  <div class="wrap built-inner">
+    <p class="built-label">Built with</p>
+    <div class="built-list">
+      <span>Yahoo Finance API</span>
+      <span>Finnhub API</span>
+      <span>FRED Macro API</span>
+      <span>SEC EDGAR</span>
+      <span>Supabase</span>
+      <span>Railway</span>
+      <span>GitHub Pages</span>
+      <span>Vanilla JS</span>
+    </div>
   </div>
 </section>
 
@@ -383,7 +524,7 @@ footer{flex-direction:column;text-align:center;padding:20px}
     <a href="/resources.html">For Teachers</a>
     <a href="/privacy.html">Privacy</a>
   </div>
-</footer>
+<p class="sp-credit-line sp-credit-dark"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p></footer>
 
 <script>
 (function(){
@@ -393,19 +534,18 @@ footer{flex-direction:column;text-align:center;padding:20px}
   .then(function(r){return r.json();})
   .then(function(rows){
     var el=document.getElementById('landingLbRows');
-    if(!rows||!rows.length){el.innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader on the leaderboard! 🚀</div>';return;}
-    var medals=['🥇','🥈','🥉'];
+    if(!rows||!rows.length){el.innerHTML='<div class="lb-empty">Be the first trader on the leaderboard!</div>';return;}
     el.innerHTML=rows.map(function(row,i){
-      var col=row.return_pct>=0?'#2ecc9a':'#dc2626';
+      var col=row.return_pct>=0?'#147a55':'#dc2626';
       var sign=row.return_pct>=0?'+':'';
-      return '<div style="display:grid;grid-template-columns:50px 1fr 100px;padding:16px 24px;border-bottom:1px solid rgba(255,255,255,0.06);align-items:center">'
-        +'<div style="font-size:22px">'+medals[i]+'</div>'
-        +'<div style="font-weight:600;color:white;font-size:15px">'+row.nickname+'</div>'
-        +'<div style="text-align:right;font-weight:700;color:'+col+';font-size:15px">'+sign+Number(row.return_pct).toFixed(2)+'%</div>'
+      return '<div class="lb-row">'
+        +'<div class="lb-rank">'+String(i+1).padStart(2,'0')+'</div>'
+        +'<div class="lb-name">'+row.nickname+'</div>'
+        +'<div class="lb-ret" style="color:'+col+'">'+sign+Number(row.return_pct).toFixed(2)+'%</div>'
         +'</div>';
     }).join('');
   })
-  .catch(function(){document.getElementById('landingLbRows').innerHTML='<div style="padding:32px;text-align:center;color:rgba(255,255,255,0.3);font-size:14px">Be the first trader! 🚀</div>';});
+  .catch(function(){document.getElementById('landingLbRows').innerHTML='<div class="lb-empty">Be the first trader!</div>';});
 })();
 </script>
 

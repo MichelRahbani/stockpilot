@@ -12,50 +12,60 @@
 <meta property="og:description" content="A free semester-long personal finance and investing curriculum - pacing guide, weekly lesson plans, and a ready-to-run classroom setup."/>
 <meta property="og:image" content="https://mystockspilot.com/logo.jpg"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"LearningResource","name":"Free Personal Finance Curriculum for High School and College","description":"A free semester-long personal finance and investing curriculum built around StockPilot Classroom - pacing guide, weekly lesson plans, and standards-aligned activities.","provider":{"@type":"Organization","name":"StockPilot","url":"https://mystockspilot.com"},"educationalLevel":["High School","Undergraduate"],"about":"Personal Finance and Investing Education"}
 </script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--g900:#12161f;--g600:#5a6478;--g400:#9aa3b4;--g100:#e4e7ed;--off:#f7f8fa;--green:#1a9e6e;--green-l:#e8f7f2;--red:#dc2626}
-body{font-family:'DM Sans',sans-serif;color:var(--g900);line-height:1.65}
+body{font-family:var(--sp-font-sans);color:var(--g900);line-height:1.65}
 a{color:var(--green);text-decoration:none}
 a:hover{text-decoration:underline}
-.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;font-family:inherit}
+.btn{display:inline-flex;align-items:center;padding:10px 20px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;font-family:inherit}
 .btn-green{background:var(--green);color:white}.btn-green:hover{background:#147a55;text-decoration:none}
 nav{padding:16px 24px;border-bottom:1px solid var(--g100);display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:center;gap:8px;font-family:'Fraunces',serif;font-weight:700;font-size:18px;color:var(--g900)}
-.logo img{height:28px;width:28px;border-radius:6px}
+.logo{display:flex;align-items:center;gap:8px;font-family:var(--sp-font-display);font-weight:700;font-size:18px;color:var(--g900)}
+.logo img{height:28px;width:28px;border-radius:4px}
 .page{max-width:800px;margin:0 auto;padding:48px 24px 80px}
-h1{font-family:'Fraunces',serif;font-size:38px;font-weight:700;line-height:1.15;margin-bottom:14px}
+h1{font-family:var(--sp-font-display);font-size:38px;font-weight:700;line-height:1.15;margin-bottom:14px}
 .lead{font-size:18px;color:var(--g600);margin-bottom:28px}
 .cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px}
-.btn-outline{background:transparent;color:var(--g900);border:1px solid var(--g100);padding:10px 20px;border-radius:10px;font-weight:600;font-size:14px}
-h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin:44px 0 16px}
+.btn-outline{background:transparent;color:var(--g900);border:1px solid var(--g100);padding:10px 20px;border-radius:6px;font-weight:600;font-size:14px}
+h2{font-family:var(--sp-font-display);font-size:26px;font-weight:700;margin:44px 0 16px}
 h3{font-size:16px;font-weight:700;margin:24px 0 8px}
 p{margin-bottom:14px;color:var(--g600)}
 ul,ol{margin:0 0 14px 22px;color:var(--g600)}
 li{margin-bottom:6px}
 strong{color:var(--g900)}
-.card{border:1px solid var(--g100);border-radius:14px;padding:20px 22px;margin-bottom:14px;background:#fff}
-.week-num{display:inline-block;font-size:11px;font-weight:700;color:var(--green);background:var(--green-l);padding:3px 10px;border-radius:20px;margin-bottom:8px;letter-spacing:0.03em}
+.card{border:1px solid var(--g100);border-radius:6px;padding:20px 22px;margin-bottom:14px;background:#fff}
+.week-num{display:inline-block;font-size:11px;font-weight:700;color:var(--green);background:var(--green-l);padding:3px 10px;border-radius:4px;margin-bottom:8px;letter-spacing:0.03em}
 .week-title{font-size:17px;font-weight:700;margin-bottom:6px}
 .week-goal{font-size:13px;color:var(--g400);font-style:italic;margin-bottom:10px}
-.toc{background:var(--off);border-radius:14px;padding:20px 24px;margin-bottom:36px}
+.toc{background:var(--off);border-radius:6px;padding:20px 24px;margin-bottom:36px}
 .toc-title{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.04em;color:var(--g400);margin-bottom:10px}
 .toc a{display:block;font-size:14px;color:var(--g900);padding:4px 0;text-decoration:none}
 .toc a:hover{color:var(--green)}
-.callout{background:var(--green-l);border-left:3px solid var(--green);border-radius:8px;padding:14px 18px;margin:20px 0;font-size:14px;color:var(--g900)}
+.callout{background:var(--green-l);border-left:3px solid var(--green);border-radius:4px;padding:14px 18px;margin:20px 0;font-size:14px;color:var(--g900)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
 @media(max-width:640px){.grid2{grid-template-columns:1fr}}
 footer{border-top:1px solid var(--g100);padding:24px;text-align:center;font-size:13px;color:var(--g400)}
+@media(max-width:400px){nav{padding:14px 16px}nav .btn{padding:9px 12px;font-size:13px}}
 </style>
+<style id="sp-page-fix">
+.callout{border:1px solid #d6e5dd!important;border-radius:3px!important;background:#f6faf8!important}
+.btn,.btn-outline{border-radius:3px}
+@media(max-width:600px){.cta-row a{width:100%;justify-content:center;text-align:center}}
+.week-goal{color:#5a6478}
+h2,h3{line-height:1.15}
+</style>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 
 <nav>
-  <a href="/" class="logo"><img src="/logo.jpg" alt="StockPilot"/>StockPilot</a>
+  <a href="/" class="logo"><img src="/logo-mark-256.png" alt="StockPilot" class="sp-mark"/>StockPilot</a>
   <a href="/classroom.html" class="btn btn-green">Start a Free Class →</a>
 </nav>
 
@@ -222,7 +232,7 @@ footer{border-top:1px solid var(--g100);padding:24px;text-align:center;font-size
   </div>
 </div>
 
-<footer>© 2026 StockPilot · Educational use only · Not financial advice</footer>
+<footer>© 2026 StockPilot · Educational use only · Not financial advice<p class="sp-credit-line"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p></footer>
 
 </body>
 </html>

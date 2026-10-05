@@ -1,0 +1,77 @@
+/* ==========================================================================
+   Bullpen mode landings (1v1, Madness, Showdown, Teams).
+   Keeps each mode's dark field and accent colour; drops the glow, the
+   texture overlay, the centred poster stack and the two-tone headline.
+   ========================================================================== */
+
+body::before{display:none!important}
+
+/* Nav */
+.bp-nav{height:64px;padding:0 40px;background:var(--turf);backdrop-filter:none}
+.bp-logo img{width:auto!important;height:26px!important;border-radius:0!important;object-fit:contain!important}
+.bp-logo-text{font-size:19px;letter-spacing:0.02em;line-height:1}
+.bp-logo-sub{font-size:10px;letter-spacing:0.12em;margin-top:3px}
+.btn-ghost{height:36px;display:inline-flex!important;align-items:center;padding:0 14px;border-radius:3px;color:var(--chalk)}
+.btn-ghost:hover{border-color:var(--chalk);color:var(--chalk)}
+
+/* Hero: left-aligned, visual (bracket / chart) on the right when present */
+.hero{
+  min-height:0;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);column-gap:72px;
+  align-content:start;align-items:start;justify-items:start;text-align:left;
+  padding:148px max(40px,calc((100vw - 1200px)/2 + 40px)) 96px;
+}
+.hero:not(:has(.bracket-wrap,.chart-wrap)){grid-template-columns:minmax(0,1fr)}
+.hero-glow{display:none!important}
+.hero > .eyebrow,.hero > h1,.hero > p,.hero > .hero-actions{grid-column:1}
+.eyebrow{font-size:12px;letter-spacing:0.14em;margin-bottom:26px;gap:10px}
+.eyebrow::before{border-radius:0!important;box-shadow:none!important;width:7px;height:7px}
+.hero h1{font-weight:800;font-size:clamp(60px,8.8vw,128px);line-height:.86;letter-spacing:-0.005em;max-width:none}
+.hero:has(.bracket-wrap,.chart-wrap) h1{font-size:clamp(56px,6.9vw,100px)}
+.hero h1 .hl{color:inherit}
+.hero p{margin:28px 0 36px;max-width:520px;font-size:18px;color:var(--chalk-dim)}
+.hero-actions{justify-content:flex-start;margin-bottom:0}
+.btn-full-amber,.btn-full-outline{height:52px;padding:0 26px;border-radius:3px;font-size:15.5px}
+.bp-nav .btn-primary{height:36px;display:inline-flex;align-items:center;padding:0 16px;border-radius:3px}
+.btn-full-outline{border-width:1px}
+
+.bracket-wrap,.chart-wrap{grid-column:2;grid-row:1/span 4;align-self:center;max-width:none;margin:0;width:100%}
+
+/* How it works: ruled columns across the full width */
+.how-grid,.explainer{
+  grid-column:1/-1;justify-self:stretch;max-width:none!important;width:100%;
+  margin:80px 0 0!important;display:grid;grid-template-columns:repeat(3,1fr);gap:0;
+  background:none;border:none;border-top:1px solid var(--line);
+}
+.how-card,.explainer-card{background:none!important;border:none;border-radius:0;border-right:1px solid var(--line);padding:24px 28px 0 0;margin-right:28px}
+.how-card:last-child,.explainer-card:last-child{border-right:none;margin-right:0}
+.how-card .n{font-size:15px;font-family:var(--sp-font-mono);font-stretch:100%;letter-spacing:0;margin-bottom:14px}
+.how-card h3,.explainer-card h3{font-size:18px;letter-spacing:-0.01em;margin:0 0 8px}
+.explainer-card .tag{letter-spacing:0.08em}
+.how-card p,.explainer-card p{font-size:14.5px;line-height:1.6}
+
+.footer-note{text-align:left;padding:0 max(40px,calc((100vw - 1200px)/2 + 40px)) 48px;font-size:13px}
+
+/* Modals */
+.modal{border-radius:6px}
+.modal h2{font-size:26px;letter-spacing:0}
+
+@media(max-width:900px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+  .bracket-wrap,.chart-wrap{grid-column:1;grid-row:auto;margin-top:48px}
+}
+@media(max-width:700px){
+  .bp-nav{padding:0 20px;height:58px}
+  .hero{padding:104px 20px 56px}
+  .hero h1{font-size:62px}
+  .hero p{font-size:16px;margin:22px 0 28px}
+  .hero-actions{width:100%;flex-direction:column}
+  .hero-actions > *{width:100%}
+  .how-grid,.explainer{grid-template-columns:1fr;margin-top:56px!important}
+  .how-card,.explainer-card{border-right:none;margin-right:0;padding:22px 0;border-bottom:1px solid var(--line)}
+  .how-card:last-child,.explainer-card:last-child{border-bottom:none}
+  .footer-note{padding:0 20px 40px}
+}
+.success-icon{display:flex;justify-content:center;color:var(--amber);font-size:0}
+
+/* Header links and logo labels stay on one line (the nav folds into a menu if they don't fit) */
+.bp-nav a,.bp-nav button,.bp-logo-text,.bp-logo-sub{white-space:nowrap}

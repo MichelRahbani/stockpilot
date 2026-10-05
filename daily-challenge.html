@@ -7,84 +7,84 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Daily Budget Challenge | StockPilot</title>
 <meta name="description" content="A new real-world budget scenario every day. Compete on the global leaderboard. Free, no signup needed to play."/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#0a0a0a;--bg2:#111;--bg3:#1a1a1a;--border:rgba(255,255,255,0.08);--text:rgba(255,255,255,0.9);--muted:rgba(255,255,255,0.35);--dim:rgba(255,255,255,0.2)}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:var(--sp-font-sans);background:var(--bg);color:var(--text);min-height:100vh}
 nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
 .nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;text-decoration:none;color:var(--text)}
-.nav-badge{background:#2563eb;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;letter-spacing:0.04em}
+.nav-badge{background:#2563eb;color:white;font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.04em}
 .nav-links{display:flex;gap:8px}
-.nav-link{padding:7px 14px;border-radius:8px;font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.15s}
+.nav-link{padding:7px 14px;border-radius:4px;font-size:13px;color:var(--muted);text-decoration:none;transition:color 0.15s}
 .nav-link:hover{color:var(--text)}
 
 /* Header */
 .header{padding:48px 24px 32px;max-width:960px;margin:0 auto}
-.daily-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.25);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:700;color:#fca5a5;letter-spacing:0.04em;margin-bottom:20px}
+.daily-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(220,38,38,0.12);border:1px solid rgba(220,38,38,0.25);border-radius:4px;padding:6px 16px;font-size:12px;font-weight:700;color:#fca5a5;letter-spacing:0.04em;margin-bottom:20px}
 .daily-badge::before{content:'';width:6px;height:6px;background:#dc2626;border-radius:50%;animation:pulse 1.5s ease infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-.header h1{font-family:'Fraunces',serif;font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.1}
+.header h1{font-family:var(--sp-font-display);font-size:clamp(2rem,5vw,3rem);font-weight:700;letter-spacing:-0.03em;margin-bottom:8px;line-height:1.1}
 .header h1 span{color:#fca5a5;font-style:italic;font-weight:300}
 .header-sub{font-size:14px;color:var(--muted);margin-bottom:24px}
 .countdown-row{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.countdown{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 16px}
+.countdown{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:10px 16px}
 .countdown-label{font-size:11px;color:var(--muted)}
-.countdown-time{font-family:'DM Mono',monospace;font-size:16px;font-weight:600;color:#fca5a5}
-.date-pill{font-size:12px;color:var(--muted);background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:6px 12px}
+.countdown-time{font-family:var(--sp-font-mono);font-size:16px;font-weight:600;color:#fca5a5}
+.date-pill{font-size:12px;color:var(--muted);background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:6px 12px}
 
 /* Main layout */
 .main{max-width:960px;margin:0 auto;padding:0 24px 48px;display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start}
 @media(max-width:700px){.main{grid-template-columns:1fr}}
 
 /* Scenario */
-.scenario-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
+.scenario-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:16px;position:relative;overflow:hidden}
 .scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#dc2626,#f97316)}
 .sc-eyebrow{font-size:11px;font-weight:700;letter-spacing:0.08em;color:#fca5a5;text-transform:uppercase;margin-bottom:8px}
-.sc-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;margin-bottom:8px}
+.sc-title{font-family:var(--sp-font-display);font-size:1.4rem;font-weight:700;margin-bottom:8px}
 .sc-text{font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:16px}
 .sc-pills{display:flex;gap:8px;flex-wrap:wrap}
-.pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.pill{padding:5px 12px;border-radius:4px;font-size:12px;font-weight:600}
 .pill-r{background:rgba(220,38,38,0.12);color:#fca5a5}
 .pill-g{background:rgba(22,163,74,0.12);color:#86efac}
 .pill-b{background:rgba(37,99,235,0.12);color:#93c5fd}
 .pill-a{background:rgba(217,119,6,0.12);color:#fcd34d}
 
 /* Allocation */
-.alloc-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:16px}
+.alloc-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:16px}
 .section-lbl{font-size:11px;font-weight:700;letter-spacing:0.08em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px}
 .alloc-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
 .alloc-row:last-child{border-bottom:none}
 .alloc-label{font-size:14px;display:flex;flex-direction:column;gap:2px}
 .alloc-hint{font-size:11px;color:var(--dim)}
-.fixed-tag{font-size:13px;font-weight:700;color:#fca5a5;background:rgba(220,38,38,0.1);padding:5px 10px;border-radius:8px}
-.inp{width:100px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;text-align:right;background:var(--bg3);color:var(--text);transition:border-color 0.15s}
+.fixed-tag{font-size:13px;font-weight:700;color:#fca5a5;background:rgba(220,38,38,0.1);padding:5px 10px;border-radius:4px}
+.inp{width:100px;padding:8px 12px;border:1.5px solid var(--border);border-radius:4px;font-size:14px;font-family:var(--sp-font-sans);text-align:right;background:var(--bg3);color:var(--text);transition:border-color 0.15s}
 .inp:focus{outline:none;border-color:#2563eb}
 
 /* Score panel */
-.score-panel{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:22px;position:sticky;top:72px}
+.score-panel{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:22px;position:sticky;top:72px}
 .score-ring{width:120px;height:120px;margin:0 auto 12px;position:relative}
 .score-ring svg{transform:rotate(-90deg)}
 .score-ring-inner{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
-.score-big{font-family:'Fraunces',serif;font-size:34px;font-weight:700;line-height:1}
+.score-big{font-family:var(--sp-font-display);font-size:34px;font-weight:700;line-height:1}
 .score-sub{font-size:10px;color:var(--muted)}
 .score-grade{text-align:center;font-size:13px;color:var(--muted);margin-bottom:16px}
-.leftover-box{background:var(--bg3);border-radius:10px;padding:10px 14px;text-align:center;margin:10px 0}
+.leftover-box{background:var(--bg3);border-radius:6px;padding:10px 14px;text-align:center;margin:10px 0}
 .leftover-num{font-size:18px;font-weight:700}
 .leftover-lbl{font-size:10px;color:var(--muted);margin-top:2px}
 .metric-row{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:4px}
 .metric-bar{height:5px;background:rgba(255,255,255,0.06);border-radius:3px;margin-bottom:12px;overflow:hidden}
 .metric-fill{height:100%;border-radius:3px;transition:width 0.35s,background 0.35s}
 .badges{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
-.badge{background:rgba(255,255,255,0.06);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--muted);transition:all 0.3s}
+.badge{background:rgba(255,255,255,0.06);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--muted);transition:all 0.3s}
 .badge.lit{background:rgba(22,163,74,0.2);color:#86efac}
-.submit-btn{width:100%;padding:13px;background:#dc2626;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px;transition:all 0.2s}
+.submit-btn{width:100%;padding:13px;background:#dc2626;color:white;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sp-font-sans);margin-top:12px;transition:all 0.2s}
 .submit-btn:hover{background:#b91c1c}
 .submit-btn:disabled{background:rgba(255,255,255,0.08);color:var(--muted);cursor:not-allowed}
 .already-tag{text-align:center;font-size:12px;color:#86efac;margin-top:8px;display:none}
 
 /* Leaderboard */
-.lb-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px}
+.lb-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px}
 .lb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
 .lb-title{font-size:14px;font-weight:700}
 .lb-sub{font-size:11px;color:var(--muted)}
@@ -93,30 +93,51 @@ nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-fi
 .lb-rank{font-size:16px;width:28px;flex-shrink:0;text-align:center}
 .lb-name{flex:1;font-size:13px;font-weight:600}
 .lb-score{font-size:15px;font-weight:700}
-.lb-you{background:rgba(37,99,235,0.08);border-radius:8px;padding:2px 6px;font-size:10px;color:#93c5fd;margin-left:4px}
-.my-rank-box{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:10px;padding:10px 14px;text-align:center;margin-top:12px;display:none}
-.my-rank-num{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#93c5fd}
+.lb-you{background:rgba(37,99,235,0.08);border-radius:4px;padding:2px 6px;font-size:10px;color:#93c5fd;margin-left:4px}
+.my-rank-box{background:rgba(37,99,235,0.08);border:1px solid rgba(37,99,235,0.2);border-radius:6px;padding:10px 14px;text-align:center;margin-top:12px;display:none}
+.my-rank-num{font-family:var(--sp-font-display);font-size:24px;font-weight:700;color:#93c5fd}
 .my-rank-lbl{font-size:11px;color:var(--muted)}
 
 /* Results overlay */
 .results-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;padding:24px}
-.results-card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:480px;width:100%;text-align:center;position:relative}
+.results-card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:32px;max-width:480px;width:100%;text-align:center;position:relative}
 .results-emoji{font-size:56px;margin-bottom:12px}
-.results-score{font-family:'Fraunces',serif;font-size:72px;font-weight:700;line-height:1;margin-bottom:4px}
+.results-score{font-family:var(--sp-font-display);font-size:72px;font-weight:700;line-height:1;margin-bottom:4px}
 .results-grade{font-size:16px;color:var(--muted);margin-bottom:20px}
 .results-badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.results-badge{background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);color:#86efac;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600}
-.results-breakdown{background:var(--bg3);border-radius:12px;padding:16px;text-align:left;margin-bottom:20px;font-size:13px}
+.results-badge{background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);color:#86efac;border-radius:4px;padding:5px 12px;font-size:12px;font-weight:600}
+.results-breakdown{background:var(--bg3);border-radius:6px;padding:16px;text-align:left;margin-bottom:20px;font-size:13px}
 .bd-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
 .bd-row:last-child{border-bottom:none}
-.results-close{width:100%;padding:12px;background:#2563eb;color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
-.share-btn{width:100%;padding:11px;background:rgba(255,255,255,0.08);color:var(--text);border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:8px}
+.results-close{width:100%;padding:12px;background:#2563eb;color:white;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sp-font-sans)}
+.share-btn{width:100%;padding:11px;background:rgba(255,255,255,0.08);color:var(--text);border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--sp-font-sans);margin-top:8px}
 </style>
+<style id="sp-daily">
+/* Daily Challenge: same dark + red palette; quieter chrome */
+.nav-badge{background:none;border:1px solid currentColor;color:#60a5fa;border-radius:2px;font-family:var(--sp-font-mono);font-weight:500;letter-spacing:0.08em;padding:2px 6px}
+.daily-badge{background:none;border:none;border-radius:0;padding:0;font-family:var(--sp-font-mono);font-size:12.5px;font-weight:500;letter-spacing:0.06em;margin-bottom:22px}
+.daily-badge::before{border-radius:0;width:7px;height:7px}
+.header h1{font-size:clamp(40px,5.6vw,68px);letter-spacing:-0.04em;line-height:1;margin-bottom:16px}
+.header h1 span{font-style:normal;font-weight:inherit}
+.date-pill{border-radius:2px;font-family:var(--sp-font-mono)}
+.scenario-card::before{background:#dc2626;height:2px}
+.pill,.badge,.results-badge{border-radius:2px;font-family:var(--sp-font-mono);font-weight:500}
+#resEmoji{display:none}
+:root{--muted:rgba(255,255,255,0.52);--dim:rgba(255,255,255,0.4)}
+.countdown,.date-pill{height:40px;display:flex;align-items:center;border-radius:2px;padding:0 14px}
+.scenario-card{border-radius:4px}
+.scenario-card::before{display:none}
+.sc-pills{flex-direction:column;gap:7px}
+.sc-pills .pill{display:flex;align-items:baseline;gap:9px;background:none;padding:0;border-radius:0;font-size:12.5px;line-height:1.5}
+.sc-pills .pill::before{content:'';flex:none;width:6px;height:6px;background:currentColor;transform:translateY(-1px)}
+</style>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 <nav>
   <a href="/" class="nav-brand">
-    <img src="/logo-dark.jpg" alt="StockPilot" style="width:28px;height:28px;border-radius:6px;object-fit:cover"/>
+    <img src="/logo-mark-256.png" alt="StockPilot" class="sp-mark"/>
     StockPilot <span class="nav-badge">DAILY</span>
   </a>
   <div class="nav-links">
@@ -127,8 +148,8 @@ nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-fi
 </nav>
 
 <div class="header">
-  <div class="daily-badge">🔴 LIVE · Daily Challenge</div>
-  <h1>Today's Budget<br/><span id="scenarioNameInline">Challenge</span></h1>
+  <div class="daily-badge">LIVE · Daily Challenge</div>
+  <h1>Today's Budget <br/><span id="scenarioNameInline">Challenge</span></h1>
   <div class="header-sub" id="headerSub">A new scenario resets every day at midnight. Can you top the leaderboard?</div>
   <div class="countdown-row">
     <div class="countdown">
@@ -176,7 +197,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-fi
     <div class="lb-card">
       <div class="lb-header">
         <div>
-          <div class="lb-title">🏆 Today's Leaderboard</div>
+          <div class="lb-title">Today's Leaderboard</div>
           <div class="lb-sub" id="lbSub">Loading...</div>
         </div>
       </div>
@@ -198,7 +219,7 @@ nav{position:sticky;top:0;z-index:100;background:rgba(10,10,10,0.95);backdrop-fi
     <div class="results-badges" id="resBadges"></div>
     <div class="results-breakdown" id="resBreakdown"></div>
     <button class="results-close" onclick="closeResults()">See Leaderboard →</button>
-    <button class="share-btn" onclick="shareScore()">📤 Share My Score</button>
+    <button class="share-btn" onclick="shareScore()">Share My Score</button>
   </div>
 </div>
 
@@ -268,35 +289,35 @@ function init() {
   const fixed = scenario.fixed||{};
   const fixedTotal = Object.values(fixed).reduce((a,b)=>a+(b||0),0);
   document.getElementById('scenarioCard').innerHTML =
-    '<div class="sc-eyebrow">🎯 Today\'s Scenario</div>'
-    +'<div class="sc-title">'+scenario.emoji+' '+scenario.name+'</div>'
+    '<div class="sc-eyebrow">Today\'s Scenario</div>'
+    +'<div class="sc-title">'+scenario.name+'</div>'
     +'<div class="sc-text">'+scenario.desc+'</div>'
     +'<div class="sc-pills">'
-    +'<span class="pill pill-g">💵 $'+scenario.income.toLocaleString()+'/mo take-home</span>'
-    +'<span class="pill pill-r">🔒 $'+fixedTotal.toLocaleString()+' fixed costs</span>'
-    +'<span class="pill pill-b">🎯 '+scenario.targetSavings+'% savings target</span>'
-    +'<span class="pill pill-a">💡 '+scenario.tip+'</span>'
+    +'<span class="pill pill-g">$'+scenario.income.toLocaleString()+'/mo take-home</span>'
+    +'<span class="pill pill-r">$'+fixedTotal.toLocaleString()+' fixed costs</span>'
+    +'<span class="pill pill-b">'+scenario.targetSavings+'% savings target</span>'
+    +'<span class="pill pill-a">'+scenario.tip+'</span>'
     +'</div>';
 
   // Allocation form
   let html = '';
   if(fixedTotal>0){
-    html += '<div class="section-lbl">🔒 Fixed Expenses <span style="font-weight:400;text-transform:none;letter-spacing:0">(locked — cannot change)</span></div>';
-    const fixedLabels = {rent:'🏠 Rent/Housing',loan:'💳 Loan Min. Payment',transport:'🚗 Transportation',utilities:'💡 Utilities'};
+    html += '<div class="section-lbl">Fixed Expenses <span style="font-weight:400;text-transform:none;letter-spacing:0">(locked — cannot change)</span></div>';
+    const fixedLabels = {rent:'Rent/Housing',loan:'Loan Min. Payment',transport:'Transportation',utilities:'Utilities'};
     Object.entries(fixed).forEach(([k,v])=>{ if(v>0) html += '<div class="alloc-row"><div class="alloc-label">'+fixedLabels[k]+'</div><div class="fixed-tag">$'+Number(v).toLocaleString()+'/mo</div></div>'; });
     html += '<div style="height:16px"></div>';
   }
-  html += '<div class="section-lbl">📊 Your Allocation <span style="font-weight:400;text-transform:none;letter-spacing:0">($'+scenario.income.toLocaleString()+' to allocate)</span></div>';
+  html += '<div class="section-lbl">Your Allocation <span style="font-weight:400;text-transform:none;letter-spacing:0">($'+scenario.income.toLocaleString()+' to allocate)</span></div>';
   const vars = [
-    ['bHousing','🏠 Housing / Rent','Rent, mortgage, insurance',fixed.rent>0?0:''],
-    ['bFood','🍔 Food','Groceries + dining',''],
-    ['bTransport','🚗 Transportation','Gas, transit, rideshare',fixed.transport>0?0:''],
-    ['bUtilities','💡 Utilities','Electric, internet, phone',fixed.utilities>0?0:''],
-    ['bEntertain','🎮 Entertainment','Streaming, going out, hobbies',''],
-    ['bSavings','💰 Savings','Monthly savings — the key number',''],
-    ['bDebt','💳 Extra Debt Payment','Above the minimum',''],
-    ['bEmergency','🛡️ Emergency Fund','Building your safety net',''],
-    ['bOther','📦 Other','Clothing, personal care, misc',''],
+    ['bHousing','Housing / Rent','Rent, mortgage, insurance',fixed.rent>0?0:''],
+    ['bFood','Food','Groceries + dining',''],
+    ['bTransport','Transportation','Gas, transit, rideshare',fixed.transport>0?0:''],
+    ['bUtilities','Utilities','Electric, internet, phone',fixed.utilities>0?0:''],
+    ['bEntertain','Entertainment','Streaming, going out, hobbies',''],
+    ['bSavings','Savings','Monthly savings — the key number',''],
+    ['bDebt','Extra Debt Payment','Above the minimum',''],
+    ['bEmergency','Emergency Fund','Building your safety net',''],
+    ['bOther','Other','Clothing, personal care, misc',''],
   ];
   vars.forEach(([id,label,hint,def])=>{
     html += '<div class="alloc-row">'
@@ -361,7 +382,7 @@ function recalc(){
   sn.textContent = total===0?'—':score;
   sn.style.color = score>=80?'#86efac':score>=60?'#fbbf24':'#fca5a5';
 
-  const grades = [[90,'Outstanding! 🏆'],[80,'Strong budget!'],[70,'Good, refine it'],[60,'Getting there'],[50,'Needs work'],[0,'Keep trying']];
+  const grades = [[90,'Outstanding!'],[80,'Strong budget!'],[70,'Good, refine it'],[60,'Getting there'],[50,'Needs work'],[0,'Keep trying']];
   const g = grades.find(([min])=>score>=min)||grades[grades.length-1];
   document.getElementById('scoreGrade').textContent = total===0?'Fill in your budget':g[1];
 
@@ -390,7 +411,7 @@ function recalc(){
   const allBadges = [{icon:'💰',label:'Savings Champion'},{icon:'⚡',label:'Debt Crusher'},{icon:'🎯',label:'Zero Waster'},{icon:'🧘',label:'Minimalist'},{icon:'🛡️',label:'Safety Builder'},{icon:'🏆',label:'Budget Master'}];
   document.getElementById('badgesEl').innerHTML = allBadges.map(b=>{
     const e = earnedBadges.find(eb=>eb.icon===b.icon);
-    return '<div class="badge'+(e?' lit':'')+'">'+b.icon+' '+b.label+'</div>';
+    return '<div class="badge'+(e?' lit':'')+'">'+b.label+'</div>';
   }).join('');
 
   document.getElementById('submitBtn').disabled = total===0;
@@ -465,7 +486,7 @@ function showResults(){
   const g = grades.find(([min])=>finalScore>=min)||grades[grades.length-1];
   document.getElementById('resGrade').textContent = g[1];
   document.getElementById('resBadges').innerHTML = earnedBadges.length
-    ? earnedBadges.map(b=>'<div class="results-badge">'+b.icon+' '+b.label+'</div>').join('')
+    ? earnedBadges.map(b=>'<div class="results-badge">'+b.label+'</div>').join('')
     : '<div style="color:var(--muted);font-size:13px">No badges — try again!</div>';
   const s = scenario;
   const fixed = s.fixed||{};
@@ -504,7 +525,7 @@ async function loadLeaderboard(){
     document.getElementById('lbRows').innerHTML = rows.map((row,i)=>{
       const isMe = row.user_id===uid;
       const scoreColor = row.score>=80?'#86efac':row.score>=60?'#fbbf24':'#fca5a5';
-      return '<div class="lb-row" style="'+(isMe?'background:rgba(37,99,235,0.08);border-radius:8px;padding:8px;margin:-2px':'')+'"><div class="lb-rank">'+(medals[i]||'#'+(i+1))+'</div><div class="lb-name">'+(row.nickname||'Anonymous')+(isMe?'<span class="lb-you">you</span>':'')+'</div><div class="lb-score" style="color:'+scoreColor+'">'+row.score+'</div></div>';
+      return '<div class="lb-row" style="'+(isMe?'background:rgba(37,99,235,0.08);border-radius:4px;padding:8px;margin:-2px':'')+'"><div class="lb-rank">'+(medals[i]||'#'+(i+1))+'</div><div class="lb-name">'+(row.nickname||'Anonymous')+(isMe?'<span class="lb-you">you</span>':'')+'</div><div class="lb-score" style="color:'+scoreColor+'">'+row.score+'</div></div>';
     }).join('');
     if(uid){
       const myRank = rows.findIndex(r=>r.user_id===uid)+1;
@@ -521,5 +542,6 @@ async function loadLeaderboard(){
 setInterval(loadLeaderboard, 60000);
 init();
 </script>
+<p class="sp-credit-line sp-credit-dark"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html>

@@ -15,7 +15,7 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{
     background:var(--bg); color:var(--text);
-    font-family:'DM Sans',-apple-system,BlinkMacSystemFont,sans-serif;
+    font-family:var(--sp-font-sans);
     min-height:100vh; padding-bottom:60px;
   }
   header{
@@ -24,9 +24,9 @@
     background:var(--bg2);
   }
   .logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--text)}
-  .logo img{width:32px; height:32px; border-radius:8px}
+  .logo img{width:32px; height:32px; border-radius:4px}
   .logo b{font-size:17px; font-weight:800}
-  .badge{background:rgba(62,207,142,0.15); color:var(--green); font-size:11px; font-weight:700; padding:3px 9px; border-radius:20px; letter-spacing:0.3px}
+  .badge{background:rgba(62,207,142,0.15); color:var(--green); font-size:11px; font-weight:700; padding:3px 9px; border-radius:4px; letter-spacing:0.3px}
   nav a{color:var(--muted); text-decoration:none; font-size:13px; font-weight:600; margin-left:18px}
   nav a:hover{color:var(--text)}
 
@@ -39,7 +39,7 @@
   #landing{display:block}
   .landing-buttons{display:flex; gap:12px; margin:28px 0}
   .landing-btn{
-    flex:1; background:var(--bg2); border:1.5px solid var(--border); border-radius:14px;
+    flex:1; background:var(--bg2); border:1.5px solid var(--border); border-radius:6px;
     padding:22px; cursor:pointer; text-align:center; transition:all 0.15s;
   }
   .landing-btn:hover{border-color:var(--blue)}
@@ -48,38 +48,38 @@
   .landing-btn .title{font-weight:700; font-size:15px}
   .landing-btn .sub{font-size:12px; color:var(--muted); margin-top:4px}
 
-  .form-panel{background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; margin-top:16px}
+  .form-panel{background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:20px; margin-top:16px}
   .form-panel label{display:block; font-size:11px; color:var(--muted); font-weight:700; letter-spacing:0.5px; text-transform:uppercase; margin-bottom:6px}
   .form-panel input{
-    width:100%; background:var(--bg3); border:1.5px solid var(--border); border-radius:8px;
+    width:100%; background:var(--bg3); border:1.5px solid var(--border); border-radius:4px;
     padding:11px 14px; color:var(--text); font-size:15px; font-weight:600; margin-bottom:16px;
-    font-family:'DM Mono',monospace;
+    font-family:var(--sp-font-mono);
   }
   .form-panel input:focus{outline:none; border-color:var(--blue)}
   .form-panel input#joinCodeInput{text-transform:uppercase; letter-spacing:2px}
   .diff-btn{
-    flex:1; background:var(--bg3); border:1.5px solid var(--border); border-radius:8px;
+    flex:1; background:var(--bg3); border:1.5px solid var(--border); border-radius:4px;
     padding:9px; font-size:13px; font-weight:700; color:var(--muted); cursor:pointer; font-family:inherit;
   }
   .diff-btn.active{border-color:var(--blue); background:rgba(91,141,239,0.1); color:var(--text)}
   .big-btn{
-    width:100%; background:var(--blue); color:#fff; border:none; border-radius:10px;
+    width:100%; background:var(--blue); color:#fff; border:none; border-radius:6px;
     padding:13px; font-size:15px; font-weight:700; cursor:pointer; font-family:inherit;
   }
   .big-btn:hover{opacity:0.9}
   .big-btn:disabled{opacity:0.5; cursor:not-allowed}
   .form-err{color:var(--red); font-size:12px; margin-top:-8px; margin-bottom:12px; min-height:14px}
 
-  .waiting-panel{background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:28px; text-align:center; margin-top:16px}
-  .waiting-panel .code-display{font-size:36px; font-weight:800; letter-spacing:4px; color:var(--gold); font-family:'DM Mono',monospace; margin:14px 0}
+  .waiting-panel{background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:28px; text-align:center; margin-top:16px}
+  .waiting-panel .code-display{font-size:36px; font-weight:800; letter-spacing:4px; color:var(--gold); font-family:var(--sp-font-mono); margin:14px 0}
   .waiting-panel .spinner{width:20px; height:20px; border:2.5px solid var(--border); border-top-color:var(--blue); border-radius:50%; animation:spin 0.8s linear infinite; margin:14px auto}
   @keyframes spin{to{transform:rotate(360deg)}}
-  .copy-btn{background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:9px 18px; color:var(--text); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit}
+  .copy-btn{background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:9px 18px; color:var(--text); font-size:13px; font-weight:600; cursor:pointer; font-family:inherit}
 
   /* ── Game board ── */
   #gameView{display:none}
   .vs-row{display:flex; align-items:center; justify-content:center; gap:16px; margin-bottom:20px}
-  .player-card{background:var(--bg2); border:1.5px solid var(--border); border-radius:12px; padding:12px 18px; text-align:center; min-width:120px}
+  .player-card{background:var(--bg2); border:1.5px solid var(--border); border-radius:6px; padding:12px 18px; text-align:center; min-width:120px}
   .player-card.turn{border-color:var(--gold); background:rgba(245,185,66,0.08)}
   .player-card .mark{font-size:20px; font-weight:800}
   .player-card.x .mark{color:var(--blue)}
@@ -87,13 +87,13 @@
   .player-card .pname{font-size:12px; color:var(--muted); margin-top:2px}
   .vs-label{font-size:13px; color:var(--muted); font-weight:700}
 
-  .turn-banner{text-align:center; font-size:14px; font-weight:700; margin-bottom:16px; padding:10px; border-radius:10px; background:var(--bg3)}
+  .turn-banner{text-align:center; font-size:14px; font-weight:700; margin-bottom:16px; padding:10px; border-radius:6px; background:var(--bg3)}
   .turn-banner.mine{background:rgba(62,207,142,0.1); color:var(--green)}
 
   .grid-wrap{display:grid; grid-template-columns:90px repeat(3,1fr); gap:6px; margin:20px 0}
   .col-head, .row-head, .cell{
     display:flex; align-items:center; justify-content:center;
-    text-align:center; border-radius:10px; padding:10px 6px; min-height:88px;
+    text-align:center; border-radius:6px; padding:10px 6px; min-height:88px;
   }
   .corner{background:transparent}
   .col-head{background:var(--bg3); border:1px solid var(--border); font-size:12px; font-weight:700; color:var(--blue); line-height:1.3; flex-direction:column; gap:4px}
@@ -121,7 +121,7 @@
   .cell .plus{font-size:22px; color:var(--border); font-weight:300}
 
   .input-panel{
-    background:var(--bg2); border:1px solid var(--border); border-radius:14px;
+    background:var(--bg2); border:1px solid var(--border); border-radius:6px;
     padding:18px; margin-top:16px; display:none;
   }
   .input-panel.open{display:block}
@@ -129,30 +129,30 @@
   .input-panel .cell-label b{color:var(--text)}
   .input-row{display:flex; gap:8px}
   #tickerInput{
-    flex:1; background:var(--bg3); border:1.5px solid var(--border); border-radius:8px;
+    flex:1; background:var(--bg3); border:1.5px solid var(--border); border-radius:4px;
     padding:11px 14px; color:var(--text); font-size:15px; font-weight:600;
-    text-transform:uppercase; font-family:'DM Mono',monospace;
+    text-transform:uppercase; font-family:var(--sp-font-mono);
   }
   #tickerInput:focus{outline:none; border-color:var(--blue)}
   #autocompleteDropdown{
     display:none; position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:50;
-    background:var(--bg3); border:1.5px solid var(--border); border-radius:8px;
+    background:var(--bg3); border:1.5px solid var(--border); border-radius:4px;
     max-height:180px; overflow-y:auto; box-shadow:0 8px 20px rgba(0,0,0,0.4);
   }
   #autocompleteDropdown.open{display:block}
   .ac-item{padding:9px 14px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:8px}
   .ac-item:hover, .ac-item.active{background:rgba(91,141,239,0.12)}
-  .ac-ticker{font-family:'DM Mono',monospace; font-weight:700; font-size:13px}
+  .ac-ticker{font-family:var(--sp-font-mono); font-weight:700; font-size:13px}
   .ac-name{font-size:11px; color:var(--muted)}
   .ac-item.ac-fit .ac-ticker{color:var(--green)}
   .ac-item.ac-nofit .ac-ticker{color:var(--muted)}
   .submit-btn{
-    background:var(--blue); color:#fff; border:none; border-radius:8px;
+    background:var(--blue); color:#fff; border:none; border-radius:4px;
     padding:11px 22px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit;
   }
   .cancel-btn{background:transparent; border:none; color:var(--muted); font-size:12px; margin-top:10px; cursor:pointer; text-decoration:underline; font-family:inherit}
   .hint-label{font-size:10px; color:var(--muted); width:100%; margin-bottom:6px}
-  .sugg{background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:4px 9px; font-size:11px; color:var(--muted); font-family:'DM Mono',monospace; cursor:pointer; margin-right:6px; display:inline-block; margin-bottom:6px}
+  .sugg{background:var(--bg3); border:1px solid var(--border); border-radius:4px; padding:4px 9px; font-size:11px; color:var(--muted); font-family:var(--sp-font-mono); cursor:pointer; margin-right:6px; display:inline-block; margin-bottom:6px}
   .sugg:hover{border-color:var(--blue); color:var(--text)}
   .feedback{font-size:12px; margin-top:8px; min-height:16px; font-weight:600}
   .feedback.err{color:var(--red)}
@@ -160,16 +160,16 @@
 
   .result-banner{
     display:none; text-align:center; margin-top:20px; padding:24px;
-    background:var(--bg2); border:1px solid var(--border); border-radius:14px;
+    background:var(--bg2); border:1px solid var(--border); border-radius:6px;
   }
   .result-banner.show{display:block}
   .result-banner .headline{font-size:22px; font-weight:800; margin-bottom:6px}
   .result-banner .headline.win{color:var(--green)}
   .result-banner .headline.lose{color:var(--red)}
   .result-banner .headline.draw{color:var(--gold)}
-  .new-game-btn{margin-top:14px; background:var(--green); color:#04140c; border:none; border-radius:8px; padding:10px 20px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit}
+  .new-game-btn{margin-top:14px; background:var(--green); color:#04140c; border:none; border-radius:4px; padding:10px 20px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit}
 
-  .rules{margin-top:28px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px 18px}
+  .rules{margin-top:28px; background:var(--bg2); border:1px solid var(--border); border-radius:6px; padding:16px 18px}
   .rules h3{font-size:13px; margin-bottom:8px}
   .rules ul{padding-left:18px; color:var(--muted); font-size:12.5px; line-height:1.8}
 
@@ -180,12 +180,20 @@
     .cell .big-mark{font-size:22px}
   }
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wdth,wght@62..100,500..900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/sp-game.css"/>
+<style id="sp-gridiron-fix">
+.big-btn{color:#0b1220}
+</style>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 
 <header>
   <a href="/bullpen.html" class="logo">
-    <img src="/logo.jpg" alt="StockPilot">
+    <img src="/logo-mark-256.png" alt="StockPilot" class="sp-mark"/>
     <b>StockPilot</b>
     <span class="badge">BULLPEN</span>
   </a>
@@ -204,12 +212,12 @@
   <div id="landing">
     <div class="landing-buttons">
       <div class="landing-btn" id="createTabBtn" onclick="setLandingMode('create')">
-        <div class="icon">➕</div>
+        <div class="icon"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></div>
         <div class="title">Create Game</div>
         <div class="sub">Start fresh, get a code</div>
       </div>
       <div class="landing-btn" id="joinTabBtn" onclick="setLandingMode('join')">
-        <div class="icon">🔗</div>
+        <div class="icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg></div>
         <div class="title">Join with Code</div>
         <div class="sub">Play a friend's game</div>
       </div>
@@ -240,7 +248,7 @@
     <div class="waiting-panel" id="waitingPanel" style="display:none">
       <div style="font-size:13px;color:var(--muted)">Share this code with your opponent</div>
       <div class="code-display" id="waitingCode">------</div>
-      <button class="copy-btn" onclick="copyCode()">📋 Copy Code</button>
+      <button class="copy-btn" onclick="copyCode()">Copy Code</button>
       <div class="spinner"></div>
       <div style="font-size:12px;color:var(--muted)">Waiting for them to join...</div>
     </div>
@@ -250,10 +258,10 @@
   <div id="gameView">
     <div id="difficultyBadge" style="text-align:center;margin-bottom:10px"></div>
     <div id="spectatorBadge" style="display:none;text-align:center;margin-bottom:14px">
-      <span style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:12px;color:var(--muted);font-weight:700">👀 Spectating</span>
+      <span style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:6px 14px;font-size:12px;color:var(--muted);font-weight:700">Spectating</span>
     </div>
     <div id="spectatorLinkRow" style="display:none;text-align:center;margin-bottom:14px">
-      <button class="copy-btn" onclick="copySpectatorLink()">👀 Copy Spectator Link</button>
+      <button class="copy-btn" onclick="copySpectatorLink()">Copy Spectator Link</button>
     </div>
     <div class="vs-row">
       <div class="player-card x" id="playerXCard">
@@ -291,8 +299,8 @@
 
     <div class="result-banner" id="resultBanner">
       <div class="headline" id="resultHeadline"></div>
-      <button class="new-game-btn" id="rematchBtn" onclick="rematchGame()">🔁 Rematch</button>
-      <button class="new-game-btn" id="newGameBtn" onclick="resetToLanding()" style="background:var(--bg3);color:var(--text);margin-left:8px">🔀 New Game</button>
+      <button class="new-game-btn" id="rematchBtn" onclick="rematchGame()">Rematch</button>
+      <button class="new-game-btn" id="newGameBtn" onclick="resetToLanding()" style="background:var(--bg3);color:var(--text);margin-left:8px">New Game</button>
     </div>
   </div>
 
@@ -1107,7 +1115,7 @@ function renderDifficultyBadge(){
   else if(avg <= 10.67){ label = 'Medium'; color = 'var(--gold)'; }
   else { label = 'Easy'; color = 'var(--green)'; }
   document.getElementById('difficultyBadge').innerHTML =
-    `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:700;color:${color}">${label} grid</span>`;
+    `<span style="background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:5px 12px;font-size:11px;font-weight:700;color:${color}">${label} grid</span>`;
 }
 
 function copySpectatorLink(){
@@ -1445,5 +1453,6 @@ if(urlWatchCode){
 }
 </script>
 
+<p class="sp-credit-line sp-credit-dark"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html>

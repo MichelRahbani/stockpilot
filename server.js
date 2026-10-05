@@ -1291,7 +1291,7 @@ const server = http.createServer(async (req, res) => {
     if (req.method === "GET" && reqUrl.pathname === "/sitemap.xml") {
       return sendStaticFile(res, "sitemap.xml");
     }
-    if (req.method === "GET" && ["/app.js", "/styles.css", "/theme-override.css", "/logo.jpg", "/app-theme.css", "/logo-dark.jpg"].includes(reqUrl.pathname)) {
+    if (req.method === "GET" && ["/app.js", "/styles.css", "/theme-override.css", "/logo.jpg", "/app-theme.css", "/logo-dark.jpg", "/sp-design.css", "/sp-landing.css", "/sp-app.css", "/sp-market.css", "/sp-game.css", "/sp-bullpen.css", "/sp-viz.css", "/sp-motion.js", "/logo-mark-256.png", "/logo-jet.png"].includes(reqUrl.pathname)) {
       return sendStaticFile(res, reqUrl.pathname.slice(1));
     }
 

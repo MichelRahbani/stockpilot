@@ -11,26 +11,26 @@
     --text:#e8ecf3; --muted:#8b95a8; --green:#3ecf8e; --red:#ff5c5c; --gold:#ffc107; --blue:#2979ff;
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sp-font-sans);min-height:100vh}
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
   .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
-  .brand-badge{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700}
+  .brand-badge{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700}
   a.back{color:var(--muted);text-decoration:none;font-size:13px}
   .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px}
   h1{text-align:center;font-size:28px;margin:0 0 4px}
   .subtitle{text-align:center;color:var(--muted);font-size:14px;margin-bottom:28px}
   .stat-row{display:flex;gap:12px;justify-content:center;margin-bottom:24px}
-  .stat-pill{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 20px;text-align:center}
+  .stat-pill{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 20px;text-align:center}
   .stat-pill .num{font-size:22px;font-weight:800}
   .stat-pill .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
-  .card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px}
   .ticker-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
   .ticker-name{font-size:20px;font-weight:800}
   .ticker-sub{color:var(--muted);font-size:12px}
-  .chart-box{background:var(--bg3);border-radius:12px;padding:16px 8px;margin-bottom:20px}
+  .chart-box{background:var(--bg3);border-radius:6px;padding:16px 8px;margin-bottom:20px}
   .empty-feed{padding:40px 20px;text-align:center;color:var(--muted)}
   .btn-row{display:flex;gap:12px}
-  .btn-guess{flex:1;padding:18px;border:none;border-radius:12px;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform 0.1s}
+  .btn-guess{flex:1;padding:18px;border:none;border-radius:6px;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform 0.1s}
   .btn-guess:active{transform:scale(0.97)}
   .btn-bull{background:var(--green);color:#003820}
   .btn-bear{background:var(--red);color:#3a0000}
@@ -42,32 +42,37 @@
   .reveal-verdict{font-size:15px;margin-bottom:20px}
   .reveal-verdict.correct{color:var(--green)}
   .reveal-verdict.wrong{color:var(--red)}
-  .btn-continue{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+  .btn-continue{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
   .gameover{text-align:center;padding:10px 0}
   .gameover .final{font-size:40px;font-weight:800;margin:6px 0}
   .name-row{display:flex;gap:8px;margin:18px 0}
-  .name-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit}
-  .btn-save{padding:11px 18px;background:var(--gold);color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px}
-  .btn-again{width:100%;padding:14px;background:var(--green);color:#003820;border:none;border-radius:10px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px}
+  .name-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit}
+  .btn-save{padding:11px 18px;background:var(--gold);color:#000;border:none;border-radius:4px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px}
+  .btn-again{width:100%;padding:14px;background:var(--green);color:#003820;border:none;border-radius:6px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px}
   .leaderboard{margin-top:28px}
   .leaderboard h2{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
-  .lb-row{display:flex;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;margin-bottom:6px;font-size:14px}
+  .lb-row{display:flex;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;font-size:14px}
   .lb-row .rank{color:var(--muted);width:24px}
   .loading{text-align:center;padding:60px 0;color:var(--muted)}
-  .how{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+  .how{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:18px 20px}
   .how h2{font-size:14px;margin:0 0 8px}
   .how li{color:var(--muted);font-size:13px;margin-bottom:6px;line-height:1.5}
 </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wdth,wght@62..100,500..900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/sp-game.css"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="brand">📈 <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
+  <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
   <a class="back" href="/bullpen.html">← All Modes</a>
 </div>
 
 <div class="wrap">
-  <h1>🐂 Bull or Bear Streak</h1>
+  <h1>Bull or Bear Streak</h1>
   <div class="subtitle">Guess the next day's move on real S&amp;P 500 stocks. How long can you keep it going?</div>
 
   <div class="stat-row">
@@ -80,7 +85,7 @@
   </div>
 
   <div class="leaderboard">
-    <h2>🏆 Top Streaks</h2>
+    <h2>Top Streaks</h2>
     <div id="leaderboardList"><div class="lb-row"><span>Loading...</span></div></div>
   </div>
 
@@ -282,5 +287,6 @@ async function loadLeaderboard(){
 loadRound();
 loadLeaderboard();
 </script>
+<p class="sp-credit-line sp-credit-dark"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html>

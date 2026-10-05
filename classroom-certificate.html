@@ -6,25 +6,25 @@
 <title>Certificate of Completion | StockPilot Classroom</title>
 <link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'DM Sans',sans-serif;background:#f3f4f2;min-height:100vh}
+body{font-family:var(--sp-font-sans);background:#f3f4f2;min-height:100vh}
 .toolbar{padding:16px 24px;display:flex;justify-content:space-between;align-items:center;background:#fff;border-bottom:1px solid #e5e7eb}
 .toolbar a{color:#16a34a;text-decoration:none;font-size:14px;font-weight:600}
-.btn{padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:#16a34a;color:#fff;font-family:'DM Sans',sans-serif}
+.btn{padding:10px 20px;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;border:none;background:#16a34a;color:#fff;font-family:var(--sp-font-sans)}
 .wrap{max-width:900px;margin:40px auto;padding:0 20px}
 #loadingMsg{text-align:center;padding:80px;color:#6b7280}
 #notReady{display:none;text-align:center;padding:80px 20px}
-#notReady h2{font-family:'Fraunces',serif;font-size:24px;margin-bottom:10px}
+#notReady h2{font-family:var(--sp-font-display);font-size:24px;margin-bottom:10px}
 #notReady p{color:#6b7280;max-width:420px;margin:0 auto}
 .cert{display:none;background:#fff;border:1px solid #e5e7eb;border-radius:4px;padding:64px 72px;position:relative}
 .cert::before{content:"";position:absolute;inset:16px;border:2px solid #16a34a;pointer-events:none}
 .cert-inner{position:relative;text-align:center}
 .cert-eyebrow{font-size:12px;letter-spacing:0.15em;text-transform:uppercase;color:#16a34a;font-weight:700;margin-bottom:18px}
-.cert-title{font-family:'Fraunces',serif;font-size:38px;font-weight:700;color:#111827;margin-bottom:24px}
+.cert-title{font-family:var(--sp-font-display);font-size:38px;font-weight:700;color:#111827;margin-bottom:24px}
 .cert-sub{font-size:15px;color:#6b7280;margin-bottom:8px}
-.cert-name{font-family:'Fraunces',serif;font-style:italic;font-size:34px;color:#111827;margin:14px 0 24px;border-bottom:2px solid #e5e7eb;display:inline-block;padding-bottom:10px;min-width:340px}
+.cert-name{font-family:var(--sp-font-display);font-style:italic;font-size:34px;color:#111827;margin:14px 0 24px;border-bottom:2px solid #e5e7eb;display:inline-block;padding-bottom:10px;min-width:340px}
 .cert-body{font-size:15px;color:#374151;max-width:520px;margin:0 auto 30px;line-height:1.7}
 .cert-stats{display:flex;justify-content:center;gap:48px;margin:30px 0}
 .cert-stat{text-align:center}
@@ -32,7 +32,7 @@ body{font-family:'DM Sans',sans-serif;background:#f3f4f2;min-height:100vh}
 .cert-stat .l{font-size:11px;color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;margin-top:2px}
 .cert-footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:50px;padding-top:20px;border-top:1px solid #e5e7eb}
 .cert-footer .sig{text-align:left}
-.cert-footer .sig .name{font-family:'Fraunces',serif;font-style:italic;font-size:16px;color:#111827}
+.cert-footer .sig .name{font-family:var(--sp-font-display);font-style:italic;font-size:16px;color:#111827}
 .cert-footer .sig .label{font-size:11px;color:#6b7280;margin-top:2px}
 .cert-footer .date{text-align:right;font-size:13px;color:#6b7280}
 .cert-logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:28px;font-size:12px;color:#9ca3af}
@@ -44,12 +44,23 @@ body{font-family:'DM Sans',sans-serif;background:#f3f4f2;min-height:100vh}
   .cert{border:none;padding:40px}
 }
 </style>
+<style id="sp-cert-fix">
+/* Same chrome as the other classroom pages; the certificate itself is unchanged */
+@media screen{body{background:#f9fafb}}
+.toolbar a{display:inline-flex;align-items:center;height:32px;padding:0 12px;border:1px solid #e4e7ed;border-radius:3px;color:#12161f;font-size:13px}
+.toolbar a:hover{border-color:#12161f}
+.btn{background:#1a9e6e;border-radius:3px}
+#notReady p{max-width:480px}
+#loadingMsg{padding:80px 20px;text-wrap:balance}
+</style>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 
 <div class="toolbar">
   <a href="/classroom.html">← Back to Class</a>
-  <button class="btn" onclick="window.print()" id="printBtn" style="display:none">🖨 Print / Save as PDF</button>
+  <button class="btn" onclick="window.print()" id="printBtn" style="display:none">Print / Save as PDF</button>
 </div>
 
 <div class="wrap">
@@ -75,7 +86,7 @@ body{font-family:'DM Sans',sans-serif;background:#f3f4f2;min-height:100vh}
         </div>
         <div class="date" id="certDate">—</div>
       </div>
-      <div class="cert-logo"><img src="/logo.jpg" alt=""/>Issued by StockPilot</div>
+      <div class="cert-logo"><img src="/logo-mark-256.png" alt="" class="sp-mark"/>Issued by StockPilot</div>
     </div>
   </div>
 </div>
@@ -161,5 +172,6 @@ async function init(){
 }
 init();
 </script>
+<p class="sp-credit-line sp-credit-noprint"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html>

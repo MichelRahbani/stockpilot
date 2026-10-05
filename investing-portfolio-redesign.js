@@ -54,7 +54,7 @@
       if(!existing){
         var prompt = document.createElement('div');
         prompt.id = 'emptyPortfolioPrompt';
-        prompt.style.cssText = 'border:1px solid var(--sp-g100,#e4e7ed);border-top:none;border-radius:0 0 14px 14px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--sp-g400,#8a93a3)';
+        prompt.style.cssText = 'border:1px solid var(--sp-g100,#e4e7ed);border-top:none;border-radius:0 0 6px 6px;padding:14px 16px;margin-bottom:20px;font-size:13px;color:var(--sp-g400,#8a93a3)';
         prompt.textContent = 'Add holdings below to see your score, risk, and correlation.';
         verdict.insertAdjacentElement('afterend', prompt);
       }

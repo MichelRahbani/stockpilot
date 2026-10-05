@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>StockPilot Classroom</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-TZLSC36Y26');</script>
 <style>
@@ -17,13 +17,13 @@
   --gray:#6b7280;--border:#e5e7eb;--bg:#f9fafb;--white:#fff;
   --text:#111827;--muted:#6b7280;
 }
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:var(--sp-font-sans);background:var(--bg);color:var(--text);min-height:100vh}
 nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
 .nav-logo{display:flex;align-items:center;gap:8px;text-decoration:none;font-weight:700;font-size:16px;color:var(--text)}
-.nav-logo img{height:28px;width:28px;border-radius:6px}
-.nav-badge{background:#dcfce7;color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;letter-spacing:0.05em}
+.nav-logo img{height:28px;width:28px;border-radius:4px}
+.nav-badge{background:#dcfce7;color:var(--green);font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;letter-spacing:0.05em}
 .nav-right{display:flex;align-items:center;gap:10px}
-.btn{padding:8px 18px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all 0.15s}
+.btn{padding:8px 18px;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--sp-font-sans);border:none;transition:all 0.15s}
 .btn-primary{background:var(--green);color:white}.btn-primary:hover{background:#15803d}
 .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted)}.btn-ghost:hover{border-color:var(--text);color:var(--text)}
 .btn-sm{padding:6px 14px;font-size:13px}
@@ -37,7 +37,7 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 2
 .hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
 
 /* Cards */
-.card{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:24px}
+.card{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:24px}
 .card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;margin-bottom:24px}
 .card h2{font-size:18px;font-weight:700;margin-bottom:4px}
 .card .subtitle{font-size:13px;color:var(--muted);margin-bottom:20px}
@@ -47,25 +47,25 @@ nav{background:var(--white);border-bottom:1px solid var(--border);padding:14px 2
 .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
 .field label{font-size:13px;font-weight:600;color:var(--text)}
 .field small{font-size:11px;color:var(--muted)}
-.field input,.field select{padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color 0.15s;background:var(--white)}
+.field input,.field select{padding:10px 14px;border:1px solid var(--border);border-radius:4px;font-size:14px;font-family:var(--sp-font-sans);outline:none;transition:border-color 0.15s;background:var(--white)}
 .field input:focus,.field select:focus{border-color:var(--green)}
 .field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
 /* Class list */
-.class-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:18px 20px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between}
-.class-card:hover{border-color:var(--green);box-shadow:0 2px 8px rgba(22,163,74,0.1)}
+.class-card{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:18px 20px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;justify-content:space-between}
+.class-card:hover{border-color:var(--green);box-shadow:none}
 .class-card-left h3{font-size:15px;font-weight:600;margin-bottom:2px}
 .class-card-left p{font-size:12px;color:var(--muted)}
-.class-code{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;background:var(--green-l);color:var(--green);padding:4px 10px;border-radius:6px}
+.class-code{font-family:var(--sp-font-mono);font-size:13px;font-weight:600;background:var(--green-l);color:var(--green);padding:4px 10px;border-radius:4px}
 
 /* Dashboard */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
-.stat-card{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:6px;padding:16px;text-align:center}
 .stat-card .val{font-size:26px;font-weight:700;color:var(--green)}
 .stat-card .lbl{font-size:12px;color:var(--muted);margin-top:2px}
 
 /* Table */
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:6px}
 table{width:100%;border-collapse:collapse;font-size:14px}
 th{background:#f8fafc;padding:10px 14px;text-align:left;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--muted);border-bottom:1px solid var(--border)}
 td{padding:12px 14px;border-bottom:1px solid var(--border)}
@@ -75,23 +75,23 @@ tr:hover td{background:#fafafa}
 .rank-2{color:var(--muted);font-weight:600}
 .rank-3{color:#92400e;font-weight:600}
 .up{color:var(--green)}.down{color:var(--red)}
-.tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.tag{font-size:11px;padding:2px 8px;border-radius:4px;font-weight:600}
 .tag-green{background:var(--green-l);color:var(--green)}
 .tag-blue{background:var(--blue-l);color:var(--blue)}
 
 /* Tab bar */
 .tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:20px}
-.tab{padding:10px 16px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.tab{padding:10px 16px;font-size:14px;font-weight:500;cursor:pointer;border:none;background:transparent;color:var(--muted);border-bottom:2px solid transparent;font-family:var(--sp-font-sans);transition:all 0.15s}
 .tab.active{color:var(--green);border-bottom-color:var(--green);font-weight:600}
 
 /* Modal */
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center}
 .modal-bg.open{display:flex}
-.modal{background:var(--white);border-radius:16px;padding:28px;width:90%;max-width:460px;position:relative}
+.modal{background:var(--white);border-radius:8px;padding:28px;width:90%;max-width:460px;position:relative}
 .modal h2{font-size:20px;font-weight:700;margin-bottom:4px}
 .modal .subtitle{font-size:13px;color:var(--muted);margin-bottom:20px}
 .modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted)}
-.msg{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:12px;display:none}
+.msg{padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:12px;display:none}
 .msg.error{background:var(--red-l);color:var(--red);border:1px solid #fecaca}
 .msg.success{background:var(--green-l);color:var(--green);border:1px solid var(--green-b)}
 
@@ -101,29 +101,73 @@ tr:hover td{background:#fafafa}
 .empty p{font-size:14px}
 
 /* Freeze badge */
-.freeze-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:20px;background:#eff6ff;color:var(--blue);font-weight:600}
+.freeze-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:4px 10px;border-radius:4px;background:#eff6ff;color:var(--blue);font-weight:600}
 
 @media(max-width:600px){.hero h1{font-size:26px}.field-row{grid-template-columns:1fr}.stats-row{grid-template-columns:repeat(2,1fr)}}
 @keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-.ticker-tape { overflow:hidden; white-space:nowrap; background:#111827; color:#fff; border-radius:8px; padding:8px 0; margin-bottom:16px }
+.ticker-tape { overflow:hidden; white-space:nowrap; background:#111827; color:#fff; border-radius:4px; padding:8px 0; margin-bottom:16px }
 </style>
+<style id="sp-classroom">
+nav{min-height:64px}
+.nav-badge{background:none;border:1px solid currentColor;border-radius:2px;font-family:var(--sp-font-mono);font-weight:500;letter-spacing:0.08em;padding:2px 6px}
+#landingView .hero{text-align:left;max-width:1120px;margin:0 auto;padding:88px 40px 56px}
+#landingView .hero h1{font-size:clamp(40px,5.4vw,72px);letter-spacing:-0.042em;line-height:.98;margin-bottom:20px}
+#landingView .hero p{margin:0 0 32px;font-size:19px;max-width:560px;line-height:1.5}
+#landingView .hero-btns{justify-content:flex-start}
+#landingView .hero-btns .btn{height:50px;padding:0 24px;font-size:15.5px}
+#landingView .page{max-width:1120px;padding-left:40px;padding-right:40px}
+#landingView .card-grid{gap:0;grid-template-columns:repeat(3,1fr);border-top:2px solid var(--text)}
+#landingView .card{border:none;border-right:1px solid var(--border);border-radius:0;padding:26px 28px 6px 0;margin-right:28px;background:none}
+#landingView .card:last-child{border-right:none;margin-right:0}
+#landingView .card h2{font-size:20px;letter-spacing:-0.02em}
+#landingView .card p{font-size:15px!important;line-height:1.6}
+.cl-ico{color:var(--green);margin-bottom:22px;line-height:0}
+#landingView .page > p{text-align:left!important;font-size:13.5px!important}
+@media(max-width:800px){
+  #landingView .hero{padding:56px 20px 40px}
+  #landingView .page{padding-left:20px;padding-right:20px}
+  #landingView .card-grid{grid-template-columns:1fr}
+  #landingView .card{border-right:none;margin-right:0;padding:22px 0;border-bottom:1px solid var(--border)}
+}
+</style>
+<style id="sp-classroom-fix">
+/* Classroom pages share one green and one badge style; header controls never wrap */
+:root{--green:#1a9e6e}
+.nav-badge,nav .badge{background:none!important;border:1px solid currentColor!important;color:var(--green)!important;border-radius:2px!important;font-family:var(--sp-font-mono)!important;font-weight:500!important;font-size:10px!important;letter-spacing:.08em!important;padding:2px 6px!important;margin-left:8px;white-space:nowrap}
+nav{gap:12px}
+nav .btn,nav a,nav button{white-space:nowrap;text-decoration:none}
+.nav-logo{display:inline-flex;align-items:center;gap:8px;flex-shrink:0}
+#landingView .btn-outline,#landingView .btn-ghost{color:var(--text,#12161f)}
+#landingView .hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);grid-template-areas:"title viz" "copy viz" "btns viz";column-gap:72px;align-items:start}
+#landingView .hero h1{grid-area:title}
+#landingView .hero > p{grid-area:copy}
+#landingView .hero-btns{grid-area:btns}
+#landingView .hero-visual{grid-area:viz;align-self:center;position:relative;--acc:var(--green)}
+#landingView .hero-visual::before{content:"";position:absolute;inset:-48px -36px -48px -48px;background-image:radial-gradient(#cfd5de 1px,transparent 1.3px);background-size:18px 18px;-webkit-mask-image:radial-gradient(closest-side,#000 35%,transparent);mask-image:radial-gradient(closest-side,#000 35%,transparent);pointer-events:none}
+#landingView .hero-visual .sp-viz{position:relative}
+@media(max-width:900px){#landingView .hero{grid-template-columns:1fr;grid-template-areas:"title" "copy" "btns" "viz"}#landingView .hero-visual{margin-top:40px}#landingView .hero-visual::before{inset:-28px 0}}
+
+</style>
+<link rel="stylesheet" href="/sp-viz.css"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 
 <nav>
   <a href="/" class="nav-logo">
-    <img src="/logo.jpg" alt="StockPilot"/>
+    <img src="/logo-mark-256.png" alt="StockPilot" class="sp-mark"/>
     StockPilot
     <span class="nav-badge">CLASSROOM</span>
   </a>
   <div class="nav-right">
     <span id="navUser" style="font-size:13px;color:var(--muted);display:none"></span>
     <div style="position:relative;display:inline-block" id="notifWrap">
-      <button class="btn btn-ghost btn-sm" onclick="toggleNotifPanel()" title="Notifications" style="position:relative">🔔<span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red,#dc2626);color:#fff;font-size:10px;font-weight:700;border-radius:10px;padding:1px 5px;line-height:1.3">0</span></button>
-      <div id="notifPanel" style="display:none;position:absolute;right:0;top:36px;width:280px;max-height:360px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,0.12);z-index:50"></div>
+      <button class="btn btn-ghost btn-sm" onclick="toggleNotifPanel()" title="Notifications" aria-label="Notifications" style="position:relative;display:inline-flex;align-items:center"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5h4"/></svg><span id="notifBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:var(--red,#dc2626);color:#fff;font-size:10px;font-weight:700;border-radius:4px;padding:1px 5px;line-height:1.3">0</span></button>
+      <div id="notifPanel" style="display:none;position:absolute;right:0;top:36px;width:280px;max-height:360px;overflow-y:auto;background:#fff;border:1px solid var(--border);border-radius:6px;box-shadow:0 6px 20px rgba(0,0,0,0.12);z-index:50"></div>
     </div>
     <a href="/trade" class="btn btn-ghost btn-sm">Virtual Market</a>
-    <a href="/my-account.html" class="btn btn-ghost btn-sm">👤 My Account</a>
+    <a href="/my-account.html" class="btn btn-ghost btn-sm">My Account</a>
     <button class="btn btn-ghost btn-sm" id="navSignInBtn" onclick="openSigninModal()">Sign In</button>
     <button class="btn btn-ghost btn-sm" id="navSignOutBtn" style="display:none" onclick="signOut()">Sign Out</button>
   </div>
@@ -136,8 +180,8 @@ tr:hover td{background:#fafafa}
     <h2>Sign in to continue</h2>
     <p class="subtitle">You need a StockPilot account to create or join a class.</p>
     <div style="display:flex;gap:8px;margin-bottom:16px">
-      <button type="button" id="siTabIn" onclick="setSiMode('in')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer">Sign In</button>
-      <button type="button" id="siTabUp" onclick="setSiMode('up')" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer">Sign Up</button>
+      <button type="button" id="siTabIn" onclick="setSiMode('in')" style="flex:1;padding:9px;border-radius:4px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer">Sign In</button>
+      <button type="button" id="siTabUp" onclick="setSiMode('up')" style="flex:1;padding:9px;border-radius:4px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer">Sign Up</button>
     </div>
     <div class="msg" id="siMsg"></div>
     <div class="field" id="siNameField" style="display:none"><label>Name</label><input type="text" id="siName" placeholder="Your name"/></div>
@@ -207,7 +251,7 @@ tr:hover td{background:#fafafa}
     <h2 id="quizModalTitle">Quiz</h2>
     <p class="subtitle" id="quizModalSub">Answer each question, then submit.</p>
     <div id="quizModalBody" style="display:flex;flex-direction:column;gap:16px;max-height:50vh;overflow-y:auto;padding-right:4px"></div>
-    <div id="quizModalResult" style="display:none;margin-top:12px;padding:12px;border-radius:8px;text-align:center;font-weight:600"></div>
+    <div id="quizModalResult" style="display:none;margin-top:12px;padding:12px;border-radius:4px;text-align:center;font-weight:600"></div>
     <button class="btn btn-primary" style="width:100%;margin-top:14px" onclick="submitQuiz()" id="quizSubmitBtn">Submit Quiz</button>
   </div>
 </div>
@@ -218,7 +262,7 @@ tr:hover td{background:#fafafa}
     <button class="modal-close" onclick="closeModal('shareModal')">✕</button>
     <h2>Share Class Code</h2>
     <p class="subtitle">This message has been copied to your clipboard and your email app should be opening. You can also copy it manually below.</p>
-    <textarea id="shareText" readonly style="width:100%;height:180px;padding:12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical;color:var(--text);background:#f9fafb;line-height:1.6"></textarea>
+    <textarea id="shareText" readonly style="width:100%;height:180px;padding:12px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans);resize:vertical;color:var(--text);background:#f9fafb;line-height:1.6"></textarea>
     <div style="display:flex;gap:8px;margin-top:12px">
       <button class="btn btn-primary" style="flex:1" onclick="navigator.clipboard.writeText(document.getElementById('shareText').value);this.textContent='Copied!';setTimeout(()=>this.textContent='Copy to Clipboard',2000)">Copy to Clipboard</button>
       <button class="btn btn-ghost" onclick="closeModal('shareModal')">Done</button>
@@ -238,21 +282,34 @@ tr:hover td{background:#fafafa}
         <button class="btn btn-primary" onclick="requireAuth(()=>showView('instructorView'))">I'm an Instructor</button>
         <button class="btn btn-ghost" onclick="requireAuth(()=>showView('studentView'))">I'm a Student</button>
       </div>
+      <div class="hero-visual">
+        <div class="sp-viz vz-anim" aria-hidden="true">
+          <div class="sp-viz-bar"><img src="/logo-mark-256.png" alt=""/><i></i><i></i><i></i><span class="sp-viz-dot" style="opacity:1"></span></div>
+          <div class="vz-lhead"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square"><path d="M3 9l9-5 9 5-9 5z"/><path d="M7 11.5V16c1.5 1.5 3 2 5 2s3.5-.5 5-2v-4.5"/></svg><span class="vz-line mid" style="width:34%"></span><div class="vz-steps"><span class="on"></span><span class="on"></span><span class="on"></span><span></span></div></div>
+          <div class="vz-board">
+            <div class="vz-lrow"><i class="vz-rank" style="opacity:1"></i><i class="vz-av" style="background:#1a9e6e"></i><span class="vz-line mid" style="width:64%"></span><div class="vz-track"><span class="" style="width:92%"></span></div></div>
+            <div class="vz-lrow"><i class="vz-rank" style="opacity:0.75"></i><i class="vz-av" style="background:#2563eb"></i><span class="vz-line mid" style="width:52%"></span><div class="vz-track"><span class="" style="width:78%"></span></div></div>
+            <div class="vz-lrow"><i class="vz-rank" style="opacity:0.55"></i><i class="vz-av" style="background:#d97706"></i><span class="vz-line mid" style="width:70%"></span><div class="vz-track"><span class="" style="width:63%"></span></div></div>
+            <div class="vz-lrow"><i class="vz-rank" style="opacity:0.4"></i><i class="vz-av" style="background:#7c3aed"></i><span class="vz-line mid" style="width:46%"></span><div class="vz-track"><span class="" style="width:41%"></span></div></div>
+            <div class="vz-lrow"><i class="vz-rank" style="opacity:0.3"></i><i class="vz-av" style="background:#0891b2"></i><span class="vz-line mid" style="width:58%"></span><div class="vz-track"><span class="over" style="width:26%"></span></div></div>
+            </div>
+        </div>
+      </div>
     </div>
     <div class="page" style="padding-top:0">
       <div class="card-grid">
         <div class="card">
-          <div style="font-size:28px;margin-bottom:10px">📊</div>
+          <div class="cl-ico"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M3 20h18"/><path d="M6 16V9"/><path d="M12 16V5"/><path d="M18 16v-5"/></svg></div>
           <h2>Live Leaderboard</h2>
           <p style="font-size:13px;color:var(--muted);margin-top:6px">See every student's portfolio value and return % in real time. Updated every time they trade.</p>
         </div>
         <div class="card">
-          <div style="font-size:28px;margin-bottom:10px">📋</div>
+          <div class="cl-ico"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></div>
           <h2>Full Trade History</h2>
           <p style="font-size:13px;color:var(--muted);margin-top:6px">Every buy and sell is logged with timestamp, price, shares, and P&L. Export to CSV anytime.</p>
         </div>
         <div class="card">
-          <div style="font-size:28px;margin-bottom:10px">🔒</div>
+          <div class="cl-ico"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg></div>
           <h2>Freeze Portfolios</h2>
           <p style="font-size:13px;color:var(--muted);margin-top:6px">Set an end date and portfolios lock automatically — perfect for semester-end evaluation.</p>
         </div>
@@ -271,8 +328,8 @@ tr:hover td{background:#fafafa}
         </div>
         <div style="display:flex;gap:8px">
           <button class="btn btn-ghost btn-sm" onclick="showView('landingView')">← Back</button>
-          <a href="/classroom-pricing.html" class="btn btn-ghost btn-sm" style="text-decoration:none">💳 Pricing &amp; Upgrade</a>
-          <button class="btn btn-ghost" onclick="openModal('coTeacherJoinModal')">🤝 Join as Co-Teacher</button>
+          <a href="/classroom-pricing.html" class="btn btn-ghost btn-sm" style="text-decoration:none">Pricing &amp; Upgrade</a>
+          <button class="btn btn-ghost" onclick="openModal('coTeacherJoinModal')">Join as Co-Teacher</button>
           <button class="btn btn-primary" onclick="openModal('createModal')">+ New Class</button>
         </div>
       </div>
@@ -295,7 +352,7 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
       <div id="classList">
-        <div class="empty"><div class="icon">🏫</div><p>No classes yet. Create your first class above.</p></div>
+        <div class="empty"><div class="icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 9l9-5 9 5-9 5z"/><path d="M7 11.5V16c1.5 1.5 3 2 5 2s3.5-.5 5-2v-4.5"/></svg></div><p>No classes yet. Create your first class above.</p></div>
       </div>
     </div>
   </div>
@@ -309,21 +366,21 @@ tr:hover td{background:#fafafa}
           <div class="section-title" id="dashClassName" style="margin-bottom:4px"></div>
           <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
             <span id="dashCourseCode" style="font-size:13px;color:var(--muted)"></span>
-            <span id="dashFreeze" class="freeze-badge" style="display:none">🔒 Freezes <span id="dashFreezeDate"></span></span>
+            <span id="dashFreeze" class="freeze-badge" style="display:none">Freezes <span id="dashFreezeDate"></span></span>
           </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-          <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:8px;padding:8px 14px;text-align:center">
+          <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:4px;padding:8px 14px;text-align:center">
             <div style="font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.05em">Class Code</div>
-            <div id="dashCode" style="font-family:'DM Mono',monospace;font-size:20px;font-weight:700;color:var(--green);cursor:pointer" onclick="copyCode()" title="Click to copy"></div>
+            <div id="dashCode" style="font-family:var(--sp-font-mono);font-size:20px;font-weight:700;color:var(--green);cursor:pointer" onclick="copyCode()" title="Click to copy"></div>
             <div style="font-size:11px;color:var(--green);margin-top:2px;cursor:pointer" onclick="copyCode()">click to copy</div>
           </div>
           <span id="freezeCountdown" style="font-size:12px;color:var(--muted);margin-right:8px"></span>
-          <button class="btn btn-ghost btn-sm" onclick="shareCode()" title="Get a pre-written message to share with students">📤 Share</button>
-          <button class="btn btn-ghost btn-sm" onclick="exportCSV()">⬇ Trades CSV</button>
-          <button class="btn btn-ghost btn-sm" onclick="exportGrades()" title="Export final grades for all students">🎓 Export Grades</button>
-          <button class="btn btn-ghost btn-sm" onclick="generateWeeklyDigest()" title="A plain-language summary of this week - copy it into an email to yourself for now">📨 Weekly Digest</button>
-          <button class="btn btn-ghost btn-sm" onclick="toggleRosterPanel()">📋 Roster</button>
+          <button class="btn btn-ghost btn-sm" onclick="shareCode()" title="Get a pre-written message to share with students">Share</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportCSV()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Trades CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportGrades()" title="Export final grades for all students">Export Grades</button>
+          <button class="btn btn-ghost btn-sm" onclick="generateWeeklyDigest()" title="A plain-language summary of this week - copy it into an email to yourself for now">Weekly Digest</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggleRosterPanel()">Roster</button>
           <button class="btn btn-primary btn-sm" onclick="loadDashboard()">↻ Refresh</button>
         </div>
       </div>
@@ -339,24 +396,24 @@ tr:hover td{background:#fafafa}
       <div id="weeklyDigestPanel" style="display:none;margin-bottom:20px"></div>
 
       <div class="tabs">
-        <button class="tab active" onclick="switchTab('stream',this)">📢 Stream</button>
-        <button class="tab" onclick="switchTab('leaderboard',this)">🏆 Leaderboard</button>
-        <button class="tab" onclick="switchTab('trades',this)">📋 Trade History</button>
-        <button class="tab" onclick="switchTab('budgets',this)">💰 Budgets</button>
-        <button class="tab" onclick="switchTab('assignments',this)">📝 Assignments</button>
-        <button class="tab" onclick="switchTab('materials',this)">📎 Materials</button>
-        <button class="tab" onclick="switchTab('fantasy',this)">🏈 Fantasy</button>
+        <button class="tab active" onclick="switchTab('stream',this)">Stream</button>
+        <button class="tab" onclick="switchTab('leaderboard',this)">Leaderboard</button>
+        <button class="tab" onclick="switchTab('trades',this)">Trade History</button>
+        <button class="tab" onclick="switchTab('budgets',this)">Budgets</button>
+        <button class="tab" onclick="switchTab('assignments',this)">Assignments</button>
+        <button class="tab" onclick="switchTab('materials',this)">Materials</button>
+        <button class="tab" onclick="switchTab('fantasy',this)">Fantasy</button>
       </div>
 
       <div id="tabStream">
         <div class="card" style="margin-bottom:16px">
-          <textarea id="newStreamBody" placeholder="Share an announcement with your class..." style="width:100%;min-height:70px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;resize:vertical"></textarea>
+          <textarea id="newStreamBody" placeholder="Share an announcement with your class..." style="width:100%;min-height:70px;padding:10px 12px;border:1px solid var(--border);border-radius:4px;font-family:var(--sp-font-sans);font-size:14px;resize:vertical"></textarea>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
             <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><input type="checkbox" id="newStreamPinned"> Pin to top</label>
             <button class="btn btn-primary btn-sm" onclick="postStreamItem()">Post</button>
           </div>
         </div>
-        <div id="streamMsg" style="display:none;font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;background:#fef2f2;color:#dc2626"></div>
+        <div id="streamMsg" style="display:none;font-size:13px;padding:8px 12px;border-radius:4px;margin-bottom:10px;background:#fef2f2;color:#dc2626"></div>
         <div id="streamList"><p style="font-size:13px;color:var(--muted)">Loading...</p></div>
       </div>
 
@@ -373,7 +430,7 @@ tr:hover td{background:#fafafa}
 
       <div id="tabTrades" style="display:none">
         <div style="display:flex;gap:10px;margin-bottom:12px;flex-wrap:wrap">
-          <input type="text" id="tradeFilter" placeholder="Filter by student name or ticker..." style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;outline:none" oninput="filterTrades()"/>
+          <input type="text" id="tradeFilter" placeholder="Filter by student name or ticker..." style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans);outline:none" oninput="filterTrades()"/>
         </div>
         <div class="table-wrap">
           <table>
@@ -388,7 +445,7 @@ tr:hover td{background:#fafafa}
       <div id="tabBudgets" style="display:none">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
           <span style="font-size:13px;color:var(--muted)">Student budget submissions for this class</span>
-          <button class="btn btn-ghost btn-sm" onclick="exportBudgetsCSV()">⬇ Export CSV</button>
+          <button class="btn btn-ghost btn-sm" onclick="exportBudgetsCSV()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Export CSV</button>
         </div>
         <div class="table-wrap">
           <table>
@@ -401,26 +458,26 @@ tr:hover td{background:#fafafa}
       </div>
 
       <div id="tabAssignments" style="display:none">
-        <div style="background:#f9fafb;border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px">
+        <div style="background:#f9fafb;border:1px solid var(--border);border-radius:6px;padding:18px;margin-bottom:20px">
           <div style="font-size:14px;font-weight:700;margin-bottom:12px">+ New Assignment</div>
           <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:10px">
             <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Title</label>
-              <input type="text" id="newAsgTitle" placeholder="e.g. Assignment 1: Make 5 Trades" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+              <input type="text" id="newAsgTitle" placeholder="e.g. Assignment 1: Make 5 Trades" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/></div>
             <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Points</label>
-              <input type="number" id="newAsgPoints" value="5" min="1" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+              <input type="number" id="newAsgPoints" value="5" min="1" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/></div>
             <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Due Date</label>
-              <input type="date" id="newAsgDue" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+              <input type="date" id="newAsgDue" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/></div>
           </div>
           <div style="margin-bottom:10px">
             <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Unit (optional)</label>
             <div style="display:flex;gap:8px">
-              <select id="newAsgUnit" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"><option value="">No unit</option></select>
+              <select id="newAsgUnit" style="flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"><option value="">No unit</option></select>
               <button type="button" class="btn btn-ghost btn-sm" onclick="createUnitPrompt()">+ New Unit</button>
             </div>
           </div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
             <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Type</label>
-              <select id="newAsgType" onchange="updateAsgCriteriaLabel()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+              <select id="newAsgType" onchange="updateAsgCriteriaLabel()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)">
                 <option value="trading">Virtual Trading</option>
                 <option value="budget">Budget Planner</option>
                 <option value="budget_challenge">Budget Challenge</option>
@@ -429,21 +486,21 @@ tr:hover td{background:#fafafa}
                 <option value="written">Written Response</option>
               </select></div>
             <div id="newAsgCriteriaWrap"><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px" id="newAsgCriteriaLabel">Minimum trades required</label>
-              <input type="number" id="newAsgCriteria" value="5" min="1" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+              <input type="number" id="newAsgCriteria" value="5" min="1" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/></div>
           </div>
           <div id="writtenPromptWrap" style="display:none;margin-bottom:12px">
             <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Prompt for students</label>
-            <textarea id="newAsgPrompt" placeholder="e.g. In 150-200 words, explain why diversification reduces risk." style="width:100%;min-height:70px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;resize:vertical"></textarea>
+            <textarea id="newAsgPrompt" placeholder="e.g. In 150-200 words, explain why diversification reduces risk." style="width:100%;min-height:70px;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans);resize:vertical"></textarea>
           </div>
-          <div id="quizBuilderWrap" style="display:none;background:var(--bg-alt,#f7f7f5);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px">
+          <div id="quizBuilderWrap" style="display:none;background:var(--bg-alt,#f7f7f5);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:12px">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
               <span style="font-size:13px;font-weight:600">Quiz Questions (<span id="quizQCount">0</span>)</span>
               <span style="font-size:12px;color:var(--muted)">Each question is worth an equal share of the total points above</span>
             </div>
             <div id="quizQuestionList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
             <div style="display:grid;grid-template-columns:1fr 140px;gap:10px;margin-bottom:8px">
-              <input type="text" id="quizNewQuestion" placeholder="Question text" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
-              <select id="quizNewType" onchange="renderQuizAnswerInputs()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+              <input type="text" id="quizNewQuestion" placeholder="Question text" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/>
+              <select id="quizNewType" onchange="renderQuizAnswerInputs()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)">
                 <option value="mc">Multiple Choice</option>
                 <option value="fill_blank">Fill in the Blank</option>
               </select>
@@ -459,7 +516,7 @@ tr:hover td{background:#fafafa}
           <span style="font-size:13px;color:var(--muted)">Assignments for this class</span>
           <div style="display:flex;gap:8px">
             <button class="btn btn-ghost btn-sm" id="runGradingBtn" onclick="runGrading()">↻ Run Grading</button>
-            <button class="btn btn-ghost btn-sm" onclick="exportAssignmentGrades()">🎓 Export Assignment Grades</button>
+            <button class="btn btn-ghost btn-sm" onclick="exportAssignmentGrades()">Export Assignment Grades</button>
           </div>
         </div>
         <div class="table-wrap">
@@ -476,8 +533,8 @@ tr:hover td{background:#fafafa}
         <div class="card" style="margin-bottom:20px">
           <div style="font-weight:600;margin-bottom:12px">+ Upload Lecture Material</div>
           <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px">
-            <input type="text" id="newMaterialTitle" placeholder="e.g. Week 3 - Diversification" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
-            <input type="file" id="newMaterialFile" accept=".pdf,.ppt,.pptx" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
+            <input type="text" id="newMaterialTitle" placeholder="e.g. Week 3 - Diversification" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/>
+            <input type="file" id="newMaterialFile" accept=".pdf,.ppt,.pptx" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/>
           </div>
           <p style="font-size:12px;color:var(--muted);margin-bottom:12px">PDF or PowerPoint, up to 50MB. Students can view or download it from their class page.</p>
           <button class="btn btn-primary btn-sm" onclick="uploadMaterial()" id="uploadMaterialBtn">Upload</button>
@@ -490,22 +547,22 @@ tr:hover td{background:#fafafa}
         <div id="fantasyLoadingMsg" style="font-size:13px;color:var(--muted)">Loading...</div>
         <div id="fantasySetupWrap" style="display:none">
           <div class="card">
-            <div style="font-weight:600;margin-bottom:12px">🏈 Set Up a Fantasy Draft</div>
+            <div style="font-weight:600;margin-bottom:12px">Set Up a Fantasy Draft</div>
             <p style="font-size:13px;color:var(--muted);margin-bottom:14px">Students draft a portfolio within a budget - no live turns to coordinate, everyone drafts on their own time. You create it, you don't play in it.</p>
             <div style="display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:12px">
-              <input type="text" id="fantasyLeagueName" placeholder="e.g. Q4 Portfolio Draft" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
+              <input type="text" id="fantasyLeagueName" placeholder="e.g. Q4 Portfolio Draft" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/>
             </div>
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px">
               <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Budget ($)</label>
-                <input type="number" id="fantasyBudget" value="100" min="10" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+                <input type="number" id="fantasyBudget" value="100" min="10" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/></div>
               <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Starters</label>
-                <input type="number" id="fantasyStarters" value="7" min="1" max="15" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+                <input type="number" id="fantasyStarters" value="7" min="1" max="15" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/></div>
               <div><label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Bench</label>
-                <input type="number" id="fantasyBench" value="3" min="0" max="10" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/></div>
+                <input type="number" id="fantasyBench" value="3" min="0" max="10" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/></div>
             </div>
             <div style="margin-bottom:14px">
               <label style="font-size:12px;color:var(--muted);display:block;margin-bottom:4px">Season ends (optional)</label>
-              <input type="date" id="fantasyEndDate" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif"/>
+              <input type="date" id="fantasyEndDate" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)"/>
               <div style="font-size:11px;color:var(--muted);margin-top:4px">Shows a final-standings recap to everyone once this date passes. Leave blank to run indefinitely.</div>
             </div>
             <button class="btn btn-primary" onclick="createFantasyLeague()">Create Draft</button>
@@ -519,14 +576,14 @@ tr:hover td{background:#fafafa}
                 <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)">
                   <input type="checkbox" id="fantasyDraftOpenToggle" onchange="toggleDraftOpen()"> Draft open
                 </label>
-                <a class="btn btn-ghost btn-sm" id="fantasyHubLink" href="#" style="text-decoration:none">🏟 League Hub</a>
-                <button class="btn btn-ghost btn-sm" onclick="deleteFantasyLeague()">🗑 Delete</button>
+                <a class="btn btn-ghost btn-sm" id="fantasyHubLink" href="#" style="text-decoration:none">League Hub</a>
+                <button class="btn btn-ghost btn-sm" onclick="deleteFantasyLeague()">Delete</button>
               </div>
             </div>
             <div style="font-size:13px;color:var(--muted)" id="fantasyActiveMeta"></div>
             <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:10px;font-size:13px;color:var(--muted)">
               <label style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="fantasyMovesOpen" onchange="saveMovesSettings()"> Roster moves open (free agents, trades, swaps)</label>
-              <label style="display:flex;align-items:center;gap:6px">Free-agent / trade moves per student per week <input type="number" id="fantasyMoveLimit" min="0" max="20" style="width:60px;padding:4px 6px;border:1px solid var(--border);border-radius:6px" onchange="saveMovesSettings()"></label>
+              <label style="display:flex;align-items:center;gap:6px">Free-agent / trade moves per student per week <input type="number" id="fantasyMoveLimit" min="0" max="20" style="width:60px;padding:4px 6px;border:1px solid var(--border);border-radius:4px" onchange="saveMovesSettings()"></label>
               <span id="fantasyMovesMsg"></span>
             </div>
           </div>
@@ -539,10 +596,10 @@ tr:hover td{background:#fafafa}
           </div>
 
           <div class="card" style="margin-top:20px">
-            <div style="font-weight:600;margin-bottom:6px">🌪️ Market Stress Test</div>
+            <div style="font-weight:600;margin-bottom:6px">Market Stress Test</div>
             <p style="font-size:13px;color:var(--muted);margin-bottom:14px">See what each student's actual roster would have done during a real historical crash - same tickers, same weights, real market data from that period. A live teaching moment on risk and diversification, without touching anyone's real portfolio.</p>
             <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-              <select id="stressScenario" style="padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+              <select id="stressScenario" style="padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)">
                 <option value="covid">COVID Crash (Feb 19 - Mar 23, 2020) - S&P fell ~34%</option>
                 <option value="bear2022">2022 Bear Market (Jan 3 - Oct 12, 2022) - S&P fell ~25%</option>
               </select>
@@ -569,7 +626,7 @@ tr:hover td{background:#fafafa}
         </div>
       </div>
       <div id="studentClassList">
-        <div class="empty"><div class="icon">🎓</div><p>You haven't joined any classes yet. Ask your instructor for a code.</p></div>
+        <div class="empty"><div class="icon"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 9l9-5 9 5-9 5z"/><path d="M7 11.5V16c1.5 1.5 3 2 5 2s3.5-.5 5-2v-4.5"/></svg></div><p>You haven't joined any classes yet. Ask your instructor for a code.</p></div>
       </div>
 
       <!-- Student class dashboard (shown when viewing a class) -->
@@ -582,28 +639,28 @@ tr:hover td{background:#fafafa}
           </div>
         </div>
 
-        <div id="sdCertBanner" style="display:none;background:#fef9e7;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;margin-bottom:20px;display:none;align-items:center;justify-content:space-between">
-          <div style="font-size:13px"><strong>🎓 This class has ended.</strong> <span style="color:var(--muted)">Your completion certificate is ready.</span></div>
+        <div id="sdCertBanner" style="display:none;background:#fef9e7;border:1px solid #fde68a;border-radius:6px;padding:14px 16px;margin-bottom:20px;display:none;align-items:center;justify-content:space-between">
+          <div style="font-size:13px"><strong>This class has ended.</strong> <span style="color:var(--muted)">Your completion certificate is ready.</span></div>
           <a id="sdCertLink" href="#" style="font-size:13px;color:var(--green);font-weight:600;text-decoration:none;white-space:nowrap">Get Certificate →</a>
         </div>
 
         <div class="tabs" id="sdTabs">
-          <button class="tab active" data-sdtab="stream" onclick="switchStudentTab('stream')">📢 Stream</button>
-          <button class="tab" data-sdtab="overview" onclick="switchStudentTab('overview')">🏠 Overview</button>
-          <button class="tab" data-sdtab="assignments" onclick="switchStudentTab('assignments')">📝 Assignments</button>
-          <button class="tab" data-sdtab="materials" onclick="switchStudentTab('materials')">📎 Materials</button>
-          <button class="tab" id="sdTabFantasy" data-sdtab="fantasy" style="display:none" onclick="switchStudentTab('fantasy')">🏈 Fantasy</button>
+          <button class="tab active" data-sdtab="stream" onclick="switchStudentTab('stream')">Stream</button>
+          <button class="tab" data-sdtab="overview" onclick="switchStudentTab('overview')">Overview</button>
+          <button class="tab" data-sdtab="assignments" onclick="switchStudentTab('assignments')">Assignments</button>
+          <button class="tab" data-sdtab="materials" onclick="switchStudentTab('materials')">Materials</button>
+          <button class="tab" id="sdTabFantasy" data-sdtab="fantasy" style="display:none" onclick="switchStudentTab('fantasy')">Fantasy</button>
         </div>
 
         <div id="sdPaneStream">
-          <div id="sdStreamMsg" style="display:none;font-size:13px;padding:8px 12px;border-radius:8px;margin-bottom:10px;background:#fef2f2;color:#dc2626"></div>
+          <div id="sdStreamMsg" style="display:none;font-size:13px;padding:8px 12px;border-radius:4px;margin-bottom:10px;background:#fef2f2;color:#dc2626"></div>
           <div id="sdStreamList"><p style="font-size:13px;color:var(--muted)">Loading...</p></div>
         </div>
 
         <div id="sdPaneOverview" style="display:none">
         <div class="ticker-tape" id="sdTickerTape"></div>
         <!-- My stats -->
-        <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:12px;padding:20px;margin-bottom:20px">
+        <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:6px;padding:20px;margin-bottom:20px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
             <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:var(--green)">My Portfolio</div>
             <div id="sdStreakBadge" style="font-size:12px;font-weight:700;color:#c2410c"></div>
@@ -614,17 +671,17 @@ tr:hover td{background:#fafafa}
             <div><div style="font-size:24px;font-weight:700" id="sdMyRank">#-</div><div style="font-size:12px;color:var(--muted)">My Rank</div></div>
             <div><div style="font-size:24px;font-weight:700" id="sdMyTrades">0</div><div style="font-size:12px;color:var(--muted)">My Trades</div></div>
           </div>
-          <a href="/trade" class="btn btn-primary btn-sm" style="display:inline-block;margin-top:14px;text-decoration:none">📈 Go Trade →</a>
+          <a href="/trade" class="btn btn-primary btn-sm" style="display:inline-block;margin-top:14px;text-decoration:none">Go Trade →</a>
           <div id="sdBadgeRow" style="margin-top:12px"></div>
         </div>
 
         <div id="sdWhatsDueWrap" style="display:none;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700;margin-bottom:12px">📅 What's Due</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:12px">What's Due</div>
           <div id="sdWhatsDueList"></div>
         </div>
 
         <!-- Class leaderboard (names only, no private details) -->
-        <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏆 Class Standings</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:12px">Class Standings</div>
         <div class="table-wrap">
           <table>
             <thead><tr>
@@ -635,7 +692,7 @@ tr:hover td{background:#fafafa}
         </div>
 
         <!-- My trade history -->
-        <div style="font-size:16px;font-weight:700;margin:20px 0 12px">📋 My Trade History</div>
+        <div style="font-size:16px;font-weight:700;margin:20px 0 12px">My Trade History</div>
         <div class="table-wrap">
           <table>
             <thead><tr>
@@ -649,7 +706,7 @@ tr:hover td{background:#fafafa}
         <div id="sdPaneAssignments" style="display:none">
         <!-- My assignments -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <div style="font-size:16px;font-weight:700">📝 My Assignments</div>
+          <div style="font-size:16px;font-weight:700">My Assignments</div>
           <div style="font-size:13px;color:var(--muted)" id="sdAssignmentsScore"></div>
         </div>
         <div id="sdAssignmentsWrap" style="margin-bottom:20px">
@@ -660,7 +717,7 @@ tr:hover td{background:#fafafa}
 
         <div id="sdPaneMaterials" style="display:none">
         <!-- Lecture materials -->
-        <div style="font-size:16px;font-weight:700;margin-bottom:12px">📎 Class Materials</div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:12px">Class Materials</div>
         <div id="sdMaterialsList" style="margin-bottom:20px"></div>
 
         </div>
@@ -668,7 +725,7 @@ tr:hover td{background:#fafafa}
         <div id="sdPaneFantasy" style="display:none">
         <!-- Fantasy draft -->
         <div id="sdFantasyWrap" style="display:none;margin-bottom:20px">
-          <div style="font-size:16px;font-weight:700;margin-bottom:12px">🏈 Fantasy Draft</div>
+          <div style="font-size:16px;font-weight:700;margin-bottom:12px">Fantasy Draft</div>
           <div id="sdFantasyCard"></div>
         </div>
 
@@ -741,11 +798,11 @@ function setSiMode(mode){
   document.getElementById('siForgotRow').style.display = mode==='up' ? 'none' : 'block';
   const inTab = document.getElementById('siTabIn'), upTab = document.getElementById('siTabUp');
   if(mode==='up'){
-    inTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer';
-    upTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer';
+    inTab.style.cssText = 'flex:1;padding:9px;border-radius:4px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer';
+    upTab.style.cssText = 'flex:1;padding:9px;border-radius:4px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer';
   } else {
-    inTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer';
-    upTab.style.cssText = 'flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer';
+    inTab.style.cssText = 'flex:1;padding:9px;border-radius:4px;border:1.5px solid var(--green);background:rgba(0,230,118,0.1);color:var(--green);font-weight:600;font-size:13px;cursor:pointer';
+    upTab.style.cssText = 'flex:1;padding:9px;border-radius:4px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-weight:600;font-size:13px;cursor:pointer';
   }
 }
 function doSiSubmit(){ return siMode === 'up' ? doSignup() : doSignin(); }
@@ -970,7 +1027,7 @@ async function loadMyClasses(){
   el.innerHTML = classes.map(c=>`
     <div class="class-card" onclick="openDashboard('${c.id}')">
       <div class="class-card-left">
-        <h3>${c.name}${c.instructor_id!==uid ? ' <span style="font-size:11px;font-weight:600;background:#eff6ff;color:#2563eb;padding:1px 8px;border-radius:10px;vertical-align:middle">🤝 Co-teaching</span>' : ''}</h3>
+        <h3>${c.name}${c.instructor_id!==uid ? ' <span style="font-size:11px;font-weight:600;background:#eff6ff;color:#2563eb;padding:1px 8px;border-radius:4px;vertical-align:middle">🤝 Co-teaching</span>' : ''}</h3>
         <p>${c.course_code||'No course code'} ${c.freeze_date ? '· Freezes '+c.freeze_date : ''}</p>
       </div>
       <div style="display:flex;align-items:center;gap:14px">
@@ -1497,7 +1554,7 @@ async function loadStudentMaterials(classId){
     }
     wrap.innerHTML = materials.map(m => {
       const icon = m.file_type === 'pdf' ? '📄' : '📊';
-      return `<a href="${materialFileUrl(m.file_path)}" target="_blank" style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px;text-decoration:none;color:inherit">
+      return `<a href="${materialFileUrl(m.file_path)}" target="_blank" style="display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:8px;text-decoration:none;color:inherit">
         <span style="font-size:20px">${icon}</span>
         <div style="flex:1">
           <div style="font-weight:600;font-size:14px">${escapeHtmlLocal(m.title)}</div>
@@ -1547,7 +1604,7 @@ async function loadStudentFantasy(classId){
     const league = leagues[0];
     const uid = getUid();
     const rosters = await sbGet('class_fantasy_rosters', 'league_id=eq.'+league.id+'&user_id=eq.'+uid);
-    const cardStyle = 'border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center';
+    const cardStyle = 'border:1px solid var(--border);border-radius:6px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center';
 
     if(rosters.length && rosters[0].submitted){
       const picks = [...(rosters[0].starters||[]), ...(rosters[0].bench||[])];
@@ -1661,7 +1718,7 @@ async function loadStudentAssignments(classId, uid){
       actionHtml = '<a href="'+link.url+'" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">'+link.label+' →</a>';
     }
 
-    return '<div style="border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:8px">'
+    return '<div style="border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:8px">'
       + '<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">'
       + '<div>'
       +   '<div style="font-weight:600;font-size:14px">'+a.title+'</div>'
@@ -1687,8 +1744,8 @@ function toggleWrittenSubmit(assignmentId){
   const graded = c && c.graded_at;
   el.style.display = 'block';
   el.innerHTML = (prompt ? '<div style="font-size:13px;color:var(--muted);margin-bottom:8px;font-style:italic">'+escapeHtmlLocal(prompt)+'</div>' : '')
-    + (graded ? '<div class="grade-badge" style="display:inline-block;margin-bottom:8px;background:var(--green-l,#f0fdf4);border:1px solid var(--green-b,#bbf7d0);color:var(--green,#16a34a);font-size:12px;font-weight:600;padding:4px 10px;border-radius:8px">Grade: '+c.points_awarded+'/'+a.points+(c.feedback?' — '+escapeHtmlLocal(c.feedback):'')+'</div>' : '')
-    + '<textarea id="writtenText_'+assignmentId+'" '+(graded?'readonly':'')+' placeholder="Write your response here..." style="width:100%;min-height:120px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:\'DM Sans\',sans-serif;resize:vertical">'+escapeHtmlLocal((c && c.submission_text) || '')+'</textarea>'
+    + (graded ? '<div class="grade-badge" style="display:inline-block;margin-bottom:8px;background:var(--green-l,#f0fdf4);border:1px solid var(--green-b,#bbf7d0);color:var(--green,#16a34a);font-size:12px;font-weight:600;padding:4px 10px;border-radius:4px">Grade: '+c.points_awarded+'/'+a.points+(c.feedback?' — '+escapeHtmlLocal(c.feedback):'')+'</div>' : '')
+    + '<textarea id="writtenText_'+assignmentId+'" '+(graded?'readonly':'')+' placeholder="Write your response here..." style="width:100%;min-height:120px;padding:10px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans);resize:vertical">'+escapeHtmlLocal((c && c.submission_text) || '')+'</textarea>'
     + (graded ? '' : '<div style="text-align:right;margin-top:6px"><button class="btn btn-primary btn-sm" onclick="submitWrittenResponse(\''+assignmentId+'\')">Submit</button></div>');
 }
 async function toggleWrittenGrade(assignmentId, studentUserId){
@@ -1703,10 +1760,10 @@ async function toggleWrittenGrade(assignmentId, studentUserId){
     el.innerHTML = '<p style="font-size:12px;color:var(--muted)">No submission yet.</p>';
     return;
   }
-  el.innerHTML = '<div style="font-size:13px;white-space:pre-wrap;margin-bottom:10px;padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:6px">'+escapeHtmlLocal(c.submission_text)+'</div>'
+  el.innerHTML = '<div style="font-size:13px;white-space:pre-wrap;margin-bottom:10px;padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:4px">'+escapeHtmlLocal(c.submission_text)+'</div>'
     + '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">'
-    + '<input type="number" id="writtenScore_'+assignmentId+'_'+studentUserId+'" min="0" max="'+a.points+'" placeholder="0-'+a.points+'" value="'+(c.graded_at?c.points_awarded:'')+'" style="width:70px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px">'
-    + '<input type="text" id="writtenFeedback_'+assignmentId+'_'+studentUserId+'" placeholder="Feedback (optional)" value="'+escapeHtmlLocal(c.feedback||'')+'" style="flex:1;min-width:140px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px">'
+    + '<input type="number" id="writtenScore_'+assignmentId+'_'+studentUserId+'" min="0" max="'+a.points+'" placeholder="0-'+a.points+'" value="'+(c.graded_at?c.points_awarded:'')+'" style="width:70px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px">'
+    + '<input type="text" id="writtenFeedback_'+assignmentId+'_'+studentUserId+'" placeholder="Feedback (optional)" value="'+escapeHtmlLocal(c.feedback||'')+'" style="flex:1;min-width:140px;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-size:13px">'
     + '<button class="btn btn-primary btn-sm" onclick="saveWrittenGrade(\''+assignmentId+'\',\''+studentUserId+'\')">'+(c.graded_at?'Update Grade':'Save Grade')+'</button>'
     + '</div>';
 }
@@ -1755,10 +1812,10 @@ async function toggleAsgComments(assignmentId){
 function renderAsgComments(assignmentId, comments, isStudent){
   const el = document.getElementById('asgComments_'+assignmentId);
   if(!el) return;
-  const thread = comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:8px">TEACHER</span>':''} <span style="color:var(--muted)">${new Date(c.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('');
+  const thread = comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:4px">TEACHER</span>':''} <span style="color:var(--muted)">${new Date(c.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('');
   el.innerHTML = (thread || '<p style="font-size:12px;color:var(--muted)">No messages yet - only you and your teacher can see this.</p>')
     + '<div style="display:flex;gap:6px;margin-top:8px">'
-    + '<input type="text" id="asgCommentInput_'+assignmentId+'" placeholder="Ask a question about this..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:\'DM Sans\',sans-serif">'
+    + '<input type="text" id="asgCommentInput_'+assignmentId+'" placeholder="Ask a question about this..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;font-family:var(--sp-font-sans)">'
     + '<button class="btn btn-ghost btn-sm" onclick="postAsgComment(\''+assignmentId+'\','+isStudent+')">Send</button>'
     + '</div>';
 }
@@ -1795,10 +1852,10 @@ async function loadTeacherAsgThread(assignmentId, studentUserId){
   if(!el) return;
   el.innerHTML = '<p style="font-size:12px;color:var(--muted)">Loading...</p>';
   const comments = await sbGet('assignment_comments', 'assignment_id=eq.'+assignmentId+'&student_user_id=eq.'+studentUserId+'&order=created_at.asc');
-  const thread = comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:8px">TEACHER</span>':''}<div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('');
+  const thread = comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:4px">TEACHER</span>':''}<div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('');
   el.innerHTML = (thread || '<p style="font-size:12px;color:var(--muted)">No messages yet.</p>')
     + '<div style="display:flex;gap:6px;margin-top:8px">'
-    + '<input type="text" id="asgCommentInput_'+assignmentId+'" placeholder="Reply to this student..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:\'DM Sans\',sans-serif">'
+    + '<input type="text" id="asgCommentInput_'+assignmentId+'" placeholder="Reply to this student..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;font-family:var(--sp-font-sans)">'
     + '<button class="btn btn-ghost btn-sm" onclick="postAsgComment(\''+assignmentId+'\',false)">Send</button>'
     + '</div>';
 }
@@ -1837,7 +1894,7 @@ function openQuiz(assignmentId){
     } else {
       return `<div>
         <div style="font-weight:600;font-size:14px;margin-bottom:8px">${i+1}. ${escapeHtmlLocal(q.question)}</div>
-        <input type="text" id="quizAns${i}" placeholder="Your answer" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+        <input type="text" id="quizAns${i}" placeholder="Your answer" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)">
       </div>`;
     }
   }).join('');
@@ -1914,7 +1971,7 @@ function renderBadgeRow(){
   if(!myEarnedBadges.size){ wrap.innerHTML = ''; return; }
   wrap.innerHTML = [...myEarnedBadges].map(k => {
     const b = BADGE_DEFS[k]; if(!b) return '';
-    return '<span title="'+escapeHtmlLocal(b.desc)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:4px 10px;border-radius:20px;margin:0 6px 6px 0">'+b.emoji+' '+b.label+'</span>';
+    return '<span title="'+escapeHtmlLocal(b.desc)+'" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:4px 10px;border-radius:4px;margin:0 6px 6px 0">'+b.emoji+' '+b.label+'</span>';
   }).join('');
 }
 async function awardBadgeIfNew(classId, uid, nickname, key){
@@ -1995,7 +2052,7 @@ async function loadWhatsDue(classId, uid){
       const due = new Date(a.due_date+'T00:00:00');
       const overdue = due < today;
       const dueText = due.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid ${overdue?'#fecaca':'var(--border)'};background:${overdue?'#fef2f2':'#fff'};border-radius:8px;margin-bottom:6px">
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border:1px solid ${overdue?'#fecaca':'var(--border)'};background:${overdue?'#fef2f2':'#fff'};border-radius:4px;margin-bottom:6px">
         <span style="font-size:13px">${escapeHtmlLocal(a.title)}</span>
         <span style="font-size:12px;font-weight:600;color:${overdue?'#dc2626':'var(--muted)'}">${overdue?'Overdue · ':'Due '}${dueText}</span>
       </div>`;
@@ -2026,12 +2083,12 @@ async function renderRosterPanel(){
   if(expected.length){
     html += '<div style="font-size:13px;color:var(--muted);margin-bottom:10px">'+matched.length+' of '+expected.length+' expected students have joined'+(missing.length?', using a nickname that matches exactly what you pasted':'')+'.</div>';
     if(missing.length){
-      html += '<div style="margin-bottom:12px">' + missing.map(m => '<span style="display:inline-block;margin:2px 6px 2px 0;font-size:12px;padding:2px 9px;border-radius:10px;background:#fef2f2;color:#b91c1c">⏳ '+escapeHtmlLocal(m.name)+'</span>').join('') + '</div>';
+      html += '<div style="margin-bottom:12px">' + missing.map(m => '<span style="display:inline-block;margin:2px 6px 2px 0;font-size:12px;padding:2px 9px;border-radius:4px;background:#fef2f2;color:#b91c1c">⏳ '+escapeHtmlLocal(m.name)+'</span>').join('') + '</div>';
     }
     html += '<button class="btn btn-ghost btn-sm" onclick="clearExpectedRoster()">Clear Roster List</button>';
   } else {
     html += '<p style="font-size:13px;color:var(--muted);margin-bottom:10px">Paste your class roster, one name per line, and I\'ll track who\'s joined using the share code against who hasn\'t yet.</p>'
-      + '<textarea id="rosterPasteBox" placeholder="Alex Johnson\nJordan Lee\nCasey Smith..." style="width:100%;min-height:100px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:\'DM Sans\',sans-serif;resize:vertical;margin-bottom:8px"></textarea>'
+      + '<textarea id="rosterPasteBox" placeholder="Alex Johnson\nJordan Lee\nCasey Smith..." style="width:100%;min-height:100px;padding:10px 12px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans);resize:vertical;margin-bottom:8px"></textarea>'
       + '<button class="btn btn-primary btn-sm" onclick="saveExpectedRoster()">Save Roster</button>';
   }
   html += '</div>';
@@ -2147,7 +2204,7 @@ function renderStream(isStudent){
     return `
       <div class="card" style="margin-bottom:12px;${p.pinned ? 'border-color:#fbbf24;background:#fffbeb' : ''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
-          <div style="font-size:13px"><strong>${escapeHtmlLocal(p.nickname||'Teacher')}</strong>${p.is_teacher ? ' <span style="font-size:10px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 7px;border-radius:10px">TEACHER</span>' : ''}${p.pinned ? ' 📌' : ''}<div style="color:var(--muted);font-size:11px;margin-top:1px">${new Date(p.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</div></div>
+          <div style="font-size:13px"><strong>${escapeHtmlLocal(p.nickname||'Teacher')}</strong>${p.is_teacher ? ' <span style="font-size:10px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 7px;border-radius:4px">TEACHER</span>' : ''}${p.pinned ? ' 📌' : ''}<div style="color:var(--muted);font-size:11px;margin-top:1px">${new Date(p.created_at).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</div></div>
           ${canManage ? `<div style="display:flex;gap:10px;font-size:12px">
             <a href="#" onclick="event.preventDefault();toggleStreamPin('${p.id}',${!p.pinned})" style="color:var(--muted);text-decoration:none">${p.pinned?'Unpin':'Pin'}</a>
             <a href="#" onclick="event.preventDefault();deleteStreamPost('${p.id}')" style="color:#dc2626;text-decoration:none">Delete</a>
@@ -2157,9 +2214,9 @@ function renderStream(isStudent){
         <div style="margin-top:10px">
           <a href="#" onclick="event.preventDefault();toggleStreamThread('${p.id}',${isStudent})" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">${comments.length ? comments.length+' comment'+(comments.length===1?'':'s') : 'Add class comment'}</a>
           <div id="streamThread_${p.id}" style="display:${expanded?'block':'none'};margin-top:8px">
-            ${comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:8px">TEACHER</span>':''} <span style="color:var(--muted)">${new Date(c.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('')}
+            ${comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:4px">TEACHER</span>':''} <span style="color:var(--muted)">${new Date(c.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('')}
             <div style="display:flex;gap:6px;margin-top:8px">
-              <input type="text" id="streamCommentInput_${p.id}" placeholder="Add a class comment..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-size:12.5px;font-family:'DM Sans',sans-serif">
+              <input type="text" id="streamCommentInput_${p.id}" placeholder="Add a class comment..." style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12.5px;font-family:var(--sp-font-sans)">
               <button class="btn btn-ghost btn-sm" onclick="postStreamComment('${p.id}',${isStudent})">Send</button>
             </div>
           </div>
@@ -2316,7 +2373,7 @@ async function generateWeeklyDigest(){
           <div style="font-weight:600">\ud83d\udce8 This Week's Digest</div>
           <button class="btn btn-ghost btn-sm" onclick="copyDigestText()">Copy Text</button>
         </div>
-        <pre id="digestTextContent" style="white-space:pre-wrap;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);line-height:1.7;margin:0">${escapeHtmlLocal(digestText)}</pre>
+        <pre id="digestTextContent" style="white-space:pre-wrap;font-family:var(--sp-font-sans);font-size:13px;color:var(--text);line-height:1.7;margin:0">${escapeHtmlLocal(digestText)}</pre>
       </div>
     `;
     window._digestText = digestText;
@@ -2502,7 +2559,7 @@ function renderQuizAnswerInputs(){
         ${[0,1,2,3].map(i => `
           <div style="display:flex;align-items:center;gap:8px">
             <input type="radio" name="quizCorrectOpt" value="${i}" ${i===0?'checked':''}>
-            <input type="text" id="quizOpt${i}" placeholder="Option ${i+1}" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif">
+            <input type="text" id="quizOpt${i}" placeholder="Option ${i+1}" style="flex:1;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans)">
           </div>
         `).join('')}
       </div>
@@ -2510,7 +2567,7 @@ function renderQuizAnswerInputs(){
     `;
   } else {
     wrap.innerHTML = `
-      <input type="text" id="quizFillAnswer" placeholder="Correct answer (student's answer is matched case-insensitively)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:'DM Sans',sans-serif;margin-bottom:8px">
+      <input type="text" id="quizFillAnswer" placeholder="Correct answer (student's answer is matched case-insensitively)" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:4px;font-size:13px;font-family:var(--sp-font-sans);margin-bottom:8px">
     `;
   }
 }
@@ -2543,7 +2600,7 @@ function removeQuizQuestion(idx){
 function renderQuizQuestionList(){
   document.getElementById('quizQCount').textContent = quizQuestions.length;
   document.getElementById('quizQuestionList').innerHTML = quizQuestions.map((q, i) => `
-    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px 12px">
+    <div style="display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--border);border-radius:4px;padding:8px 12px">
       <span style="font-size:13px">${i+1}. ${escapeHtmlLocal(q.question)} <span style="color:var(--muted);font-size:11px">(${q.type === 'mc' ? 'multiple choice' : 'fill in the blank'})</span></span>
       <button type="button" onclick="removeQuizQuestion(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1">×</button>
     </div>
@@ -2665,9 +2722,9 @@ function renderAssignments(completions){
         const c = currentAsgCompletions.find(x=>x.assignment_id===a.id && x.user_id===m.user_id);
         const done = a.type==='written' ? (c && !!c.graded_at) : (c && c.passed);
         const gradeLink = a.type==='written' ? ' <a href="#" onclick="event.preventDefault();toggleWrittenGrade(\''+a.id+'\',\''+m.user_id+'\')" style="color:inherit;text-decoration:underline;font-size:11px">'+(c&&c.submission_text?'📄 grade':'none yet')+'</a>' : '';
-        return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;font-size:12px;padding:2px 9px;border-radius:10px;background:'+(done?'#dcfce7':'#f3f4f6')+';color:'+(done?'#166534':'#6b7280')+'">'+(done?'✅ ':'⏳ ')+escapeHtmlLocal(m.nickname||'Student')+gradeLink+' <a href="#" onclick="event.preventDefault();toggleTeacherAsgThread(\''+a.id+'\',\''+m.user_id+'\')" style="color:inherit;text-decoration:underline;font-size:11px">💬</a></span>';
+        return '<span style="display:inline-flex;align-items:center;gap:4px;margin:2px 8px 2px 0;font-size:12px;padding:2px 9px;border-radius:4px;background:'+(done?'#dcfce7':'#f3f4f6')+';color:'+(done?'#166534':'#6b7280')+'">'+(done?'✅ ':'⏳ ')+escapeHtmlLocal(m.nickname||'Student')+gradeLink+' <a href="#" onclick="event.preventDefault();toggleTeacherAsgThread(\''+a.id+'\',\''+m.user_id+'\')" style="color:inherit;text-decoration:underline;font-size:11px">💬</a></span>';
       }).join('');
-      const threadHolders = currentClassMembers.map(m => '<div id="teacherAsgThread_'+a.id+'_'+m.user_id+'" style="display:none;margin:6px 0 0 8px;padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:8px"></div><div id="writtenGrade_'+a.id+'_'+m.user_id+'" style="display:none;margin:6px 0 0 8px;padding:8px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px"></div>').join('');
+      const threadHolders = currentClassMembers.map(m => '<div id="teacherAsgThread_'+a.id+'_'+m.user_id+'" style="display:none;margin:6px 0 0 8px;padding:8px 10px;background:#fff;border:1px solid var(--border);border-radius:4px"></div><div id="writtenGrade_'+a.id+'_'+m.user_id+'" style="display:none;margin:6px 0 0 8px;padding:8px 10px;background:#fffbeb;border:1px solid #fde68a;border-radius:4px"></div>').join('');
       rows += '<tr><td colspan="6" style="background:var(--bg,#f9fafb);padding:12px 14px">'+(statusList||'<span style="color:var(--muted);font-size:12px">No students yet.</span>')+threadHolders+'</td></tr>';
     }
     return rows;
@@ -2748,7 +2805,7 @@ async function loadMaterials(){
       const sizeKb = m.file_size ? Math.round(m.file_size/1024) : 0;
       const sizeText = sizeKb > 1024 ? (sizeKb/1024).toFixed(1)+' MB' : sizeKb+' KB';
       const icon = m.file_type === 'pdf' ? '📄' : '📊';
-      return `<div style="display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:10px;padding:12px 16px;margin-bottom:8px">
+      return `<div style="display:flex;align-items:center;justify-content:space-between;border:1px solid var(--border);border-radius:6px;padding:12px 16px;margin-bottom:8px">
         <div style="display:flex;align-items:center;gap:10px">
           <span style="font-size:20px">${icon}</span>
           <div>
@@ -3018,7 +3075,7 @@ async function openCopyPicker(type, itemId){
   } else {
     document.getElementById('copyConfirmBtn').style.display = 'block';
     list.innerHTML = others.map(c => `
-      <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:14px">
+      <label style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:14px">
         <input type="checkbox" value="${c.id}" class="copyClassCheckbox">
         ${escapeHtmlLocal(c.name)}
       </label>
@@ -3195,5 +3252,6 @@ const _origDoSignin = doSignin;
 updateNavAuth();
 if(getToken()) showView('landingView');
 </script>
+<p class="sp-credit-line"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html>

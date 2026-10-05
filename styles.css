@@ -170,7 +170,7 @@ button {
 .primary-button {
   min-height: 2.55rem;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 4px;
   background: white;
   color: var(--ink);
   font-weight: 850;
@@ -183,7 +183,7 @@ button {
 
 .ghost-button:hover,
 .primary-button:hover {
-  transform: translateY(-1px);
+  
   box-shadow: var(--subtle-shadow);
 }
 
@@ -359,7 +359,7 @@ textarea {
 
 .investing-tab.active {
   background: var(--accent);
-  box-shadow: 0 8px 18px rgba(15, 127, 135, 0.18);
+  box-shadow: none;
   color: #ffffff;
 }
 
@@ -431,7 +431,7 @@ body.education-mode .mode-switcher {
 .mode-button.command-mode-button.active {
   border-color: #2f4858;
   background: rgba(47, 72, 88, 0.09);
-  box-shadow: inset 0 0 0 1px #2f4858, 0 10px 22px rgba(47, 72, 88, 0.12);
+  box-shadow: inset 0 0 0 1px #2f4858;
 }
 
 .mode-button.plan-mode-button span {
@@ -441,7 +441,7 @@ body.education-mode .mode-switcher {
 .mode-button.plan-mode-button.active {
   border-color: #a66a12;
   background: rgba(166, 106, 18, 0.1);
-  box-shadow: inset 0 0 0 1px #a66a12, 0 10px 22px rgba(166, 106, 18, 0.12);
+  box-shadow: inset 0 0 0 1px #a66a12;
 }
 
 .mode-button.savings-mode-button span {
@@ -451,7 +451,7 @@ body.education-mode .mode-switcher {
 .mode-button.savings-mode-button.active {
   border-color: #2374c6;
   background: rgba(35, 116, 198, 0.1);
-  box-shadow: inset 0 0 0 1px #2374c6, 0 10px 22px rgba(35, 116, 198, 0.12);
+  box-shadow: inset 0 0 0 1px #2374c6;
 }
 
 .mode-button.education-mode-button span {
@@ -461,7 +461,7 @@ body.education-mode .mode-switcher {
 .mode-button.education-mode-button.active {
   border-color: #6b4fc8;
   background: rgba(107, 79, 200, 0.1);
-  box-shadow: inset 0 0 0 1px #6b4fc8, 0 10px 22px rgba(107, 79, 200, 0.12);
+  box-shadow: inset 0 0 0 1px #6b4fc8;
 }
 
 .mode-button:focus-visible,
@@ -586,7 +586,7 @@ body.goals-mode .brand-mark {
 .mode-button.goals-mode-button.active {
   border-color: #0f766e;
   background: rgba(15, 118, 110, 0.1);
-  box-shadow: inset 0 0 0 1px #0f766e, 0 10px 22px rgba(15, 118, 110, 0.12);
+  box-shadow: inset 0 0 0 1px #0f766e;
 }
 
 body.savings-mode .brand-mark {
@@ -802,7 +802,7 @@ body.goals-mode .goals-hub {
   align-items: center;
   margin-top: 0.75rem;
   border: 1px solid rgba(25, 135, 84, 0.18);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(25, 135, 84, 0.1);
   color: var(--good);
   padding: 0 0.65rem;
@@ -891,7 +891,7 @@ body.pro-mode .beginner-copy {
 
 .ask-pilot-quick button {
   border: 1px solid rgba(15, 127, 135, 0.18);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(15, 127, 135, 0.07);
   color: var(--accent-dark);
   cursor: pointer;
@@ -971,7 +971,7 @@ body.pro-mode .beginner-copy {
 }
 
 .demo-run-button {
-  box-shadow: 0 10px 24px rgba(15, 127, 135, 0.2);
+  box-shadow: none;
 }
 
 .professor-demo-grid,
@@ -1281,7 +1281,7 @@ body.pro-mode .beginner-copy {
 
 .weekly-action-strip span {
   border: 1px solid rgba(15, 127, 135, 0.14);
-  border-radius: 999px;
+  border-radius: 4px;
   background: #ffffff;
   color: var(--ink);
   font-size: 0.8rem;
@@ -1299,7 +1299,7 @@ body.pro-mode .beginner-copy {
 
 .pricing-badge {
   border: 1px solid rgba(166, 106, 18, 0.18);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(166, 106, 18, 0.08);
   color: #7a4c0a;
   font-size: 0.75rem;
@@ -1343,7 +1343,7 @@ body.pro-mode .beginner-copy {
   background:
     linear-gradient(180deg, rgba(15, 127, 135, 0.08), rgba(255, 255, 255, 0.98)),
     #ffffff;
-  box-shadow: 0 14px 32px rgba(15, 127, 135, 0.1);
+  box-shadow: none;
 }
 
 .pricing-card > span,
@@ -1424,7 +1424,7 @@ body.pro-mode .beginner-copy {
   gap: 0.65rem;
   align-items: center;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 6px;
   background: #fbfcfd;
   padding: 0.65rem;
 }
@@ -1531,7 +1531,7 @@ body.pro-mode .beginner-copy {
 .goal-list-panel,
 .goal-card {
   border: 1px solid rgba(15, 118, 110, 0.14);
-  border-radius: 14px;
+  border-radius: 6px;
   background: #ffffff;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
   padding: 0.9rem;
@@ -1591,7 +1591,7 @@ body.pro-mode .beginner-copy {
 .goal-progress-track {
   overflow: hidden;
   height: 0.55rem;
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(15, 118, 110, 0.12);
   margin: 0.75rem 0 0.6rem;
 }
@@ -1610,7 +1610,7 @@ body.pro-mode .beginner-copy {
 
 .goal-facts span {
   border: 1px solid rgba(15, 118, 110, 0.12);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(236, 253, 245, 0.78);
   padding: 0.32rem 0.55rem;
 }
@@ -1907,7 +1907,7 @@ body.pro-mode .beginner-copy {
 .persona-track {
   height: 0.8rem;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #e7eef2;
 }
 
@@ -1944,7 +1944,7 @@ body.pro-mode .beginner-copy {
 .map-track {
   height: 0.8rem;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #e7eef2;
 }
 
@@ -2182,7 +2182,7 @@ body.pro-mode .beginner-copy {
   width: 1.7rem;
   height: 1.7rem;
   place-items: center;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--accent);
   color: #ffffff;
   font-size: 0.82rem;
@@ -2209,7 +2209,7 @@ body.pro-mode .beginner-copy {
 
 .onboarding-route-grid button {
   border: 1px solid rgba(15, 127, 135, 0.16);
-  border-radius: 14px;
+  border-radius: 6px;
   background: linear-gradient(180deg, #ffffff, rgba(15, 127, 135, 0.05));
   cursor: pointer;
   padding: 0.85rem;
@@ -2223,7 +2223,7 @@ body.pro-mode .beginner-copy {
 .onboarding-route-grid button:hover,
 .onboarding-route-grid button:focus-visible {
   outline: none;
-  transform: translateY(-1px);
+  
   border-color: rgba(15, 127, 135, 0.34);
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
 }
@@ -2271,7 +2271,7 @@ body.pro-mode .beginner-copy {
   min-height: 2rem;
   align-items: center;
   border: 1px solid rgba(15, 127, 135, 0.22);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(15, 127, 135, 0.08);
   color: var(--accent-dark);
   padding: 0 0.75rem;
@@ -2371,7 +2371,7 @@ body.pro-mode .beginner-copy {
 .account-tab {
   flex: 1;
   padding: 0.55rem;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1.5px solid rgba(47, 72, 88, 0.18);
   background: transparent;
   color: #6b7a9a;
@@ -2419,7 +2419,7 @@ body.pro-mode .beginner-copy {
 
 .educational-notice-grid article {
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.78);
   padding: 0.85rem;
 }
@@ -2541,7 +2541,7 @@ body.pro-mode .beginner-copy {
 .settings-status-grid article,
 .settings-readiness-grid article {
   border: 1px solid rgba(47, 72, 88, 0.1);
-  border-radius: 12px;
+  border-radius: 6px;
   background: #ffffff;
   padding: 0.7rem;
 }
@@ -2582,7 +2582,7 @@ body.pro-mode .beginner-copy {
   z-index: 18;
   min-height: 2.35rem;
   border: 1px solid rgba(47, 72, 88, 0.16);
-  border-radius: 999px;
+  border-radius: 4px;
   background: #ffffff;
   color: var(--accent-dark);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
@@ -2597,7 +2597,7 @@ body.pro-mode .beginner-copy {
   outline: none;
   border-color: rgba(15, 127, 135, 0.34);
   color: var(--accent-dark);
-  transform: translateY(-1px);
+  
 }
 
 .account-backup-card {
@@ -2620,7 +2620,7 @@ body.pro-mode .beginner-copy {
 .cloud-readiness-grid article {
   border: 1px solid rgba(47, 72, 88, 0.12);
   border-left: 4px solid var(--warn);
-  border-radius: 12px;
+  border-radius: 6px;
   background: #ffffff;
   padding: 0.7rem;
 }
@@ -2679,7 +2679,7 @@ body.pro-mode .beginner-copy {
   width: 1.2rem;
   height: 1.2rem;
   place-items: center;
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(8, 126, 139, 0.12);
   color: var(--accent-dark);
   font-size: 0.75rem;
@@ -2746,7 +2746,7 @@ body.pro-mode .beginner-copy {
   height: 1.35rem;
   place-items: center;
   border: 1px solid rgba(8, 126, 139, 0.35);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(8, 126, 139, 0.08);
   color: var(--accent-dark);
   font-size: 0.78rem;
@@ -2832,7 +2832,7 @@ body.savings-mode .portfolio-section.app-view.active {
 .verdict-badge {
   display: none;
   min-width: 9.5rem;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--soft);
   color: var(--accent-dark);
   padding: 0.75rem 1rem;
@@ -2967,7 +2967,7 @@ body.savings-mode .portfolio-section.app-view.active {
   gap: 0.65rem;
   min-height: 2.8rem;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 6px;
   background: #fbfcfd;
   padding: 0.65rem;
 }
@@ -2977,7 +2977,7 @@ body.savings-mode .portfolio-section.app-view.active {
   width: 1.8rem;
   height: 1.8rem;
   place-items: center;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--accent);
   color: white;
   font-size: 0.9rem;
@@ -3016,7 +3016,7 @@ body.savings-mode .portfolio-section.app-view.active {
   align-items: center;
   min-height: 2rem;
   margin-top: 0.8rem;
-  border-radius: 999px;
+  border-radius: 4px;
   padding: 0 0.75rem;
   font-size: 0.8rem;
   font-weight: 900;
@@ -3203,7 +3203,7 @@ body.savings-mode .portfolio-section.app-view.active {
   content: "Open";
   align-self: center;
   border: 1px solid rgba(15, 118, 110, 0.2);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(236, 253, 245, 0.78);
   color: var(--accent-dark);
   padding: 0.4rem 0.8rem;
@@ -3258,7 +3258,7 @@ body.savings-mode .portfolio-section.app-view.active {
 
 .factor-empty {
   border: 1px dashed var(--line);
-  border-radius: 8px;
+  border-radius: 4px;
   background: #fbfdfd;
   padding: 0.85rem;
 }
@@ -3296,7 +3296,7 @@ body.savings-mode .portfolio-section.app-view.active {
   grid-column: 1 / -1;
   height: 0.5rem;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #e7edf0;
 }
 
@@ -3318,7 +3318,7 @@ body.savings-mode .portfolio-section.app-view.active {
 .recommendation-panel li {
   border-left: 4px solid var(--accent);
   background: #f7faf9;
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 0.75rem;
   line-height: 1.45;
 }
@@ -3663,7 +3663,7 @@ body.savings-mode .portfolio-section.app-view.active {
 
 .watchlist-metrics span {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 4px;
   background: white;
   color: var(--muted);
   font-size: 0.78rem;
@@ -3726,7 +3726,7 @@ body.savings-mode .portfolio-section.app-view.active {
 
 .news-match-row span {
   border: 1px solid rgba(8, 126, 139, 0.2);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(8, 126, 139, 0.08);
   color: var(--accent-dark);
   font-size: 0.72rem;
@@ -4059,7 +4059,7 @@ body.savings-mode .portfolio-section.app-view.active {
 .professional-report-card {
   border: 1px solid rgba(47, 72, 88, 0.11);
   border-left: 5px solid var(--accent);
-  border-radius: 14px;
+  border-radius: 6px;
   background: #ffffff;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
   padding: 0.85rem;
@@ -4272,7 +4272,7 @@ body.savings-mode .portfolio-section.app-view.active {
   gap: 0.45rem;
   min-height: 2rem;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 4px;
   background: #f7faf9;
   color: var(--ink);
   padding: 0 0.7rem;
@@ -4295,7 +4295,7 @@ body.savings-mode .portfolio-section.app-view.active {
 
 .check-panel li {
   border-left: 4px solid var(--violet);
-  border-radius: 6px;
+  border-radius: 4px;
   background: #f8f7fb;
   color: var(--muted);
   line-height: 1.45;
@@ -4458,7 +4458,7 @@ body.education-mode .education-hub {
 
 .savings-tab.active {
   background: #2374c6;
-  box-shadow: 0 8px 18px rgba(35, 116, 198, 0.18);
+  box-shadow: none;
   color: #ffffff;
 }
 
@@ -4531,7 +4531,7 @@ body.education-mode .education-hub {
   min-height: 2rem;
   align-items: center;
   border: 1px solid rgba(35, 116, 198, 0.16);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(35, 116, 198, 0.07);
   color: #145ea8;
   padding: 0 0.7rem;
@@ -4882,7 +4882,7 @@ body.education-mode .education-hub {
 .learning-area-tab.active {
   border-color: rgba(107, 79, 200, 0.32);
   background: #6b4fc8;
-  box-shadow: 0 8px 18px rgba(107, 79, 200, 0.18);
+  box-shadow: none;
   color: #ffffff;
 }
 
@@ -4921,7 +4921,7 @@ body.education-mode .education-hub {
 .pathway-progress-track {
   height: 0.7rem;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(107, 79, 200, 0.12);
   margin: 0.95rem 0;
 }
@@ -5040,7 +5040,7 @@ body.education-mode .education-hub {
 }
 
 .path-unit-header span {
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(107, 79, 200, 0.1);
   color: #4d38a1;
   padding: 0.3rem 0.55rem;
@@ -5135,7 +5135,7 @@ body.education-mode .education-hub {
 .comprehension-check {
   border: 1px solid rgba(107, 79, 200, 0.1);
   border-left-width: 3px;
-  border-radius: 10px;
+  border-radius: 6px;
   background: #ffffff;
   padding: 0.6rem;
 }
@@ -5305,7 +5305,7 @@ body.education-mode .education-hub {
 
 .path-lesson-node.current {
   border-color: rgba(107, 79, 200, 0.45);
-  box-shadow: 0 10px 24px rgba(107, 79, 200, 0.14);
+  box-shadow: none;
 }
 
 .path-lesson-node.current .lesson-node-marker {
@@ -5361,7 +5361,7 @@ body.education-mode .education-hub {
 
 .education-tab.active {
   background: #6b4fc8;
-  box-shadow: 0 8px 18px rgba(107, 79, 200, 0.18);
+  box-shadow: none;
   color: #ffffff;
 }
 
@@ -5408,7 +5408,7 @@ body.education-mode .education-hub {
 
 .learning-category span {
   border: 1px solid rgba(107, 79, 200, 0.18);
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(107, 79, 200, 0.08);
   color: #4d38a1;
   padding: 0.35rem 0.65rem;
@@ -5526,7 +5526,7 @@ td strong {
   min-width: 2rem;
   min-height: 2rem;
   border: 1px solid var(--line);
-  border-radius: 9px;
+  border-radius: 4px;
   background: #fff;
   color: var(--bad);
   font-weight: 900;
@@ -5536,7 +5536,7 @@ td strong {
   display: inline-flex;
   align-items: center;
   min-height: 1.8rem;
-  border-radius: 999px;
+  border-radius: 4px;
   padding: 0 0.65rem;
   font-size: 0.78rem;
   font-weight: 900;
@@ -5580,7 +5580,7 @@ td strong {
 .risk-meter-track {
   height: 0.48rem;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #e8eef0;
 }
 
@@ -5684,7 +5684,7 @@ td strong {
 .setup-step-card,
 .trust-strip article {
   border: 1px solid rgba(47, 72, 88, 0.11);
-  border-radius: 14px;
+  border-radius: 6px;
   background: #ffffff;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.04);
   padding: 0.85rem;
@@ -5726,7 +5726,7 @@ td strong {
 .setup-progress-track {
   overflow: hidden;
   height: 0.55rem;
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(47, 72, 88, 0.1);
 }
 
@@ -5781,7 +5781,7 @@ td strong {
 .command-details > summary::after {
   content: "Open";
   border: 1px solid rgba(47, 72, 88, 0.12);
-  border-radius: 999px;
+  border-radius: 4px;
   background: #ffffff;
   color: var(--accent-dark);
   padding: 0.35rem 0.75rem;
@@ -5869,14 +5869,14 @@ body {
   border-color: rgba(15, 127, 135, 0.16);
   background: rgba(15, 127, 135, 0.07);
   min-height: 2rem;
-  border-radius: 999px;
+  border-radius: 4px;
   padding: 0 0.7rem;
 }
 
 .account-widget {
   min-width: 10rem;
   border-color: rgba(47, 72, 88, 0.1);
-  border-radius: 14px;
+  border-radius: 6px;
   box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
   padding: 0.75rem;
 }
@@ -5894,14 +5894,14 @@ body {
   top: 0.75rem;
   z-index: 12;
   gap: 0.25rem;
-  border-radius: 18px;
+  border-radius: 8px;
   padding: 0.35rem;
 }
 
 .mode-button {
   min-height: 2.85rem;
   border-color: transparent;
-  border-radius: 14px;
+  border-radius: 6px;
   background: transparent;
   padding: 0.6rem 0.7rem;
   transition:
@@ -5912,7 +5912,7 @@ body {
 }
 
 .mode-button:hover {
-  transform: translateY(-1px);
+  
   background: rgba(47, 72, 88, 0.04);
 }
 
@@ -5931,7 +5931,7 @@ body {
   display: block;
   width: 1.4rem;
   height: 0.22rem;
-  border-radius: 999px;
+  border-radius: 4px;
   background: currentColor;
   opacity: 0.75;
   margin: 0 auto 0.25rem;
@@ -5976,7 +5976,7 @@ body {
 .data-quality-banner {
   border-color: rgba(166, 106, 18, 0.16);
   background: rgba(255, 251, 242, 0.9);
-  box-shadow: 0 6px 18px rgba(166, 106, 18, 0.05);
+  box-shadow: none;
 }
 
 .panel,
@@ -6014,7 +6014,7 @@ body {
 .savings-hero,
 .education-hero {
   border-color: rgba(47, 72, 88, 0.1);
-  border-radius: 18px;
+  border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(250, 252, 252, 0.9)),
     #ffffff;
@@ -6051,7 +6051,7 @@ body {
 .suggestion-card,
 .lesson-card,
 .simple-term-card {
-  border-radius: 14px;
+  border-radius: 6px;
   transition:
     transform 0.16s ease,
     box-shadow 0.16s ease,
@@ -6063,7 +6063,7 @@ body {
 .suggestion-card:hover,
 .lesson-card:hover,
 .simple-term-card:hover {
-  transform: translateY(-2px);
+  
   border-color: rgba(15, 127, 135, 0.18);
   box-shadow: 0 16px 34px rgba(15, 23, 42, 0.07);
 }
@@ -6080,7 +6080,7 @@ body {
 
 .primary-button {
   background: linear-gradient(180deg, var(--accent), var(--accent-dark));
-  box-shadow: 0 8px 18px rgba(15, 127, 135, 0.16);
+  box-shadow: none;
 }
 
 .ghost-button {
@@ -6116,7 +6116,7 @@ textarea:hover {
 }
 
 .investing-tab:hover {
-  transform: translateY(-1px);
+  
   background: #ffffff;
 }
 
@@ -6408,7 +6408,7 @@ body {
 .experience-toggle,
 .savings-score-card,
 .education-score-card {
-  border-radius: 14px;
+  border-radius: 6px;
 }
 
 .command-grid,
@@ -6456,7 +6456,7 @@ body {
 .education-subnav,
 .learning-area-tabs,
 .app-tabs {
-  border-radius: 16px;
+  border-radius: 8px;
   box-shadow: 0 8px 22px rgba(15, 23, 42, 0.045);
 }
 
@@ -6472,7 +6472,7 @@ body {
 .investing-tab {
   flex: 1 0 max-content;
   min-width: 6.75rem;
-  border-radius: 12px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -6626,13 +6626,13 @@ body {
 
 .mode-switcher {
   top: 0.5rem;
-  border-radius: 14px;
+  border-radius: 6px;
   padding: 0.3rem;
 }
 
 .mode-button {
   min-height: 2.35rem;
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 0.45rem 0.55rem;
   overflow: hidden;
 }
@@ -6817,7 +6817,7 @@ body {
 .tool-finder input {
   width: 100%;
   min-height: 2.5rem;
-  border-radius: 999px;
+  border-radius: 4px;
   padding: 0 1rem;
   border-color: rgba(47, 72, 88, 0.14);
   background: #ffffff;
@@ -6832,7 +6832,7 @@ body {
   max-height: 19rem;
   overflow: auto;
   border: 1px solid rgba(47, 72, 88, 0.12);
-  border-radius: 16px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.98);
   box-shadow: 0 18px 42px rgba(15, 23, 42, 0.14);
   padding: 0.45rem;
@@ -6845,7 +6845,7 @@ body {
 .tool-search-results button {
   width: 100%;
   border: 0;
-  border-radius: 12px;
+  border-radius: 6px;
   background: transparent;
   padding: 0.65rem 0.7rem;
   text-align: left;
@@ -7467,7 +7467,7 @@ textarea {
 
 .mode-button {
   min-height: 2.45rem;
-  border-radius: 7px;
+  border-radius: 4px;
   padding: 0.45rem 0.55rem;
 }
 
@@ -7612,7 +7612,7 @@ body.education-mode .mode-button.education-mode-button.active {
 .ghost-button,
 .segment {
   min-height: 2.25rem;
-  border-radius: 7px;
+  border-radius: 4px;
   font-size: 0.82rem;
   box-shadow: none;
 }
@@ -7800,7 +7800,7 @@ body.savings-mode .workspace-navigator p {
 #savingsPanelSelect,
 #learningAreaSelect {
   min-height: 2.55rem;
-  border-radius: 8px;
+  border-radius: 4px;
   border-color: #cfd9e3;
   background: #fbfcfe;
   color: #101828;
@@ -7943,7 +7943,7 @@ body.goals-mode .workspace-navigator {
 .command-tool-finder input {
   width: 100%;
   min-height: 2.75rem;
-  border-radius: 8px;
+  border-radius: 4px;
   background: #ffffff;
 }
 
@@ -8046,7 +8046,7 @@ body.goals-mode .workspace-navigator {
   width: 1.6rem;
   height: 1.6rem;
   place-items: center;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #e7f5ef;
   color: #147d66;
   font-size: 0.76rem;
@@ -8165,7 +8165,7 @@ body {
 
 .topbar {
   grid-template-columns: minmax(0, 1fr) minmax(10rem, auto);
-  border-radius: 22px;
+  border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(248, 252, 252, 0.82)),
     rgba(255, 255, 255, 0.9);
@@ -8191,7 +8191,7 @@ body {
 }
 
 .account-widget {
-  border-radius: 16px;
+  border-radius: 8px;
   background: rgba(248, 250, 252, 0.82);
 }
 
@@ -8202,7 +8202,7 @@ body {
   gap: 0.65rem;
   min-width: 13.5rem;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 16px;
+  border-radius: 8px;
   background: rgba(248, 250, 252, 0.86);
   box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
   padding: 0.72rem 0.82rem;
@@ -8211,7 +8211,7 @@ body {
 .live-data-pill > span {
   width: 0.72rem;
   height: 0.72rem;
-  border-radius: 999px;
+  border-radius: 4px;
   background: #98a2b3;
   box-shadow: 0 0 0 4px rgba(152, 162, 179, 0.14);
 }
@@ -8256,7 +8256,7 @@ body {
 }
 
 .workspace-navigator {
-  border-radius: 18px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.8);
   box-shadow: 0 14px 38px rgba(15, 23, 42, 0.07);
 }
@@ -8271,7 +8271,7 @@ input,
 select,
 textarea {
   border-color: rgba(15, 23, 42, 0.12);
-  border-radius: 12px;
+  border-radius: 6px;
   background: rgba(248, 250, 252, 0.96);
 }
 
@@ -8291,7 +8291,7 @@ textarea:focus {
 .education-hero {
   position: relative;
   overflow: hidden;
-  border-radius: 24px;
+  border-radius: 8px;
   padding: clamp(1.15rem, 2.4vw, 1.9rem);
 }
 
@@ -8315,7 +8315,7 @@ textarea:focus {
   top: -5rem;
   width: 15rem;
   height: 15rem;
-  border-radius: 999px;
+  border-radius: 4px;
   background: rgba(15, 118, 110, 0.1);
   pointer-events: none;
 }
@@ -8352,7 +8352,7 @@ textarea:focus {
   position: relative;
   z-index: 1;
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 18px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
   padding: 0.9rem;
@@ -8365,7 +8365,7 @@ textarea:focus {
 .savings-tab,
 .education-tab,
 .learning-area-tab {
-  border-radius: 12px;
+  border-radius: 6px;
   transition:
     transform 0.16s ease,
     border-color 0.16s ease,
@@ -8378,7 +8378,7 @@ textarea:focus {
 .ghost-button.active {
   border-color: transparent;
   background: linear-gradient(135deg, #0f766e, #118a7e);
-  box-shadow: 0 10px 24px rgba(15, 118, 110, 0.18);
+  box-shadow: none;
 }
 
 .primary-button:hover,
@@ -8388,7 +8388,7 @@ textarea:focus {
 .savings-tab:hover,
 .education-tab:hover,
 .learning-area-tab:hover {
-  transform: translateY(-1px);
+  
   box-shadow: 0 12px 26px rgba(15, 23, 42, 0.09);
 }
 
@@ -8409,7 +8409,7 @@ textarea:focus {
   position: relative;
   overflow: hidden;
   min-height: 7.25rem;
-  border-radius: 18px;
+  border-radius: 8px;
   padding: 1rem;
 }
 
@@ -8455,7 +8455,7 @@ textarea:focus {
 .demo-flow-panel,
 .api-status-card,
 .data-source-explainer-grid article {
-  border-radius: 18px;
+  border-radius: 8px;
 }
 
 .tool-finder {
@@ -8464,7 +8464,7 @@ textarea:focus {
 
 .tool-finder input {
   min-height: 3.15rem;
-  border-radius: 16px;
+  border-radius: 8px;
   font-size: 1rem;
 }
 
@@ -8476,7 +8476,7 @@ textarea:focus {
 .demo-flow-grid button,
 .api-status-card,
 .data-source-explainer-grid article {
-  border-radius: 16px;
+  border-radius: 8px;
   background: rgba(255, 255, 255, 0.86);
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.055);
 }
@@ -8491,14 +8491,14 @@ textarea:focus {
 
 .data-quality-banner,
 .server-warning {
-  border-radius: 16px;
+  border-radius: 8px;
   box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
 }
 
 .lookup-panel,
 .portfolio-section,
 .single-stock-drawer {
-  border-radius: 20px;
+  border-radius: 8px;
 }
 
 .flow-steps div,
@@ -8506,7 +8506,7 @@ textarea:focus {
 .factor-empty,
 .recommendation-panel li,
 .builder-chip {
-  border-radius: 14px;
+  border-radius: 6px;
 }
 
 table {
@@ -8519,7 +8519,7 @@ th {
 }
 
 canvas {
-  border-radius: 14px;
+  border-radius: 6px;
 }
 
 .section-clear-button {
@@ -8747,7 +8747,7 @@ body.command-mode .services-panel {
   padding: 16px;
   background: white;
   border: 2px solid #e5e7eb;
-  border-radius: 16px;
+  border-radius: 8px;
   cursor: pointer;
   text-align: left;
   transition: all 0.15s ease;
@@ -8755,8 +8755,8 @@ body.command-mode .services-panel {
 }
 .duo-subject-card:hover {
   border-color: #1a9e6e;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(26,158,110,0.12);
+  
+  box-shadow: none;
 }
 .duo-subject-card.duo-active {
   border-color: #1a9e6e;
@@ -8765,7 +8765,7 @@ body.command-mode .services-panel {
 .duo-subject-icon {
   width: 52px;
   height: 52px;
-  border-radius: 14px;
+  border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -8792,7 +8792,7 @@ body.command-mode .services-panel {
   width: 100%;
   height: 6px;
   background: #f3f4f6;
-  border-radius: 99px;
+  border-radius: 4px;
   margin-top: 8px;
   overflow: hidden;
   grid-column: 1 / -1;
@@ -8801,26 +8801,26 @@ body.command-mode .services-panel {
   height: 100%;
   width: 0%;
   background: #1a9e6e;
-  border-radius: 99px;
+  border-radius: 4px;
   transition: width 0.4s ease;
 }
 .duo-subject-card {
   flex-wrap: wrap;
 }
 
-.lesson-card, .simple-term-card { border-radius: 16px; border: none; transition: transform 0.2s ease, box-shadow 0.2s ease; }
-.lesson-card:hover, .simple-term-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
+.lesson-card, .simple-term-card { border-radius: 8px; border: none; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.lesson-card:hover, .simple-term-card:hover {  box-shadow: 0 8px 24px rgba(0,0,0,0.07); }
 .lesson-card:nth-child(6n+1), .simple-term-card:nth-child(6n+1) { background: linear-gradient(145deg, #f0f7ff, #e8f0fe); }
 .lesson-card:nth-child(6n+2), .simple-term-card:nth-child(6n+2) { background: linear-gradient(145deg, #fdf4ff, #f3e8ff); }
 .lesson-card:nth-child(6n+3), .simple-term-card:nth-child(6n+3) { background: linear-gradient(145deg, #ecfdf5, #d1fae5); }
 .lesson-card:nth-child(6n+4), .simple-term-card:nth-child(6n+4) { background: linear-gradient(145deg, #fff8e1, #fef3c7); }
 .lesson-card:nth-child(6n+5), .simple-term-card:nth-child(6n+5) { background: linear-gradient(145deg, #fff0f4, #fce7f3); }
 .lesson-card:nth-child(6n+6), .simple-term-card:nth-child(6n+6) { background: linear-gradient(145deg, #e0f7fa, #ccfbf1); }
-.lesson-card span:first-child, .simple-term-card span:first-child { display: inline-block; padding: 3px 10px; border-radius: 99px; font-size: 10px; font-weight: 800; background: rgba(0,0,0,0.07); color: #374151; margin-bottom: 8px; }
-.learning-dashboard-card { background: linear-gradient(145deg, #faf5ff, #f3e8ff); border: 2px solid rgba(107,79,200,0.1); border-radius: 16px; }
-.learning-mission-card { background: linear-gradient(145deg, #f0fdf4, #dcfce7); border: 2px solid rgba(26,158,110,0.1); border-radius: 16px; }
-.learning-review-card { background: linear-gradient(145deg, #fffbeb, #fef3c7); border: 2px solid rgba(245,158,11,0.1); border-radius: 16px; }
-.history-timeline article { background: linear-gradient(145deg, #fff5f7, #fce7f3); border: none; border-radius: 14px; padding: 1rem 1.2rem; }
+.lesson-card span:first-child, .simple-term-card span:first-child { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; background: rgba(0,0,0,0.07); color: #374151; margin-bottom: 8px; }
+.learning-dashboard-card { background: linear-gradient(145deg, #faf5ff, #f3e8ff); border: 2px solid rgba(107,79,200,0.1); border-radius: 8px; }
+.learning-mission-card { background: linear-gradient(145deg, #f0fdf4, #dcfce7); border: 2px solid rgba(26,158,110,0.1); border-radius: 8px; }
+.learning-review-card { background: linear-gradient(145deg, #fffbeb, #fef3c7); border: 2px solid rgba(245,158,11,0.1); border-radius: 8px; }
+.history-timeline article { background: linear-gradient(145deg, #fff5f7, #fce7f3); border: none; border-radius: 6px; padding: 1rem 1.2rem; }
 
 /* ── Investing tab nav redesign ── */
 .investing-subnav {
@@ -8851,11 +8851,11 @@ body.command-mode .services-panel {
 }
 .investing-tab:hover {
   background: rgba(15,127,135,0.09) !important;
-  transform: translateY(-1px) !important;
+  !important;
 }
 .investing-tab.active {
   background: var(--accent) !important;
-  box-shadow: 0 4px 14px rgba(15,127,135,0.22) !important;
+  box-shadow: none !important;
   color: #ffffff !important;
   transform: translateY(-1px) !important;
 }
@@ -8865,12 +8865,12 @@ body.command-mode .services-panel {
 .duo-subject-card.investing-tab[aria-pressed="true"] {
   border-color: #087e8b !important;
   background: #e0f7fa !important;
-  box-shadow: 0 4px 14px rgba(8,126,139,0.18) !important;
+  box-shadow: none !important;
   transform: translateY(-2px) !important;
 }
 .duo-subject-card.investing-tab.active .duo-subject-icon,
 .duo-subject-card.investing-tab[aria-pressed="true"] .duo-subject-icon {
-  box-shadow: 0 2px 8px rgba(8,126,139,0.2) !important;
+  box-shadow: none !important;
 }
 .duo-subject-grid {
   display: grid !important;
@@ -8966,7 +8966,7 @@ body.command-mode .services-panel {
   background: #ffffff !important;
   color: inherit !important;
   border: 2px solid #2374c6 !important;
-  box-shadow: 0 4px 12px rgba(35, 116, 198, 0.15) !important;
+  box-shadow: none !important;
 }
 
 .savings-section-nav .duo-subject-card.active .duo-subject-info strong {

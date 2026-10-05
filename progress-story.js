@@ -18,22 +18,23 @@
     const s=document.createElement('style');s.id='sp-ps-css';
     s.textContent=
       '#sp-ps-wrap{max-width:700px;margin:0 auto 32px;padding:0 16px}'
-     +'#sp-ps-card{background:#111;border:1px solid #222;border-radius:14px;padding:20px 24px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#fff}'
+     +'#sp-ps-card{background:#111;border:1px solid #222;border-radius:6px;padding:20px 24px;font-family:var(--sp-font-sans,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif);color:#fff}'
      +'#sp-ps-card .sp-ps-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}'
      +'#sp-ps-card .sp-ps-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#555}'
-     +'#sp-ps-card .sp-ps-badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px}'
+     +'#sp-ps-card .sp-ps-badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:4px}'
      +'#sp-ps-card .sp-ps-badge.up{background:rgba(34,197,94,.15);color:#22c55e}'
      +'#sp-ps-card .sp-ps-badge.down{background:rgba(239,68,68,.15);color:#ef4444}'
      +'#sp-ps-card .sp-ps-badge.flat{background:rgba(120,120,120,.15);color:#888}'
-     +'#sp-ps-card .sp-ps-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}'
-     +'#sp-ps-card .sp-ps-metric{background:#1a1a1a;border:1px solid #242424;border-radius:10px;padding:12px 14px}'
-     +'#sp-ps-card .sp-ps-mlabel{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#555;margin-bottom:4px}'
+     +'#sp-ps-card .sp-ps-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-bottom:16px;border-top:1px solid rgba(255,255,255,.08);border-bottom:1px solid rgba(255,255,255,.08)}'
+     +'#sp-ps-card .sp-ps-metric{background:none;border:none;border-left:1px solid rgba(255,255,255,.08);border-radius:0;padding:12px 16px}'
+     +'#sp-ps-card .sp-ps-metric:first-child{border-left:none;padding-left:0}'
+     +'#sp-ps-card .sp-ps-mlabel{font-size:10px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:#7b8494;margin-bottom:4px}'
      +'#sp-ps-card .sp-ps-mvalue{font-size:18px;font-weight:700;color:#fff;line-height:1.1}'
      +'#sp-ps-card .sp-ps-mvalue.up{color:#22c55e}'
      +'#sp-ps-card .sp-ps-mvalue.down{color:#ef4444}'
-     +'#sp-ps-card .sp-ps-msub{font-size:11px;color:#444;margin-top:3px}'
+     +'#sp-ps-card .sp-ps-msub{font-size:11px;color:#6b7383;margin-top:3px}'
      +'#sp-ps-card .sp-ps-bar{margin-bottom:16px}'
-     +'#sp-ps-card .sp-ps-bar-row{display:flex;justify-content:space-between;font-size:11px;color:#555;margin-bottom:6px}'
+     +'#sp-ps-card .sp-ps-bar-row{display:flex;justify-content:space-between;font-size:11px;color:#7b8494;margin-bottom:6px}'
      +'#sp-ps-card .sp-ps-bar-track{height:4px;background:#1e1e1e;border-radius:2px;overflow:hidden}'
      +'#sp-ps-card .sp-ps-bar-fill{height:100%;border-radius:2px;transition:width .6s ease}'
      +'#sp-ps-card .sp-ps-bar-fill.up{background:#22c55e}'
@@ -42,10 +43,10 @@
      +'#sp-ps-card .sp-ps-narrative{font-size:13px;color:#777;line-height:1.65;border-top:1px solid #1e1e1e;padding-top:14px;margin-bottom:0}'
      +'#sp-ps-card .sp-ps-narrative strong{color:#bbb;font-weight:600}'
      +'#sp-ps-card .sp-ps-footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid #1a1a1a}'
-     +'#sp-ps-card .sp-ps-ts{font-size:11px;color:#333}'
-     +'#sp-ps-card .sp-ps-share{font-size:11px;font-weight:600;color:#dc3535;cursor:pointer;background:none;border:1px solid rgba(220,53,53,.3);border-radius:6px;padding:5px 12px;font-family:inherit;transition:background .2s}'
+     +'#sp-ps-card .sp-ps-ts{font-size:11px;color:#6b7383}'
+     +'#sp-ps-card .sp-ps-share{font-size:11px;font-weight:600;color:#dc3535;cursor:pointer;background:none;border:1px solid rgba(220,53,53,.3);border-radius:4px;padding:5px 12px;font-family:inherit;transition:background .2s}'
      +'#sp-ps-card .sp-ps-share:hover{background:rgba(220,53,53,.08)}'
-     +'@media(max-width:600px){#sp-ps-card .sp-ps-metrics{grid-template-columns:1fr 1fr}}';
+     +'@media(max-width:600px){#sp-ps-card .sp-ps-metric{padding:10px 10px}#sp-ps-card .sp-ps-metric:first-child{padding-left:0}#sp-ps-card .sp-ps-mvalue{font-size:16px}#sp-ps-card .sp-ps-msub{font-size:10px}}';
     document.head.appendChild(s);
   }
 

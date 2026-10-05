@@ -1,0 +1,248 @@
+/* ==========================================================================
+   StockPilot design layer
+   Loaded last on every page. Holds the shared type, shape and colour tokens
+   and normalises the few patterns every page shares (nav, share button,
+   headline accents, focus states). Page-specific layout lives in each page.
+   ========================================================================== */
+
+:root{
+  /* Type */
+  --sp-font-sans:'Schibsted Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --sp-font-display:'Schibsted Grotesk',ui-sans-serif,system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --sp-font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sp-font-sport:'Archivo','Schibsted Grotesk',ui-sans-serif,system-ui,sans-serif;
+
+  /* Brand colours (unchanged from the original site) */
+  --sp-green:#1a9e6e;
+  --sp-green-d:#147a55;
+  --sp-green-l:#e8f7f2;
+  --sp-green-bright:#2ecc9a;
+  --sp-red:#dc2626;
+
+  /* Neutrals (the original greys, plus two in-between steps) */
+  --sp-ink:#12161f;
+  --sp-ink-2:#2b3240;
+  --sp-ink-3:#5a6478;
+  --sp-ink-4:#9aa3b4;
+  --sp-line:#e4e7ed;
+  --sp-line-2:#d3d8e0;
+  --sp-off:#f7f8fa;
+  --sp-white:#ffffff;
+
+  /* Shape: small, consistent corners. No capsules. */
+  --sp-r-xs:2px;
+  --sp-r-sm:4px;
+  --sp-r-md:6px;
+  --sp-r-lg:8px;
+
+  --sp-ease:cubic-bezier(.2,.7,.2,1);
+}
+
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+::selection{background:rgba(26,158,110,.22)}
+
+/* Visible, consistent keyboard focus */
+a:focus-visible,button:focus-visible,[role="button"]:focus-visible,
+input:focus-visible,select:focus-visible,textarea:focus-visible{
+  outline:2px solid var(--sp-green);
+  outline-offset:2px;
+}
+
+/* Headline accent words: same voice as the rest of the headline,
+   no italic-light "highlight" word. */
+h1 em,h2 em,h3 em{font-style:normal!important;font-weight:inherit!important}
+/* Typography hygiene: controls use the page font, headings and short copy don't leave one word on the last line */
+:where(button,input,select,textarea){font-family:inherit}
+:where(h1,h2,h3,h4,summary,[class*="title"],[class*="best"],[class*="tagline"]){text-wrap:balance}
+:where(p,li,figcaption,blockquote){text-wrap:pretty}
+:where(a[class*="btn"],a[class*="button"],a[class*="cta"]){text-decoration:none}
+.sp-arrow-gap{margin-left:.3em}
+
+/* Brand mark: transparent version of the logo, never in a white box */
+img.sp-mark{display:block;height:26px!important;width:auto!important;max-width:none!important;object-fit:contain!important;background:none!important;border-radius:0!important;box-shadow:none!important}
+
+/* ---------- Global nav (built by nav-fix.js) ---------- */
+#sp-nav-center a{letter-spacing:0}
+#sp-mobile-menu{font-family:var(--sp-font-sans)}
+
+/* ---------- Studio credit ---------- */
+/* Woodrow Chester Group credit: the last row of every page */
+.sp-credit{color:inherit;text-decoration:none!important}
+.sp-credit-line{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 8px;margin:0;padding:20px 20px 24px;border-top:1px solid rgba(18,22,31,.09);font-size:13px;line-height:1.45;letter-spacing:.005em;color:#5a6478;text-align:center}
+.sp-credit-line::before{content:'';flex:none;width:7px;height:7px;border-radius:1px;background:#1a9e6e}
+.sp-credit-line .sp-credit{display:inline-flex;align-items:center;gap:5px;padding-bottom:1px;border-bottom:1px solid rgba(18,22,31,.3);color:#12161f!important;font-weight:600;white-space:nowrap;transition:border-color .15s}
+.sp-credit-line .sp-credit::after{content:'';flex:none;width:9px;height:9px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M3 1.5h5.5V7M8.5 1.5L1.5 8.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M3 1.5h5.5V7M8.5 1.5L1.5 8.5' fill='none' stroke='%23000' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;transition:transform .15s}
+.sp-credit-line .sp-credit:hover{border-bottom-color:currentColor}
+.sp-credit-line .sp-credit:hover::after{transform:translate(1px,-1px)}
+.sp-credit-line .sp-credit:focus-visible{outline:2px solid #1a9e6e;outline-offset:3px;border-radius:2px}
+.sp-credit-line.sp-credit-dark{color:rgba(255,255,255,.62);border-top-color:rgba(255,255,255,.09)}
+.sp-credit-line.sp-credit-dark::before{background:#2fbf86}
+.sp-credit-line.sp-credit-dark .sp-credit{color:#fff!important;border-bottom-color:rgba(255,255,255,.35)}
+.sp-credit-line.sp-credit-dark .sp-credit:hover{border-bottom-color:#fff}
+.sp-credit-line.sp-credit-tycoon{color:rgba(58,43,26,.75);border-top-color:rgba(58,43,26,.14)}
+.sp-credit-line.sp-credit-tycoon .sp-credit{color:#3a2b1a!important;border-bottom-color:rgba(58,43,26,.35)}
+.sp-credit-line.sp-credit-compact{flex:none;padding:12px 20px 14px}
+footer:has(>.sp-credit-line){flex-wrap:wrap}
+footer>.sp-credit-line{flex:1 0 100%;width:100%;margin-top:22px;padding-bottom:4px;font-size:13px}
+@media(max-width:640px){body:has(#sp-share-btn) .sp-credit-line{padding-bottom:76px}}
+@media print{.sp-credit-line.sp-credit-noprint{display:none}}
+
+/* ---------- Share button (built by share.js) ---------- */
+#sp-share-btn,#sp-share-box,#sp-share-box *{font-family:var(--sp-font-sans)!important}
+
+/* Calmer motion for anyone who asks for it */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
+}
+
+/* ==========================================================================
+   Motion (driven by sp-motion.js). Short, plays once, skipped for reduced motion.
+   ========================================================================== */
+
+/* Logo intro: the red-to-green trail draws from bottom-left, then the jet nudges forward */
+@keyframes sp-mark-draw{0%{clip-path:polygon(0 100%,0 100%,0 100%)}100%{clip-path:polygon(0 100%,0 -110%,210% 100%)}}
+@keyframes sp-mark-boost{0%{transform:translate(0,0)}35%{transform:translate(4px,-3px)}100%{transform:translate(0,0)}}
+html.sp-intro-run :is(nav,header,.topbar,.bp-nav,.nav,.sp-site-header) img.sp-mark{
+  animation:sp-mark-draw .95s cubic-bezier(.55,0,.25,1) .1s both,sp-mark-boost .55s cubic-bezier(.3,0,.2,1) 1s both;
+}
+
+/* Arrows nudge on hover; buttons press down a pixel */
+.sp-arrow{display:inline-block;transition:transform .2s var(--sp-ease)}
+a:hover .sp-arrow,button:hover .sp-arrow,.tool-card:hover .sp-arrow,.mode-card:hover .sp-arrow{transform:translateX(3px)}
+:is(.btn,.btn-hero,.btn-hero-secondary,.bp-btn,.btn-big,.btn-primary,.btn-secondary,.btn-full-amber,.btn-full-outline,.nav-cta,.start-btn,.exec-btn,.search-btn,#sp-share-btn):active{transform:translateY(1px)}
+
+/* Figures rise into place, showing only the real value */
+.sp-rise{display:inline-block;overflow:hidden;vertical-align:bottom;line-height:1.15;padding-bottom:.04em;margin-bottom:-.04em}
+.sp-rise > span{display:inline-block;transform:translateY(110%);transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.sp-rise > span.in{transform:none}
+html.sp-motion-on :is(.facts .proof-num,.bp-stats .bp-stat-num,.browser .stat-val,.stats-strip .stat-num,.stats-row .stat-num,.plan-price){visibility:hidden;animation:sp-unhide 0s 2.4s forwards}
+@keyframes sp-unhide{to{visibility:visible}}
+
+/* Home: logo trail under a headline word, jet riding the tip */
+.sp-trail-host{position:relative;display:inline-block;white-space:nowrap}
+.sp-trail-wrap{position:absolute;left:0;right:0;pointer-events:none;line-height:0}
+.sp-trail{display:block;overflow:visible}
+.sp-jet{position:absolute;left:0;top:0;height:auto;max-width:none;will-change:transform}
+
+/* Draft picks come in one by one (Bullpen roster preview) */
+.sp-pick{opacity:.2;transition:opacity .35s var(--sp-ease),box-shadow .35s var(--sp-ease)}
+.sp-pick.sp-pick-in{opacity:1;box-shadow:inset 2px 0 0 #00e676}
+.slot.bench-filled.sp-pick-in{box-shadow:inset 2px 0 0 #ffd600}
+
+/* ==========================================================================
+   Bullpen arena: a different place from the rest of the site
+   ========================================================================== */
+
+/* The field: deep turf with mowed bands, on every Bullpen page */
+html.sp-arena body{
+  --bg:#0a0f0b;--bg2:#0e1510;--bg3:#131c15;--border:rgba(214,255,226,.09);
+  background-color:#0a0f0b!important;
+  background-image:repeating-linear-gradient(90deg,transparent 0 180px,rgba(150,255,190,.022) 180px 360px)!important;
+  background-attachment:fixed;
+}
+html.sp-arena .bp-nav,html.sp-arena .topbar,html.sp-arena body > header,html.sp-arena body > nav{background:#070b08!important}
+
+/* Centre-circle chalk behind the Bullpen hero */
+html.sp-arena .hero{position:relative;overflow:hidden}
+.sp-arena-pitch{position:absolute;inset:0;pointer-events:none;z-index:0}
+.sp-arena-pitch::before{content:'';position:absolute;top:0;bottom:0;right:calc(max(40px,(100vw - 1200px)/2 + 40px) + min(29vw,420px)/2);width:0;border-left:1.5px solid rgba(214,255,226,.06)}
+.sp-arena-pitch::after{content:'';position:absolute;top:50%;right:calc(max(40px,(100vw - 1200px)/2 + 40px) + min(29vw,420px)/2 - 180px);width:360px;height:360px;margin-top:-180px;border:1.5px solid rgba(214,255,226,.06);border-radius:50%}
+@media(max-width:1100px){.sp-arena-pitch{display:none}}
+
+/* Real S&P 500 line in the hero (drawn once from the site's history feed) */
+.sp-live{position:absolute;z-index:1;pointer-events:none;top:50%;right:max(40px,calc((100vw - 1200px)/2 + 40px));width:min(29vw,420px);height:220px;transform:translateY(-46%);opacity:0;transition:opacity .5s}
+.sp-live.in{opacity:1}
+.sp-live svg{display:block;width:100%;height:100%;overflow:hidden}
+.sp-live line{stroke:rgba(214,255,226,.07);stroke-width:1}
+.sp-live-line{stroke:#00e676;stroke-width:2;stroke-linejoin:miter;transition:stroke-dashoffset 1.9s cubic-bezier(.4,0,.2,1) .25s}
+.sp-live-dot{position:absolute;right:-4px;width:8px;height:8px;margin-top:-4px;background:#00e676;opacity:0}
+.sp-live.in .sp-live-dot{animation:sp-dot-in .2s 2.1s forwards,sp-blink 1.4s 2.3s ease-in-out infinite}
+@keyframes sp-dot-in{to{opacity:1}}
+@keyframes sp-blink{50%{opacity:.25}}
+@media(max-width:1100px){.sp-live{display:none}}
+
+/* Ribbon board under the nav (real quotes from the site's quote feed) */
+.sp-ribbon{position:fixed;left:0;right:0;top:64px;z-index:99;height:34px;display:flex;align-items:center;overflow:hidden;background:#050806;border-top:1px solid rgba(0,230,118,.35);border-bottom:1px solid rgba(214,255,226,.08);opacity:0;transition:opacity .5s}
+.sp-ribbon.in{opacity:1}
+.sp-rb-track{display:flex;width:max-content;animation:sp-rb 50s linear infinite}
+.sp-ribbon:hover .sp-rb-track{animation-play-state:paused}
+.sp-rb-item{display:flex;align-items:baseline;gap:8px;padding:0 22px;border-right:1px solid rgba(214,255,226,.08);font-family:var(--sp-font-mono);font-size:12.5px;color:#b9c6be;white-space:nowrap}
+.sp-rb-item b{color:#fff;font-weight:600}
+.sp-rb-item i{font-style:normal}
+.sp-rb-item .up{color:#00e676}.sp-rb-item .dn{color:#ff5c6c}
+@keyframes sp-rb{to{transform:translateX(-50%)}}
+.sp-ribbon ~ .hero{padding-top:190px!important}
+@media(max-width:640px){.sp-ribbon{top:58px}.sp-ribbon ~ .hero{padding-top:140px!important}}
+
+/* Scoreboard stats: LED dot-matrix figures */
+html.sp-arena .stats-strip{background:#050806!important;border-top:1px solid rgba(0,230,118,.3)!important;border-bottom:1px solid rgba(214,255,226,.08)!important}
+html.sp-arena .stats-strip .stat-num{font-size:64px!important;-webkit-mask-image:radial-gradient(circle,#000 58%,transparent 64%);-webkit-mask-size:4px 4px;mask-image:radial-gradient(circle,#000 58%,transparent 64%);mask-size:4px 4px}
+html.sp-arena .stats-strip .stat-label{font-family:var(--sp-font-mono);text-transform:uppercase;letter-spacing:.08em;font-size:11px!important}
+@media(max-width:640px){html.sp-arena .stats-strip .stat-num{font-size:48px!important}}
+
+/* Mode cards play like trading cards: colour runs across, foil glints on hover */
+.mode-card{position:relative;overflow:hidden;box-shadow:none!important}
+.mode-card::before{content:'';position:absolute;left:0;right:0;top:0;height:3px;background:var(--mode);transform:scaleX(.22);transform-origin:left;transition:transform .35s var(--sp-ease)}
+.mode-card:hover::before{transform:scaleX(1)}
+.mode-card::after{content:'';position:absolute;top:-40%;bottom:-40%;left:-70%;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.07),transparent);transform:skewX(-14deg);transition:left .7s var(--sp-ease);pointer-events:none}
+.mode-card:hover::after{left:140%}
+
+/* Live season marker */
+.season-status.live::before{content:'';display:inline-block;width:6px;height:6px;margin-right:6px;background:currentColor;vertical-align:1px;animation:sp-blink 1.4s ease-in-out infinite}
+
+/* Tunnel entrance (first Bullpen page of a session) */
+html.sp-tunnel body{overflow:hidden}
+html.sp-tunnel::after{content:'';position:fixed;inset:0;z-index:2147483000;background:#050806;animation:sp-tunnel-safety 0s 3s forwards}
+@keyframes sp-tunnel-safety{to{visibility:hidden}}
+.sp-tunnel-gate{position:fixed;inset:0;z-index:2147483001;cursor:pointer}
+.sp-tg-half{position:absolute;left:0;right:0;height:50.2%;background:#050806;background-image:repeating-linear-gradient(90deg,transparent 0 180px,rgba(150,255,190,.025) 180px 360px);transition:transform .75s cubic-bezier(.75,0,.2,1)}
+.sp-tg-top{top:0;border-bottom:1px solid rgba(0,230,118,.0)}
+.sp-tg-bottom{bottom:0}
+.sp-tunnel-gate.open .sp-tg-top{transform:translateY(-101%)}
+.sp-tunnel-gate.open .sp-tg-bottom{transform:translateY(101%)}
+.sp-tg-mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .25s}
+.sp-tunnel-gate.open .sp-tg-mid{opacity:0}
+.sp-tg-mid img{height:40px;width:auto}
+.sp-tg-word{font-family:var(--sp-font-sport);font-stretch:72%;font-weight:800;font-size:clamp(76px,13vw,176px);line-height:.85;color:#f2f5f0;letter-spacing:.01em}
+.sp-tg-bar{width:min(62vw,620px);height:2px;background:#00e676;transform:scaleX(0);transition:transform .9s cubic-bezier(.6,0,.2,1) .1s}
+.sp-tunnel-gate.lit .sp-tg-bar{transform:scaleX(1)}
+
+/* ==========================================================================
+   Virtual Market: real price updates flash; switching markets sweeps the accent
+   ========================================================================== */
+@keyframes sp-fu{0%{background-color:rgba(34,197,94,.22)}100%{background-color:transparent}}
+@keyframes sp-fd{0%{background-color:rgba(239,68,68,.22)}100%{background-color:transparent}}
+.sp-flash-up{animation:sp-fu 1s ease-out}
+.sp-flash-dn{animation:sp-fd 1s ease-out}
+
+/* ---------- Folded nav on narrow screens (sp-motion.js navCollapse) ---------- */
+.sp-navburger{display:none}
+.sp-nav-collapsed .sp-navburger{display:inline-flex;flex-direction:column;justify-content:center;gap:4px;width:40px;height:40px;margin-right:-8px;padding:0 9px;background:none;border:none;border-radius:2px;cursor:pointer;color:inherit;flex-shrink:0}
+.sp-navburger span{display:block;height:2px;background:currentColor}
+.sp-nav-collapsed .sp-navdrop{display:none!important}
+.sp-nav-collapsed .sp-navdrop.open{display:flex!important;flex-direction:column;align-items:stretch;gap:0!important;position:absolute;left:0;right:0;top:100%;margin:0!important;padding:4px 20px 12px;background:var(--sp-drop-bg,#fff);border-top:1px solid rgba(127,127,127,.18);border-bottom:1px solid rgba(127,127,127,.18);box-shadow:0 12px 24px rgba(0,0,0,.12);z-index:1000}
+.sp-navdrop.open > *{width:100%;margin:0!important}
+.sp-navdrop.open > a:not(.sp-drop-cta),.sp-navdrop.open > button:not(.sp-drop-cta),.sp-navdrop.open > div > button,.sp-navdrop.open > .nav-code{display:flex!important;justify-content:flex-start;align-items:center;text-align:left;min-height:48px;height:auto!important;padding:0 2px!important;border:none!important;border-bottom:1px solid rgba(127,127,127,.18)!important;border-radius:0!important;background:none!important;font-size:15px!important;box-shadow:none!important}
+.sp-navdrop.open a{text-decoration:none!important}
+.sp-navdrop.open > .sp-drop-cta{order:9;display:flex!important;justify-content:center;align-items:center;min-height:44px;margin-top:12px!important;border-radius:3px!important}
+.sp-navdrop.open > :last-child,.sp-navdrop.open > :last-child > button{border-bottom:none!important}
+.sp-nav-collapsed .sp-navdrop.open > [style*="display:none"],.sp-nav-collapsed .sp-navdrop.open > [style*="display: none"]{display:none!important}
+
+/* Turf stripes read as a stray panel on narrow screens: plain turf there */
+@media(max-width:700px){html.sp-arena body{background-image:none!important}}
+
+/* ---------- Brand trail in closing bands (the logo's line, drawn large) ---------- */
+.sp-band-trail{position:absolute;right:max(40px,calc((100vw - 1200px)/2 + 40px));bottom:64px;width:min(44vw,600px);pointer-events:none;z-index:0}
+.sp-band-trail svg{display:block;width:100%;height:auto;overflow:visible}
+.sp-band-trail .ln{fill:none;stroke-width:3;stroke-linejoin:miter;stroke-linecap:square}
+.sp-band-trail img{position:absolute;width:17%;height:auto;right:-16%;top:-76%;max-width:none}
+html.sp-motion-on .sp-band-trail .ln{stroke-dasharray:var(--len,800);stroke-dashoffset:var(--len,800);transition:stroke-dashoffset 1.6s cubic-bezier(.65,0,.35,1)}
+html.sp-motion-on .sp-band-trail img{opacity:0;transform:translate(-40%,30%);transition:opacity .4s ease 1.3s,transform .7s cubic-bezier(.2,.8,.2,1) 1.3s}
+html.sp-motion-on .sp-band-trail.in .ln{stroke-dashoffset:0}
+html.sp-motion-on .sp-band-trail.in img{opacity:1;transform:none}
+@media(max-width:640px){.sp-band-trail{right:28px;bottom:30px;width:62vw;opacity:.55}}

@@ -1,0 +1,130 @@
+/* ==========================================================================
+   Product cards for the landing heroes.
+   - Live cards (Home, Investing) are filled by sp-motion.js from the site's
+     own quote and history feeds; nothing is drawn until real data arrives.
+   - Illustrations (Budget, Learn) are wordless: shapes, icons and colour only,
+     no numbers, so they can never be read as data.
+   ========================================================================== */
+
+.sp-viz{
+  --vz-line:#e4e7ed; --vz-soft:#eef1f5; --vz-ink:#12161f; --vz-dim:#6b7383;
+  --vz-up:#15803d; --vz-dn:#dc2626; --vz-acc:var(--acc,#1a9e6e);
+  position:relative;background:#fff;border:1px solid var(--vz-line);border-radius:10px;overflow:hidden;
+  box-shadow:0 1px 2px rgba(18,22,31,.04),0 28px 56px -28px rgba(18,22,31,.28);
+  font-family:var(--sp-font-sans);color:var(--vz-ink);text-align:left;user-select:none
+}
+.sp-viz-dark{
+  --vz-line:rgba(255,255,255,.08); --vz-soft:rgba(255,255,255,.06); --vz-ink:#f2f4f7; --vz-dim:#8a93a2;
+  --vz-up:#4ade80; --vz-dn:#f87171;
+  background:#0d1117;border-color:#1c222c;box-shadow:0 1px 2px rgba(18,22,31,.2),0 36px 72px -32px rgba(18,22,31,.55)
+}
+
+/* Window bar: logo mark, three quiet tabs, live marker */
+.sp-viz-bar{display:flex;align-items:center;gap:8px;height:42px;padding:0 16px;border-bottom:1px solid var(--vz-line)}
+.sp-viz-bar img{height:15px;width:auto;margin-right:6px}
+.sp-viz-bar i{display:block;width:26px;height:6px;border-radius:1px;background:var(--vz-soft)}
+.sp-viz-bar i:first-of-type{background:var(--vz-acc);opacity:.85}
+.sp-viz-dot{margin-left:auto;width:7px;height:7px;background:var(--vz-up);opacity:0}
+.sp-viz.is-live .sp-viz-dot{opacity:1;animation:sp-blink 1.6s ease-in-out infinite}
+
+/* ---------- Live market card ---------- */
+.sp-viz-main{padding:20px 20px 10px}
+.sp-viz-head{display:flex;align-items:baseline;gap:12px}
+.sp-viz-sym{font-family:var(--sp-font-mono);font-weight:600;font-size:13px;letter-spacing:.04em;color:var(--vz-dim)}
+.sp-viz-px{margin-left:auto;font-family:var(--sp-font-mono);font-weight:500;font-size:30px;letter-spacing:-.02em;line-height:1}
+.sp-viz-ch{font-family:var(--sp-font-mono);font-size:13px;padding:2px 7px;border-radius:2px;background:color-mix(in srgb,currentColor 14%,transparent)}
+.sp-viz-chart{display:block;width:100%;height:150px;margin-top:14px;overflow:visible}
+.sp-viz-chart .grid{stroke:var(--vz-line);stroke-width:1}
+.sp-viz-chart .guide{stroke:currentColor;stroke-width:1;stroke-dasharray:3 4;opacity:.45}
+.sp-viz-chart .ln{fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.sp-viz-chart .mk{fill:currentColor}
+.sp-viz-rows{border-top:1px solid var(--vz-line)}
+.sp-viz-row{display:grid;grid-template-columns:64px minmax(0,1fr) 84px 76px;align-items:center;gap:12px;height:48px;padding:0 20px;border-bottom:1px solid var(--vz-line)}
+.sp-viz-row:last-child{border-bottom:none}
+.sp-viz-row b{font-family:var(--sp-font-mono);font-weight:600;font-size:13px;letter-spacing:.02em}
+.sp-viz-row .px{font-family:var(--sp-font-mono);font-size:13.5px;text-align:right}
+.sp-viz-row .ch{font-family:var(--sp-font-mono);font-size:12px;text-align:right}
+.sp-viz-spark{display:block;width:100%;height:24px;overflow:visible}
+.sp-viz-spark .ln{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linejoin:round}
+.sp-viz .up{color:var(--vz-up)} .sp-viz .dn{color:var(--vz-dn)}
+.sp-viz .px.sp-flash-up,.sp-viz .sp-viz-px.sp-flash-up{animation:sp-vz-up 1s ease-out}
+.sp-viz .px.sp-flash-dn,.sp-viz .sp-viz-px.sp-flash-dn{animation:sp-vz-dn 1s ease-out}
+@keyframes sp-vz-up{0%{color:var(--vz-up)}100%{color:inherit}}
+@keyframes sp-vz-dn{0%{color:var(--vz-dn)}100%{color:inherit}}
+/* Until real data arrives (or if the feed is down) only the frame and symbols show */
+.sp-viz-live:not(.is-live) .sp-viz-chart,.sp-viz-live:not(.is-live) .sp-viz-spark{background:var(--vz-soft);border-radius:2px;animation:sp-vz-wait 1.6s ease-in-out infinite}
+.sp-viz-live:not(.is-live) .sp-viz-spark{height:8px}
+@keyframes sp-vz-wait{50%{opacity:.45}}
+.sp-viz-live:not(.is-live) .px,.sp-viz-live:not(.is-live) .ch,.sp-viz-live:not(.is-live) .sp-viz-px,.sp-viz-live:not(.is-live) .sp-viz-ch{color:var(--vz-dim);background:none}
+html.sp-motion-on .sp-viz-live.is-live .ln{stroke-dasharray:var(--len,1200);stroke-dashoffset:var(--len,1200);animation:sp-vz-draw 1.3s cubic-bezier(.4,0,.2,1) forwards}
+html.sp-motion-on .sp-viz-live.is-live .sp-viz-spark .ln{animation-duration:.9s;animation-delay:.25s}
+@keyframes sp-vz-draw{to{stroke-dashoffset:0}}
+
+/* ---------- Illustration parts (no words, no numbers) ---------- */
+.vz-body{padding:22px 22px 24px}
+.vz-line{display:block;height:8px;border-radius:2px;background:var(--vz-soft)}
+.vz-line.ink{height:12px;background:var(--vz-ink)}
+.vz-line.mid{background:#d6dbe3}
+.vz-stack{display:flex;flex-direction:column;gap:9px}
+.vz-top{display:grid;grid-template-columns:96px minmax(0,1fr);gap:22px;align-items:center}
+.vz-ring{width:96px;height:96px;display:block}
+.vz-ring .trk{fill:none;stroke:var(--vz-soft);stroke-width:9}
+.vz-ring .val{fill:none;stroke:var(--vz-acc);stroke-width:9;stroke-dasharray:226 289;transform:rotate(-90deg);transform-origin:50% 50%}
+.vz-ring .ico{color:var(--vz-acc)}
+.vz-bar{display:flex;gap:3px;height:16px;margin:24px 0 18px}
+.vz-bar span{display:block;height:100%;border-radius:1px;background:var(--vz-acc)}
+.vz-rows{display:flex;flex-direction:column}
+.vz-row{display:grid;grid-template-columns:10px minmax(0,.9fr) minmax(0,1.3fr);align-items:center;gap:14px;height:40px;border-top:1px solid var(--vz-line)}
+.vz-sq{width:10px;height:10px;border-radius:1px;background:var(--vz-acc)}
+.vz-track{position:relative;height:6px;border-radius:1px;background:var(--vz-soft);overflow:hidden}
+.vz-track span{position:absolute;left:0;top:0;bottom:0;border-radius:1px;background:var(--vz-acc)}
+.vz-track span.over{background:#dc2626}
+
+/* Learn: lesson header, progress, quiz */
+.vz-lhead{display:flex;align-items:center;gap:12px;height:56px;padding:0 22px;border-bottom:1px solid var(--vz-line)}
+.vz-lhead svg{color:var(--vz-acc);flex:none}
+.vz-steps{display:flex;gap:4px;margin-left:auto}
+.vz-steps span{width:18px;height:6px;border-radius:1px;background:var(--vz-soft)}
+.vz-steps span.on{background:var(--vz-acc)}
+.vz-quiz{display:flex;flex-direction:column;gap:8px;margin-top:22px}
+.vz-opt{display:flex;align-items:center;gap:12px;height:44px;padding:0 14px;border:1px solid var(--vz-line);border-radius:4px}
+.vz-opt i{flex:none;width:14px;height:14px;border:1.5px solid #c3c9d3;border-radius:50%}
+.vz-opt.on{border-color:var(--vz-acc);background:color-mix(in srgb,var(--vz-acc) 6%,#fff)}
+.vz-opt.on i{border:4px solid var(--vz-acc)}
+.vz-opt .vz-ok{margin-left:auto;color:var(--vz-acc);display:flex}
+.vz-next{display:flex;justify-content:flex-end;margin-top:18px}
+.vz-next span{display:flex;align-items:center;justify-content:center;width:44px;height:36px;border-radius:4px;background:var(--vz-acc);color:#fff}
+
+/* Illustrations settle in once, when they scroll into view */
+html.sp-motion-on .vz-anim .vz-ring .val{stroke-dasharray:0 289;transition:stroke-dasharray 1.2s cubic-bezier(.4,0,.2,1) .2s}
+html.sp-motion-on .vz-anim.in .vz-ring .val{stroke-dasharray:226 289}
+html.sp-motion-on .vz-anim .vz-bar span,html.sp-motion-on .vz-anim .vz-track span{transform:scaleX(0);transform-origin:left;transition:transform .9s cubic-bezier(.4,0,.2,1)}
+html.sp-motion-on .vz-anim.in .vz-bar span,html.sp-motion-on .vz-anim.in .vz-track span{transform:none}
+html.sp-motion-on .vz-anim .vz-steps span.on{transform:scaleX(0);transform-origin:left;transition:transform .4s ease}
+html.sp-motion-on .vz-anim.in .vz-steps span.on{transform:none}
+html.sp-motion-on .vz-anim .vz-opt.on{border-color:var(--vz-line);background:#fff;transition:border-color .3s ease 1s,background-color .3s ease 1s}
+html.sp-motion-on .vz-anim .vz-opt.on i{border-width:1.5px;border-color:#c3c9d3;transition:border .3s ease 1s}
+html.sp-motion-on .vz-anim .vz-opt .vz-ok{opacity:0;transition:opacity .3s ease 1.15s}
+html.sp-motion-on .vz-anim.in .vz-opt.on{border-color:var(--vz-acc);background:color-mix(in srgb,var(--vz-acc) 6%,#fff)}
+html.sp-motion-on .vz-anim.in .vz-opt.on i{border:4px solid var(--vz-acc)}
+html.sp-motion-on .vz-anim.in .vz-opt .vz-ok{opacity:1}
+
+@media(max-width:640px){
+  .sp-viz{border-radius:8px}
+  .sp-viz-main{padding:16px 16px 8px}
+  .sp-viz-px{font-size:24px}
+  .sp-viz-chart{height:120px}
+  .sp-viz-row{grid-template-columns:56px minmax(0,1fr) 76px 64px;gap:10px;padding:0 16px;height:44px}
+  .vz-body{padding:18px}
+  .vz-top{grid-template-columns:80px minmax(0,1fr);gap:18px}
+  .vz-ring{width:80px;height:80px}
+}
+.sp-viz-live.no-draw .ln{animation:none!important;stroke-dasharray:none!important;stroke-dashoffset:0!important}
+
+/* Classroom: a class leaderboard, wordless */
+.vz-board{padding:6px 22px 14px}
+.vz-lrow{display:grid;grid-template-columns:10px 28px minmax(0,.8fr) minmax(0,1.2fr);align-items:center;gap:14px;height:52px;border-bottom:1px solid var(--vz-line)}
+.vz-lrow:last-child{border-bottom:none}
+.vz-rank{width:10px;height:10px;background:var(--vz-acc);border-radius:1px}
+.vz-av{width:28px;height:28px;border-radius:50%;opacity:.9}
+.vz-track span:not(.over){background:var(--vz-acc)}

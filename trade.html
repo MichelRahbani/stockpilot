@@ -19,7 +19,7 @@
 <link rel="canonical" href="https://mystockspilot.com/trade"/>
 <meta name="description" content="Trade real stocks with $100,000 of virtual cash. Live prices, zero risk. The best free paper trading simulator for beginners. No account needed."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;1,9..144,300&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 @media(max-width:600px){.lb-grid{grid-template-columns:1fr!important}.nav-btn{padding:6px 10px!important;font-size:11px!important}}
@@ -38,19 +38,19 @@ body.mkt-uk{--accent:#2563eb;--accent-d:#1d4ed8;--accent-bg:rgba(37,99,235,0.08)
 body.mkt-de{--accent:#d97706;--accent-d:#b45309;--accent-bg:rgba(217,119,6,0.08);--accent-border:rgba(217,119,6,0.25);--accent-glow:rgba(217,119,6,0.15)}
 /* 🇯🇵 Japan — crimson */
 body.mkt-jp{--accent:#e11d48;--accent-d:#be123c;--accent-bg:rgba(225,29,72,0.08);--accent-border:rgba(225,29,72,0.25);--accent-glow:rgba(225,29,72,0.15)}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;max-width:100vw}
+body{font-family:var(--sp-font-sans);background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;max-width:100vw}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:14px 24px;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--border)}
-.logo{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
-.logo-dot{width:22px;height:22px;background:var(--red);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px}
+.logo{font-family:var(--sp-font-display);font-size:18px;font-weight:700;color:var(--text);text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo-dot{width:22px;height:22px;background:var(--red);border-radius:4px;display:flex;align-items:center;justify-content:center;color:white;font-size:11px}
 .badge{background:var(--red);color:white;font-size:10px;font-weight:700;padding:3px 7px;border-radius:4px}
-.nav-btn{padding:8px 14px;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid var(--border);background:transparent;color:var(--dim);transition:all 0.2s}
+.nav-btn{padding:8px 14px;border-radius:4px;font-family:var(--sp-font-sans);font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;border:1px solid var(--border);background:transparent;color:var(--dim);transition:all 0.2s}
 .nav-btn:hover{background:rgba(255,255,255,0.05);color:var(--text)}
 .nav-btn.red{background:var(--red);color:white;border-color:var(--red)}
 .nav-btn.red:hover{background:var(--red-d)}
 
 .ticker{background:var(--accent);padding:8px 0;overflow:hidden;margin-top:0}
 .ticker-inner{display:flex;gap:28px;animation:scroll 20s linear infinite;width:max-content}
-.ti{font-family:'DM Mono',monospace;font-size:11px;color:rgba(255,255,255,0.75);white-space:nowrap;display:flex;gap:6px}
+.ti{font-family:var(--sp-font-mono);font-size:11px;color:rgba(255,255,255,0.75);white-space:nowrap;display:flex;gap:6px}
 .ti strong{color:white}
 .up{color:#86efac}.dn{color:#fca5a5}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
@@ -59,14 +59,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 
 /* LEFT — Watchlist */
 .watchlist-panel{background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
-.panel-head{padding:14px 16px;border-bottom:1px solid var(--border);font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:white;flex-shrink:0}
+.panel-head{padding:14px 16px;border-bottom:1px solid var(--border);font-family:var(--sp-font-display);font-size:14px;font-weight:600;color:white;flex-shrink:0}
 .wl-item{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04);cursor:pointer;transition:background 0.15s;display:flex;justify-content:space-between;align-items:center}
 .wl-item:hover{background:rgba(255,255,255,0.04)}
 .wl-item.active{background:var(--accent-bg);border-left:2px solid var(--accent)}
-.wl-sym{font-family:'Fraunces',serif;font-size:14px;font-weight:600;color:white}
+.wl-sym{font-family:var(--sp-font-display);font-size:14px;font-weight:600;color:white}
 .wl-name{font-size:10px;color:var(--muted);margin-top:1px}
-.wl-price{font-family:'DM Mono',monospace;font-size:13px;color:white;text-align:right}
-.wl-chg{font-family:'DM Mono',monospace;font-size:10px;text-align:right;margin-top:2px}
+.wl-price{font-family:var(--sp-font-mono);font-size:13px;color:white;text-align:right}
+.wl-chg{font-family:var(--sp-font-mono);font-size:10px;text-align:right;margin-top:2px}
 
 /* MIDDLE — Trade Area */
 .trade-panel{display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain}
@@ -74,37 +74,37 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .trade-panel::-webkit-scrollbar-track{background:transparent}
 .trade-panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:4px}
 .search-bar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
-.search-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:14px;outline:none;transition:border-color 0.2s}
+.search-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 12px;color:var(--text);font-family:var(--sp-font-mono);font-size:14px;outline:none;transition:border-color 0.2s}
 .search-inp:focus{border-color:var(--accent)}
 .search-inp::placeholder{color:var(--muted)}
-.search-btn{background:var(--accent);color:white;border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+.search-btn{background:var(--accent);color:white;border:none;border-radius:4px;padding:9px 16px;font-family:var(--sp-font-sans);font-size:13px;font-weight:600;cursor:pointer}
 .search-btn:hover{background:var(--accent-d)}
 
 .quote-area{padding:20px;border-bottom:1px solid var(--border);flex-shrink:0}
 .quote-empty{text-align:center;padding:32px;color:var(--muted);font-size:14px}
 .quote-empty div{font-size:28px;margin-bottom:8px}
 .q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
-.q-sym{font-family:'Fraunces',serif;font-size:28px;font-weight:700;color:white}
+.q-sym{font-family:var(--sp-font-display);font-size:28px;font-weight:700;color:white}
 .q-name{font-size:12px;color:var(--dim);margin-top:2px}
-.q-price{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;color:white;text-align:right}
-.q-chg{font-family:'DM Mono',monospace;font-size:13px;text-align:right;margin-top:2px}
+.q-price{font-family:var(--sp-font-mono);font-size:32px;font-weight:500;color:white;text-align:right}
+.q-chg{font-family:var(--sp-font-mono);font-size:13px;text-align:right;margin-top:2px}
 .q-meta{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:16px}
-.qm{background:var(--bg3);border-radius:6px;padding:8px;text-align:center}
+.qm{background:var(--bg3);border-radius:4px;padding:8px;text-align:center}
 .qm-l{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:2px}
-.qm-v{font-family:'DM Mono',monospace;font-size:12px;color:var(--text)}
+.qm-v{font-family:var(--sp-font-mono);font-size:12px;color:var(--text)}
 
 .trade-area{padding:20px;flex:1;overflow:visible}
-.trade-tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--bg3);border-radius:8px;padding:3px}
-.ttab{flex:1;padding:9px;border-radius:6px;border:none;background:transparent;color:var(--dim);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.trade-tabs{display:flex;gap:2px;margin-bottom:16px;background:var(--bg3);border-radius:4px;padding:3px}
+.ttab{flex:1;padding:9px;border-radius:4px;border:none;background:transparent;color:var(--dim);font-family:var(--sp-font-sans);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .ttab.buy.on{background:var(--green);color:white}
 .ttab.sell.on{background:var(--red);color:white}
 .inp-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:5px}
-.inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 12px;color:var(--text);font-family:'DM Mono',monospace;font-size:15px;outline:none;margin-bottom:14px;transition:border-color 0.2s}
+.inp{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:10px 12px;color:var(--text);font-family:var(--sp-font-mono);font-size:15px;outline:none;margin-bottom:14px;transition:border-color 0.2s}
 .inp:focus{border-color:var(--accent)}
-.summary{background:var(--bg3);border-radius:8px;padding:12px;margin-bottom:14px}
+.summary{background:var(--bg3);border-radius:4px;padding:12px;margin-bottom:14px}
 .sum-row{display:flex;justify-content:space-between;padding:3px 0;font-size:13px;color:var(--dim)}
-.sum-row strong{color:var(--text);font-family:'DM Mono',monospace}
-.exec-btn{width:100%;padding:12px;border-radius:9px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.sum-row strong{color:var(--text);font-family:var(--sp-font-mono)}
+.exec-btn{width:100%;padding:12px;border-radius:4px;border:none;font-family:var(--sp-font-sans);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
 .exec-btn.buy{background:var(--green);color:white}
 .exec-btn.sell{background:var(--red);color:white}
 .exec-btn:disabled{opacity:0.4;cursor:not-allowed}
@@ -112,27 +112,27 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 /* RIGHT — Portfolio */
 .portfolio-panel{background:var(--bg2);border-left:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column}
 .port-head{padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0}
-.port-value{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;color:white}
-.port-pnl{font-family:'DM Mono',monospace;font-size:12px;margin-top:2px}
+.port-value{font-family:var(--sp-font-mono);font-size:22px;font-weight:500;color:white}
+.port-pnl{font-family:var(--sp-font-mono);font-size:12px;margin-top:2px}
 .port-cash{font-size:11px;color:var(--dim);margin-top:4px}
 .pos-item{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.04)}
-.pos-sym{font-family:'Fraunces',serif;font-size:13px;font-weight:600;color:white}
+.pos-sym{font-family:var(--sp-font-display);font-size:13px;font-weight:600;color:white}
 .pos-detail{font-size:10px;color:var(--muted);margin-top:1px}
 .pos-vals{display:flex;justify-content:space-between;margin-top:5px}
-.pos-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--text)}
-.pos-pnl{font-family:'DM Mono',monospace;font-size:11px}
+.pos-val{font-family:var(--sp-font-mono);font-size:12px;color:var(--text)}
+.pos-pnl{font-family:var(--sp-font-mono);font-size:11px}
 .no-pos{padding:24px 16px;text-align:center;color:var(--muted);font-size:13px}
 .no-pos div{font-size:24px;margin-bottom:6px}
 
 .hist-item{padding:10px 16px;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;align-items:center;gap:10px}
-.hist-badge{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.hist-badge{width:32px;height:32px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
 .hist-badge.buy{background:rgba(22,163,74,0.15);color:#86efac}
 .hist-badge.sell{background:rgba(220,38,38,0.15);color:#fca5a5}
-.hist-sym{font-family:'Fraunces',serif;font-size:12px;font-weight:600;color:white}
+.hist-sym{font-family:var(--sp-font-display);font-size:12px;font-weight:600;color:white}
 .hist-detail{font-size:10px;color:var(--muted)}
-.hist-amt{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);margin-left:auto}
+.hist-amt{font-family:var(--sp-font-mono);font-size:12px;color:var(--text);margin-left:auto}
 
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:13px;color:var(--text);z-index:999;opacity:0;transition:all 0.3s;white-space:nowrap}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:12px 20px;font-size:13px;color:var(--text);z-index:999;opacity:0;transition:all 0.3s;white-space:nowrap}
 .toast.show{transform:translateX(-50%) translateY(0);opacity:1}
 .toast.ok{border-color:rgba(22,163,74,0.4)}
 .toast.err{border-color:rgba(220,38,38,0.4)}
@@ -159,7 +159,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
     body{overflow-x:hidden}
   }
 
-.explain-card{margin-top:12px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;}
+.explain-card{margin-top:12px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;}
 .explain-card h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
 .explain-card p{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;}
 .explain-card .disclaimer{font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;}
@@ -167,7 +167,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .port-story{padding:14px 16px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.06);}
 .port-story h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;}
 .port-story p{font-size:13px;color:rgba(255,255,255,0.75);line-height:1.6;}
-.news-card{margin-top:12px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;}
+.news-card{margin-top:12px;padding:12px 14px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;}
 .news-card h4{font-size:11px;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;}
 .news-item{padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05);}
 .news-item:last-child{border-bottom:none;}
@@ -179,7 +179,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 /* ── MARKET SWITCHER ── */
 .market-switcher{display:flex;align-items:center;gap:8px;padding:10px 20px;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--border);overflow-x:auto;position:sticky;top:53px;z-index:90;margin-top:53px}
 .market-switcher::-webkit-scrollbar{display:none}
-.mkt-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:9px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0}
+.mkt-btn{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--dim);font-family:var(--sp-font-sans);font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0}
 .mkt-btn:hover{background:rgba(255,255,255,0.05);color:var(--text)}
 .mkt-btn.active{background:var(--accent-bg);border-color:var(--accent-border);color:white}
 .mkt-btn.active .mkt-sub{color:rgba(255,255,255,0.4)}
@@ -212,9 +212,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 }
 
 /* ── PRICE CHART ── */
-.chart-wrap{margin:14px 0 4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:14px 16px 10px}
+.chart-wrap{margin:14px 0 4px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:6px;padding:14px 16px 10px}
 .chart-ranges{display:flex;gap:4px;margin-bottom:10px}
-.chart-range-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;background:transparent;color:rgba(255,255,255,0.35);transition:all 0.15s}
+.chart-range-btn{font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;border:none;cursor:pointer;font-family:var(--sp-font-sans);background:transparent;color:rgba(255,255,255,0.35);transition:all 0.15s}
 .chart-range-btn:hover{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.7)}
 .chart-range-btn.active{background:rgba(255,255,255,0.1);color:#fff}
 .chart-canvas-wrap{position:relative;width:100%;height:140px}
@@ -231,18 +231,21 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   gtag('js', new Date());
   gtag('config', 'G-TZLSC36Y26');
 </script>
+<link rel="stylesheet" href="/sp-market.css"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 <nav>
   <div style="display:flex;align-items:center;gap:12px">
-    <a href="/" class="logo"><img src="/logo-dark.jpg" style="height:28px;width:auto;object-fit:contain;" alt="StockPilot"/>StockPilot</a>
+    <a href="/" class="logo"><img src="/logo-mark-256.png" alt="StockPilot" class="sp-mark"/>StockPilot</a>
     <span class="badge">TRADE</span>
   </div>
   <div style="display:flex;gap:8px;align-items:center">
     <div id="navAccountArea" style="display:flex;align-items:center;gap:8px">
       <button id="signInNavBtn" class="nav-btn red" onclick="openSignin()">Sign In</button>
       <div id="navUserBadge" style="display:none;align-items:center;gap:8px">
-        <div style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);border-radius:8px;padding:6px 12px;font-size:13px;color:#2ecc9a;font-family:DM Sans,sans-serif">
+        <div style="background:rgba(26,158,110,0.15);border:1px solid rgba(26,158,110,0.3);border-radius:4px;padding:6px 12px;font-size:13px;color:#2ecc9a;font-family:var(--sp-font-sans)">
           <span id="navUserName"></span>
         </div>
         <button onclick="signOutTrade()" class="nav-btn" style="font-size:12px">Sign Out</button>
@@ -268,11 +271,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 </div>
 <div class="mkt-hint" id="mktHint">
   <span id="mktHintText">🇺🇸 NYSE / NASDAQ · $100,000 virtual USD</span>
-  <span>Each market has its own separate portfolio</span>
-</div>
-<div style="max-width:1200px;margin:0 auto;padding:0 20px 12px">
-  <button onclick="openFundBuilder()" style="background:var(--accent);color:white;border:none;border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer">🧺 Build a Fund</button>
-  <button onclick="openFundLookup()" style="background:transparent;color:rgba(255,255,255,0.55);border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:9px 16px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;margin-left:8px">🔎 Find a Fund by Code</button>
+  <span class="sp-hint-note">Each market has its own separate portfolio</span>
+  <span class="sp-fundbar">
+  <button onclick="openFundBuilder()" class="sp-fund-btn sp-fund-primary">Build a Fund</button>
+  <button onclick="openFundLookup()" class="sp-fund-btn">Find a Fund by Code</button>
+  </span>
 </div>
 <div class="ticker">
   <div class="ticker-inner" id="tickerInner">
@@ -295,22 +298,22 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   </div>
 </div>
 
-<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:14px 20px;margin:0 32px 12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:DM Sans,sans-serif">
-  <div style="font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:8px">💾 About your virtual portfolio</div>
+<div class="sp-about" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:6px;padding:14px 20px;margin:0 32px 12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:var(--sp-font-sans)">
+  <div style="font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:8px">About your virtual portfolio</div>
   <div style="display:flex;flex-wrap:wrap;gap:12px">
-    <span>✅ Survives refresh</span>
-    <span>✅ Survives closing the browser</span>
-    <span>✅ Syncs across devices when signed in</span>
-    <span>❌ Cleared in private/incognito mode</span>
-    <span>❌ Cleared if you click Reset Portfolio</span>
+    <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.6" stroke-linecap="square" aria-hidden="true" style="vertical-align:-1px;margin-right:6px"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Survives refresh</span>
+    <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.6" stroke-linecap="square" aria-hidden="true" style="vertical-align:-1px;margin-right:6px"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Survives closing the browser</span>
+    <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="2.6" stroke-linecap="square" aria-hidden="true" style="vertical-align:-1px;margin-right:6px"><path d="M5 12.5l4.5 4.5L19 7"/></svg>Syncs across devices when signed in</span>
+    <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.6" stroke-linecap="square" aria-hidden="true" style="vertical-align:-1px;margin-right:6px"><path d="M6 6l12 12M18 6L6 18"/></svg>Cleared in private/incognito mode</span>
+    <span><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2.6" stroke-linecap="square" aria-hidden="true" style="vertical-align:-1px;margin-right:6px"><path d="M6 6l12 12M18 6L6 18"/></svg>Cleared if you click Reset Portfolio</span>
   </div>
 </div>
-<div style="margin:0 32px 16px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden">
-  <div style="padding:14px 20px;border-bottom:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:space-between">
-    <span style="font-family:Fraunces,serif;font-size:16px;font-weight:600;color:white">Today's Market Brief</span>
-    <button id="generateBriefBtn" style="background:#dc2626;color:white;border:none;border-radius:8px;padding:7px 14px;font-family:DM Sans,sans-serif;font-size:12px;font-weight:600;cursor:pointer">Generate →</button>
+<div class="sp-brief">
+  <div class="sp-brief-head">
+    <span class="sp-brief-title">Today's Market Brief</span>
+    <button id="generateBriefBtn" class="sp-brief-btn">Generate →</button>
   </div>
-  <div id="briefContent" style="padding:16px 20px;font-size:13px;color:rgba(255,255,255,0.45);line-height:1.7">Click Generate to get today's live market analysis.</div>
+  <div id="briefContent" class="sp-brief-body">Click Generate to get today's live market analysis.</div>
 </div>
 <div class="layout">
   <!-- WATCHLIST -->
@@ -327,14 +330,14 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       <button class="search-btn" id="searchBtn">Search</button>
     </div>
     <div class="quote-area" id="quoteArea">
-      <div class="quote-empty"><div>🔍</div>Search for a stock to start trading</div>
+      <div class="quote-empty"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></div>Search for a stock to start trading</div>
     </div>
     <div class="trade-area">
       <div id="tradeForm" style="display:none">
         <div style="display:flex;gap:8px;margin-bottom:14px">
-          <button class="ttab" id="assetModeStock" onclick="setAssetMode('stock')" style="flex:1;font-size:12px;padding:8px">📈 Stock</button>
-          <button class="ttab" id="assetModeOptions" onclick="setAssetMode('options')" style="flex:1;font-size:12px;padding:8px">🎯 Options</button>
-          <button class="ttab" id="assetModeAlert" onclick="setAssetMode('alert')" style="flex:1;font-size:12px;padding:8px">🔔 Alert</button>
+          <button class="ttab" id="assetModeStock" onclick="setAssetMode('stock')" style="flex:1;font-size:12px;padding:8px">Stock</button>
+          <button class="ttab" id="assetModeOptions" onclick="setAssetMode('options')" style="flex:1;font-size:12px;padding:8px">Options</button>
+          <button class="ttab" id="assetModeAlert" onclick="setAssetMode('alert')" style="flex:1;font-size:12px;padding:8px">Alert</button>
         </div>
 
         <div id="stockModeWrap">
@@ -342,13 +345,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
           <button class="ttab buy on" id="tabBuy">BUY</button>
           <button class="ttab sell" id="tabSell">SELL</button>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:8px 10px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:8px 10px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:4px">
           <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:rgba(255,255,255,0.75);cursor:pointer">
             <input type="checkbox" id="marginToggle" onchange="toggleMargin()" style="cursor:pointer">
-            📊 Trade on margin <small style="opacity:0.55">(2x buying power, real risk)</small>
+            Trade on margin <small style="opacity:0.55">(2x buying power, real risk)</small>
           </label>
         </div>
-        <div id="marginStatus" style="display:none;font-size:11px;padding:8px 10px;margin-bottom:12px;border-radius:8px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.25);color:#ffc107"></div>
+        <div id="marginStatus" style="display:none;font-size:11px;padding:8px 10px;margin-bottom:12px;border-radius:4px;background:rgba(255,193,7,0.08);border:1px solid rgba(255,193,7,0.25);color:#ffc107"></div>
         <div style="display:flex;gap:8px;margin-bottom:14px">
           <button class="ttab" id="orderTypeMarket" onclick="setOrderType('market')" style="flex:1;font-size:12px;padding:8px">Market</button>
           <button class="ttab" id="orderTypeLimit" onclick="setOrderType('limit')" style="flex:1;font-size:12px;padding:8px">Limit</button>
@@ -367,7 +370,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         </div>
         <button class="exec-btn buy" id="execBtn">Select shares to trade</button>
         <div id="protectRow" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08)">
-          <div style="font-size:12px;color:var(--dim);font-weight:600;margin-bottom:10px">🛡️ Protect this position <small style="font-weight:400;opacity:0.6">(optional)</small></div>
+          <div style="font-size:12px;color:var(--dim);font-weight:600;margin-bottom:10px">Protect this position <small style="font-weight:400;opacity:0.6">(optional)</small></div>
           <div style="display:flex;gap:8px">
             <div style="flex:1">
               <div class="inp-label" style="font-size:11px">Stop Loss</div>
@@ -428,7 +431,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
         </div>
       </div>
       <div id="noStock" style="text-align:center;padding:40px;color:var(--muted);font-size:14px">
-        <div style="font-size:32px;margin-bottom:12px">📈</div>
+        <div style="font-size:32px;margin-bottom:12px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M3 20h18"/><path d="M4 15l5-5 4 3 7-7"/><path d="M16 6h4v4"/></svg></div>
         Search for a stock above to start trading with your virtual $100,000
       </div>
     </div>
@@ -442,10 +445,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
       <div class="port-cash" id="portCash">Loading...</div>
     </div>
     <div class="panel-head" style="border-top:1px solid var(--border)">Positions</div>
-    <div id="positions"><div class="no-pos"><div>📭</div>No positions yet</div></div>
+    <div id="positions"><div class="no-pos"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v6H3v-6z"/></svg></div>No positions yet</div></div>
     <div id="pendingOrdersWrap" style="display:none;padding:16px 20px;border-top:1px solid var(--border)"></div>
     <div class="panel-head" style="border-top:1px solid var(--border)">Recent Trades</div>
-    <div id="tradeHist"><div class="no-pos"><div>📋</div>No trades yet</div></div>
+    <div id="tradeHist"><div class="no-pos"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></div>No trades yet</div></div>
   </div>
 </div>
 
@@ -579,7 +582,7 @@ function switchMarket(id) {
   if (wh) wh.textContent = mkt.flag + ' ' + mkt.name;
   // Reset quote area
   current = null;
-  document.getElementById('quoteArea').innerHTML = '<div class="quote-empty"><div>🔍</div>Search for a stock to start trading</div>';
+  document.getElementById('quoteArea').innerHTML = '<div class="quote-empty"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/></svg></div>Search for a stock to start trading</div>';
   document.getElementById('tradeForm').style.display = 'none';
   document.getElementById('noStock').style.display = '';
   // Load market portfolio
@@ -749,7 +752,7 @@ async function loadPortfolioFromCloud(){
   if(loaded){
     renderPort();renderTrades();updatePortStats();
     const el=document.createElement('div');
-    el.style.cssText='position:fixed;top:70px;right:16px;background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);border-radius:8px;padding:6px 12px;font-size:11px;color:#86efac;z-index:50';
+    el.style.cssText='position:fixed;top:70px;right:16px;background:rgba(22,163,74,0.15);border:1px solid rgba(22,163,74,0.3);border-radius:4px;padding:6px 12px;font-size:11px;color:#86efac;z-index:50';
     el.textContent='Portfolio synced from your account';
     document.body.appendChild(el);
     setTimeout(function(){el.remove();},3000);
@@ -874,8 +877,8 @@ function setFundUniverse(u){
   fundUniverse = u;
   const stocksBtn = document.getElementById('fundUniStocks');
   const cryptoBtn = document.getElementById('fundUniCrypto');
-  const on = 'border:1px solid var(--accent);background:var(--accent-bg);color:#fff;font-weight:700;cursor:pointer;flex:1;padding:10px;border-radius:10px';
-  const off = 'border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;flex:1;padding:10px;border-radius:10px';
+  const on = 'border:1px solid var(--accent);background:var(--accent-bg);color:#fff;font-weight:700;cursor:pointer;flex:1;padding:10px;border-radius:6px';
+  const off = 'border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer;flex:1;padding:10px;border-radius:6px';
   stocksBtn.style.cssText = u === 'stocks' ? on : off;
   cryptoBtn.style.cssText = u === 'crypto' ? on : off;
 }
@@ -886,8 +889,8 @@ function addFundRow(){
   div.id = id;
   div.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
   div.innerHTML = `
-    <input class="fund-row-ticker" placeholder="${placeholder}" style="flex:2;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);text-transform:uppercase;font-family:'DM Sans',sans-serif" oninput="updateFundWeightBar()">
-    <input class="fund-row-weight" type="number" min="0" max="100" placeholder="%" style="width:70px;padding:9px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif" oninput="updateFundWeightBar()">
+    <input class="fund-row-ticker" placeholder="${placeholder}" style="flex:2;padding:9px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg3);color:var(--text);text-transform:uppercase;font-family:var(--sp-font-sans)" oninput="updateFundWeightBar()">
+    <input class="fund-row-weight" type="number" min="0" max="100" placeholder="%" style="width:70px;padding:9px 10px;border-radius:4px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-family:var(--sp-font-sans)" oninput="updateFundWeightBar()">
     <button onclick="document.getElementById('${id}').remove();updateFundWeightBar()" style="background:transparent;border:none;color:rgba(255,255,255,0.35);font-size:16px;cursor:pointer;padding:4px 8px">✕</button>
   `;
   document.getElementById('fundHoldingsRows').appendChild(div);
@@ -964,17 +967,17 @@ function toggleQuoteInfo(){
 async function search(){
   const sym=(document.getElementById('symInput').value||'').trim().toUpperCase();
   if(!sym){ toast('Enter a ticker symbol','err'); return; }
-  document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>⏳</div>Loading '+sym+'...</div>';
+  document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg></div>Loading '+sym+'...</div>';
   try{
     const fundCheck = await getFundBySymbolOrCode(sym);
     if(fundCheck && activeMarket !== 'us'){
-      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>💱</div>Custom funds are priced in USD. Switch to <strong>US Market</strong> to trade '+fundCheck.ticker+'.</div>';
+      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M4 8h14l-3-3M20 16H6l3 3"/></svg></div>Custom funds are priced in USD. Switch to <strong>US Market</strong> to trade '+fundCheck.ticker+'.</div>';
       document.getElementById('tradeForm').style.display='none';
       return;
     }
     const q=await getQuote(sym);
     if(!q||!q.regularMarketPrice){
-      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>❌</div>Could not find '+sym+'. Try a valid '+mkt.name+' ticker.</div>';
+      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div>Could not find '+sym+'. Try a valid '+mkt.name+' ticker.</div>';
       return;
     }
     current=q;
@@ -995,7 +998,7 @@ async function search(){
     document.getElementById('sharesInp').value='';
     updateSummary();
   }catch(e){
-    document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div>❌</div>Error loading data. Try again.</div>';
+    document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div>Error loading data. Try again.</div>';
   }
 }
 
@@ -1027,7 +1030,7 @@ function showQuote(q){ window._lastSymbol=q.symbol;
   const priceFmt = q.isCustomFund ? fFund : f;
   const isLeveraged = q.isCustomFund && q.fundLeverage > 1;
   const fundInfoCard = q.isCustomFund ? `
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,0.6)">
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:rgba(255,255,255,0.6)">
       <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:6px">🧠 What is this?</div>
       <div style="margin-bottom:8px">A custom fund built by a user. Its price updates live from its real component stocks, weighted the same way a real index fund works.${isLeveraged ? ` This one is <strong style="color:#fca5a5">${q.fundLeverage}x leveraged</strong> - it moves ${q.fundLeverage}x faster than its weighted holdings, in both directions, same real risk as a real leveraged ETF like TQQQ.` : ''}</div>
       <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:4px">Holdings</div>
@@ -1036,16 +1039,16 @@ function showQuote(q){ window._lastSymbol=q.symbol;
   document.getElementById('quoteArea').innerHTML=`
     <div class="q-header">
       <div>
-        <div class="q-sym">${q.symbol}${q.isCustomFund ? ' <span style="font-size:11px;background:var(--accent);padding:2px 8px;border-radius:100px;vertical-align:middle">CUSTOM FUND</span>' : ''}${isLeveraged ? ` <span style="font-size:11px;background:#dc2626;padding:2px 8px;border-radius:100px;vertical-align:middle">${q.fundLeverage}x LEVERAGED</span>` : ''} <button onclick="toggleQuoteInfo()" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;vertical-align:middle;line-height:1" aria-label="What is a stock quote?">i</button></div>
+        <div class="q-sym">${q.symbol}${q.isCustomFund ? ' <span style="font-size:11px;background:var(--accent);padding:2px 8px;border-radius:4px;vertical-align:middle">CUSTOM FUND</span>' : ''}${isLeveraged ? ` <span style="font-size:11px;background:#dc2626;padding:2px 8px;border-radius:4px;vertical-align:middle">${q.fundLeverage}x LEVERAGED</span>` : ''} <button onclick="toggleQuoteInfo()" style="background:rgba(255,255,255,0.08);border:none;color:rgba(255,255,255,0.6);width:18px;height:18px;border-radius:50%;font-size:11px;cursor:pointer;vertical-align:middle;line-height:1" aria-label="What is a stock quote?">i</button></div>
         <div class="q-name">${q.longName||q.shortName||q.symbol}${q.isCustomFund ? ' · Priced in USD regardless of active market' : ''}</div>
       </div>
       <div>
         <div class="q-price">${priceFmt(q.regularMarketPrice)}</div>
         <div class="q-chg" style="color:${col}">${chg>=0?'+':''}${chg.toFixed(2)} (${pct>=0?'+':''}${pct.toFixed(2)}%)</div>
-        <div id="marketStatusBadge" style="display:none;font-size:11px;font-weight:700;padding:3px 8px;border-radius:100px;background:rgba(255,255,255,0.06);margin-top:4px"></div>
+        <div id="marketStatusBadge" style="display:none;font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(255,255,255,0.06);margin-top:4px"></div>
       </div>
     </div>
-    <div id="quoteInfoCard" style="display:none;background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.5;color:rgba(255,255,255,0.85)">
+    <div id="quoteInfoCard" style="display:none;background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:12px 14px;margin-bottom:14px;font-size:13px;line-height:1.5;color:rgba(255,255,255,0.85)">
       <strong>What's a stock quote?</strong> It's a snapshot of what this asset is worth right now, its latest traded price, and how much that's moved since yesterday's close. The price above (${priceFmt(q.regularMarketPrice)}) and the change beneath it (${chg>=0?'+':''}${chg.toFixed(2)}, ${pct>=0?'+':''}${pct.toFixed(2)}%) together are the quote.
     </div>
     ${fundInfoCard}
@@ -1295,12 +1298,12 @@ async function renderMyOptions(){
     const pnlPct = o.premiumPaid > 0 ? ((currentValue - o.premiumPaid) / o.premiumPaid) * 100 : 0;
     const cls = pnl >= 0 ? 'pos' : 'neg';
     const sign = pnl >= 0 ? '+' : '';
-    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:8px">
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:4px;margin-bottom:8px">
       <div>
         <div style="font-size:13px;font-weight:600">${o.symbol} ${o.strike} ${o.type.toUpperCase()} <span style="font-size:11px;opacity:0.5;font-weight:400">${o.contracts}x · exp ${o.expirationDate}</span></div>
         <div style="font-size:12px;margin-top:2px" class="${cls}">${sign}${f(pnl)} (${sign}${pnlPct.toFixed(1)}%) · ${Math.round(daysLeft)}d left</div>
       </div>
-      <button onclick="closeOption('${o.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">Close</button>
+      <button onclick="closeOption('${o.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:4px;font-size:12px;cursor:pointer">Close</button>
     </div>`;
   }));
   wrap.innerHTML = `<div class="card-title" style="margin-bottom:10px">🎯 My Options (${openOptions.length})</div>` + rows.join('');
@@ -1435,9 +1438,9 @@ function renderMyAlerts(){
   if(!alerts.length){ wrap.innerHTML=''; return; }
   wrap.innerHTML = `<div class="card-title" style="margin-bottom:10px">🔔 My Alerts (${alerts.length})</div>` +
     alerts.map(a => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:4px;margin-bottom:8px">
         <div style="font-size:13px;font-weight:600">${a.symbol} ${a.direction} ${f(a.targetPrice)}</div>
-        <button onclick="cancelPriceAlert('${a.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">Cancel</button>
+        <button onclick="cancelPriceAlert('${a.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:4px;font-size:12px;cursor:pointer">Cancel</button>
       </div>`).join('');
 }
 
@@ -1744,12 +1747,12 @@ function renderPendingOrders(){
   wrap.innerHTML = `
     <div class="card-title" style="margin-bottom:10px">📋 Pending Orders (${port.orders.length})</div>
     ${port.orders.map(o => `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:4px;margin-bottom:8px">
         <div>
           <div style="font-size:13px;font-weight:600">${o.side==='buy'?'Buy':'Sell'} ${o.shares} ${o.symbol} <span style="font-size:11px;opacity:0.5;font-weight:400">${typeLabel[o.type]||o.type}</span></div>
           <div style="font-size:12px;opacity:0.6;margin-top:2px">Triggers at ${f(o.triggerPrice)}</div>
         </div>
-        <button onclick="cancelOrder('${o.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">Cancel</button>
+        <button onclick="cancelOrder('${o.id}')" style="background:transparent;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);padding:6px 12px;border-radius:4px;font-size:12px;cursor:pointer">Cancel</button>
       </div>`).join('')}
   `;
 }
@@ -1860,7 +1863,7 @@ async function saveTradeToCloud(ticker, action, shares, price, total){
 async function renderPort(){
   const syms=Object.keys(port.pos);
   const el=document.getElementById('positions');
-  if(!syms.length){ el.innerHTML='<div class="no-pos"><div>📭</div>No positions yet</div>'; return; }
+  if(!syms.length){ el.innerHTML='<div class="no-pos"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M3 13h5l1.5 3h5L16 13h5"/><path d="M5 5h14l2 8v6H3v-6z"/></svg></div>No positions yet</div>'; return; }
   el.innerHTML='<div style="padding:12px 16px;font-size:11px;color:var(--muted)">Loading prices...</div>';
   try{
     const r=await fetch(API+'/api/quotes?symbols='+syms.join(','));
@@ -1891,7 +1894,7 @@ async function renderPort(){
 
 function renderTrades(){
   const el=document.getElementById('tradeHist');
-  if(!port.trades.length){ el.innerHTML='<div class="no-pos"><div>📋</div>No trades yet</div>'; return; }
+  if(!port.trades.length){ el.innerHTML='<div class="no-pos"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg></div>No trades yet</div>'; return; }
   el.innerHTML=port.trades.slice(0,15).map(t=>`
     <div class="hist-item">
       <div class="hist-badge ${t.side}">${t.side.toUpperCase()}</div>
@@ -2048,9 +2051,10 @@ setInterval(async()=>{
 
 // Live indicator
 const li=document.createElement('div');
-li.style.cssText='position:fixed;bottom:16px;left:16px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.4);font-family:DM Mono,monospace;z-index:50;display:flex;align-items:center;gap:6px';
-li.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#16a34a;display:inline-block;animation:p 2s infinite"></span>Live · refreshes every 30s';
-document.body.appendChild(li);
+var liHome=document.querySelector('.watchlist-panel .disc');
+li.style.cssText=liHome?'display:flex;align-items:center;gap:6px;padding:8px 16px;font-size:10.5px;color:rgba(255,255,255,0.4);font-family:var(--sp-font-mono);border-top:1px solid rgba(255,255,255,0.075);background:#0e1115;flex-shrink:0':'position:fixed;bottom:16px;left:16px;background:#111;border:1px solid rgba(255,255,255,0.08);border-radius:4px;padding:6px 12px;font-size:11px;color:rgba(255,255,255,0.4);font-family:var(--sp-font-mono);z-index:50;display:flex;align-items:center;gap:6px';
+li.innerHTML='<span style="width:6px;height:6px;background:#16a34a;display:inline-block;animation:p 2s infinite"></span>Live · refreshes every 30s';
+if(liHome) liHome.parentNode.insertBefore(li,liHome); else document.body.appendChild(li);
 const st=document.createElement('style');
 st.textContent='@keyframes p{0%,100%{opacity:1}50%{opacity:0.3}}';
 document.head.appendChild(st);
@@ -2059,74 +2063,74 @@ document.head.appendChild(st);
 
 <!-- Sign In Modal -->
 <div id="fundBuilderModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px">
-  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;position:relative">
+  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:28px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;position:relative">
     <button onclick="closeFundBuilder()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
-    <div style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:4px">🧺 Build a Fund</div>
+    <div style="font-family:var(--sp-font-display);font-size:24px;font-weight:700;color:white;margin-bottom:4px">Build a Fund</div>
     <div style="color:rgba(255,255,255,0.4);font-size:13px;margin-bottom:14px">Pick real tickers, set weights, and get a live-priced fund you can trade and share.</div>
 
-    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6">
-      <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:6px">🧠 How this works</div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:12px 14px;margin-bottom:18px;font-size:12px;color:rgba(255,255,255,0.6);line-height:1.6">
+      <div style="font-weight:700;color:rgba(255,255,255,0.8);margin-bottom:6px">How this works</div>
       <div><strong style="color:rgba(255,255,255,0.85)">1. You pick the mix</strong> — real tickers, your weights, must add to 100%.</div>
       <div><strong style="color:rgba(255,255,255,0.85)">2. Price updates live</strong> — same math real index funds use: your fund moves with its real components, weighted.</div>
       <div><strong style="color:rgba(255,255,255,0.85)">3. Trade it like any stock</strong> — buy/sell shares, share the code, watch it move.</div>
     </div>
 
     <div style="display:flex;gap:8px;margin-bottom:18px">
-      <button id="fundUniStocks" onclick="setFundUniverse('stocks')" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-bg);color:#fff;font-weight:700;cursor:pointer">📈 Stocks / ETFs</button>
-      <button id="fundUniCrypto" onclick="setFundUniverse('crypto')" style="flex:1;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer">₿ Crypto</button>
+      <button id="fundUniStocks" onclick="setFundUniverse('stocks')" style="flex:1;padding:10px;border-radius:6px;border:1px solid var(--accent);background:var(--accent-bg);color:#fff;font-weight:700;cursor:pointer">Stocks / ETFs</button>
+      <button id="fundUniCrypto" onclick="setFundUniverse('crypto')" style="flex:1;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer">₿ Crypto</button>
     </div>
 
     <label style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700">FUND NAME</label>
-    <input id="fundName" placeholder="e.g. My Tech Basket" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin:6px 0 14px;font-family:'DM Sans',sans-serif">
+    <input id="fundName" placeholder="e.g. My Tech Basket" style="width:100%;padding:10px 12px;border-radius:4px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin:6px 0 14px;font-family:var(--sp-font-sans)">
 
     <label style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700">TICKER (3-5 LETTERS)</label>
-    <input id="fundTicker" placeholder="e.g. MYETF" maxlength="5" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin:6px 0 14px;text-transform:uppercase;font-family:'DM Sans',sans-serif">
+    <input id="fundTicker" placeholder="e.g. MYETF" maxlength="5" style="width:100%;padding:10px 12px;border-radius:4px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin:6px 0 14px;text-transform:uppercase;font-family:var(--sp-font-sans)">
 
     <label style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700">HOLDINGS</label>
     <div id="fundHoldingsRows" style="margin:8px 0"></div>
-    <button onclick="addFundRow()" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;width:100%">+ Add ticker</button>
+    <button onclick="addFundRow()" style="background:transparent;border:1px dashed rgba(255,255,255,0.25);color:rgba(255,255,255,0.6);padding:8px 14px;border-radius:4px;font-size:13px;cursor:pointer;width:100%">+ Add ticker</button>
 
-    <div id="fundWeightBar" style="height:10px;border-radius:100px;background:#1a1a1a;overflow:hidden;margin:14px 0 4px;display:flex"></div>
+    <div id="fundWeightBar" style="height:10px;border-radius:4px;background:#1a1a1a;overflow:hidden;margin:14px 0 4px;display:flex"></div>
     <div id="fundWeightTotal" style="font-size:12px;color:rgba(255,255,255,0.5);margin-bottom:16px">Total: 0%</div>
 
     <label style="font-size:12px;color:rgba(255,255,255,0.5);font-weight:700">LEVERAGE</label>
     <div id="fundLeverageRow" style="display:flex;gap:8px;margin:6px 0 6px">
-      <label class="fund-lev-opt sel" style="flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid var(--accent);background:var(--accent-bg);color:#fff;font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="1" checked onchange="onFundLeverageChange(this)" style="margin-right:6px">1x</label>
-      <label class="fund-lev-opt" style="flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="2" onchange="onFundLeverageChange(this)" style="margin-right:6px">2x</label>
-      <label class="fund-lev-opt" style="flex:1;text-align:center;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="3" onchange="onFundLeverageChange(this)" style="margin-right:6px">3x</label>
+      <label class="fund-lev-opt sel" style="flex:1;text-align:center;padding:10px;border-radius:6px;border:1px solid var(--accent);background:var(--accent-bg);color:#fff;font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="1" checked onchange="onFundLeverageChange(this)" style="margin-right:6px">1x</label>
+      <label class="fund-lev-opt" style="flex:1;text-align:center;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="2" onchange="onFundLeverageChange(this)" style="margin-right:6px">2x</label>
+      <label class="fund-lev-opt" style="flex:1;text-align:center;padding:10px;border-radius:6px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.6);font-weight:700;cursor:pointer"><input type="radio" name="fundLeverage" value="3" onchange="onFundLeverageChange(this)" style="margin-right:6px">3x</label>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:16px">2x/3x moves that much faster in both directions - same real risk as TQQQ or SOXL, just applied to your own mix.</div>
 
     <div id="fundBuilderError" style="display:none;color:#fca5a5;font-size:13px;margin-bottom:10px"></div>
 
-    <button id="fundCreateBtn" onclick="submitCreateFund()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif">Create Fund →</button>
+    <button id="fundCreateBtn" onclick="submitCreateFund()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:4px;font-weight:600;font-size:15px;cursor:pointer;font-family:var(--sp-font-sans)">Create Fund →</button>
   </div>
 </div>
 
 <div id="fundLookupModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:20px">
-  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:28px;width:100%;max-width:380px;position:relative">
+  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:28px;width:100%;max-width:380px;position:relative">
     <button onclick="closeFundLookup()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
-    <div style="font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:white;margin-bottom:14px">Find a Fund</div>
-    <input id="fundLookupInput" placeholder="Fund code or ticker" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin-bottom:12px;font-family:'DM Sans',sans-serif">
-    <button onclick="submitFundLookup()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-weight:600;cursor:pointer">Search →</button>
+    <div style="font-family:var(--sp-font-display);font-size:22px;font-weight:700;color:white;margin-bottom:14px">Find a Fund</div>
+    <input id="fundLookupInput" placeholder="Fund code or ticker" style="width:100%;padding:10px 12px;border-radius:4px;border:1px solid var(--border);background:var(--bg3);color:var(--text);margin-bottom:12px;font-family:var(--sp-font-sans)">
+    <button onclick="submitFundLookup()" style="width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:4px;font-weight:600;cursor:pointer">Search →</button>
   </div>
 </div>
 
 <div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:32px;width:90%;max-width:400px;position:relative">
+  <div style="background:#111;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:32px;width:90%;max-width:400px;position:relative">
     <button onclick="closeSignin()" style="position:absolute;top:16px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer">✕</button>
-    <div id="siTitle" style="font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:white;margin-bottom:6px">Welcome back</div>
+    <div id="siTitle" style="font-family:var(--sp-font-display);font-size:24px;font-weight:700;color:white;margin-bottom:6px">Welcome back</div>
     <div id="siSubtitle" style="font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:24px">Sign in to your StockPilot account</div>
-    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px"></div>
+    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:4px;font-size:13px;margin-bottom:16px"></div>
     <div id="siNameField" style="display:none">
       <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Your Name</div>
-      <input id="siName" type="text" placeholder="What should we call you?" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+      <input id="siName" type="text" placeholder="What should we call you?" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:10px 14px;color:white;font-family:var(--sp-font-sans);font-size:14px;outline:none;margin-bottom:14px"/>
     </div>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Email</div>
-    <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:14px"/>
+    <input id="siEmail" type="email" placeholder="your@email.com" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:10px 14px;color:white;font-family:var(--sp-font-sans);font-size:14px;outline:none;margin-bottom:14px"/>
     <div style="font-size:11px;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px">Password</div>
-    <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:10px 14px;color:white;font-family:'DM Sans',sans-serif;font-size:14px;outline:none;margin-bottom:20px"/>
-    <button id="siSubmitBtn" onclick="doSignin()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
+    <input id="siPass" type="password" placeholder="Your password" style="width:100%;background:#1a1a1a;border:1px solid rgba(255,255,255,0.1);border-radius:4px;padding:10px 14px;color:white;font-family:var(--sp-font-sans);font-size:14px;outline:none;margin-bottom:20px"/>
+    <button id="siSubmitBtn" onclick="doSignin()" style="width:100%;padding:12px;background:#1a9e6e;color:white;border:none;border-radius:6px;font-family:var(--sp-font-sans);font-size:15px;font-weight:600;cursor:pointer;margin-bottom:12px">Sign In</button>
     <div id="siToggleRow" style="text-align:center;font-size:13px;color:rgba(255,255,255,0.35)">Don't have an account? <span onclick="toggleSignupMode()" style="color:#2ecc9a;text-decoration:none;cursor:pointer">Create one</span></div>
     <div style="text-align:center;margin-top:8px"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.25);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
   </div>
@@ -2236,44 +2240,44 @@ document.addEventListener("DOMContentLoaded", function() {
 })();
 </script>
 <!-- LEADERBOARD SECTION -->
-<div style="max-width:900px;margin:16px auto;padding:0 12px 24px">
+<div class="sp-lb" style="max-width:900px;margin:16px auto;padding:0 12px 24px">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:12px">
     <div>
-      <h2 style="font-family:Fraunces,serif;font-size:28px;font-weight:700;color:var(--text);margin:0">🏆 Leaderboard</h2>
+      <h2 style="font-family:var(--sp-font-display);font-size:28px;font-weight:700;color:var(--text);margin:0">Leaderboard</h2>
       <p style="color:var(--dim);font-size:13px;margin:4px 0 0">Top virtual traders by portfolio return</p>
     </div>
     <div style="display:flex;gap:8px">
-      <button id="lbWeek" onclick="setLbFilter(this,'week')" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">This Week</button>
-      <button id="lbMonth" onclick="setLbFilter(this,'month')" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">This Month</button>
-      <button id="lbAll" onclick="setLbFilter(this,'all')" style="padding:7px 14px;border-radius:8px;border:1px solid var(--border);background:var(--red);color:white;font-size:12px;font-weight:600;cursor:pointer">All Time</button>
+      <button id="lbWeek" onclick="setLbFilter(this,'week')" style="padding:7px 14px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">This Week</button>
+      <button id="lbMonth" onclick="setLbFilter(this,'month')" style="padding:7px 14px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--dim);font-size:12px;font-weight:600;cursor:pointer">This Month</button>
+      <button id="lbAll" onclick="setLbFilter(this,'all')" style="padding:7px 14px;border-radius:4px;border:1px solid var(--border);background:var(--red);color:white;font-size:12px;font-weight:600;cursor:pointer">All Time</button>
     </div>
   </div>
   <div style="display:grid;grid-template-columns:1fr 280px;gap:16px;align-items:start" class="lb-grid">
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden">
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden">
       <div style="display:grid;grid-template-columns:50px 1fr 100px 100px;padding:12px 20px;border-bottom:1px solid var(--border);font-size:11px;font-weight:700;color:var(--dim);text-transform:uppercase;letter-spacing:0.05em">
         <div>Rank</div><div>Trader</div><div style="text-align:right">Return</div><div style="text-align:right">Value</div>
       </div>
       <div id="lbRows"><div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">Loading...</div></div>
     </div>
     <div style="display:flex;flex-direction:column;gap:12px">
-      <div id="lbJoinCard" style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">📣 Join</div>
+      <div id="lbJoinCard" style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:6px">Join</div>
         <div style="font-size:12px;color:var(--dim);margin-bottom:12px">Pick a nickname and compete!</div>
-        <input id="lbNickname" placeholder="Your nickname..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px;box-sizing:border-box"/>
-        <button onclick="joinLeaderboard()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">Join 🚀</button>
+        <input id="lbNickname" placeholder="Your nickname..." style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 14px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px;box-sizing:border-box"/>
+        <button onclick="joinLeaderboard()" style="width:100%;padding:10px;border-radius:4px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer">Join</button>
         <div id="lbJoinMsg" style="font-size:12px;color:var(--dim);margin-top:8px"></div>
       </div>
-      <div id="lbSignInPrompt" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px;text-align:center">
-        <div style="font-size:28px;margin-bottom:8px">🏆</div>
+      <div id="lbSignInPrompt" style="display:none;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5v2a3 3 0 0 0 3 3M16 6h3v2a3 3 0 0 1-3 3"/><path d="M12 13v4M8.5 20h7"/></svg></div>
         <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px">Want to compete?</div>
         <div style="font-size:12px;color:var(--dim);margin-bottom:16px">Sign in to join the leaderboard!</div>
-        <button onclick="openSignin()" style="width:100%;padding:10px;border-radius:8px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">Sign In</button>
+        <button onclick="openSignin()" style="width:100%;padding:10px;border-radius:4px;background:var(--red);color:white;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:8px">Sign In</button>
         <a href="javascript:void(0)" onclick="openSignin();toggleSignupMode()" style="display:block;font-size:12px;color:var(--dim);text-decoration:none">No account? Create one →</a>
       </div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px">
-        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">📨 Invite Friends</div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:20px">
+        <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px">Invite Friends</div>
         <div style="font-size:12px;color:var(--dim);margin-bottom:12px">Challenge them to beat you!</div>
-        <button id="inviteBtn" onclick="copyInviteLink()" style="width:100%;padding:10px;border-radius:8px;background:transparent;color:var(--red);border:1px solid var(--red);font-size:13px;font-weight:700;cursor:pointer">Copy Invite Link 🔗</button>
+        <button id="inviteBtn" onclick="copyInviteLink()" style="width:100%;padding:10px;border-radius:4px;background:transparent;color:var(--red);border:1px solid var(--red);font-size:13px;font-weight:700;cursor:pointer">Copy Invite Link</button>
       </div>
     </div>
   </div>
@@ -2302,11 +2306,10 @@ function loadLeaderboard(){
   .then(function(r){ return r.json(); })
   .then(function(rows){
     if(!rows||!rows.length){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first! 🚀</div>'; return; }
-    var medals=['🥇','🥈','🥉'];
     el.innerHTML=rows.map(function(row,i){
       var col=row.return_pct>=0?'#2ecc9a':'#dc2626';
       var sign=row.return_pct>=0?'+':'';
-      return '<div style="display:grid;grid-template-columns:50px 1fr 100px 100px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center"><div style="font-size:'+(i<3?'20px':'14px')+';font-weight:700">'+(medals[i]||('#'+(i+1)))+'</div><div style="font-weight:600;color:var(--text);font-size:14px">'+row.nickname+'</div><div style="text-align:right;font-weight:700;color:'+col+';font-size:14px">'+sign+Number(row.return_pct).toFixed(2)+'%</div><div style="text-align:right;color:var(--dim);font-size:13px">$'+Number(row.current_value).toLocaleString()+'</div></div>';
+      return '<div style="display:grid;grid-template-columns:50px 1fr 100px 100px;padding:14px 20px;border-bottom:1px solid var(--border);align-items:center"><div style="font-size:'+(i<3?'20px':'14px')+';font-weight:700">'+('<span class="sp-rank sp-rank-'+(i+1)+'">#'+(i+1)+'</span>')+'</div><div style="font-weight:600;color:var(--text);font-size:14px">'+row.nickname+'</div><div style="text-align:right;font-weight:700;color:'+col+';font-size:14px">'+sign+Number(row.return_pct).toFixed(2)+'%</div><div style="text-align:right;color:var(--dim);font-size:13px">$'+Number(row.current_value).toLocaleString()+'</div></div>';
     }).join('');
   })
   .catch(function(){ el.innerHTML='<div style="padding:40px;text-align:center;color:var(--dim);font-size:14px">No traders yet — be the first! 🚀</div>'; });
@@ -2451,7 +2454,7 @@ async function loadChart(symbol, range, interval, btnEl) {
 
   var dpr = window.devicePixelRatio || 1;
   var W = canvasWrap.offsetWidth || 400;
-  var H = 140;
+  var H = canvasWrap.offsetHeight || 140;
   canvas.width = W * dpr;
   canvas.height = H * dpr;
   canvas.style.width = W + 'px';
@@ -2500,9 +2503,15 @@ async function loadChart(symbol, range, interval, btnEl) {
   ctx.lineJoin = 'round';
   ctx.stroke();
 
+  // Last price: dashed guide and a square marker at the latest close
+  var lx = toX(pts.length-1), ly = toY(pts[pts.length-1]);
+  ctx.save(); ctx.setLineDash([3,4]); ctx.globalAlpha = 0.35; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(pad.left, ly); ctx.lineTo(lx, ly); ctx.stroke(); ctx.restore();
+  ctx.fillStyle = lineColor; ctx.fillRect(lx-3, ly-3, 6, 6);
+
   // Y labels
-  ctx.fillStyle = 'rgba(255,255,255,0.3)';
-  ctx.font = '10px "DM Mono", monospace';
+  ctx.fillStyle = 'rgba(255,255,255,0.42)';
+  ctx.font = '10px "IBM Plex Mono", monospace';
   ctx.textAlign = 'right';
   ctx.textBaseline = 'middle';
   [0, 0.5, 1].forEach(function(f){
@@ -2520,8 +2529,9 @@ async function loadChart(symbol, range, interval, btnEl) {
     var label = range==='5d'
       ? dt.toLocaleDateString('en-US',{weekday:'short',month:'numeric',day:'numeric'})
       : dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});
-    ctx.fillStyle = 'rgba(255,255,255,0.2)';
-    ctx.font = '10px "DM Sans", sans-serif';
+    ctx.fillStyle = 'rgba(255,255,255,0.38)';
+    ctx.font = '10px "Schibsted Grotesk", sans-serif';
+    ctx.textAlign = f === 0 ? 'left' : f === 1 ? 'right' : 'center';
     ctx.fillText(label, toX(idx), H-4);
   });
 
@@ -2552,6 +2562,7 @@ window.loadChart = loadChart;
 })();
 </script>
 
+<p class="sp-credit-line sp-credit-dark"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html><script>
         

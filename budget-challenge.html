@@ -7,61 +7,61 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>Budget Challenge — Can You Master Your Money? | StockPilot</title>
 <meta name="description" content="Real-world budget scenarios. Allocate your income, hit your savings targets, earn badges. Free, no signup needed."/>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;1,9..144,300&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--green:#16a34a;--blue:#2563eb;--red:#dc2626;--amber:#d97706;--bg:#f8fafc;--white:#fff;--border:#e2e8f0;--muted:#94a3b8;--text:#0f172a;--dark:#0f172a}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+body{font-family:var(--sp-font-sans);background:var(--bg);color:var(--text);min-height:100vh}
 nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
 .nav-brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;text-decoration:none;color:var(--text)}
 .nav-links{display:flex;gap:8px}
-.nav-link{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none}
+.nav-link{padding:7px 14px;border-radius:4px;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none}
 .nav-link:hover{background:#f1f5f9;color:var(--text)}
-.nav-cta{padding:8px 16px;border-radius:8px;background:var(--blue);color:white;font-size:13px;font-weight:600;text-decoration:none}
+.nav-cta{padding:8px 16px;border-radius:4px;background:var(--blue);color:white;font-size:13px;font-weight:600;text-decoration:none}
 
 /* Hero */
 .hero{background:var(--dark);color:white;padding:80px 24px 60px;text-align:center;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -10%,rgba(37,99,235,0.4),transparent 70%)}
-.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.3);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:#93c5fd;letter-spacing:0.04em;margin-bottom:24px;position:relative}
-.hero h1{font-family:'Fraunces',serif;font-size:clamp(2.4rem,6vw,4rem);font-weight:700;line-height:1.05;letter-spacing:-0.03em;max-width:700px;margin:0 auto 16px;position:relative}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(37,99,235,0.2);border:1px solid rgba(37,99,235,0.3);border-radius:4px;padding:6px 16px;font-size:12px;font-weight:600;color:#93c5fd;letter-spacing:0.04em;margin-bottom:24px;position:relative}
+.hero h1{font-family:var(--sp-font-display);font-size:clamp(2.4rem,6vw,4rem);font-weight:700;line-height:1.05;letter-spacing:-0.03em;max-width:700px;margin:0 auto 16px;position:relative}
 .hero h1 em{font-style:italic;font-weight:300;color:#93c5fd}
 .hero-sub{font-size:clamp(1rem,2vw,1.1rem);color:rgba(255,255,255,0.5);max-width:480px;margin:0 auto 40px;line-height:1.6;position:relative}
 .stats-row{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;position:relative}
 .stat{text-align:center}
-.stat-num{font-family:'Fraunces',serif;font-size:2rem;font-weight:700;color:white}
+.stat-num{font-family:var(--sp-font-display);font-size:2rem;font-weight:700;color:white}
 .stat-lbl{font-size:12px;color:rgba(255,255,255,0.4)}
 
 /* Scenario picker */
 .picker{max-width:1000px;margin:0 auto;padding:48px 24px}
-.picker-title{font-family:'Fraunces',serif;font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;text-align:center;margin-bottom:8px}
+.picker-title{font-family:var(--sp-font-display);font-size:clamp(1.6rem,3vw,2.2rem);font-weight:700;text-align:center;margin-bottom:8px}
 .picker-sub{text-align:center;color:var(--muted);font-size:14px;margin-bottom:32px}
 .scenarios-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
-.scenario-card{background:white;border:2px solid var(--border);border-radius:16px;padding:24px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.scenario-card{background:white;border:2px solid var(--border);border-radius:8px;padding:24px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
 .scenario-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent,var(--blue));transform:scaleX(0);transform-origin:left;transition:transform 0.3s}
-.scenario-card:hover{border-color:var(--accent,var(--blue));transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,0.08)}
+.scenario-card:hover{border-color:var(--accent,var(--blue));box-shadow:0 8px 24px rgba(0,0,0,0.08)}
 .scenario-card:hover::before{transform:scaleX(1)}
 .scenario-card.selected{border-color:var(--accent,var(--blue));background:#f0f9ff}
 .scenario-card.selected::before{transform:scaleX(1)}
 .sc-emoji{font-size:36px;margin-bottom:12px}
-.sc-title{font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;margin-bottom:6px}
+.sc-title{font-family:var(--sp-font-display);font-size:1.1rem;font-weight:700;margin-bottom:6px}
 .sc-desc{font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px}
 .sc-pills{display:flex;gap:6px;flex-wrap:wrap}
-.sc-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:#f1f5f9;color:var(--muted)}
-.start-btn{display:block;width:100%;max-width:320px;margin:32px auto 0;padding:16px;background:var(--blue);color:white;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;text-align:center}
-.start-btn:hover{background:#1d4ed8;transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,0.3)}
+.sc-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:4px;background:#f1f5f9;color:var(--muted)}
+.start-btn{display:block;width:100%;max-width:320px;margin:32px auto 0;padding:16px;background:var(--blue);color:white;border:none;border-radius:6px;font-size:16px;font-weight:700;cursor:pointer;font-family:var(--sp-font-sans);transition:all 0.2s;text-align:center}
+.start-btn:hover{background:#1d4ed8;box-shadow:none}
 .start-btn:disabled{background:#94a3b8;cursor:not-allowed;transform:none}
 
 /* Game */
 .game{max-width:1000px;margin:0 auto;padding:32px 24px;display:none}
-.back-btn{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);font-family:'DM Sans',sans-serif;padding:0;margin-bottom:20px;display:flex;align-items:center;gap:6px}
+.back-btn{background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted);font-family:var(--sp-font-sans);padding:0;margin-bottom:20px;display:flex;align-items:center;gap:6px}
 .back-btn:hover{color:var(--text)}
-.scenario-banner{background:var(--dark);color:white;border-radius:16px;padding:24px;margin-bottom:24px;position:relative;overflow:hidden}
+.scenario-banner{background:var(--dark);color:white;border-radius:8px;padding:24px;margin-bottom:24px;position:relative;overflow:hidden}
 .scenario-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 100% at 0% 50%,rgba(37,99,235,0.3),transparent)}
 .sb-emoji{font-size:32px;margin-bottom:8px;position:relative}
-.sb-title{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700;margin-bottom:6px;position:relative}
+.sb-title{font-family:var(--sp-font-display);font-size:1.4rem;font-weight:700;margin-bottom:6px;position:relative}
 .sb-text{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.6;position:relative;max-width:600px}
 .sb-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;position:relative}
-.sb-pill{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600}
+.sb-pill{padding:5px 12px;border-radius:4px;font-size:12px;font-weight:600}
 .pill-g{background:rgba(22,163,74,0.2);color:#86efac}
 .pill-b{background:rgba(37,99,235,0.2);color:#93c5fd}
 .pill-r{background:rgba(220,38,38,0.2);color:#fca5a5}
@@ -70,25 +70,25 @@ nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid v
 .game-grid{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start}
 @media(max-width:700px){.game-grid{grid-template-columns:1fr}}
 
-.alloc-card{background:white;border:1px solid var(--border);border-radius:16px;padding:20px}
+.alloc-card{background:white;border:1px solid var(--border);border-radius:8px;padding:20px}
 .alloc-section{margin-bottom:20px}
 .alloc-section-title{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
 .alloc-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8fafc}
 .alloc-row:last-child{border-bottom:none}
 .alloc-label{font-size:14px;display:flex;flex-direction:column;gap:2px}
 .alloc-hint{font-size:11px;color:var(--muted)}
-.alloc-fixed{font-size:13px;font-weight:700;color:var(--red);background:#fef2f2;padding:5px 10px;border-radius:8px;white-space:nowrap}
-.inp{width:100px;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;text-align:right;transition:all 0.15s}
+.alloc-fixed{font-size:13px;font-weight:700;color:var(--red);background:#fef2f2;padding:5px 10px;border-radius:4px;white-space:nowrap}
+.inp{width:100px;padding:8px 12px;border:1.5px solid var(--border);border-radius:4px;font-size:14px;font-family:var(--sp-font-sans);text-align:right;transition:all 0.15s}
 .inp:focus{outline:none;border-color:var(--blue);background:#f0f9ff}
 .inp.over{border-color:var(--red);background:#fef2f2}
 .inp.good{border-color:var(--green)}
 
 /* Score panel */
-.score-panel{background:var(--dark);color:white;border-radius:16px;padding:22px;position:sticky;top:72px}
+.score-panel{background:var(--dark);color:white;border-radius:8px;padding:22px;position:sticky;top:72px}
 .score-ring{width:120px;height:120px;margin:0 auto 12px;position:relative}
 .score-ring svg{transform:rotate(-90deg)}
 .score-ring-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}
-.score-ring-big{font-family:'Fraunces',serif;font-size:32px;font-weight:700;line-height:1}
+.score-ring-big{font-family:var(--sp-font-display);font-size:32px;font-weight:700;line-height:1}
 .score-ring-lbl{font-size:10px;color:rgba(255,255,255,0.4)}
 .score-grade{text-align:center;font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:16px}
 
@@ -96,40 +96,99 @@ nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid v
 .metric-bar{height:5px;background:rgba(255,255,255,0.1);border-radius:3px;margin-bottom:12px;overflow:hidden}
 .metric-fill{height:100%;border-radius:3px;transition:width 0.35s}
 
-.leftover-box{background:rgba(255,255,255,0.07);border-radius:10px;padding:10px 14px;text-align:center;margin:12px 0}
+.leftover-box{background:rgba(255,255,255,0.07);border-radius:6px;padding:10px 14px;text-align:center;margin:12px 0}
 .leftover-num{font-size:18px;font-weight:700}
 .leftover-lbl{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px}
 
 .badges{display:flex;gap:5px;flex-wrap:wrap;margin:10px 0}
-.badge{background:rgba(255,255,255,0.08);border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;transition:all 0.3s}
+.badge{background:rgba(255,255,255,0.08);border-radius:4px;padding:3px 8px;font-size:11px;font-weight:600;transition:all 0.3s}
 .badge.lit{background:rgba(22,163,74,0.25);color:#86efac}
 
-.submit-btn{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;margin-top:12px;transition:all 0.2s}
+.submit-btn{width:100%;padding:13px;background:var(--blue);color:white;border:none;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;font-family:var(--sp-font-sans);margin-top:12px;transition:all 0.2s}
 .submit-btn:hover{background:#1d4ed8}
 .submit-btn:disabled{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.4);cursor:not-allowed}
 
 /* Results */
 .results{max-width:600px;margin:0 auto;padding:32px 24px;display:none;text-align:center}
-.results-score{font-family:'Fraunces',serif;font-size:80px;font-weight:700;line-height:1;margin:16px 0}
+.results-score{font-family:var(--sp-font-display);font-size:80px;font-weight:700;line-height:1;margin:16px 0}
 .results-grade{font-size:20px;font-weight:600;margin-bottom:8px}
 .results-badges{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:20px 0}
-.results-badge{background:#f0fdf4;border:1px solid #86efac;color:#166534;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600}
-.results-breakdown{background:white;border:1px solid var(--border);border-radius:16px;padding:24px;margin:24px 0;text-align:left}
+.results-badge{background:#f0fdf4;border:1px solid #86efac;color:#166534;border-radius:4px;padding:6px 14px;font-size:13px;font-weight:600}
+.results-breakdown{background:white;border:1px solid var(--border);border-radius:8px;padding:24px;margin:24px 0;text-align:left}
 .breakdown-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f8fafc;font-size:14px}
 .breakdown-row:last-child{border-bottom:none}
-.cta-box{background:var(--dark);color:white;border-radius:16px;padding:24px;margin-top:24px}
-.cta-box h3{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;margin-bottom:8px}
+.cta-box{background:var(--dark);color:white;border-radius:8px;padding:24px;margin-top:24px}
+.cta-box h3{font-family:var(--sp-font-display);font-size:1.3rem;font-weight:700;margin-bottom:8px}
 .cta-box p{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:16px}
 .cta-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.cta-btn{padding:11px 20px;border-radius:10px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',sans-serif}
+.cta-btn{padding:11px 20px;border-radius:6px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:var(--sp-font-sans)}
 .cta-primary{background:var(--blue);color:white}
 .cta-ghost{background:rgba(255,255,255,0.1);color:white}
 </style>
+<style id="sp-budget-challenge">
+/* Budget Challenge: same blue/ink palette, editorial layout, no glow or pills */
+nav{height:64px;padding:0 40px}
+.nav-brand{font-size:17px;letter-spacing:-0.01em}
+.nav-link{border-radius:0;font-size:14px}
+.nav-link:hover{background:none}
+.nav-cta{display:inline-flex;align-items:center;height:36px;padding:0 14px}
+.hero{text-align:left;padding:96px max(40px,calc((100vw - 1100px)/2 + 40px)) 72px}
+.hero::before{display:none}
+.hero-eyebrow{background:none;border:none;border-radius:0;padding:0;font-family:var(--sp-font-mono);font-size:13px;font-weight:400;letter-spacing:0;color:#93c5fd;margin-bottom:26px}
+.hero h1{margin:0 0 20px;max-width:900px;font-size:clamp(46px,6.4vw,84px);letter-spacing:-0.042em;line-height:.98}
+.hero h1 em{color:#93c5fd}
+.hero-sub{margin:0 0 44px;color:rgba(255,255,255,0.62);max-width:520px}
+.stats-row{justify-content:flex-start;gap:0;border-top:1px solid rgba(255,255,255,0.16);padding-top:22px;max-width:560px}
+.stat{text-align:left;padding-right:36px;margin-right:36px;border-right:1px solid rgba(255,255,255,0.1)}
+.stat:last-child{border-right:none}
+.stat-num{font-size:34px;letter-spacing:-0.03em}
+.stat-lbl{font-size:13px;color:rgba(255,255,255,0.5)}
+.picker{max-width:1100px;padding:72px 40px}
+.picker-title{text-align:left;font-size:clamp(30px,3.4vw,44px);letter-spacing:-0.035em}
+.picker-sub{text-align:left;font-size:16px;max-width:620px}
+.scenarios-grid{gap:0;border-top:1px solid var(--border);border-left:1px solid var(--border)}
+.scenario-card{border:none;border-right:1px solid var(--border);border-bottom:1px solid var(--border);border-radius:0;padding:26px 24px}
+.scenario-card::before{height:2px;transform:scaleX(0)}
+.scenario-card:hover{box-shadow:none;background:#fbfcfd}
+.scenario-card.selected{background:#f4f8ff;box-shadow:inset 0 2px 0 var(--accent,var(--blue))}
+.sc-emoji,.sb-emoji{display:none}
+.sc-title{font-size:19px;letter-spacing:-0.02em}
+.sc-desc{font-size:14px}
+.sc-pill,.sb-pill{border-radius:2px;font-family:var(--sp-font-mono);font-weight:500}
+.start-btn{margin:32px 0 0;height:52px;padding:0 24px;max-width:none;width:auto;display:inline-flex;align-items:center;border-radius:4px}
+.scenario-banner::before{display:none}
+.score-panel{border-radius:6px}
+@media(max-width:640px){
+  nav{padding:0 20px;height:58px}
+  .nav-links .nav-link{display:none}
+  .nav-links{gap:6px}
+  .hero{padding:64px 20px 48px}
+  .hero h1{font-size:44px}
+  .hero h1 br{display:none}
+  .picker{padding:48px 20px}
+  .start-btn{width:100%;justify-content:center}
+}
+#resultsEmoji{display:none}
+:root{--muted:#64748b}
+/* Five scenarios fill the grid with no empty cell: 3 + 2 on desktop, 2 + 2 + 1 on tablets */
+@media(min-width:960px){.scenarios-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.scenarios-grid > *{grid-column:span 2}.scenarios-grid > :nth-child(4):nth-last-child(2),.scenarios-grid > :nth-child(5):last-child{grid-column:span 3}}
+@media(min-width:600px) and (max-width:959px){.scenarios-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.scenarios-grid > :nth-child(odd):last-child{grid-column:span 2}}
+.nav-links{align-items:center}
+.nav-cta{background:none;color:var(--text);border:1px solid var(--border);border-radius:3px}
+.nav-cta:hover{border-color:#94a3b8}
+.nav-links a[href="/daily-challenge"]{display:inline-flex!important;align-items:center;height:36px;padding:0 14px!important;border-radius:3px!important;margin-left:0!important;font-weight:600!important}
+.sb-pills{flex-direction:column;gap:7px}
+.sb-pill{display:flex;align-items:baseline;gap:9px;background:none!important;padding:0;border-radius:0;font-size:12.5px;line-height:1.5}
+.sb-pill::before{content:'';flex:none;width:6px;height:6px;background:currentColor;transform:translateY(-1px)}
+@media(max-width:600px){.stats-row{display:grid;grid-template-columns:repeat(3,auto);justify-content:start}.stat{padding-right:20px;margin-right:20px}.stat-num{font-size:28px}}
+</style>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/sp-motion.js"></script>
 </head>
 <body>
 <nav>
   <a href="/" class="nav-brand">
-    <img src="/logo.jpg" alt="StockPilot" style="width:28px;height:28px;border-radius:6px"/>
+    <img src="/logo-mark-256.png" alt="StockPilot" class="sp-mark"/>
     StockPilot
   </a>
   <div class="nav-links">
@@ -137,14 +196,14 @@ nav{position:sticky;top:0;z-index:100;background:white;border-bottom:1px solid v
     <a href="/investing" class="nav-link">Portfolio</a>
     <a href="/learn" class="nav-link">Learn</a>
     <a href="/classroom" class="nav-cta">Classroom</a>
-    <a href="/daily-challenge" style="padding:8px 16px;border-radius:8px;background:linear-gradient(135deg,#dc2626,#f97316);color:white;font-size:13px;font-weight:700;text-decoration:none;margin-left:4px">🔴 Daily</a>
+    <a href="/daily-challenge" style="padding:8px 16px;border-radius:4px;background:#dc2626;color:white;font-size:13px;font-weight:700;text-decoration:none;margin-left:4px">Daily</a>
   </div>
 </nav>
 
 <!-- Hero -->
 <div class="hero" id="heroSection">
-  <div class="hero-eyebrow">🎯 Free · No signup · Real scenarios</div>
-  <h1>Can you master<br/><em>your budget?</em></h1>
+  <div class="hero-eyebrow">Free · No signup · Real scenarios</div>
+  <h1>Can you master <br/><em>your budget?</em></h1>
   <p class="hero-sub">Pick a real-world scenario, allocate your income, and see how your budget holds up. Get scored, earn badges, and learn what actually works.</p>
   <div class="stats-row">
     <div class="stat"><div class="stat-num">5</div><div class="stat-lbl">Scenarios</div></div>
@@ -375,25 +434,25 @@ function startGame(){
     <div class="sb-title">${s.title}</div>
     <div class="sb-text">${s.desc}</div>
     <div class="sb-pills">
-      <span class="sb-pill pill-g">💵 $${s.income.toLocaleString()}/mo take-home</span>
-      <span class="sb-pill pill-r">🔒 $${fixedTotal.toLocaleString()} fixed costs</span>
-      <span class="sb-pill pill-b">🎯 ${s.targetSavings}% savings target</span>
-      <span class="sb-pill pill-a">💡 ${s.tip}</span>
+      <span class="sb-pill pill-g">$${s.income.toLocaleString()}/mo take-home</span>
+      <span class="sb-pill pill-r">$${fixedTotal.toLocaleString()} fixed costs</span>
+      <span class="sb-pill pill-b">${s.targetSavings}% savings target</span>
+      <span class="sb-pill pill-a">${s.tip}</span>
     </div>`;
 
   // Build allocation form
   let html = '';
   // Fixed expenses
   if(fixedTotal > 0){
-    html += '<div class="alloc-section"><div class="alloc-section-title">🔒 Fixed Expenses <span style="font-weight:400;text-transform:none;letter-spacing:0">(locked in — can\'t change)</span></div>';
-    if(fixed.rent>0) html += fixedRow('🏠 Rent / Mortgage', fixed.rent);
-    if(fixed.loan>0) html += fixedRow('💳 Loan Min. Payment', fixed.loan);
-    if(fixed.transport>0) html += fixedRow('🚗 Transportation', fixed.transport);
-    if(fixed.utilities>0) html += fixedRow('💡 Utilities', fixed.utilities);
+    html += '<div class="alloc-section"><div class="alloc-section-title">Fixed Expenses <span style="font-weight:400;text-transform:none;letter-spacing:0">(locked in — can\'t change)</span></div>';
+    if(fixed.rent>0) html += fixedRow('Rent / Mortgage', fixed.rent);
+    if(fixed.loan>0) html += fixedRow('Loan Min. Payment', fixed.loan);
+    if(fixed.transport>0) html += fixedRow('Transportation', fixed.transport);
+    if(fixed.utilities>0) html += fixedRow('Utilities', fixed.utilities);
     html += '</div>';
   }
   // Variable
-  html += `<div class="alloc-section"><div class="alloc-section-title">📊 Your Allocations <span style="font-weight:400;text-transform:none;letter-spacing:0">($${s.income.toLocaleString()} to work with)</span></div>`;
+  html += `<div class="alloc-section"><div class="alloc-section-title">Your Allocations <span style="font-weight:400;text-transform:none;letter-spacing:0">($${s.income.toLocaleString()} to work with)</span></div>`;
   const vars = [
     ['bHousing','🏠','Housing / Rent','Rent, mortgage, renters insurance'],
     ['bFood','🍔','Food','Groceries + dining out'],
@@ -457,7 +516,7 @@ function recalc(){
   sn.textContent = total===0?'—':score;
   sn.style.color = score>=80?'#86efac':score>=60?'#fbbf24':'#fca5a5';
 
-  const grades = [[90,'Outstanding! 🏆'],[80,'Strong budget!'],[70,'Good, refine it'],[60,'Getting there'],[50,'Needs work'],[0,'Keep trying']];
+  const grades = [[90,'Outstanding!'],[80,'Strong budget!'],[70,'Good, refine it'],[60,'Getting there'],[50,'Needs work'],[0,'Keep trying']];
   const grade = grades.find(([min])=>score>=min)||grades[grades.length-1];
   document.getElementById('scoreGrade').textContent = total===0?'Fill in your budget':grade[1];
 
@@ -494,7 +553,7 @@ function recalc(){
   ];
   document.getElementById('badgesEl').innerHTML = allBadges.map(b=>{
     const earned = earnedBadges.find(e=>e.icon===b.icon);
-    return `<div class="badge${earned?' lit':''}">${b.icon} ${b.label}</div>`;
+    return `<div class="badge${earned?' lit':''}">${b.label}</div>`;
   }).join('');
 
   // Enable submit
@@ -551,7 +610,7 @@ function showResults(){
   document.getElementById('resultsGrade').textContent = g2[1];
 
   document.getElementById('resultsBadges').innerHTML = earnedBadges.length
-    ? earnedBadges.map(b=>`<div class="results-badge">${b.icon} ${b.label}</div>`).join('')
+    ? earnedBadges.map(b=>`<div class="results-badge">${b.label}</div>`).join('')
     : '<div style="color:var(--muted);font-size:13px">No badges this time — try again!</div>';
 
   // Breakdown
@@ -562,12 +621,12 @@ function showResults(){
     ['Food','−$'+v('bFood').toLocaleString(),''],
     ['Transportation','−$'+v('bTransport').toLocaleString(),''],
     ['Utilities','−$'+v('bUtilities').toLocaleString(),''],
-    ['Entertainment','−$'+v('bEntertain').toLocaleString(),entPct>0.15?'⚠️ Over 15%':''],
-    ['Savings','$'+v('bSavings').toLocaleString(),savRate>=s.targetSavings?'✓ Target met':'⚠️ Below target'],
+    ['Entertainment','−$'+v('bEntertain').toLocaleString(),entPct>0.15?'Over 15%':''],
+    ['Savings','$'+v('bSavings').toLocaleString(),savRate>=s.targetSavings?'✓ Target met':'Below target'],
     ['Extra Debt Payment','$'+v('bDebt').toLocaleString(),''],
     ['Emergency Fund','$'+v('bEmergency').toLocaleString(),''],
     ['Other','−$'+v('bOther').toLocaleString(),''],
-    ['Monthly Leftover',(leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString(),leftover>=0?'✓':'⚠️ Over budget'],
+    ['Monthly Leftover',(leftover>=0?'$':'−$')+Math.abs(Math.round(leftover)).toLocaleString(),leftover>=0?'✓':'Over budget'],
     ['Savings Rate',savRate.toFixed(1)+'%',savRate>=s.targetSavings?'✓ Met '+s.targetSavings+'% target':'Target: '+s.targetSavings+'%'],
   ];
   document.getElementById('resultsBreakdown').innerHTML = '<div style="font-size:13px;font-weight:700;margin-bottom:12px">Budget Breakdown</div>'
@@ -582,5 +641,6 @@ function backToPicker(){
   window.scrollTo(0,0);
 }
 </script>
+<p class="sp-credit-line"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html>

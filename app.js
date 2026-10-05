@@ -11538,7 +11538,7 @@ function renderSpendingPieChart() {
     if (pct >= 5) {
       var mid = angle + sweep/2;
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 12px DM Sans,sans-serif';
+      ctx.font = 'bold 12px "Schibsted Grotesk",sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(pct+'%', cx+r*0.65*Math.cos(mid), cy+r*0.65*Math.sin(mid));
     }
