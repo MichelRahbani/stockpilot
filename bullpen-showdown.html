@@ -328,17 +328,28 @@ body::before{
 </div>
 
 <script>
-// Ambient ticker tape — decorative, not live data
+// Ticker tape: real prices from the same quote feed the games use. If the feed
+// can't be reached it shows the symbols only. It never shows made-up numbers.
 const TICKER_SYMS = ['AAPL','TSLA','NVDA','MSFT','AMZN','GOOGL','META','AMD','NFLX','COIN','PLTR','SPY','QQQ','BA','DIS'];
 const track = document.getElementById('tickerTrack');
-let tickerHtml = '';
-TICKER_SYMS.forEach(sym => {
-  const up = Math.random() > 0.45;
-  const pct = (Math.random()*4).toFixed(2);
-  const px = (50 + Math.random()*400).toFixed(2);
-  tickerHtml += `<span class="ticker-item"><span class="sym">${sym}</span><span class="px">$${px}</span><span class="${up?'up':'down'}">${up?'▲':'▼'} ${pct}%</span></span>`;
-});
-track.innerHTML = tickerHtml + tickerHtml; // duplicate for seamless loop
+function renderTape(quotes){
+  let tickerHtml = '';
+  TICKER_SYMS.forEach(sym => {
+    const q = quotes && quotes[sym];
+    if(q && q.regularMarketPrice > 0){
+      const chg = q.regularMarketChangePercent || 0, up = chg >= 0;
+      tickerHtml += `<span class="ticker-item"><span class="sym">${sym}</span><span class="px">$${q.regularMarketPrice.toFixed(2)}</span><span class="${up?'up':'down'}">${up?'▲':'▼'} ${Math.abs(chg).toFixed(2)}%</span></span>`;
+    } else {
+      tickerHtml += `<span class="ticker-item"><span class="sym">${sym}</span></span>`;
+    }
+  });
+  track.innerHTML = tickerHtml + tickerHtml; // duplicate for seamless loop
+}
+renderTape(null);
+fetch('https://stockpilot-production-c94f.up.railway.app/api/quotes?symbols=' + TICKER_SYMS.join(','))
+  .then(r => r.json())
+  .then(d => { const m = {}; ((d && d.quoteResponse && d.quoteResponse.result) || []).forEach(q => { m[q.symbol] = q; }); renderTape(m); })
+  .catch(() => {});
 </script>
 
 <script src="/bullpen-shared.js"></script>
