@@ -205,7 +205,7 @@ function getUid(){
   if(!t) return null;
   try{ return JSON.parse(atob(t.split('.')[1])).sub; }catch(e){ return null; }
 }
-function getName(){ return localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || 'Student'; }
+function getName(){ return localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || 'Player'; }
 
 async function sbGet(table, qs=''){
   const r = await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''), {headers:{apikey:SUPA_KEY, Authorization:'Bearer '+SUPA_KEY}});
