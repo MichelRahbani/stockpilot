@@ -76,6 +76,11 @@ const cleanSymbol = (symbol) => String(symbol || "").trim().toUpperCase().replac
 // is ever missing, everything behaves exactly as it did before.
 let classShare = { providerSymbol: (symbol) => symbol, rescueQuotes: async () => {} };
 try { classShare = require("./class-share.js"); } catch (error) { console.error("Class-share module not loaded:", error.message); }
+
+// One consistent live price per stock (see quote-consistency.js). If the module is ever
+// missing, quotes are merged exactly as they were before.
+let quoteConsistency = { settleQuote: (symbol, yahoo, finnhub) => ({ ...(yahoo || { symbol }), ...(finnhub || {}) }), longCached: (fetcher) => fetcher };
+try { quoteConsistency = require("./quote-consistency.js"); } catch (error) { console.error("Quote consistency module not loaded:", error.message); }
 const finiteNumber = (value) => {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;
@@ -131,13 +136,14 @@ const fetchFinnhubJson = async (pathName, params = {}) => {
   url.searchParams.set("token", FINNHUB_API_KEY);
   return cachedFetch(url.toString(), "json");
 };
+const fetchFinnhubStatic = quoteConsistency.longCached(fetchFinnhubJson);
 
 const getFinnhubSnapshot = async (symbol) => {
   if (!FINNHUB_API_KEY) return null;
   const [quoteResult, profileResult, metricResult] = await Promise.allSettled([
     fetchFinnhubJson("/quote", { symbol }),
-    fetchFinnhubJson("/stock/profile2", { symbol }),
-    fetchFinnhubJson("/stock/metric", { symbol, metric: "all" })
+    fetchFinnhubStatic("/stock/profile2", { symbol }),
+    fetchFinnhubStatic("/stock/metric", { symbol, metric: "all" })
   ]);
   const quote = quoteResult.status === "fulfilled" ? quoteResult.value : {};
   const profile = profileResult.status === "fulfilled" ? profileResult.value : {};
@@ -315,8 +321,9 @@ const getQuotePayload = async (symbols) => {
     providerErrors.push(`Finnhub: ${error.message}`);
     return {};
   });
+  const settleNow = Date.now();
   cleanSymbols.forEach((symbol) => {
-    quoteMap[symbol] = { ...(quoteMap[symbol] || { symbol }), ...(finnhubMap[symbol] || {}) };
+    quoteMap[symbol] = quoteConsistency.settleQuote(symbol, quoteMap[symbol], finnhubMap[symbol], settleNow);
   });
   await classShare.rescueQuotes(cleanSymbols, quoteMap, { fetchYahooChartQuote, getFinnhubQuoteMap }).catch(() => {});
   const result = cleanSymbols.map((symbol) => quoteMap[symbol]).filter((quote) => quote && Object.keys(quote).length > 1);
