@@ -374,15 +374,30 @@ function genCode(){
   return s;
 }
 
-async function getPrice(ticker){
-  if(priceCache[ticker] !== undefined) return priceCache[ticker];
-  try{
-    const res = await fetch(`${BACKEND}/api/quotes?symbols=${ticker}`);
-    const data = await res.json();
-    const price = data?.quoteResponse?.result?.[0]?.regularMarketPrice || 0;
-    priceCache[ticker] = price;
-    return price;
-  }catch(e){ return 0; }
+// Prices expire after 20 seconds (they used to be kept for the whole visit, so fills and
+// P&L could use a price from hours earlier). Orders always ask for a fresh price, and are
+// refused if the feed says the live price is unavailable rather than filling at a stale close.
+const PRICE_TTL_MS = 20000;
+let priceNote = {};      // ticker -> 'stale' when no trustworthy live price is available right now
+let priceInflight = {};  // ticker -> pending lookup, so simultaneous requests share one call
+async function getPrice(ticker, fresh){
+  const hit = priceCache[ticker];
+  if(!fresh && hit && Date.now() - hit.at < PRICE_TTL_MS) return hit.price;
+  if(!fresh && priceInflight[ticker]) return priceInflight[ticker];
+  const run = (async () => {
+    try{
+      const res = await fetch(`${BACKEND}/api/quotes?symbols=${ticker}`);
+      const data = await res.json();
+      const q = data?.quoteResponse?.result?.[0];
+      const price = q?.regularMarketPrice || 0;
+      priceNote[ticker] = (q && q.stockPilotPriceStale) ? 'stale' : '';
+      if(fresh && priceNote[ticker]) return 0;
+      if(price) priceCache[ticker] = { price, at: Date.now() };
+      return price;
+    }catch(e){ return 0; }
+  })();
+  if(!fresh){ priceInflight[ticker] = run; run.then(() => { delete priceInflight[ticker]; }); }
+  return run;
 }
 
 // ── Create a competition (organizer) ──
@@ -715,8 +730,8 @@ async function executeTeamOption(){
   const days = parseInt(document.getElementById('optExpiry').value);
   const contracts = parseInt(document.getElementById('optContracts').value) || 0;
   if(!ticker || !strike || strike <= 0 || contracts <= 0) return;
-  const spot = await getPrice(ticker);
-  if(!spot) return;
+  const spot = await getPrice(ticker, true);
+  if(!spot){ showToast(priceNote[ticker] === 'stale' ? 'The live price is unavailable right now. Try again in a minute.' : 'Could not get a price for that ticker.', 'error'); return; }
   const expDate = new Date(Date.now() + days*86400000).toISOString().split('T')[0];
   const {premium} = await getOptionPremium(ticker, spot, strike, expDate, teamOptionType);
   const total = premium * 100 * contracts;
@@ -836,8 +851,8 @@ async function doTrade(action){
   const shares = parseFloat(document.getElementById('tradeShares').value);
   if(!ticker || !shares || shares <= 0){ showToast('Enter a ticker and a positive number of shares.', 'error'); return; }
 
-  const price = await getPrice(ticker);
-  if(!price){ showToast('Could not get a price for that ticker.', 'error'); return; }
+  const price = await getPrice(ticker, true);
+  if(!price){ showToast(priceNote[ticker] === 'stale' ? 'The live price is unavailable right now (market closed and the after-hours feed is busy). Try again in a minute.' : 'Could not get a price for that ticker.', 'error'); return; }
   const total = price * shares;
   const holdings = {...(myMember.holdings || {})};
   let cash = myMember.cash;
