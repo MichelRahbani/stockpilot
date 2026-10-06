@@ -141,6 +141,7 @@ async function getFreshToken(){
   }catch(e){return null;}
 }
 function getUid(){const t=localStorage.getItem('supabase_token');if(!t)return null;try{return JSON.parse(atob(t.split('.')[1])).sub;}catch(e){return null;}}
+function getName(){ return localStorage.getItem('supabase_name') || localStorage.getItem('supabase_email') || ''; }
 async function sbGet(table,qs=''){const r=await fetch(SUPA_URL+'/rest/v1/'+table+(qs?'?'+qs:''),{headers:{apikey:SUPA_KEY,Authorization:'Bearer '+SUPA_KEY}});return r.json();}
 async function sbWrite(table,body,method='POST',qs=''){
   const token=await getFreshToken();
@@ -189,7 +190,7 @@ async function saveRoster(r, fields){
 }
 async function fetchRosters(){ return sbGet('sports_fantasy_rosters','league_id=eq.'+league.id+'&submitted=eq.true'); }
 async function fetchTrades(){ const t=await sbGet('sports_fantasy_trades','league_id=eq.'+league.id+'&order=created_at.desc'); return Array.isArray(t)?t:[]; }
-async function ensureTier(){ if(tierPrices) return; try{ const d=await (await fetch(BACKEND+'/api/sp500-tiers')).json(); tierPrices=d.prices||{}; }catch(e){ tierPrices={}; } }
+async function ensureTier(){ if(tierPrices) return; try{ tierPrices=await FC.loadSportsTiers(BACKEND); }catch(e){ tierPrices={}; } }
 async function refresh(){ rosters=await fetchRosters(); trades=await fetchTrades(); renderAll(); }
 function renderAll(){ renderStandings(); renderRoster(); renderFA(); renderTrades(); }
 
