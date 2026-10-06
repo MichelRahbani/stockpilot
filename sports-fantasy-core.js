@@ -72,7 +72,7 @@ FC.weekKey = d => { const x = new Date(d); x.setHours(0, 0, 0, 0); x.setDate(x.g
 FC.movesThisWeek = (r, now) => (r.moves_log || []).filter(m => m.type !== 'swap' && FC.weekKey(m.at) === FC.weekKey(now || new Date())).length;
 FC.movesLeft = (r, league, now) => Math.max(0, (league.weekly_move_limit == null ? 3 : league.weekly_move_limit) - FC.movesThisWeek(r, now));
 FC.canMove = (r, league, kind, now) => {
-  if (league.moves_open === false) return { error: 'Your teacher has closed roster moves for now.' };
+  if (league.moves_open === false) return { error: 'The commissioner has closed roster moves for now.' };
   if (kind !== 'swap' && FC.movesLeft(r, league, now) <= 0) return { error: 'You have used all ' + (league.weekly_move_limit == null ? 3 : league.weekly_move_limit) + ' moves for this week.' };
   return { ok: true };
 };
@@ -130,7 +130,7 @@ FC.freeAgent = (r, league, ctx, dropT, addT, tierCost) => {
 // Trade settles at current market value; any value difference comes out of (or goes into) each side's cash.
 FC.trade = (rA, rB, league, ctx, giveT, getT) => {
   if (!FC.picksOf(rA).includes(giveT)) return { error: 'The proposer no longer has ' + giveT + '.' };
-  if (!FC.picksOf(rB).includes(getT)) return { error: 'The other student no longer has ' + getT + '.' };
+  if (!FC.picksOf(rB).includes(getT)) return { error: 'The other player no longer has ' + getT + '.' };
   const vGive = FC.posValue(rA, giveT, ctx), vGet = FC.posValue(rB, getT, ctx);
   const a = FC.replace(rA, league, ctx, giveT, getT, vGet);
   if (a.error) return { error: 'Trade fails for the proposer: ' + a.error };
