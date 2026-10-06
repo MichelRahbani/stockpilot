@@ -106,7 +106,7 @@ details.how{margin-top:10px;font-size:13px;color:var(--muted)}details.how summar
     <div id="paneTrades" style="display:none"></div>
     <div id="paneDiscuss" style="display:none">
       <div class="card">
-        <textarea id="newPostBody" placeholder="Share a take on the market, defend a pick, or ask the class something..."></textarea>
+        <textarea id="newPostBody" placeholder="Share a take on the market, defend a pick, or ask the league something..."></textarea>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
           <span class="muted" id="postAs"></span>
           <button class="btn btn-primary" id="postBtn" onclick="submitPost(null)">Post</button>
@@ -226,7 +226,7 @@ function renderRecap(){
   banner.innerHTML = `<div class="card" style="background:rgba(255,193,7,0.08);border-color:rgba(255,193,7,0.3)">
     <div style="font-weight:700;font-size:15px;margin-bottom:2px">\ud83c\udfc1 Season Complete</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:10px">This league ended ${new Date(league.end_date+'T00:00:00').toLocaleDateString(undefined,{month:'long',day:'numeric',year:'numeric'})}. Final standings:</div>
-    ${ranked.slice(0,5).map((x,i)=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>${medal(i)} ${esc(x.r.nickname||'Student')}</span><span style="font-weight:600">${(x.s.score>=0?'+':'')+x.s.score.toFixed(2)}</span></div>`).join('')}
+    ${ranked.slice(0,5).map((x,i)=>`<div style="display:flex;justify-content:space-between;padding:4px 0;font-size:13px"><span>${medal(i)} ${esc(x.r.nickname||'Player')}</span><span style="font-weight:600">${(x.s.score>=0?'+':'')+x.s.score.toFixed(2)}</span></div>`).join('')}
   </div>`;
 }
 
@@ -248,7 +248,7 @@ function renderStandings(){
   ranked.forEach((x,i)=>{
     const me=x.r.user_id===uid, s=x.s;
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
-    h+='<tr class="row'+(me?' me':'')+'" data-uid="'+x.r.user_id+'"><td>'+medal+'</td><td><strong>'+esc(x.r.nickname||'Student')+'</strong>'+(me?' <span class="muted">(you)</span>':'')+'</td><td><strong>'+sgn(s.score)+'</strong></td><td>'+pct(s.retPct)+'</td><td>'+pts(s.alphaPts)+'</td><td>'+pts(s.divPts)+' <span class="muted">('+s.uniqueSectors+' sec)</span></td></tr>';
+    h+='<tr class="row'+(me?' me':'')+'" data-uid="'+x.r.user_id+'"><td>'+medal+'</td><td><strong>'+esc(x.r.nickname||'Player')+'</strong>'+(me?' <span class="muted">(you)</span>':'')+'</td><td><strong>'+sgn(s.score)+'</strong></td><td>'+pct(s.retPct)+'</td><td>'+pts(s.alphaPts)+'</td><td>'+pts(s.divPts)+' <span class="muted">('+s.uniqueSectors+' sec)</span></td></tr>';
     if(expanded.has(x.r.user_id)){
       h+='<tr><td colspan="6" style="background:var(--bg)">';
       if(canSee){
