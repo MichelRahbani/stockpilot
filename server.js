@@ -1153,6 +1153,16 @@ const server = http.createServer(async (req, res) => {
           }).then(r => r.json());
           if (!Array.isArray(members) || !members.length) continue;
 
+          // Only teams that have drafted a roster take part. Teams with no roster are not
+          // ranked and get no points (before, they scored 0 and out-ranked real teams that
+          // had a small loss). If fewer than two teams have a roster there is nothing to
+          // rank yet, so the week is left alone and the clock does not advance.
+          const players = members.filter(m => Array.isArray(m.starters) && m.starters.length);
+          if (players.length < 2) {
+            results.push({ league: league.code, leagueName: league.name, status: "waiting_for_rosters", teamsWithRosters: players.length });
+            continue;
+          }
+
           const allTickers = new Set();
           members.forEach(m => (m.starters || []).forEach(t => allTickers.add(t)));
 
@@ -1225,7 +1235,7 @@ const server = http.createServer(async (req, res) => {
             m._weekScore = parseFloat(weekScore.toFixed(2));
           }
 
-          const ranked = [...members].sort((a, b) => (b._weekScore || 0) - (a._weekScore || 0));
+          const ranked = [...players].sort((a, b) => (b._weekScore || 0) - (a._weekScore || 0));
           const weekNum = league.current_week || 1;
           const n = ranked.length;
 
@@ -1278,7 +1288,7 @@ const server = http.createServer(async (req, res) => {
           });
         }
 
-        return send(res, 200, { success: true, timestamp: now.toISOString(), processed: results.length, results });
+        return send(res, 200, { success: true, timestamp: now.toISOString(), processed: results.length, scoring: "rostered-teams-only", results });
       } catch (e) {
         return send(res, 500, { error: e.message });
       }
