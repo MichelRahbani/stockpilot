@@ -1736,11 +1736,25 @@ async function confirmFA(){
 }
 
 // ── KICK MEMBER (commissioner only) ──
-async function kickMember_ga_wrapper(memberId, name){
+async function kickMember(memberId, name){
   if(!confirm(`Kick ${name} from the league?`))return;
   try{
     const isKickingCommissioner = league && league.commissioner_name === name;
+    // A member's history (weekly scores, activity, comments, posts, trades) points at their row,
+    // and the database will not delete a row that is still referenced. Clear that first.
+    const history = [
+      ['bullpen_weekly_scores', `member_id=eq.${memberId}`],
+      ['bullpen_league_activity', `member_id=eq.${memberId}`],
+      ['bullpen_league_comments', `member_id=eq.${memberId}`],
+      ['bullpen_league_posts', `member_id=eq.${memberId}`],
+      ['bullpen_trades', `from_member_id=eq.${memberId}`],
+      ['bullpen_trades', `to_member_id=eq.${memberId}`]
+    ];
+    for(const [table, qs] of history){ await sbDelete(table, qs); }
     await sbDelete('bullpen_members', `id=eq.${memberId}`);
+    // Check it really worked: a refused delete still looks like success to the browser.
+    const stillThere = await sbGet('bullpen_members', `id=eq.${memberId}&select=id`);
+    if(Array.isArray(stillThere) && stillThere.length){ showToast(`Could not remove ${name}. Please try again.`, 'err'); return; }
     members = members.filter(m => m.id !== memberId);
 
     // If commissioner was kicked or left, transfer to next member by join order
