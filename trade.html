@@ -785,8 +785,25 @@ function toast(msg,type='ok'){
 
 async function getQuote(sym){
   const fund = await getFundBySymbolOrCode(sym);
-  if(fund) return await computeFundQuote(fund);
+  if(fund){
+    // A fund reached by its ticker must never hide a real listed stock with
+    // the same symbol (a fund named TSLA was replacing real Tesla). Funds
+    // are always reachable by their share code.
+    if(fund.code !== sym){
+      const real = await fetchRealUsQuote(sym);
+      if(real) return real;
+    }
+    return await computeFundQuote(fund);
+  }
   return await fetchQuote(sym);
+}
+async function fetchRealUsQuote(sym){
+  try {
+    const r = await fetch(API + '/api/quotes?symbols=' + encodeURIComponent(sym));
+    const d = await r.json();
+    const q = d?.quoteResponse?.result?.[0];
+    return (q && q.regularMarketPrice) ? q : null;
+  } catch(e){ return null; }
 }
 
 // ── Custom Funds ──
@@ -843,6 +860,9 @@ async function createCustomFund(name, ticker, universe, holdings, creatorName, l
   const priceMap = await fetchQuotesForFund(tickers);
   const missing = tickers.filter(t => !priceMap[t]);
   if(missing.length) return {error: 'Could not find price for: ' + missing.join(', ')};
+  // A fund ticker may not copy a real listed symbol, or another fund's ticker.
+  if(await fetchRealUsQuote(ticker.toUpperCase())) return {error: ticker.toUpperCase() + ' is a real listed stock. Pick a different ticker for your fund.'};
+  if(await getFundBySymbolOrCode(ticker.toUpperCase())) return {error: 'Another fund already uses ' + ticker.toUpperCase() + '. Pick a different ticker.'};
   const code = genFundCode();
   const body = {
     code, ticker: ticker.toUpperCase(), name, creator_name: creatorName || 'Anonymous',
