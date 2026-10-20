@@ -1,6 +1,6 @@
-/* StockPilot language toggle (English / Spanish).
-   One small pill on every page. Spanish uses Google's Website Translator,
-   loaded only when Spanish is chosen. English visitors load nothing extra.
+/* StockPilot language picker (English, Spanish, French, Italian).
+   One small pill on every page opens a short menu. Other languages use
+   Google's Website Translator, loaded only when one is chosen. English visitors load nothing extra.
    The choice is remembered. If anything fails, the page stays in English. */
 (function(){
   'use strict';
@@ -10,8 +10,15 @@
   var KEY = 'sp_lang';
   var host = location.hostname;
 
+  var LANGS = [
+    { code: 'en', label: 'English' },
+    { code: 'es', label: 'Espa\u00f1ol' },
+    { code: 'fr', label: 'Fran\u00e7ais' },
+    { code: 'it', label: 'Italiano' }
+  ];
+  function valid(l){ return LANGS.some(function(x){ return x.code === l; }); }
   function getLang(){
-    try { return localStorage.getItem(KEY) === 'es' ? 'es' : 'en'; } catch(e){ return 'en'; }
+    try { var l = localStorage.getItem(KEY); return valid(l) ? l : 'en'; } catch(e){ return 'en'; }
   }
   function setLang(l){
     try { localStorage.setItem(KEY, l); } catch(e){}
@@ -29,7 +36,7 @@
   }
 
   // Keep tickers, symbols and code-like text exactly as they are.
-  var NO_TRANSLATE = '.ti, .wl-sym, .q-sym, .sym, .ticker, [data-ticker], code, pre, kbd, .mono, #sp-lang-btn';
+  var NO_TRANSLATE = '.ti, .wl-sym, .q-sym, .sym, .ticker, [data-ticker], code, pre, kbd, .mono, #sp-lang-wrap';
   function protect(root){
     try {
       (root || document).querySelectorAll(NO_TRANSLATE).forEach(function(el){
@@ -40,7 +47,13 @@
 
   function addStyles(){
     var css = ''
-      + '#sp-lang-btn{position:fixed;left:14px;bottom:14px;z-index:2147483000;display:inline-flex;align-items:center;gap:6px;'
+      + '#sp-lang-wrap{position:fixed;left:14px;bottom:14px;z-index:2147483000;display:flex;flex-direction:column;align-items:flex-start;gap:6px}'
+      + '#sp-lang-menu{background:rgba(14,16,22,.97);border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:4px;box-shadow:0 4px 16px rgba(0,0,0,.45);min-width:130px}'
+      + '#sp-lang-menu[hidden]{display:none}'
+      + '.sp-lang-item{display:block;width:100%;text-align:left;padding:8px 10px;border:0;border-radius:7px;background:none;color:#fff;font:500 13px/1.2 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;cursor:pointer}'
+      + '.sp-lang-item:hover,.sp-lang-item:focus-visible{background:rgba(255,255,255,.14);outline:none}'
+      + '.sp-lang-item.on{font-weight:700;color:#7CFFB2}'
+      + '#sp-lang-btn{display:inline-flex;align-items:center;gap:6px;'
       + 'padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,.28);background:rgba(14,16,22,.92);color:#fff;'
       + 'font:600 12px/1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;letter-spacing:.04em;cursor:pointer;'
       + 'box-shadow:0 2px 10px rgba(0,0,0,.35)}'
@@ -57,26 +70,51 @@
     document.head.appendChild(s);
   }
 
+  function chooseLang(l){
+    setLang(l);
+    setCookie(l === 'en' ? '' : '/en/' + l);
+    location.reload();
+  }
+
   function addButton(lang){
+    var wrap = document.createElement('div');
+    wrap.id = 'sp-lang-wrap';
+    wrap.setAttribute('translate', 'no');
     var b = document.createElement('button');
     b.id = 'sp-lang-btn';
     b.type = 'button';
-    b.setAttribute('translate', 'no');
-    if (lang === 'es') {
-      b.textContent = 'EN';
-      b.setAttribute('aria-label', 'Switch to English');
-      b.title = 'Switch to English';
-    } else {
-      b.textContent = 'ES';
-      b.setAttribute('aria-label', 'Cambiar a español');
-      b.title = 'Ver en español';
-    }
-    b.addEventListener('click', function(){
-      if (lang === 'es') { setLang('en'); setCookie(''); }
-      else { setLang('es'); setCookie('/en/es'); }
-      location.reload();
+    b.textContent = lang.toUpperCase();
+    b.setAttribute('aria-label', 'Language');
+    b.setAttribute('aria-haspopup', 'true');
+    b.setAttribute('aria-expanded', 'false');
+    b.title = 'Language / Idioma / Langue / Lingua';
+    var menu = document.createElement('div');
+    menu.id = 'sp-lang-menu';
+    menu.setAttribute('role', 'menu');
+    menu.hidden = true;
+    LANGS.forEach(function(x){
+      var it = document.createElement('button');
+      it.type = 'button';
+      it.className = 'sp-lang-item' + (x.code === lang ? ' on' : '');
+      it.setAttribute('role', 'menuitem');
+      it.setAttribute('data-lang', x.code);
+      it.textContent = x.label;
+      it.addEventListener('click', function(){
+        if (x.code === lang) { menu.hidden = true; b.setAttribute('aria-expanded', 'false'); return; }
+        chooseLang(x.code);
+      });
+      menu.appendChild(it);
     });
-    document.body.appendChild(b);
+    b.addEventListener('click', function(e){
+      e.stopPropagation();
+      menu.hidden = !menu.hidden;
+      b.setAttribute('aria-expanded', menu.hidden ? 'false' : 'true');
+    });
+    document.addEventListener('click', function(){ menu.hidden = true; b.setAttribute('aria-expanded', 'false'); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { menu.hidden = true; b.setAttribute('aria-expanded', 'false'); } });
+    wrap.appendChild(menu);
+    wrap.appendChild(b);
+    document.body.appendChild(wrap);
   }
 
   function loadTranslator(){
@@ -88,7 +126,7 @@
       try {
         new google.translate.TranslateElement({
           pageLanguage: 'en',
-          includedLanguages: 'es,en',
+          includedLanguages: 'es,fr,it,en',
           autoDisplay: false
         }, 'sp_gt_host');
       } catch(e){}
@@ -106,8 +144,8 @@
     addStyles();
     protect(document);
     addButton(lang);
-    if (lang === 'es') {
-      setCookie('/en/es');
+    if (lang !== 'en') {
+      setCookie('/en/' + lang);
       loadTranslator();
       // Pages draw prices and tickers after load; keep them untouched.
       try {
