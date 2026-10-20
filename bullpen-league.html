@@ -598,9 +598,19 @@ const myName=localStorage.getItem('bullpen_my_name')||'';
 let league=null,members=[],myMember=null,priceMap={},currentPriceMap={};
 let fplTierData=null;
 const FPL_BUDGET=100;
-const MAX_OWNERS_PER_STOCK=5;
+// Owner cap scales with league size: 10 or fewer players -> 1 owner per stock,
+// 11-15 -> 2, 16-20 -> 3, 21 or more -> 4. Size is the number of players when
+// the draft started (draft_order), so the cap never changes mid-season.
+function maxOwnersFor(n){ return n<=10?1 : n<=15?2 : n<=20?3 : 4; }
+function leagueSize(){
+  return (league && league.draft_order && league.draft_order.length)
+    || (typeof draftMembers!=='undefined' && draftMembers.length)
+    || (typeof members!=='undefined' && members.length) || 0;
+}
+function maxOwners(){ return maxOwnersFor(leagueSize()); }
+function capNoteText(){ const c=maxOwners(), n=leagueSize(); return 'Each stock can be owned by up to '+c+' player'+(c===1?'':'s')+' in this league'+(n?' (set by league size: '+n+' players)':'')+'.'; }
 function draftedOwners(ticker){ return (league && league.drafted_tickers && league.drafted_tickers[ticker]) || []; }
-function isSoldOut(ticker){ const owners=draftedOwners(ticker); return owners.length>=MAX_OWNERS_PER_STOCK && !(myMember && owners.includes(myMember.id)); }
+function isSoldOut(ticker){ const owners=draftedOwners(ticker); return owners.length>=maxOwners() && !(myMember && owners.includes(myMember.id)); }
 
 async function fetchFplTiers(){
   try{
@@ -655,7 +665,7 @@ async function loadData(){
     league=leagues[0];
     if(!league){showToast('League not found','err');return;}
     document.getElementById('leagueName').textContent='🏟️ '+league.name;
-    document.getElementById('leagueInfo').textContent=`${league.season === 0 ? 'Custom Season' : 'Season ' + league.season} · ${league.format==='fpl'?'FPL Style':'NFL Draft'} · Up to ${league.max_players} players`;
+    document.getElementById('leagueInfo').textContent=`${league.season === 0 ? 'Custom Season' : 'Season ' + league.season} · ${league.format==='fpl'?'FPL Style':'NFL Draft'} · Up to ${league.max_players} players${league.format==='nfl'?' · Max '+maxOwners()+' owner'+(maxOwners()===1?'':'s')+' per stock':''}`;
     document.getElementById('statWeek').textContent='W'+(league.current_week||1);
     updateCountdown();
     if(league.format === 'fpl') fetchFplTiers();
@@ -677,6 +687,7 @@ async function loadData(){
     const drafted=members.filter(m=>m.starters&&m.starters.length>0).length;
     document.getElementById('statDrafted').textContent=drafted+'/'+members.length;
     document.getElementById('memberCount').textContent=members.length+' / '+league.max_players;
+    if(league.format==='nfl'){ const li=document.getElementById('leagueInfo'); if(li) li.textContent=li.textContent.replace(/ · Max \d+ owners? per stock/,'')+' · Max '+maxOwners()+' owner'+(maxOwners()===1?'':'s')+' per stock'; }
 
     renderMembers();
     renderRoster();
@@ -1650,13 +1661,13 @@ async function faSearch(){
     // Don't show stocks already in roster
     const myStocks=new Set([...(myMember.starters||[]),...(myMember.bench||[])]);
     let filtered=results.filter(x=>!myStocks.has(x.symbol));
-    // NFL leagues cap each stock at MAX_OWNERS_PER_STOCK owners - once a
+    // NFL leagues cap each stock at maxOwners() owners - once a
     // stock hits that cap it's not a real free agent anymore, same rule
     // as the draft room itself.
     if(league && league.format === 'nfl'){
       filtered=filtered.filter(x=>!isSoldOut(x.symbol));
     }
-    if(!filtered.length){res.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">'+(league&&league.format==='nfl'?'No available free agents match - these are all at their '+MAX_OWNERS_PER_STOCK+'-owner cap.':'All results already in your roster')+'</div>';return;}
+    if(!filtered.length){res.innerHTML='<div style="color:var(--muted);font-size:13px;text-align:center;padding:12px">'+(league&&league.format==='nfl'?'No available free agents match - these are all at their '+maxOwners()+'-owner cap.':'All results already in your roster')+'</div>';return;}
     res.innerHTML=filtered.map(x=>{
       const chg=pm[x.symbol]||0;const up=chg>=0;
       const fplPrice = (league && league.format === 'fpl') ? fplPriceFor(x.symbol) : null;
@@ -1698,7 +1709,7 @@ async function confirmFA(){
     if(!fresh || !fresh[0]){ showToast('Could not verify availability - try again','err'); return; }
     league = fresh[0];
     if(isSoldOut(faPickup.ticker)){
-      showToast(`${faPickup.ticker} just hit its ${MAX_OWNERS_PER_STOCK}-owner cap`,'err');
+      showToast(`${faPickup.ticker} just hit its ${maxOwners()}-owner cap`,'err');
       return;
     }
   }

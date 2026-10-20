@@ -194,11 +194,21 @@ let starters=[],bench=[];
 let league=null, draftMembers=[];
 let fplTierData=null;
 const FPL_BUDGET=100;
-const MAX_OWNERS_PER_STOCK=5;
+// Owner cap scales with league size: 10 or fewer players -> 1 owner per stock,
+// 11-15 -> 2, 16-20 -> 3, 21 or more -> 4. Size is the number of players when
+// the draft started (draft_order), so the cap never changes mid-season.
+function maxOwnersFor(n){ return n<=10?1 : n<=15?2 : n<=20?3 : 4; }
+function leagueSize(){
+  return (league && league.draft_order && league.draft_order.length)
+    || (typeof draftMembers!=='undefined' && draftMembers.length)
+    || (typeof members!=='undefined' && members.length) || 0;
+}
+function maxOwners(){ return maxOwnersFor(leagueSize()); }
+function capNoteText(){ const c=maxOwners(), n=leagueSize(); return 'Each stock can be owned by up to '+c+' player'+(c===1?'':'s')+' in this league'+(n?' (set by league size: '+n+' players)':'')+'.'; }
 // drafted_tickers[ticker] is an array of member IDs who own that stock in
-// this NFL league (up to MAX_OWNERS_PER_STOCK), not a single owner.
+// this NFL league (up to maxOwners()), not a single owner.
 function draftedOwners(ticker){ return (league && league.drafted_tickers && league.drafted_tickers[ticker]) || []; }
-function isSoldOut(ticker){ const owners=draftedOwners(ticker); return owners.length>=MAX_OWNERS_PER_STOCK && !owners.includes(myMemberId); }
+function isSoldOut(ticker){ const owners=draftedOwners(ticker); return owners.length>=maxOwners() && !owners.includes(myMemberId); }
 
 
 // Real snake draft order: round 0 forward, round 1 reversed, etc,
@@ -280,6 +290,11 @@ function filterOutDraftedFromGrid(){
 }
 
 function renderNflBanner(){
+  renderNflBannerMain();
+  const el=document.getElementById('nflDraftBanner');
+  if(el && league && league.format==='nfl' && !el.querySelector('.cap-note')) el.insertAdjacentHTML('beforeend','<div class="cap-note" style="font-size:12px;color:var(--muted);margin:-6px 0 12px">'+capNoteText()+'</div>');
+}
+function renderNflBannerMain(){
   const el = document.getElementById('nflDraftBanner');
   if(!el || !league) return;
 
@@ -726,7 +741,7 @@ async function filterBySector(sector){
         <div class="card-name">${q.shortName||q.longName||q.symbol}</div>
         <div class="card-price">$${(q.regularMarketPrice||0).toFixed(2)}</div>
         <div class="card-change ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}% today</div>
-        ${(league && league.format==='nfl' && draftedOwners(q.symbol).length>0)?`<div style="font-size:10px;color:var(--muted);margin-top:4px">${draftedOwners(q.symbol).length}/${MAX_OWNERS_PER_STOCK} drafted league-wide</div>`:''}
+        ${(league && league.format==='nfl' && draftedOwners(q.symbol).length>0)?`<div style="font-size:10px;color:var(--muted);margin-top:4px">${draftedOwners(q.symbol).length}/${maxOwners()} drafted league-wide</div>`:''}
         ${!isMine?`<button class="card-pick-btn" onclick="pickStock('${q.symbol}','${(q.shortName||q.symbol).replace(/'/g,'').substring(0,20)}')">+ Draft</button>`:''}`;
       grid.appendChild(card);
     });
@@ -753,7 +768,7 @@ async function loadPopularStocks(){
         <div class="card-name">${q.shortName||q.longName||q.symbol}</div>
         <div class="card-price">$${(q.regularMarketPrice||0).toFixed(2)}</div>
         <div class="card-change ${up?'up':'down'}">${up?'+':''}${chg.toFixed(2)}% today</div>
-        ${(league && league.format==='nfl' && draftedOwners(q.symbol).length>0)?`<div style="font-size:10px;color:var(--muted);margin-top:4px">${draftedOwners(q.symbol).length}/${MAX_OWNERS_PER_STOCK} drafted league-wide</div>`:''}
+        ${(league && league.format==='nfl' && draftedOwners(q.symbol).length>0)?`<div style="font-size:10px;color:var(--muted);margin-top:4px">${draftedOwners(q.symbol).length}/${maxOwners()} drafted league-wide</div>`:''}
         ${!isMine?`<button class="card-pick-btn" onclick="pickStock('${q.symbol}','${(q.shortName||q.symbol).replace(/'/g,'').substring(0,20)}')">+ Draft</button>`:''}`;
       grid.appendChild(card);
     });
@@ -910,7 +925,7 @@ async function finalizePick(){
     league = fresh[0];
     if(league.draft_status !== 'active'){ showToast('The draft is not active', 'error'); renderNflBanner(); return; }
     if(whoseTurn() !== myMemberId){ showToast("It's not your turn anymore", 'error'); renderNflBanner(); return; }
-    if(isSoldOut(ticker)){ showToast(ticker+' just hit its '+MAX_OWNERS_PER_STOCK+'-owner cap', 'error'); renderNflBanner(); loadPopularStocks(); return; }
+    if(isSoldOut(ticker)){ showToast(ticker+' just hit its '+maxOwners()+'-owner cap', 'error'); renderNflBanner(); loadPopularStocks(); return; }
 
     const newDrafted = {...(league.drafted_tickers || {}), [ticker]: [...draftedOwners(ticker), myMemberId]};
     const newPickIndex = (league.draft_current_pick || 0) + 1;
