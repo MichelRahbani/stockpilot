@@ -1,4 +1,4 @@
-/* StockPilot language picker (English, Spanish, French, Italian).
+/* StockPilot language picker (English, Spanish, French, Italian, German, Portuguese, Arabic).
    One small pill on every page opens a short menu. Other languages use
    Google's Website Translator, loaded only when one is chosen. English visitors load nothing extra.
    The choice is remembered. If anything fails, the page stays in English. */
@@ -14,7 +14,10 @@
     { code: 'en', label: 'English' },
     { code: 'es', label: 'Espa\u00f1ol' },
     { code: 'fr', label: 'Fran\u00e7ais' },
-    { code: 'it', label: 'Italiano' }
+    { code: 'it', label: 'Italiano' },
+    { code: 'de', label: 'Deutsch' },
+    { code: 'pt', label: 'Portugu\u00eas' },
+    { code: 'ar', label: '\u0627\u0644\u0639\u0631\u0628\u064a\u0629' }
   ];
   function valid(l){ return LANGS.some(function(x){ return x.code === l; }); }
   function getLang(){
@@ -126,7 +129,7 @@
       try {
         new google.translate.TranslateElement({
           pageLanguage: 'en',
-          includedLanguages: 'es,fr,it,en',
+          includedLanguages: 'es,fr,it,de,pt,ar,en',
           autoDisplay: false
         }, 'sp_gt_host');
       } catch(e){}
