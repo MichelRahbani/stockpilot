@@ -48,6 +48,43 @@
     } catch(e){}
   }
 
+  // Brand names stay exactly as written in every language. Google only skips
+  // text inside an element marked translate="no", so wrap each mention.
+  var BRAND = /\b(Bullpen|StockPilot)\b/g;
+  var SKIP = /^(SCRIPT|STYLE|TEXTAREA|INPUT|NOSCRIPT|CODE|PRE|OPTION)$/;
+  function protectBrands(root){
+    try {
+      var base = root || document.body;
+      if (!base) return;
+      var walker = document.createTreeWalker(base, NodeFilter.SHOW_TEXT, null);
+      var hits = [], n;
+      while ((n = walker.nextNode())) {
+        BRAND.lastIndex = 0;
+        if (!BRAND.test(n.nodeValue)) continue;
+        var p = n.parentNode;
+        if (!p || SKIP.test(p.nodeName) || (p.closest && p.closest('[translate="no"],.notranslate'))) continue;
+        hits.push(n);
+      }
+      hits.forEach(function(t){
+        // One wrapper per text node keeps the parent's layout the same (a flex or
+        // grid parent still sees a single item). Custom tags avoid span/div CSS rules.
+        var text = t.nodeValue, wrap = document.createElement('sp-t'), last = 0, m;
+        BRAND.lastIndex = 0;
+        while ((m = BRAND.exec(text))) {
+          if (m.index > last) wrap.appendChild(document.createTextNode(text.slice(last, m.index)));
+          var sp = document.createElement('sp-b');
+          sp.setAttribute('translate', 'no');
+          sp.className = 'notranslate';
+          sp.textContent = m[0];
+          wrap.appendChild(sp);
+          last = m.index + m[0].length;
+        }
+        if (last < text.length) wrap.appendChild(document.createTextNode(text.slice(last)));
+        t.parentNode.replaceChild(wrap, t);
+      });
+    } catch(e){}
+  }
+
   function addStyles(){
     var css = ''
       + '#sp-lang-wrap{position:fixed;left:14px;bottom:14px;z-index:2147483000;display:flex;flex-direction:column;align-items:flex-start;gap:6px}'
@@ -62,6 +99,7 @@
       + 'box-shadow:0 2px 10px rgba(0,0,0,.35)}'
       + '#sp-lang-btn:hover{border-color:rgba(255,255,255,.6)}'
       + '#sp-lang-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}'
+      + 'sp-t,sp-b{display:inline}'
       + '#sp_gt_host{display:none!important}'
       // Hide Google's own banner and keep the page from shifting down.
       + '.goog-te-banner-frame,.skiptranslate>iframe,#goog-gt-tt,.goog-te-balloon-frame{display:none!important}'
@@ -149,13 +187,14 @@
     addButton(lang);
     if (lang !== 'en') {
       setCookie('/en/' + lang);
+      protectBrands(document.body);
       loadTranslator();
       // Pages draw prices and tickers after load; keep them untouched.
       try {
         var t = null;
         new MutationObserver(function(){
           if (t) return;
-          t = setTimeout(function(){ t = null; protect(document); }, 400);
+          t = setTimeout(function(){ t = null; protect(document); protectBrands(document.body); }, 400);
         }).observe(document.body, { childList: true, subtree: true });
       } catch(e){}
     }
