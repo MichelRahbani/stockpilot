@@ -987,7 +987,16 @@ const handlePortfolio = async (reqUrl) => {
 let accountApi = null;
 try { accountApi = require("./account-delete.js"); } catch (error) { console.error("Account deletion module not loaded:", error.message); }
 
+// Read-only public league standings for club websites (see public-league.js).
+// Handles only /api/public/league/*. If it fails to load, everything else still runs.
+let publicLeagueApi = null;
+try { publicLeagueApi = require("./public-league.js"); } catch (error) { console.error("Public league module not loaded:", error.message); }
+
 const server = http.createServer(async (req, res) => {
+  if (publicLeagueApi) {
+    try { if (await publicLeagueApi.handle(req, res)) return; }
+    catch (error) { console.error("Public league module error:", error.message); if (res.headersSent) return; }
+  }
   if (accountApi) {
     try { if (await accountApi.handle(req, res)) return; }
     catch (error) { console.error("Account module error:", error.message); if (res.headersSent) return; }

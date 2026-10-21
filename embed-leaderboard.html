@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>League standings | StockPilot</title>
+<style>
+:root{--bg:#0b0d12;--card:#12151c;--text:#f2f4f8;--muted:#8d95a5;--line:#232834;--accent:#2ecc71;--gold:#f5c542}
+:root[data-theme="light"]{--bg:#ffffff;--card:#f6f7f9;--text:#12161f;--muted:#5d6574;--line:#e2e5ea;--accent:#0f9d58;--gold:#b7860b}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text);font:14px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{padding:14px}
+h1{font-size:16px;margin:0 0 2px;font-weight:700}
+.sub{color:var(--muted);font-size:12px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);text-align:left;padding:6px 8px;border-bottom:1px solid var(--line)}
+td{padding:9px 8px;border-bottom:1px solid var(--line)}
+th.r,td.r{text-align:right;font-variant-numeric:tabular-nums}
+td.rank{width:36px;color:var(--muted);font-weight:700}
+tr.top1 td.rank{color:var(--gold)}
+tr.top1 td.name{font-weight:700}
+.empty,.err{color:var(--muted);padding:18px 8px}
+.foot{margin-top:10px;font-size:11px;color:var(--muted);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.foot a{color:var(--accent);text-decoration:none;font-weight:600}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1 id="title">Loading standings</h1>
+  <div class="sub" id="sub"></div>
+  <div id="out"></div>
+  <div class="foot"><span id="upd"></span><a href="https://mystockspilot.com" target="_blank" rel="noopener">Powered by StockPilot</a></div>
+</div>
+<script>
+(function(){
+  var API='https://stockpilot-production-c94f.up.railway.app';
+  var p=new URLSearchParams(location.search);
+  var code=(p.get('code')||'').trim().toUpperCase();
+  var top=Math.max(1,Math.min(50,parseInt(p.get('top')||'10',10)||10));
+  if(p.get('theme')==='light') document.documentElement.setAttribute('data-theme','light');
+  var $=function(id){return document.getElementById(id)};
+  function msg(cls,t){var d=document.createElement('div');d.className=cls;d.textContent=t;var o=$('out');o.textContent='';o.appendChild(d);}
+  function render(d){
+    $('title').textContent=d.league.name||'League standings';
+    $('sub').textContent='Week '+d.league.week+' · '+d.league.players+' player'+(d.league.players===1?'':'s');
+    var rows=d.standings.slice(0,top);
+    if(!rows.length){msg('empty','No players have joined yet.');return;}
+    var t=document.createElement('table');
+    var h=document.createElement('thead');var hr=document.createElement('tr');
+    [['#',''],['Player',''],['Score','r']].forEach(function(c){var th=document.createElement('th');th.textContent=c[0];if(c[1])th.className=c[1];hr.appendChild(th);});
+    h.appendChild(hr);t.appendChild(h);
+    var b=document.createElement('tbody');
+    rows.forEach(function(r){
+      var tr=document.createElement('tr');if(r.rank===1)tr.className='top1';
+      var a=document.createElement('td');a.className='rank';a.textContent=r.rank;
+      var n=document.createElement('td');n.className='name';n.textContent=r.name;
+      var s=document.createElement('td');s.className='r';s.textContent=r.score.toFixed(2);
+      tr.appendChild(a);tr.appendChild(n);tr.appendChild(s);b.appendChild(tr);
+    });
+    t.appendChild(b);var o=$('out');o.textContent='';o.appendChild(t);
+    $('upd').textContent='Updated '+new Date(d.updatedAt).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+  }
+  function load(){
+    if(!/^[A-Z0-9]{4,8}$/.test(code)){ $('title').textContent='League standings'; msg('err','Add your league code to the link, for example ?code=ABC123'); return; }
+    fetch(API+'/api/public/league/'+encodeURIComponent(code)).then(function(r){return r.json().then(function(j){return {ok:r.ok,status:r.status,j:j}})}).then(function(x){
+      if(x.ok) return render(x.j);
+      $('title').textContent='League standings';
+      msg('err', x.status===404?'League not found. Check the code.':x.status===403?'This league is not available publicly.':'Standings are temporarily unavailable.');
+    }).catch(function(){ if(!$('out').firstChild) msg('err','Standings are temporarily unavailable.'); });
+  }
+  load();
+  setInterval(load,60000);
+})();
+</script>
+</body>
+</html>
