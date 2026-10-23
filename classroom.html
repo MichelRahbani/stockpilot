@@ -369,6 +369,11 @@ nav .btn,nav a,nav button{white-space:nowrap;text-decoration:none}
             <span id="dashCourseCode" style="font-size:13px;color:var(--muted)"></span>
             <span id="dashFreeze" class="freeze-badge" style="display:none">Freezes <span id="dashFreezeDate"></span></span>
           </div>
+          <div id="classControls" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:12.5px">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer" title="When off, students cannot open this class, its competitions or its drafts"><input type="checkbox" id="ctlOpen" checked onchange="setClassFlag('is_open',this.checked)"> Class open to students</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer" title="When off, students cannot see or write class comments or league discussion. Private questions to you still work."><input type="checkbox" id="ctlDiscuss" checked onchange="setClassFlag('discussion_enabled',this.checked)"> Student discussion on</label>
+            <span id="ctlMsg" style="color:var(--muted)"></span>
+          </div>
         </div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
           <div style="background:var(--green-l);border:1px solid var(--green-b);border-radius:4px;padding:8px 14px;text-align:center">
@@ -631,6 +636,10 @@ nav .btn,nav a,nav button{white-space:nowrap;text-decoration:none}
       </div>
 
       <!-- Student class dashboard (shown when viewing a class) -->
+      <div id="sdClosedNotice" class="card" style="display:none;margin-top:8px;text-align:center;padding:28px 18px">
+        <div style="font-size:16px;font-weight:700;margin-bottom:6px" id="sdClosedTitle">This class is closed right now</div>
+        <div style="font-size:13px;color:var(--muted)">Your teacher opens it when it is time to work. Check back later.</div>
+      </div>
       <div id="studentDashboard" style="display:none;margin-top:8px">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px">
           <button onclick="document.getElementById('studentDashboard').style.display='none';document.getElementById('studentClassList').style.display='block'" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--muted)">← Back</button>
@@ -1040,6 +1049,30 @@ async function loadMyClasses(){
   `).join('<div style="height:8px"></div>');
 }
 
+// ── Class controls (teacher): open/closed and student discussion on/off ──
+async function setClassFlag(field, value){
+  if(!currentClass) return;
+  const msg = document.getElementById('ctlMsg');
+  const box = document.getElementById(field === 'is_open' ? 'ctlOpen' : 'ctlDiscuss');
+  try{
+    const r = await fetch(SUPA_URL+'/rest/v1/classes?id=eq.'+currentClass.id, {
+      method:'PATCH',
+      headers:{'apikey':SUPA_KEY,'Authorization':'Bearer '+writeAuthToken(),'Content-Type':'application/json','Prefer':'return=representation'},
+      body: JSON.stringify({[field]: value})
+    });
+    const rows = r.ok ? await r.json() : null;
+    if(!r.ok || !Array.isArray(rows) || !rows.length) throw new Error('not saved');
+    currentClass[field] = value;
+    msg.textContent = field === 'is_open'
+      ? (value ? 'Class is open.' : 'Class is closed. Students cannot enter until you reopen it.')
+      : (value ? 'Student discussion is on.' : 'Student discussion is off.');
+  }catch(e){
+    box.checked = !value;
+    msg.textContent = 'Could not save that. If this keeps happening, the one-time class controls setup has not been run yet.';
+  }
+  setTimeout(()=>{ if(msg) msg.textContent=''; }, 6000);
+}
+
 // ── Open dashboard ──
 async function openDashboard(classId){
   const classes = await sbGet('classes','id=eq.'+classId);
@@ -1048,6 +1081,9 @@ async function openDashboard(classId){
   document.getElementById('dashClassName').textContent = currentClass.name;
   document.getElementById('dashCourseCode').textContent = currentClass.course_code || '';
   document.getElementById('dashCode').textContent = currentClass.join_code;
+  document.getElementById('ctlOpen').checked = currentClass.is_open !== false;
+  document.getElementById('ctlDiscuss').checked = currentClass.discussion_enabled !== false;
+  document.getElementById('ctlMsg').textContent = '';
   if(currentClass.freeze_date){
     document.getElementById('dashFreeze').style.display = 'inline-flex';
     document.getElementById('dashFreezeDate').textContent = currentClass.freeze_date;
@@ -1354,6 +1390,15 @@ async function openStudentDashboard(classId){
   const classes = await sbGet('classes','id=eq.'+classId);
   if(!classes.length) return;
   const cls = classes[0];
+  window._sdClass = cls;
+  const closedBox = document.getElementById('sdClosedNotice');
+  if(cls.is_open === false){
+    document.getElementById('sdClosedTitle').textContent = cls.name + ' is closed right now';
+    closedBox.style.display = 'block';
+    document.getElementById('studentDashboard').style.display = 'none';
+    return;
+  }
+  closedBox.style.display = 'none';
   const uid = getUid();
   const myName = getName();
 
@@ -2212,7 +2257,7 @@ function renderStream(isStudent){
           </div>` : ''}
         </div>
         <div style="font-size:14px;margin-top:8px;white-space:pre-wrap">${escapeHtmlLocal(p.body)}</div>
-        <div style="margin-top:10px">
+        ${(isStudent && window._sdClass && window._sdClass.discussion_enabled === false) ? '' : `<div style="margin-top:10px">
           <a href="#" onclick="event.preventDefault();toggleStreamThread('${p.id}',${isStudent})" style="font-size:12px;color:var(--green);text-decoration:none;font-weight:600">${comments.length ? comments.length+' comment'+(comments.length===1?'':'s') : 'Add class comment'}</a>
           <div id="streamThread_${p.id}" style="display:${expanded?'block':'none'};margin-top:8px">
             ${comments.map(c => `<div style="font-size:12.5px;padding:6px 0;border-top:1px solid var(--border)"><strong>${escapeHtmlLocal(c.nickname||'Student')}</strong>${c.is_teacher?' <span style="font-size:9px;font-weight:700;background:#fde68a;color:#92400e;padding:1px 6px;border-radius:4px">TEACHER</span>':''} <span style="color:var(--muted)">${new Date(c.created_at).toLocaleDateString(undefined,{month:'short',day:'numeric'})}</span><div style="margin-top:2px">${escapeHtmlLocal(c.body)}</div></div>`).join('')}
@@ -2221,7 +2266,7 @@ function renderStream(isStudent){
               <button class="btn btn-ghost btn-sm" onclick="postStreamComment('${p.id}',${isStudent})">Send</button>
             </div>
           </div>
-        </div>
+        </div>`}
       </div>
     `;
   }).join('');
@@ -2250,6 +2295,7 @@ async function postStreamItem(){
 }
 
 async function postStreamComment(postId, isStudent){
+  if(isStudent && window._sdClass && window._sdClass.discussion_enabled === false){ streamShowMsg('Discussion is turned off for this class.'); return; }
   const input = document.getElementById('streamCommentInput_'+postId);
   const body = input.value.trim();
   if(!body) return;

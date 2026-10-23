@@ -207,6 +207,8 @@ async function init(){
     cls=cs[0];
     const coTeach = await sbGet('class_co_teachers','class_id=eq.'+classId+'&user_id=eq.'+uid);
     isTeacher = cls.instructor_id===uid || coTeach.length>0;
+    if(cls.is_open===false && !isTeacher){$('loadingMsg').textContent='This class is closed right now. Your teacher opens it when it is time to work.';return;}
+    window.discussionOff = cls.discussion_enabled===false && !isTeacher;
     const ls=await sbGet('class_fantasy_leagues','class_id=eq.'+classId+'&order=created_at.desc&limit=1');
     if(!ls.length){$('loadingMsg').textContent='No fantasy league has been set up for this class yet.';return;}
     league=ls[0];
@@ -218,6 +220,7 @@ async function init(){
     market=await FC.loadMarket(BACKEND, rosters);
     trades=await fetchTrades();
     $('loadingMsg').style.display='none'; $('hub').style.display='block';
+    if(window.discussionOff){ const b=$('tabBtnDiscuss'); if(b) b.style.display='none'; const pn=$('paneDiscuss'); if(pn) pn.style.display='none'; }
     $('leagueTitle').textContent=league.name;
     $('leagueSub').textContent=cls.name+' \u00b7 $'+league.budget+' budget \u00b7 '+league.starters_count+' starters, '+league.bench_count+' bench';
     $('postAs').textContent='Posting as '+myNick+(isTeacher?' (teacher)':'');
@@ -500,6 +503,7 @@ function renderPosts(){
 }
 
 async function submitPost(parentId,bodyOverride,btn){
+  if(window.discussionOff){showDiscussErr('Discussion is turned off for this class.');return;}
   const ta=parentId?document.getElementById('rt_'+parentId):document.getElementById('newPostBody');
   const body=(ta.value||'').trim();
   if(!body){showDiscussErr('Write something first.');return;}

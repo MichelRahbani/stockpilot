@@ -364,6 +364,14 @@ async function init(){
     return;
   }
   try{
+    const gateCls = await sbGet('classes', 'id=eq.'+classId);
+    if(gateCls.length && gateCls[0].is_open === false){
+      const gateCo = await sbGet('class_co_teachers', 'class_id=eq.'+classId+'&user_id=eq.'+uid);
+      if(gateCls[0].instructor_id !== uid && !gateCo.length){
+        document.getElementById('loadingMsg').textContent = 'This class is closed right now. Your teacher opens it when it is time to work.';
+        return;
+      }
+    }
     const leagues = await sbGet('class_fantasy_leagues', 'class_id=eq.'+classId+'&order=created_at.desc&limit=1');
     if(!leagues.length){
       document.getElementById('loadingMsg').textContent = 'No fantasy draft has been set up for this class yet.';
