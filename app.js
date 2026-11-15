@@ -5170,6 +5170,7 @@ const getLessonMistakes = (lesson) => {
 
 const renderLessonList = (items) => items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 
+let learnSelId = null;
 const renderLearningPath = () => {
   if (!pathwayMap) return;
   const lessons = getLearningLessons();
@@ -5189,108 +5190,86 @@ const renderLearningPath = () => {
   if (learningStreak) learningStreak.textContent = `${completed} lesson${completed === 1 ? "" : "s"} complete`;
   if (pathwayProgressBar) pathwayProgressBar.style.width = `${percent}%`;
 
-  let globalIndex = 0;
-  pathwayMap.innerHTML = LEARNING_PATH_UNITS.map((unit) => {
-    const cards = unit.lessons
-      .map((lesson) => {
-        const lessonIndex = globalIndex;
-        globalIndex += 1;
-        const complete = completedLessons.includes(lesson.id);
-        const unlocked = isLearningLessonUnlocked(lessonIndex, lessons);
-        const current = !complete && lessonIndex === nextLessonIndex;
-        const state = complete ? "done" : unlocked ? "current" : "locked";
-        const actionLabel = complete ? "Review" : unlocked ? "Start" : "Locked";
-        const lessonContent = unlocked
-          ? `
-              <span>${escapeHtml(current ? "Next lesson" : lesson.panel)}</span>
-              <strong>${escapeHtml(lesson.title)}</strong>
-              <p>${escapeHtml(lesson.skill)}</p>
-              <div class="path-lesson-detail">
-                <section class="lesson-detail-block lesson-detail-simple">
-                  <span>💬 Simple English</span>
-                  <p>${escapeHtml(lesson.simple || lesson.skill)}</p>
-                </section>
-                <section class="lesson-detail-block lesson-detail-why">
-                  <span>⚡ Why it matters</span>
-                  <p>${escapeHtml(lesson.why || "This idea helps connect daily money decisions to long-term outcomes.")}</p>
-                </section>
-                <section class="lesson-detail-block lesson-detail-example">
-                  <span>📊 Example</span>
-                  <p>${escapeHtml(lesson.example || "Use this lesson as a lens when reviewing your own numbers.")}</p>
-                </section>
-                <section class="lesson-detail-block lesson-detail-howto">
-                  <span>🎯 How to use it in StockPilot</span>
-                  <p>${escapeHtml(getLessonAppStep(lesson))}</p>
-                </section>
-                <section class="lesson-detail-block lesson-detail-keyideas">
-                  <span>💡 Key ideas</span>
-                  <ul>
-                    ${renderLessonList([
-                      lesson.skill,
-                      lesson.simple || "Translate the term into plain language before using it.",
-                      "Connect the idea to a real number, real choice, or real risk."
-                    ])}
-                  </ul>
-                </section>
-                <section class="lesson-detail-block lesson-detail-mistakes">
-                  <span>⚠️ Mistakes to avoid</span>
-                  <ul>${renderLessonList(getLessonMistakes(lesson))}</ul>
-                </section>
-                <section class="lesson-detail-block lesson-detail-practice">
-                  <span>✏️ Practice prompt</span>
-                  <p>${escapeHtml(lesson.practice || "Write one action you can take from this lesson today.")}</p>
-                </section>
-                <section class="comprehension-check" aria-label="Comprehension check for ${escapeHtml(lesson.title)}">
-                  <span>Comprehension check</span>
-                  <strong>Which answer best explains this lesson?</strong>
-                  <div class="check-choice-grid">
-                    <button class="ghost-button small-button" data-check-choice="correct" type="button">${escapeHtml(lesson.simple || lesson.skill)}</button>
-                    <button class="ghost-button small-button" data-check-choice="review" type="button">It only matters after someone becomes wealthy.</button>
-                    <button class="ghost-button small-button" data-check-choice="review" type="button">It should be ignored if the market or month feels calm.</button>
-                  </div>
-                  <p class="check-feedback" aria-live="polite">Choose an answer to check your understanding.</p>
-                </section>
-              </div>
-            `
-          : `
-              <span>Locked lesson</span>
-              <strong>Complete the previous step to unlock this lesson.</strong>
-              <p>This keeps the pathway focused and reveals the content in order.</p>
-            `;
-        return `
-          <article class="path-lesson-node ${state}">
-            <div class="lesson-node-marker">${complete ? "✓" : lessonIndex + 1}</div>
-            <div>${lessonContent}</div>
-            <div class="path-lesson-actions">
-              <button class="${complete ? "ghost-button" : "primary-button"} small-button" data-path-action="${complete ? "review" : "start"}" data-path-lesson="${escapeHtml(lesson.id)}" type="button" ${unlocked ? "" : "disabled"}>${actionLabel}</button>
-            </div>
-          </article>
-        `;
-      })
-      .join("");
-    return `
-      <article class="path-unit-card">
-        <div class="path-unit-header">
-          <span>${escapeHtml(unit.theme)}</span>
-          <strong>${escapeHtml(unit.title)}</strong>
-        </div>
-        <div class="lesson-node-list">${cards}</div>
-      </article>
-    `;
-  }).join("");
+  if (!lessons.some((l) => l.id === learnSelId)) learnSelId = (lessons[nextLessonIndex] || lessons[0] || {}).id;
+  const selIndex = Math.max(0, lessons.findIndex((l) => l.id === learnSelId));
+  const sel = lessons[selIndex];
+  let tocUnit = "";
+  const toc = lessons
+    .map((lesson, i) => {
+      const complete = completedLessons.includes(lesson.id);
+      const unlocked = isLearningLessonUnlocked(i, lessons);
+      let head = "";
+      if (lesson.unitTitle !== tocUnit) {
+        tocUnit = lesson.unitTitle;
+        head = `<h3>${escapeHtml(lesson.unitTitle)}</h3>`;
+      }
+      const cls = `${i === selIndex ? "on " : ""}${complete ? "done" : ""}${unlocked ? "" : " locked"}`;
+      return `${head}<button class="${cls}" data-lr-pick="${escapeHtml(lesson.id)}" type="button" ${unlocked ? "" : "disabled"}><span class="tick">${complete ? "&#10003;" : unlocked ? "" : "&#128274;"}</span><span>${i + 1}. ${escapeHtml(lesson.title)}</span></button>`;
+    })
+    .join("");
+  const unlockedSel = isLearningLessonUnlocked(selIndex, lessons);
+  const doneSel = completedLessons.includes(sel.id);
+  const prev = lessons[selIndex - 1];
+  const next = lessons[selIndex + 1];
+  const reader = !sel
+    ? ""
+    : `
+      <div class="lr-meta">${escapeHtml(sel.unitTitle)} &middot; ${escapeHtml(sel.unitTheme)}</div>
+      <h1>${selIndex + 1}. ${escapeHtml(sel.title)}</h1>
+      <p>${escapeHtml(sel.skill)}</p>
+      <p>${escapeHtml(sel.simple || sel.skill)}</p>
+      <div class="lr-key">${escapeHtml(sel.why || "This idea helps connect daily money decisions to long-term outcomes.")}</div>
+      <div class="lr-ex"><b>Example</b>${escapeHtml(sel.example || "Use this lesson as a lens when reviewing your own numbers.")}</div>
+      <h2>Key ideas</h2>
+      <ul>${renderLessonList([sel.skill, sel.simple || "Translate the term into plain language before using it.", "Connect the idea to a real number, real choice, or real risk."])}</ul>
+      <h2>Mistakes to avoid</h2>
+      <ul>${renderLessonList(getLessonMistakes(sel))}</ul>
+      <div class="lr-try"><span>${escapeHtml(getLessonAppStep(sel))}</span></div>
+      <div class="lr-quiz">
+        <h2>Quick check</h2>
+        <p><strong>Practice:</strong> ${escapeHtml(sel.practice || "Write one action you can take from this lesson today.")}</p>
+        <p><strong>Which answer best explains this lesson?</strong></p>
+        <button class="lr-opt" data-check-choice="correct" type="button">${escapeHtml(sel.simple || sel.skill)}</button>
+        <button class="lr-opt" data-check-choice="review" type="button">It only matters after someone becomes wealthy.</button>
+        <button class="lr-opt" data-check-choice="review" type="button">It should be ignored if the market or month feels calm.</button>
+        <p class="check-feedback" aria-live="polite">Choose an answer to check your understanding.</p>
+      </div>
+      <div class="lr-pager">
+        <button class="lr-btn ghost" data-lr-pick="${prev ? escapeHtml(prev.id) : ""}" type="button" ${prev ? "" : "disabled"}>&larr; Previous</button>
+        <button class="lr-btn" data-path-lesson="${escapeHtml(sel.id)}" type="button" ${unlockedSel ? "" : "disabled"}>${doneSel ? (next ? "Next lesson &rarr;" : "Review complete") : next ? "Mark complete and continue &rarr;" : "Mark complete"}</button>
+      </div>`;
+  pathwayMap.innerHTML = `<div class="lr-cols"><aside class="lr-toc">${toc}</aside><article class="lr-lesson">${reader}</article></div>`;
+  pathwayMap.querySelectorAll("[data-lr-pick]").forEach((button) => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
+      if (button.disabled || !button.dataset.lrPick) return;
+      learnSelId = button.dataset.lrPick;
+      renderLearningPath();
+      pathwayMap.scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+  });
   pathwayMap.querySelectorAll("[data-path-lesson]").forEach((button) => {
     button.addEventListener("click", (event) => {
       event.stopPropagation();
       if (button.disabled) return;
-      completeLearningLesson(button.dataset.pathLesson);
+      const id = button.dataset.pathLesson;
+      const wasDone = completedLessons.includes(id);
+      const i = lessons.findIndex((l) => l.id === id);
+      if (!wasDone) completeLearningLesson(id, true);
+      if (lessons[i + 1]) learnSelId = lessons[i + 1].id;
+      renderLearningPath();
+      pathwayMap.scrollIntoView({ block: "start", behavior: "smooth" });
     });
   });
   pathwayMap.querySelectorAll("[data-check-choice]").forEach((button) => {
     button.addEventListener("click", (event) => {
       event.stopPropagation();
-      const feedback = button.closest(".comprehension-check")?.querySelector(".check-feedback");
+      const box = button.closest(".lr-quiz");
+      const feedback = box?.querySelector(".check-feedback");
       if (!feedback) return;
       const isCorrect = button.dataset.checkChoice === "correct";
+      box.querySelectorAll(".lr-opt").forEach((o) => o.classList.remove("right", "wrong"));
+      button.classList.add(isCorrect ? "right" : "wrong");
       feedback.textContent = isCorrect
         ? "Correct. You can explain the idea in plain English and connect it to a real decision."
         : "Not quite. Review the simple explanation and example, then try again.";
@@ -5445,13 +5424,13 @@ const renderLearningDashboard = () => {
   }
 };
 
-const completeLearningLesson = (lessonId) => {
+const completeLearningLesson = (lessonId, stay) => {
   const lessons = getLearningLessons();
   const lessonIndex = lessons.findIndex((lesson) => lesson.id === lessonId);
   if (lessonIndex < 0 || !isLearningLessonUnlocked(lessonIndex, lessons)) return;
   const lesson = lessons[lessonIndex];
   if (!completedLessons.includes(lesson.id)) completedLessons.push(lesson.id);
-  showLearningPanel(lesson.panel);
+  if (!stay) showLearningPanel(lesson.panel);
   renderLearningPath();
   renderLearningDashboard();
   saveAppState();

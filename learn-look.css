@@ -1,0 +1,33 @@
+/* Learn pathway: same reader look as the Accounting lessons. */
+#pathwayMap{display:block}
+#pathwayMap .lr-cols{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
+#pathwayMap .lr-toc,#pathwayMap .lr-lesson{background:#fff;border:1px solid #e1e9ff;border-radius:8px;padding:16px}
+#pathwayMap .lr-toc{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto;padding:12px}
+#pathwayMap .lr-toc h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin:12px 8px 6px;font-weight:700}
+#pathwayMap .lr-toc button{display:flex;gap:8px;align-items:center;width:100%;text-align:left;padding:7px 8px;border:0;border-radius:6px;background:transparent;color:#0f172a;font:inherit;font-size:14px;cursor:pointer}
+#pathwayMap .lr-toc button:hover:not(:disabled){background:#eff6ff}
+#pathwayMap .lr-toc button.on{background:#dbeafe;font-weight:700}
+#pathwayMap .lr-toc button.locked{opacity:.5;cursor:default}
+#pathwayMap .lr-toc .tick{width:16px;height:16px;border-radius:50%;border:1.5px solid #cbd5e1;flex:none;display:inline-flex;align-items:center;justify-content:center;font-size:9px;color:#fff;line-height:1}
+#pathwayMap .lr-toc button.done .tick{background:#16a34a;border-color:#16a34a}
+#pathwayMap .lr-toc button.locked .tick{border:0;font-size:10px}
+#pathwayMap .lr-lesson h1{font-size:26px;margin:6px 0 10px;color:#0f172a}
+#pathwayMap .lr-lesson h2{font-size:17px;margin:20px 0 8px;color:#0f172a}
+#pathwayMap .lr-meta{font-size:12px;color:#94a3b8;font-weight:600}
+#pathwayMap .lr-lesson p{margin:0 0 12px;max-width:68ch;line-height:1.55}
+#pathwayMap .lr-lesson ul{margin:0 0 12px 20px;max-width:68ch}
+#pathwayMap .lr-lesson li{margin-bottom:6px}
+#pathwayMap .lr-key{background:#eff6ff;border-left:4px solid #2563eb;padding:12px 14px;border-radius:4px;margin:14px 0;font-weight:600;max-width:68ch}
+#pathwayMap .lr-ex{background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:12px 14px;margin:14px 0;max-width:68ch}
+#pathwayMap .lr-ex b{display:block;font-size:12px;text-transform:uppercase;letter-spacing:.06em;color:#15803d;margin-bottom:4px}
+#pathwayMap .lr-try{margin:16px 0;padding:12px 14px;border:1px dashed #2563eb;border-radius:8px;background:#fff;max-width:68ch;font-size:14px}
+#pathwayMap .lr-quiz{margin-top:20px;border-top:1px solid #e2e8f0;padding-top:14px}
+#pathwayMap .lr-opt{display:block;width:100%;max-width:520px;text-align:left;margin-bottom:6px;padding:9px 12px;border:1px solid #cbd5e1;border-radius:6px;background:#fff;color:#0f172a;font:inherit;cursor:pointer}
+#pathwayMap .lr-opt:hover{border-color:#2563eb}
+#pathwayMap .lr-opt.right{border-color:#16a34a;background:#ecfdf5}
+#pathwayMap .lr-opt.wrong{border-color:#dc2626;background:#fef2f2}
+#pathwayMap .lr-pager{display:flex;justify-content:space-between;gap:10px;margin-top:22px}
+#pathwayMap .lr-btn{padding:10px 16px;border:0;border-radius:6px;background:#2563eb;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+#pathwayMap .lr-btn.ghost{background:#fff;color:#0f172a;border:1px solid #cbd5e1}
+#pathwayMap .lr-btn:disabled{opacity:.45;cursor:default}
+@media(max-width:860px){#pathwayMap .lr-cols{grid-template-columns:1fr}#pathwayMap .lr-toc{position:static;max-height:260px}}
