@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Accounting Tools | StockPilot</title>
+<meta name="description" content="Free interactive accounting tools: journal entry trainer, depreciation schedules, FIFO vs LIFO inventory, loan amortization, financial ratios, break-even, bad debt aging, cash conversion cycle and time value of money."/>
+<link rel="canonical" href="https://mystockspilot.com/accounting-tools"/>
+<link rel="stylesheet" href="/acct.css"/>
+<style>
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.tool{scroll-margin-top:70px}
+.tool h2{margin-bottom:2px}
+.tool .d{font-size:13px;color:var(--g600);margin-bottom:12px}
+.ins{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:12px}
+.out{margin-top:6px}
+.kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #f1f0f7;font-size:14px}
+.kv b{font-variant-numeric:tabular-nums}
+.kv.big{font-weight:800;border-bottom:2px solid var(--g900)}
+.note{font-size:13px;color:var(--g600);margin-top:8px}
+.good{color:var(--green)}.warn{color:var(--amber)}
+table.s{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+table.s th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--g400);text-align:right;padding:4px 3px;border-bottom:1px solid var(--g200)}
+table.s th:first-child,table.s td:first-child{text-align:left}
+table.s td{padding:4px 3px;text-align:right;border-bottom:1px solid #f1f0f7;font-variant-numeric:tabular-nums}
+.scroll{max-height:260px;overflow:auto}
+.fb{font-weight:600;margin-top:8px;font-size:14px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+@media(max-width:900px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="top">
+  <a href="/" class="logo"><img src="/logo-mark-256.png" class="sp-mark" alt="StockPilot" width="30" height="30"><span class="logo-text">StockPilot</span></a>
+  <div class="nav-links">
+    <a href="/dashboard.html" class="nav-link">Full App</a>
+    <a href="/investing" class="nav-link">Investing</a>
+    <a href="/budget" class="nav-link">Budget</a>
+    <a href="/trade" class="nav-link">Virtual Market</a>
+  </div>
+</nav>
+<div class="sub-tabs"><a href="/budget">Budget</a><a href="/accounting">Accounting lessons</a><a href="/accounting-lab">Statements Lab</a><a class="on" href="/accounting-tools">Tools</a></div>
+<div class="wrap">
+  <h1>Accounting tools</h1>
+  <p class="lede">Change any number and the results update instantly. These are for learning, not tax or legal advice.</p>
+  <div class="grid" id="grid"></div>
+</div>
+<script>
+(function(){
+  'use strict';
+  var $=function(id){return document.getElementById(id)};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function money(n,d){var v=Math.abs(n);var s=v.toLocaleString('en-US',{minimumFractionDigits:d==null?2:d,maximumFractionDigits:d==null?2:d});return (n<0?'-':'')+'$'+s;}
+  function pct(n){return (Math.round(n*1000)/10)+'%';}
+  function kv(k,v,cls){var d=el('div','kv'+(cls?' '+cls:''));d.appendChild(el('span',null,k));d.appendChild(el('b',null,v));return d;}
+  function ce(x){return Math.ceil(x-1e-9);}
+  function num(v,def){var n=parseFloat(v);return isFinite(n)?n:def;}
+
+  // Build a tool card. fields: [{k,label,v,type?,opts?}], compute(vals) returns an array of nodes.
+  function tool(id,title,desc,fields,compute){
+    var c=el('section','card tool');c.id=id;c.appendChild(el('h2',null,title));c.appendChild(el('div','d',desc));
+    var ins=el('div','ins'),vals={},out=el('div','out');
+    fields.forEach(function(f){
+      vals[f.k]=f.v;var l=el('label','f',f.label),i;
+      if(f.opts){i=el('select');f.opts.forEach(function(o){var op=el('option',null,o[1]);op.value=o[0];i.appendChild(op);});i.value=f.v;}
+      else{i=el('input');i.type='number';i.step='any';i.inputMode='decimal';i.value=f.v;}
+      i.addEventListener(f.opts?'change':'input',function(){vals[f.k]=f.opts?i.value:num(i.value,0);run();});
+      l.appendChild(i);ins.appendChild(l);});
+    function run(){out.textContent='';try{compute(vals).forEach(function(n){out.appendChild(n);});}catch(e){out.appendChild(el('p','note','Check your numbers.'));}}
+    c.appendChild(ins);c.appendChild(out);run();$('grid').appendChild(c);return c;
+  }
+  function table(head,rows){
+    var w=el('div','scroll'),t=el('table','s'),h=el('tr');head.forEach(function(x){h.appendChild(el('th',null,x));});
+    var th=el('thead');th.appendChild(h);t.appendChild(th);var b=el('tbody');
+    rows.forEach(function(r){var tr=el('tr');r.forEach(function(x){tr.appendChild(el('td',null,x));});b.appendChild(tr);});
+    t.appendChild(b);w.appendChild(t);return w;}
+
+  // 1. Journal entry trainer
+  (function(){
+    var A=['Cash','Accounts receivable','Inventory','Equipment','Accounts payable','Loans payable','Owner investment','Sales revenue','Cost of goods sold','Wages expense','Unearned revenue','Prepaid expenses'];
+    var S=[
+      ['The owner puts $5,000 into the business.','Cash','Owner investment'],
+      ['You buy equipment for $2,000 cash.','Equipment','Cash'],
+      ['You sell goods for $300 cash.','Cash','Sales revenue'],
+      ['You sell goods for $400 on credit.','Accounts receivable','Sales revenue'],
+      ['A customer pays the $400 they owed.','Cash','Accounts receivable'],
+      ['You borrow $1,000 from a bank.','Cash','Loans payable'],
+      ['You buy $600 of inventory on credit.','Inventory','Accounts payable'],
+      ['You pay a supplier the $600 you owed.','Accounts payable','Cash'],
+      ['You pay $800 of wages in cash.','Wages expense','Cash'],
+      ['A customer prepays $500 for a service you will do later.','Cash','Unearned revenue'],
+      ['You pay $1,200 for a year of insurance in advance.','Prepaid expenses','Cash'],
+      ['The goods you sold had cost $120.','Cost of goods sold','Inventory']
+    ];
+    var i=Math.floor(Math.random()*S.length),score=0,tries=0;
+    var c=el('section','card tool');c.id='journal';c.appendChild(el('h2',null,'Journal entry trainer'));
+    c.appendChild(el('div','d','Read the event, then pick the account to debit and the account to credit.'));
+    var q=el('p',null,''),r=el('div','row2'),ld=el('label','f','Debit'),lc=el('label','f','Credit'),sd=el('select'),sc=el('select'),fb=el('div','fb'),sc2=el('div','note');
+    A.forEach(function(a){[sd,sc].forEach(function(s){var o=el('option',null,a);o.value=a;s.appendChild(o);});});
+    ld.appendChild(sd);lc.appendChild(sc);r.appendChild(ld);r.appendChild(lc);
+    var chk=el('button','btn sm','Check');chk.type='button';var nx=el('button','btn ghost sm','Next event');nx.type='button';nx.style.marginLeft='6px';
+    function show(){q.textContent=S[i][0];fb.textContent='';fb.className='fb';}
+    chk.addEventListener('click',function(){tries++;var ok=sd.value===S[i][1]&&sc.value===S[i][2];if(ok)score++;
+      fb.textContent=ok?'Correct. Debits equal credits.':'Not quite. The answer is debit '+S[i][1]+', credit '+S[i][2]+'.';fb.className='fb '+(ok?'good':'warn');sc2.textContent='Score: '+score+' of '+tries;});
+    nx.addEventListener('click',function(){var n;do{n=Math.floor(Math.random()*S.length);}while(n===i&&S.length>1);i=n;show();});
+    c.appendChild(q);c.appendChild(r);c.appendChild(chk);c.appendChild(nx);c.appendChild(fb);c.appendChild(sc2);show();$('grid').appendChild(c);
+  })();
+
+  // 2. Depreciation
+  tool('depreciation','Depreciation schedule','See how an asset’s cost spreads over its life.',
+    [{k:'cost',label:'Cost ($)',v:12000},{k:'salv',label:'Salvage value ($)',v:2000},{k:'life',label:'Useful life (years)',v:5},{k:'m',label:'Method',v:'sl',opts:[['sl','Straight-line'],['db','Double-declining']]}],
+    function(v){var cost=v.cost,salv=Math.min(v.salv,v.cost),life=Math.max(1,Math.round(v.life)),rows=[],acc=0,book=cost;
+      for(var y=1;y<=life;y++){var d;if(v.m==='sl')d=(cost-salv)/life;else{d=book*(2/life);if(book-d<salv)d=book-salv;if(y===life)d=book-salv;}d=Math.max(0,d);acc+=d;book=cost-acc;rows.push(['Year '+y,money(d),money(acc),money(book)]);}
+      return [table(['Year','Expense','Accumulated','Book value'],rows),el('p','note','Depreciation uses no cash. It spreads a cost you already paid.')];});
+
+  // 3. Inventory
+  tool('inventory','FIFO vs LIFO vs average','Two purchases, one sale. Compare cost of goods sold and profit.',
+    [{k:'u1',label:'Batch 1 units',v:10},{k:'c1',label:'Batch 1 cost each ($)',v:5},{k:'u2',label:'Batch 2 units',v:10},{k:'c2',label:'Batch 2 cost each ($)',v:7},{k:'sold',label:'Units sold',v:10},{k:'p',label:'Price each ($)',v:12}],
+    function(v){var total=v.u1+v.u2,sold=Math.min(v.sold,total);
+      function take(first,second){var a=Math.min(sold,first[0]),b=sold-a;return a*first[1]+b*second[1];}
+      var fifo=take([v.u1,v.c1],[v.u2,v.c2]),lifo=take([v.u2,v.c2],[v.u1,v.c1]);
+      var avg=total?sold*((v.u1*v.c1+v.u2*v.c2)/total):0,rev=sold*v.p,all=v.u1*v.c1+v.u2*v.c2;
+      var rows=[['FIFO',money(fifo),money(rev-fifo),money(all-fifo)],['LIFO',money(lifo),money(rev-lifo),money(all-lifo)],['Average',money(avg),money(rev-avg),money(all-avg)]];
+      return [kv('Revenue',money(rev)),table(['Method','COGS','Gross profit','Inventory left'],rows),el('p','note','The total cost is the same over time. The method decides how much lands in this period.')];});
+
+  // 4. Loan
+  tool('loan','Loan amortization','How each payment splits between interest and principal.',
+    [{k:'amt',label:'Loan amount ($)',v:10000},{k:'rate',label:'Annual rate (%)',v:6},{k:'yrs',label:'Years',v:5}],
+    function(v){var n=Math.max(1,Math.round(v.yrs*12)),r=v.rate/1200,pay=r?v.amt*r/(1-Math.pow(1+r,-n)):v.amt/n,bal=v.amt,rows=[],ti=0;
+      for(var k=1;k<=n;k++){var i=bal*r,p=pay-i;bal=Math.max(0,bal-p);ti+=i;if(k<=12||k===n)rows.push([String(k),money(i),money(p),money(bal)]);}
+      return [kv('Monthly payment',money(pay),'big'),kv('Total interest',money(ti)),kv('Total paid',money(pay*n)),table(['Month','Interest','Principal','Balance'],rows),el('p','note','Showing the first 12 months and the last. Only the interest is an expense.')];});
+
+  // 5. Ratios
+  tool('ratios','Financial ratio analyzer','Enter figures from the statements and read the ratios.',
+    [{k:'rev',label:'Revenue',v:100000},{k:'cogs',label:'COGS',v:60000},{k:'ni',label:'Net income',v:10000},{k:'ca',label:'Current assets',v:60000},{k:'inv',label:'Inventory',v:20000},{k:'cl',label:'Current liabilities',v:40000},{k:'tl',label:'Total liabilities',v:80000},{k:'eq',label:'Equity',v:40000}],
+    function(v){var o=[];
+      function row(n,val,txt){var d=kv(n,val);o.push(d);if(txt)o.push(el('div','note',txt));}
+      row('Gross margin',pct(v.rev?(v.rev-v.cogs)/v.rev:0),'Share of each sales dollar left after product cost.');
+      row('Net margin',pct(v.rev?v.ni/v.rev:0),'Share of each sales dollar that is profit.');
+      var cr=v.cl?v.ca/v.cl:0;row('Current ratio',cr.toFixed(2),cr<1?'Below 1: possible trouble paying short-term bills.':'Above 1: current assets cover current bills.');
+      row('Quick ratio',(v.cl?(v.ca-v.inv)/v.cl:0).toFixed(2),'Like the current ratio but without inventory, which is slower to turn into cash.');
+      row('Debt to equity',(v.eq?v.tl/v.eq:0).toFixed(2),'How many dollars of debt for each dollar the owner has in.');
+      row('Return on equity',pct(v.eq?v.ni/v.eq:0),'Profit earned per dollar of owner equity.');
+      row('Inventory turnover',(v.inv?v.cogs/v.inv:0).toFixed(1)+'x','How many times inventory is sold and replaced in the period.');
+      return o;});
+
+  // 6. Break-even
+  tool('breakeven','Break-even calculator','How many sales do you need to cover fixed costs?',
+    [{k:'price',label:'Price each ($)',v:4},{k:'vc',label:'Variable cost each ($)',v:1.2},{k:'fc',label:'Fixed costs ($)',v:5600},{k:'goal',label:'Profit goal ($)',v:1400}],
+    function(v){var cm=v.price-v.vc;if(cm<=0)return [el('p','note','Price must be higher than variable cost.')];
+      return [kv('Contribution per sale',money(cm)),kv('Break-even units',String(ce(v.fc/cm)),'big'),kv('Break-even revenue',money(ce(v.fc/cm)*v.price,0)),kv('Units for profit goal',String(ce((v.fc+v.goal)/cm))),kv('Contribution margin',pct(cm/v.price))];});
+
+  // 7. Aging
+  tool('aging','Bad debt aging','Older unpaid bills are less likely to be paid. Estimate the allowance.',
+    [{k:'a0',label:'0-30 days ($)',v:30000},{k:'a1',label:'31-60 days ($)',v:12000},{k:'a2',label:'61-90 days ($)',v:5000},{k:'a3',label:'Over 90 days ($)',v:3000}],
+    function(v){var r=[0.01,0.05,0.2,0.5],a=[v.a0,v.a1,v.a2,v.a3],names=['0-30','31-60','61-90','90+'],tot=0,est=0,rows=[];
+      a.forEach(function(x,i){tot+=x;est+=x*r[i];rows.push([names[i],money(x,0),pct(r[i]),money(x*r[i])]);});
+      return [table(['Age','Owed','Expected loss','Allowance'],rows),kv('Receivables',money(tot)),kv('Allowance needed',money(est),'big'),kv('Net receivables',money(tot-est)),el('p','note','The percentages are examples. Real businesses use their own history.')];});
+
+  // 8. Cash cycle
+  tool('cycle','Cash conversion cycle','How many days your cash is tied up.',
+    [{k:'inv',label:'Average inventory ($)',v:20000},{k:'cogs',label:'Annual COGS ($)',v:240000},{k:'ar',label:'Average receivables ($)',v:15000},{k:'rev',label:'Annual revenue ($)',v:365000},{k:'ap',label:'Average payables ($)',v:12000}],
+    function(v){var di=v.cogs?v.inv/v.cogs*365:0,dr=v.rev?v.ar/v.rev*365:0,dp=v.cogs?v.ap/v.cogs*365:0;
+      return [kv('Days inventory',di.toFixed(0)),kv('Days receivable',dr.toFixed(0)),kv('Days payable','- '+dp.toFixed(0)),kv('Cash cycle (days)',(di+dr-dp).toFixed(0),'big'),el('p','note','Shorter is better. Collect faster, hold less stock, or pay suppliers later.')];});
+
+  // 9. Time value
+  tool('tvm','Time value of money','Future value and present value.',
+    [{k:'amt',label:'Amount ($)',v:1000},{k:'r',label:'Rate per year (%)',v:5},{k:'n',label:'Years',v:10}],
+    function(v){var f=Math.pow(1+v.r/100,v.n);return [kv('Future value of the amount today',money(v.amt*f),'big'),kv('Present value of the amount received later',money(v.amt/f)),kv('Growth factor',f.toFixed(4)),el('p','note','Future value = amount x (1 + rate)^years. Present value divides by the same factor.')];});
+
+  if(location.hash){var t=$(location.hash.slice(1));if(t)setTimeout(function(){t.scrollIntoView();},50);}
+})();
+</script>
+<script src="/share.js"></script>
+<script src="/cross-promo.js"></script>
+<script src="/nav-fix.js"></script>
+<script src="/lang-toggle.js"></script>
+</body>
+</html>
