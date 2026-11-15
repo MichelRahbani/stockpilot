@@ -31,3 +31,28 @@
 #pathwayMap .lr-btn.ghost{background:#fff;color:#0f172a;border:1px solid #cbd5e1}
 #pathwayMap .lr-btn:disabled{opacity:.45;cursor:default}
 @media(max-width:860px){#pathwayMap .lr-cols{grid-template-columns:1fr}#pathwayMap .lr-toc{position:static;max-height:260px}}
+
+/* Learn workspace: same page look as Budget. Blue row on top, slim header, compact title card. */
+html body main.app-shell > .workspace > header.topbar{display:flex!important;justify-content:flex-end!important;align-items:center!important;min-height:0!important;padding:6px 0 0!important;margin:0 0 4px!important;border:0!important;background:none!important}
+html body main.app-shell > .workspace > header.topbar > div:first-child,html body main.app-shell > .workspace > header.topbar > .topbar-actions,html body main.app-shell > .workspace > header.topbar #liveDataPill{display:none!important}
+html body main.app-shell > .workspace > header.topbar > .account-widget{margin:0!important}
+#educationHub .education-hero{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:14px!important;min-height:0!important;padding:18px 22px!important;margin:0 0 16px!important;background:#fff!important;border:1px solid #e1e9ff!important;border-radius:8px!important;box-shadow:none!important}
+#educationHub .education-hero .eyebrow{display:none!important}
+#educationHub .education-hero h2{font-size:28px!important;line-height:1.15!important;letter-spacing:-.02em!important;margin:0 0 6px!important;max-width:none!important;color:#0f172a!important}
+#educationHub .education-hero p:not(.eyebrow){font-size:15px!important;line-height:1.5!important;color:#475569!important;margin:0!important;max-width:640px!important}
+#educationHub .education-hero .spotlight-card{width:100%!important;max-width:none!important;margin:0!important;padding:14px 16px!important;border-radius:8px!important;box-shadow:none!important;background:#f5f8ff!important;border:1px solid #cfdcff!important;display:grid!important;grid-template-columns:200px 1fr auto;gap:2px 16px;align-items:center}
+#educationHub .education-hero .spotlight-card>span{grid-column:1;grid-row:1;background:none!important;padding:0!important;color:#1d4ed8!important}
+#educationHub .education-hero .spotlight-card>strong{grid-column:1;grid-row:2;font-size:34px!important;line-height:1!important;color:#1d4ed8!important}
+#educationHub .education-hero .spotlight-card>p{grid-column:2;grid-row:1 / span 2;margin:0!important;font-size:14px!important}
+#educationHub .education-hero .spotlight-card>button{grid-column:3;grid-row:1 / span 2;border-radius:6px!important}
+#educationHub .education-panel,#educationHub .learning-path-section{background:#fff!important;border:1px solid #e1e9ff!important;border-radius:8px!important;box-shadow:none!important}
+#educationHub .section-title h2,#educationHub .education-panel h2{font-size:19px!important;font-weight:700!important;letter-spacing:-.02em!important}
+#educationHub .table-note{font-size:13px!important;color:#475569!important}
+@media(max-width:800px){
+  #educationHub .education-hero{padding:16px!important}
+  #educationHub .education-hero h2{font-size:23px!important}
+  #educationHub .education-hero .spotlight-card{display:flex!important;flex-wrap:wrap;gap:8px!important}
+  #educationHub .education-hero .spotlight-card>*{flex:1 1 100%}
+}
+@media(min-width:801px){html body nav.learning-area-tabs .nav-select-field{display:none!important}}
+#educationHub .education-hero .spotlight-card{min-height:0!important;align-content:center}
