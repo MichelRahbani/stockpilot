@@ -5,7 +5,7 @@
   var isApp  = path.startsWith('/app') || /-workspace$/.test(path) || path === '/dashboard';
   // A workspace counts as its section (/budget-workspace highlights Budget)
   var section = path.replace(/-workspace$/, '');
-  if (/^\/accounting/.test(path)) section = '/budget';
+  if (/^\/(accounting|supply-chain)/.test(path)) section = '/budget';
   function same(href){ var h = href.replace(/\.html$/, ''); return path === h || section === h || path.startsWith(h + '/'); }
   var tc = isDark ? 'rgba(255,255,255,0.62)' : '#5a6478';
   var ac = isDark ? '#ffffff' : '#12161f';
