@@ -8,6 +8,7 @@
 <meta name="description" content="Free interactive accounting tools: journal entry trainer, depreciation schedules, FIFO vs LIFO inventory, loan amortization, financial ratios, break-even, bad debt aging, cash conversion cycle and time value of money."/>
 <link rel="canonical" href="https://mystockspilot.com/accounting-tools"/>
 <link rel="stylesheet" href="/acct.css"/>
+<script src="/acct-embed.js"></script>
 <style>
 .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
 .tool{scroll-margin-top:70px}
@@ -34,7 +35,7 @@ table.s td{padding:4px 3px;text-align:right;border-bottom:1px solid #f1f0f7;font
 <nav class="top">
   <a href="/" class="logo"><img src="/logo-mark-256.png" class="sp-mark" alt="StockPilot" width="30" height="30"><span class="logo-text">StockPilot</span></a>
   <div class="nav-links">
-    <a href="/dashboard.html" class="nav-link">Full App</a>
+    <a href="/budget-workspace.html#supply" class="nav-link">Supply Chain</a>
     <a href="/investing" class="nav-link">Investing</a>
     <a href="/budget" class="nav-link">Budget</a>
     <a href="/trade" class="nav-link">Virtual Market</a>
@@ -199,9 +200,7 @@ table.s td{padding:4px 3px;text-align:right;border-bottom:1px solid #f1f0f7;font
   if(location.hash){var t=$(location.hash.slice(1));if(t)setTimeout(function(){t.scrollIntoView();},50);}
 })();
 </script>
-<script src="/share.js"></script>
-<script src="/cross-promo.js"></script>
-<script src="/nav-fix.js"></script>
+<script>if(!window.spEmbed){['/share.js','/cross-promo.js','/nav-fix.js'].forEach(function(s){document.write('<script src="'+s+'"><\/script>');});}</script>
 <script src="/lang-toggle.js"></script>
 </body>
 </html>

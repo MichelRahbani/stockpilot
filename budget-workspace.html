@@ -12,12 +12,12 @@
       if (new URLSearchParams(window.location.search).get('mode') !== 'savings') {
         var params = new URLSearchParams(window.location.search);
         params.set('mode', 'savings');
-        window.location.replace(window.location.pathname + '?' + params.toString());
+        window.location.replace(window.location.pathname + '?' + params.toString() + window.location.hash);
       }
     </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Free Budget Planner & Savings Tracker | StockPilot Budget</title>
-    <meta name="description" content="Plan your budget, track spending, and build savings goals for free. Real budgeting tools, no signup required to start." />
+    <title>Budget & Accounting | StockPilot</title>
+    <meta name="description" content="Plan your budget and build savings goals, then learn accounting with lessons, a live Statements Lab, calculators and supply chain basics. Free, no signup." />
     <meta name="keywords" content="free budget planner, savings tracker, budgeting app, personal finance tool" />
     <meta property="og:title" content="StockPilot Budget — Free Budget Planner" />
     <meta property="og:description" content="Plan your budget and track savings goals, free." />
@@ -72,7 +72,7 @@
       <a href="/" class="sp-site-logo" aria-label="StockPilot home">
         <img src="/logo-mark-256.png" alt="StockPilot" class="sp-mark sp-site-logo-mark"/>
         <span class="sp-site-logo-text">StockPilot</span>
-        <span class="sp-site-logo-badge">BUDGET</span>
+        <span class="sp-site-logo-badge">BUDGET &amp; ACCOUNTING</span>
       </a>
       <nav class="sp-site-nav" aria-label="Site navigation">
         <a href="/budget" class="sp-site-nav-link">Budget Planner</a>
@@ -3349,6 +3349,7 @@ Old app 14 day 28</textarea>
     <script src="/fix-modal.js"></script>
         <script src="/nav-fix.js"></script>
         <script src="/portfolio-hierarchy-fix.js"></script>
+        <script src="/budget-accounting-tabs.js"></script>
   <p class="sp-credit-line"><span>Developed with</span> <a class="sp-credit" href="https://woodrowchester.com" target="_blank" rel="noopener">Woodrow Chester Group S.A.R.L</a></p>
 </body>
 </html>

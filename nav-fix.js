@@ -6,7 +6,13 @@
   // A workspace counts as its section (/budget-workspace highlights Budget)
   var section = path.replace(/-workspace$/, '');
   if (/^\/(accounting|supply-chain)/.test(path)) section = '/budget';
-  function same(href){ var h = href.replace(/\.html$/, ''); return path === h || section === h || path.startsWith(h + '/'); }
+  var onSupply = function(){ return /^\/(supply-chain)/.test(path) || (path === '/budget-workspace' && location.hash === '#supply'); };
+  function same(href){
+    if (href.indexOf('#supply') > -1) return onSupply();
+    var h = href.replace(/\.html$/, '');
+    if (h === '/budget' && onSupply()) return false;
+    return path === h || section === h || path.startsWith(h + '/');
+  }
   var tc = isDark ? 'rgba(255,255,255,0.62)' : '#5a6478';
   var ac = isDark ? '#ffffff' : '#12161f';
   var ab = isDark ? 'rgba(255,255,255,0.06)' : '#f7f8fa';
@@ -15,9 +21,9 @@
 
   var links = [
     {href:'/trade',        label:'Virtual Market'},
-    {href:'/dashboard.html', label:'Dashboard'},
     {href:'/investing',    label:'Investing'},
     {href:'/budget',       label:'Budget & Accounting'},
+    {href:'/budget-workspace.html#supply', label:'Supply Chain'},
     {href:'/learn',        label:'Learn'},
     {href:'/bullpen.html', label:'Bullpen'},
     {href:'/classroom.html', label:'Classroom'}
@@ -151,6 +157,11 @@
     nav.appendChild(makeCenterDiv());
     makeHamburger(nav);
   }
+
+  window.addEventListener('hashchange', function(){
+    var c = document.getElementById('sp-nav-center');
+    if (c) c.innerHTML = makeCenterDiv().innerHTML;
+  });
 
   function run(){
     if(isApp) fixApp();

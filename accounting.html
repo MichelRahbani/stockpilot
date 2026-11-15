@@ -8,6 +8,7 @@
 <meta name="description" content="Free accounting lessons from beginner to intermediate: the accounting equation, debits and credits, the three financial statements, depreciation, inventory, ratios and more. Plain English with interactive tools."/>
 <link rel="canonical" href="https://mystockspilot.com/accounting"/>
 <link rel="stylesheet" href="/acct.css"/>
+<script src="/acct-embed.js"></script>
 <style>
 .cols{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
 .toc{position:sticky;top:64px;max-height:calc(100vh - 80px);overflow:auto}
@@ -45,7 +46,7 @@
 <nav class="top">
   <a href="/" class="logo"><img src="/logo-mark-256.png" class="sp-mark" alt="StockPilot" width="30" height="30"><span class="logo-text">StockPilot</span></a>
   <div class="nav-links">
-    <a href="/dashboard.html" class="nav-link">Full App</a>
+    <a href="/budget-workspace.html#supply" class="nav-link">Supply Chain</a>
     <a href="/investing" class="nav-link">Investing</a>
     <a href="/budget" class="nav-link">Budget</a>
     <a href="/trade" class="nav-link">Virtual Market</a>
@@ -121,17 +122,15 @@
     var pg=el('div','pager');
     var p=el('button','btn ghost','← Previous');p.type='button';p.disabled=cur===0;p.style.visibility=cur===0?'hidden':'visible';p.addEventListener('click',function(){go(cur-1);});
     var n=el('button','btn',cur===L.length-1?'Open the Statements Lab':'Next lesson →');n.type='button';
-    n.addEventListener('click',function(){if(cur===L.length-1)location.href='/accounting-lab';else go(cur+1);});
+    n.addEventListener('click',function(){if(cur===L.length-1)spGo('/accounting-lab');else go(cur+1);});
     pg.appendChild(p);pg.appendChild(n);a.appendChild(pg);
     document.title=l.title+' | StockPilot Accounting';
   }
-  function go(i){cur=Math.max(0,Math.min(L.length-1,i));history.replaceState(null,'','#'+L[cur].id);toc();lesson();window.scrollTo({top:0});}
+  function go(i){cur=Math.max(0,Math.min(L.length-1,i));history.replaceState(null,'','#'+L[cur].id);toc();lesson();spTop();}
   toc();lesson();
 })();
 </script>
-<script src="/share.js"></script>
-<script src="/cross-promo.js"></script>
-<script src="/nav-fix.js"></script>
+<script>if(!window.spEmbed){['/share.js','/cross-promo.js','/nav-fix.js'].forEach(function(s){document.write('<script src="'+s+'"><\/script>');});}</script>
 <script src="/lang-toggle.js"></script>
 </body>
 </html>
