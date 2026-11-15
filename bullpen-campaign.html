@@ -78,8 +78,9 @@
 <link rel="stylesheet" href="/sp-game.css"/>
 <link rel="stylesheet" href="/sp-design.css"/>
 <script src="/lang-toggle.js" defer></script>
+<link rel="stylesheet" href="/bp-fun.css?v=1"/>
 </head>
-<body>
+<body data-g="campaign">
 <div class="topbar">
   <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
   <a class="back" href="/bullpen.html">← All Modes</a>
@@ -92,6 +93,7 @@
   <div class="how"><h2>How it works</h2><ul><li>Each month you choose how much to spend on ads and what price to charge. Each unit costs you $8 to make. Fixed costs are $800 a month.</li><li>Spend more and each click gets pricier, because the best audience runs out. Charge more and fewer visitors buy.</li><li>Past customers sometimes come back, so early customers keep paying off.</li><li>Score is your total profit. <a href="/marketing-lab" style="color:var(--blue)">Try the Funnel Lab first</a>.</li></ul></div>
 </div>
 <script src="bullpen-shared.js"></script>
+<script src="/bp-fun.js?v=1"></script>
 <script src="/biz-marketing.js?v=1"></script>
 <script>
 (function(){
@@ -135,7 +137,7 @@
   function begin(s){seed=s;g=M.newGame(s);pick={spend:1500,price:20};loadBoard(s);turn();}
   function turn(){
     var c=$('game');c.textContent='';var ev=g.plan[g.month-1].ev;
-    c.appendChild(el('div','step','Month '+g.month+' of '+M.MONTHS+' \u00b7 code '+seed));
+    c.appendChild(BP.dots(g.month,M.MONTHS));c.appendChild(el('div','step','Month '+g.month+' of '+M.MONTHS+' \u00b7 code '+seed));
     c.appendChild(kpis([[money(g.cash),'Cash'],[Math.round(g.customers)+'','Customers so far'],[money(g.totalProfit),'Profit so far'],[money(M.FIXED),'Fixed costs']]));
     c.appendChild(el('div','news',ev.title+'. '+ev.story));
     var sl=el('div','lbl2','Ad spend this month: '+money(pick.spend));c.appendChild(sl);
@@ -149,7 +151,7 @@
   function report(r){
     var c=$('game');c.textContent='';
     c.appendChild(el('div','step','Month '+r.month+' result'));
-    c.appendChild(el('div','tx',r.event.title));
+    c.appendChild(el('div','tx',r.event.title));var vis=r.cpc>0?r.spend/r.cpc:0;c.appendChild(BP.bar('Visitors',vis,Math.max(vis,1),Math.round(vis)+''));c.appendChild(BP.bar('Interested (leads)',vis*0.15,Math.max(vis,1),Math.round(vis*0.15)+''));c.appendChild(BP.bar('New customers',r.newCustomers,Math.max(vis,1),Math.round(r.newCustomers)+'',r.profit<0?'bad':''));
     row(c,'Each click cost','$'+r.cpc.toFixed(2));
     row(c,'New customers',String(Math.round(r.newCustomers)));
     row(c,'Repeat customers',String(Math.round(r.repeatCustomers)));

@@ -78,8 +78,9 @@
 <link rel="stylesheet" href="/sp-game.css"/>
 <link rel="stylesheet" href="/sp-design.css"/>
 <script src="/lang-toggle.js" defer></script>
+<link rel="stylesheet" href="/bp-fun.css?v=1"/>
 </head>
-<body>
+<body data-g="shield">
 <div class="topbar">
   <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
   <a class="back" href="/bullpen.html">← All Modes</a>
@@ -92,6 +93,7 @@
   <div class="how"><h2>How it works</h2><ul><li>You start with $30,000. Sales are $12,000 a month and costs are $10,000.</li><li>Every month you can buy protection. It costs money whether or not anything goes wrong.</li><li>Fires, supplier failures, cyber attacks, recessions and lawsuits hit at random. The right protection turns a disaster into a small bill.</li><li>If cash goes below zero, you are out. Score is your final cash, or 100 points for each month you survived. <a href="/risk-lab#stress" style="color:var(--blue)">Try the Stress Test first</a>.</li></ul></div>
 </div>
 <script src="bullpen-shared.js"></script>
+<script src="/bp-fun.js?v=1"></script>
 <script src="/biz-risk.js?v=1"></script>
 <script>
 (function(){
@@ -137,7 +139,7 @@
   function begin(s){seed=s;g=R.newGame(s);pick={};loadBoard(s);turn();}
   function turn(){
     var c=$('game');c.textContent='';
-    c.appendChild(el('div','step','Month '+g.month+' of '+R.MONTHS+' \u00b7 code '+seed));
+    c.appendChild(BP.dots(g.month,R.MONTHS));c.appendChild(el('div','step','Month '+g.month+' of '+R.MONTHS+' \u00b7 code '+seed));c.appendChild(BP.bar('Cash',Math.max(0,g.cash),45000,money(g.cash),g.cash<12000?'bad':''));
     c.appendChild(kpis([[money(g.cash),'Cash'],[money(R.G.revenue),'Sales a month'],[money(R.G.costs),'Costs a month'],[g.usedReserve?'Used':'Ready','Credit line']]));
     c.appendChild(el('div','news','You will not know what is coming. Choose what to protect this month, then see what happens. Protection costs money every month you buy it.'));
     Object.keys(R.PRICE).forEach(function(k){
@@ -150,7 +152,7 @@
   function report(r){
     var c=$('game');c.textContent='';
     c.appendChild(el('div','step','Month '+r.month+' result'));
-    c.appendChild(el('div','tx',r.event?r.event.name+'. '+r.event.label:'A quiet month. Nothing went wrong.'));
+    var EM={fire:'\uD83D\uDD25',supplier:'\uD83D\uDE9A',cyber:'\uD83D\uDD78\uFE0F',recession:'\uD83D\uDCC9',lawsuit:'\u2696\uFE0F'};var ev=el('div','bp-ev'+(r.shock||(r.event&&r.revenue<12000)?' hit':''),r.event?(EM[r.event.id]||'\u26A0\uFE0F'):'\u2600\uFE0F');c.appendChild(ev);BP.flash(!r.event||r.profit>=0);c.appendChild(el('div','tx',r.event?r.event.name+'. '+r.event.label:'A quiet month. Nothing went wrong.'));
     row(c,'Sales',money(r.revenue));row(c,'Costs and protection',money(r.cost));
     if(r.shock)row(c,'Bill from the bad event',money(r.shock));
     if(r.reserveUsed)row(c,'Credit line used','+'+money(7200));

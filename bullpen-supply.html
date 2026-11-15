@@ -78,8 +78,9 @@
 <link rel="stylesheet" href="/sp-game.css"/>
 <link rel="stylesheet" href="/sp-design.css"/>
 <script src="/lang-toggle.js" defer></script>
+<link rel="stylesheet" href="/bp-fun.css?v=1"/>
 </head>
-<body>
+<body data-g="supply">
 <div class="topbar">
   <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
   <a class="back" href="/bullpen.html">← All Modes</a>
@@ -97,6 +98,7 @@
   </ul></div>
 </div>
 <script src="bullpen-shared.js"></script>
+<script src="/bp-fun.js?v=1"></script>
 <script src="/acct-engine.js"></script>
 <script src="/acct-showdown.js?v=1"></script>
 <script>
@@ -124,9 +126,9 @@
   }
   function order(){
     var c=$('game');c.textContent='';var inf=G.info(g);
-    c.appendChild(el('div','step','Month '+inf.month+' of '+G.MONTHS+' · '+inf.label+' · code '+seed));
+    c.appendChild(BP.dots(inf.month,G.MONTHS));c.appendChild(el('div','step','Month '+inf.month+' of '+G.MONTHS+' · '+inf.label+' · code '+seed));
     c.appendChild(el('div','tx','How much stock do you order?'));
-    c.appendChild(kpis(inf));
+    c.appendChild(kpis(inf));c.appendChild(BP.shelf(inf.units,pick.units,'On the shelf now. Faded boxes are the order you are about to place.'));
     if(inf.supply.id!=='none')c.appendChild(el('div','news',inf.supply.title+'. '+inf.supply.story));
     if(inf.owed>0)c.appendChild(el('div','news','Your supplier bill of '+money(inf.owed)+' is paid at the start of this month.'));
     c.appendChild(el('div','lbl2','Units to order (cost '+money(inf.unitCost)+' each)'));
@@ -142,7 +144,7 @@
   function report(r){
     var c=$('game');c.textContent='';
     c.appendChild(el('div','step','Month '+r.month+' result · '+r.label));
-    c.appendChild(el('div','tx',r.event.title+': '+r.event.story));
+    c.appendChild(el('div','tx',r.event.title+': '+r.event.story));c.appendChild(BP.bar('Customers wanted',r.demand,Math.max(r.demand,r.sold,1),r.demand+' units'));c.appendChild(BP.bar('You sold',r.sold,Math.max(r.demand,1),r.sold+' units',r.lost>0?'bad':''));
     [['Customers wanted',r.demand+' units'],['You sold',r.sold+' units for '+money(r.revenue)],['Cost of those goods',money(r.cogs)],
      ['Sales you missed',r.lost>0?r.lost+' units (out of stock)':'None'],['Stock left over',r.left+' units'],['Cash',money(r.cash)],['Owed to supplier',money(r.owed)],['Profit so far',money(r.netIncome)]]
      .forEach(function(x){var d=el('div','rowx');d.appendChild(el('span',null,x[0]));d.appendChild(el('b',null,x[1]));c.appendChild(d);});

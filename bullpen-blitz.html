@@ -76,8 +76,9 @@
 <link rel="stylesheet" href="/sp-game.css"/>
 <link rel="stylesheet" href="/sp-design.css"/>
 <script src="/lang-toggle.js" defer></script>
+<link rel="stylesheet" href="/bp-fun.css?v=1"/>
 </head>
-<body>
+<body data-g="blitz">
 <div class="topbar">
   <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
   <a class="back" href="/bullpen.html">← All Modes</a>
@@ -102,13 +103,14 @@
   </ul></div>
 </div>
 <script src="bullpen-shared.js"></script>
+<script src="/bp-fun.js?v=1"></script>
 <script src="/acct-blitz.js?v=1"></script>
 <script>
 (function(){
   var B=window.AcctBlitz;
   var $=function(i){return document.getElementById(i)};
   var st=null,timerId=null;
-  function setStats(){$('sScore').textContent=st.score;$('sCombo').textContent=st.combo;$('sTime').textContent=Math.max(0,Math.ceil(st.left));}
+  function setStats(){$('sScore').textContent=st.score;$('sCombo').textContent=st.combo+(st.combo>=3?' \uD83D\uDD25':'');$('sTime').textContent=Math.max(0,Math.ceil(st.left));}
   function render(){
     var q=st.q,g=$('game');g.textContent='';
     var bar=document.createElement('div');bar.className='timer';var i=document.createElement('i');i.style.width=(100*st.left/B.SECONDS)+'%';bar.appendChild(i);g.appendChild(bar);
@@ -123,7 +125,7 @@
   function pick(name,btn,wrap){
     if(st.lock)return;st.lock=true;
     var want=st.step==='dr'?st.q.dr:st.q.cr,ok=name===want;
-    btn.classList.add(ok?'ok':'no');
+    btn.classList.add(ok?'ok':'no');BP.flash(ok);
     if(!ok){[].forEach.call(wrap.children,function(x){if(x.textContent===want)x.classList.add('ok');});st.hit=false;}
     setTimeout(function(){
       st.lock=false;if(st.over)return;
@@ -133,7 +135,7 @@
     },ok?250:900);
   }
   function tick(){
-    st.left-=0.1;setStats();var i=document.querySelector('.timer i');if(i)i.style.width=Math.max(0,100*st.left/B.SECONDS)+'%';
+    st.left-=0.1;setStats();var tm=document.querySelector('.timer');if(tm)tm.classList.toggle('low',st.left<10);var i=document.querySelector('.timer i');if(i)i.style.width=Math.max(0,100*st.left/B.SECONDS)+'%';
     if(st.left<=0){clearInterval(timerId);end();}
   }
   function start(){st=B.newGame();setStats();next();timerId=setInterval(tick,100);}

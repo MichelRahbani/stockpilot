@@ -78,8 +78,9 @@
 <link rel="stylesheet" href="/sp-game.css"/>
 <link rel="stylesheet" href="/sp-design.css"/>
 <script src="/lang-toggle.js" defer></script>
+<link rel="stylesheet" href="/bp-fun.css?v=1"/>
 </head>
-<body>
+<body data-g="crunch">
 <div class="topbar">
   <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
   <a class="back" href="/bullpen.html">← All Modes</a>
@@ -97,6 +98,7 @@
   </ul></div>
 </div>
 <script src="bullpen-shared.js"></script>
+<script src="/bp-fun.js?v=1"></script>
 <script src="/acct-engine.js"></script>
 <script src="/acct-crunch.js?v=1"></script>
 <script>
@@ -111,7 +113,7 @@
   function kp(cash,profit){var k=el('div','k');[[money(cash),'Cash'],[money(profit),'Profit so far'],[g.month+' of '+C.MONTHS,'Month']].forEach(function(x){var d=el('div');d.appendChild(el('b',null,x[0]));d.appendChild(el('span',null,x[1]));k.appendChild(d);});k.style.gridTemplateColumns='repeat(3,1fr)';return k;}
   function turn(){
     var c=$('game');c.textContent='';var h=g.history[g.history.length-1];
-    c.appendChild(kp(h?h.cash:C.cashNow(g),h?h.profit:0));
+    var cs=h?h.cash:C.cashNow(g);c.appendChild(BP.dots(g.month,C.MONTHS));c.appendChild(kp(cs,h?h.profit:0));c.appendChild(BP.bar('Cash',Math.max(0,cs),8000,money(cs),cs<1500?'bad':''));
     c.appendChild(el('div','step','Month '+g.month));
     c.appendChild(el('div','tx',g.card.title));c.appendChild(el('p','subtitle',g.card.story));
     g.card.choices.forEach(function(ch,i){var b=el('button','chip');b.type='button';b.style.cssText='box-sizing:border-box;display:block;width:100%;text-align:left;margin-bottom:8px';

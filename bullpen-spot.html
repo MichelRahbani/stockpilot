@@ -81,8 +81,9 @@
 <link rel="stylesheet" href="/sp-game.css"/>
 <link rel="stylesheet" href="/sp-design.css"/>
 <script src="/lang-toggle.js" defer></script>
+<link rel="stylesheet" href="/bp-fun.css?v=1"/>
 </head>
-<body>
+<body data-g="spot">
 <div class="topbar">
   <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
   <a class="back" href="/bullpen.html">← All Modes</a>
@@ -100,6 +101,7 @@
   </ul></div>
 </div>
 <script src="bullpen-shared.js"></script>
+<script src="/bp-fun.js?v=1"></script>
 <script src="/acct-blitz.js?v=1"></script>
 <script src="/acct-spot.js?v=1"></script>
 <script>
@@ -116,7 +118,7 @@
   function start(){puz=S.daily(today());i=0;score=0;got=0;round();}
   function round(){
     var p=puz[i],c=$('game');c.textContent='';lock=false;left=S.SECONDS;stats();
-    c.appendChild(el('div','step','Which entry is wrong?'));
+    c.appendChild(BP.dots(i+1,S.ROUNDS));c.appendChild(el('div','step','Which entry is wrong?'));
     var bar=el('div','timer');var f=el('i');bar.appendChild(f);bar.style.marginTop='8px';c.appendChild(bar);
     p.lines.forEach(function(l,k){var b=el('button','je');b.type='button';b.appendChild(el('b',null,l.text));b.appendChild(el('span',null,'Debit '+l.dr+'  ·  Credit '+l.cr));b.addEventListener('click',function(){answer(k,b,c);});c.appendChild(b);});
     c.appendChild(el('div','fb',''));
