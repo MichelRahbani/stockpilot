@@ -2,7 +2,7 @@
   // Same page whether it is opened as /dashboard or /dashboard.html
   var path = window.location.pathname.replace(/\.html$/, '') || '/';
   var isDark = path.startsWith('/trade');
-  var isApp  = path.startsWith('/app') || /-workspace$/.test(path) || path === '/dashboard';
+  var isApp  = path.startsWith('/app') || /-workspace$/.test(path) || path === '/dashboard' || /^\/(marketing|marketing-lab|risk|risk-lab)$/.test(path);
   // A workspace counts as its section (/budget-workspace highlights Budget)
   var section = path.replace(/-workspace$/, '');
   if (/^\/(accounting|supply-chain)/.test(path)) section = '/budget';

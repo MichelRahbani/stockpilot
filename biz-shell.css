@@ -1,0 +1,55 @@
+/* Business section: same chrome as Learn and Budget (header, tab row, hero card), in yellow. */
+:root{--sp-sec:#ca8a04;--purple:#ca8a04;--purple-d:#a16207;--purple-l:#fefce8;--g100:#e4e7ed;--off:#f7f8fa;--hl:#fef08a;--biz-line:#f1e4a6}
+body{background:#f7f8fa;color:#12161f;font-family:var(--sp-font-sans,"Schibsted Grotesk",system-ui,sans-serif)}
+.sp-site-header{position:fixed;top:0;left:0;right:0;z-index:50}
+.biz-main{max-width:1280px;margin:0 auto;padding:83px 56px 70px}
+.biz-main .wrap{max-width:none;margin:0;padding:0}
+.biz-tabs{display:flex;background:#fff;border:1px solid #e4e7ed;border-radius:6px;padding:0 8px;margin:0 0 14px;overflow-x:auto;scrollbar-width:none}
+.biz-tabs::-webkit-scrollbar{display:none}
+.biz-tabs::before{content:'BUSINESS';font-size:10px;font-weight:700;letter-spacing:.1em;color:#6b7383;padding:8px 10px;display:flex;align-items:center;white-space:nowrap;border-right:1px solid #eef0f4;margin-right:4px}
+.biz-tabs a{display:flex;align-items:center;height:50px;padding:0 14px;font-size:14.5px;font-weight:500;color:#5a6478;text-decoration:none;white-space:nowrap}
+.biz-tabs a:hover{color:#12161f}
+.biz-tabs a.on{color:#12161f;font-weight:600;box-shadow:inset 0 -2px 0 #ca8a04}
+.biz-hero{background:#fff;border:1px solid var(--biz-line);border-radius:8px;padding:18px 22px 14px;margin:0 0 16px;display:flex;gap:14px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+.biz-hero h1{font-size:28px;font-weight:700;letter-spacing:-.02em;color:#0f172a;margin:0 0 6px;line-height:1.15}
+.biz-hero p{font-size:15px;color:#475569;max-width:640px;margin:0;line-height:1.5}
+.biz-hero .btn{align-self:center}
+.biz-main .card,.biz-main .rk,.biz-main .k,.biz-main .shock{border-color:#e4e7ed}
+.biz-main .btn{background:#ca8a04;border-color:#ca8a04;color:#1c1917}
+.biz-main .btn:hover{background:#a16207;border-color:#a16207;color:#fff}
+.biz-main .btn.ghost{background:#fff;color:#12161f;border-color:#cbd5e1}
+.biz-main .btn.ghost:hover{background:#fefce8}
+.biz-main a:not(.btn):not(.biz-t){color:#a16207}
+/* lesson reader, same as Learn pathway */
+.cols{display:grid;grid-template-columns:300px 1fr;gap:18px;align-items:start}
+.toc,.lesson{background:#fff;border:1px solid var(--biz-line);border-radius:8px;padding:16px}
+.toc{position:sticky;top:70px;max-height:calc(100vh - 86px);overflow:auto;padding:12px}
+.toc h3{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:#94a3b8;margin:12px 8px 6px;font-weight:700}
+.toc a{padding:7px 8px;color:#0f172a}
+.toc a:hover{background:#fefce8}
+.toc a.on{background:#fef3c7;font-weight:700}
+.toc .tick{border-color:#cbd5e1}
+.toc a.done .tick{background:#16a34a;border-color:#16a34a}
+.prog{background:#f6ecc4}.prog i{background:#ca8a04}
+.key{background:#fefce8;border-left-color:#ca8a04}
+.try{border-color:#ca8a04}
+.q button.o:hover:not(:disabled){border-color:#ca8a04}
+.biz-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:18px}
+.biz-tile{display:block;background:#fff;border:1px solid #e4e7ed;border-radius:8px;padding:16px 18px;text-decoration:none;color:inherit;border-top:3px solid #ca8a04}
+.biz-tile:hover{border-color:#ca8a04}
+.biz-tile h3{font-size:16px;margin:0 0 4px;color:#0f172a}
+.biz-tile p{font-size:13.5px;color:#475569;margin:0 0 10px;line-height:1.45}
+.biz-tile .tag{font:600 11px var(--sp-font-mono,monospace);color:#a16207;letter-spacing:.03em}
+.biz-bar{height:6px;background:#f6ecc4;border-radius:99px;overflow:hidden;margin:2px 0 8px}.biz-bar i{display:block;height:100%;background:#ca8a04}
+.biz-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#6b7383;margin:22px 0 10px}
+.biz-next{background:#fff;border:1px solid var(--biz-line);border-radius:8px;padding:16px 20px;margin-bottom:6px;display:flex;gap:16px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.biz-next h3{font-size:18px;margin:2px 0 0}.biz-next small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#6b7383;font-weight:700}
+@media(max-width:860px){.cols{grid-template-columns:1fr}.toc{position:static;max-height:none}.biz-grid{grid-template-columns:1fr}.biz-main{padding:76px 14px 60px}}
+.sp-site-header{position:fixed!important;top:0!important;left:0!important;right:0!important;z-index:9999!important;display:flex!important;align-items:center!important;justify-content:space-between!important;padding:12px 20px!important;background:rgba(255,255,255,.96)!important;backdrop-filter:blur(12px)!important;border-bottom:1px solid #e4e7ed!important;box-shadow:0 1px 4px rgba(0,0,0,.05)!important;height:56px!important;font-family:var(--sp-font-sans)!important}
+.sp-site-logo{display:flex!important;align-items:center!important;gap:8px!important;text-decoration:none!important;color:#12161f!important;flex-shrink:0!important}
+.sp-site-logo-mark{width:30px!important;height:30px!important}
+.sp-site-logo-text{font-family:var(--sp-font-display)!important;font-size:16px!important;font-weight:700!important;letter-spacing:-.02em!important;color:#12161f!important}
+.sp-site-header .sp-site-logo-badge{background:transparent!important;color:#ca8a04!important;border:1px solid #ca8a04!important;font-size:9px!important;font-weight:500!important;padding:2px 7px!important;border-radius:2px!important;letter-spacing:.08em!important;font-family:var(--sp-font-mono)!important}
+.sp-site-nav{display:none!important}
+.biz-main .toc a,.biz-main .toc a:hover{color:#0f172a}
+@media(max-width:600px){.sp-site-header{padding:10px 16px!important}}

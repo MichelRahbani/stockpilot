@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Business | StockPilot</title>
+<meta name="description" content="Free marketing and risk management lessons, simulators and games in plain English."/>
+<link rel="canonical" href="https://mystockspilot.com/business"/>
+<link rel="stylesheet" href="/acct.css?v=3"/>
+<link rel="stylesheet" href="/business.css?v=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<link rel="stylesheet" href="/sp-app.css"/>
+<link rel="stylesheet" href="/biz-shell.css?v=1"/>
+<script>window.BIZ_PAGE={tab:'overview',title:'Run a business with confidence.',sub:'Lessons, simulators and games for marketing and risk management. Short, plain English, free.'};</script>
+<script src="/biz-shell.js?v=1"></script>
+</head>
+<body>
+<div class="wrap">
+  <div id="pOver"></div>
+  <div id="pGames" hidden></div>
+</div>
+<script src="/biz-lessons.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  var $=function(i){return document.getElementById(i)};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function load(k){try{return JSON.parse(localStorage.getItem(k)||'{}')||{};}catch(e){return {};}}
+  var L={marketing:window.BizLessons.marketing,risk:window.BizLessons.risk},K={marketing:'sp_biz_marketing_v1',risk:'sp_biz_risk_v1'};
+  var done={marketing:load(K.marketing),risk:load(K.risk)};
+  function count(k){return L[k].filter(function(l){return done[k][l.id];}).length;}
+  function tile(parent,href,h,p,tag,prog){
+    var a=el('a','biz-tile');a.href=href;a.appendChild(el('h3',null,h));a.appendChild(el('p',null,p));
+    if(prog!=null){var b=el('div','biz-bar');var i=el('i');i.style.width=Math.round(prog*100)+'%';b.appendChild(i);a.appendChild(b);}
+    a.appendChild(el('span','tag',tag));parent.appendChild(a);
+  }
+  function next(){
+    for(var k in L){for(var i=0;i<L[k].length;i++)if(!done[k][L[k][i].id])return {k:k,l:L[k][i],n:i+1};}
+    return null;
+  }
+  function over(){
+    var o=$('pOver');o.textContent='';
+    var n=next(),box=el('div','biz-next'),left=el('div');
+    left.appendChild(el('small',null,n?(count('marketing')+count('risk')?'Pick up where you left off':'Start here'):'All lessons done'));
+    left.appendChild(el('h3',null,n?n.n+'. '+n.l.title+' ('+(n.k==='marketing'?'Marketing':'Risk')+')':'You finished every lesson. Try the games.'));
+    box.appendChild(left);
+    var go=el('a','btn',n?'Open lesson':'Play the games');go.href=n?'/'+n.k+'#'+n.l.id:'#games';if(!n)go.addEventListener('click',function(e){e.preventDefault();show('games');});box.appendChild(go);
+    o.appendChild(box);
+    o.appendChild(el('div','biz-label','Lessons'));
+    var g1=el('div','biz-grid');
+    tile(g1,'/marketing','Marketing','Customers, the four Ps, funnels, cost per customer, lifetime value and pricing.',count('marketing')+' of 8 done',count('marketing')/8);
+    tile(g1,'/risk','Risk management','Risk types, the risk map, registers, insurance, diversifying and stress tests.',count('risk')+' of 8 done',count('risk')/8);
+    o.appendChild(g1);
+    o.appendChild(el('div','biz-label','Practice'));
+    var g2=el('div','biz-grid');
+    tile(g2,'/marketing-lab','Funnel Lab','Move the sliders on ads, clicks and price. Watch profit and payback change.','Simulator');
+    tile(g2,'/risk-lab','Risk Lab','Build a risk register and pick a response for each risk.','Simulator');
+    tile(g2,'/risk-lab#stress','Stress test','See if a small business survives fires, supplier failures and a recession.','Simulator');
+    o.appendChild(g2);
+  }
+  function games(){
+    var o=$('pGames');o.textContent='';
+    var g=el('div','biz-grid');
+    tile(g,'/bullpen-campaign.html','Campaign Manager','Spend a marketing budget over six months and set your price. Same code, same market for everyone.','Game · daily leaderboard');
+    tile(g,'/bullpen-shield.html','Shield','Protect a small business from fires, supplier failures and recessions without going broke.','Game · daily leaderboard');
+    tile(g,'/bullpen.html','All Bullpen games','Accounting and trading games, class leagues and leaderboards.','Bullpen');
+    o.appendChild(g);
+  }
+  function show(w){
+    $('pOver').hidden=w==='games';$('pGames').hidden=w!=='games';
+    if(w==='games')bizSetTab('games','Games','Short games with a daily leaderboard. Use a class code so everyone plays the same game.');
+    else bizSetTab('overview','Run a business with confidence.','Lessons, simulators and games for marketing and risk management. Short, plain English, free.');
+    var h=w==='games'?'#games':'';if(location.hash!==h)history.replaceState(null,'',location.pathname+h);
+  }
+  over();games();
+  function route(){show(location.hash==='#games'?'games':'over');}
+  window.addEventListener('hashchange',route);
+  var t=setInterval(function(){if(window.bizSetTab){clearInterval(t);route();}},20);
+})();
+</script>
+<script>['/share.js','/cross-promo.js','/nav-fix.js'].forEach(function(s){document.write('<script src="'+s+'"><\/script>');});</script>
+<script src="/lang-toggle.js"></script>
+</body>
+</html>
