@@ -1,7 +1,7 @@
 /* Builds the Business page chrome so it matches Learn and Budget: site header, tab row, hero card. */
 (function () {
   var cfg = window.BIZ_PAGE || {};
-  var TABS = [['overview', 'Overview', '/business-workspace.html'], ['marketing', 'Marketing', '/marketing'], ['risk', 'Risk', '/risk'], ['funnel', 'Funnel Lab', '/marketing-lab'], ['risklab', 'Risk Lab', '/risk-lab'], ['games', 'Games', '/business-workspace.html#games']];
+  var TABS = [['overview', 'Overview', '/business-workspace.html'], ['marketing', 'Marketing', '/marketing'], ['risk', 'Risk', '/risk'], ['operations', 'Operations', '/ops'], ['startups', 'Startups', '/startups'], ['labs', 'Labs', '/business-workspace.html#labs'], ['games', 'Games', '/business-workspace.html#games']];
   function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
   function build() {
     document.querySelectorAll('nav.top, .sub-tabs, .wrap > .hero, .wrap > h1, .wrap > .lede').forEach(function (n) { n.remove(); });

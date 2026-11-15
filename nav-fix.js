@@ -2,11 +2,11 @@
   // Same page whether it is opened as /dashboard or /dashboard.html
   var path = window.location.pathname.replace(/\.html$/, '') || '/';
   var isDark = path.startsWith('/trade');
-  var isApp  = path.startsWith('/app') || /-workspace$/.test(path) || path === '/dashboard' || /^\/(marketing|marketing-lab|risk|risk-lab)$/.test(path);
+  var isApp  = path.startsWith('/app') || /-workspace$/.test(path) || path === '/dashboard' || /^\/(marketing|marketing-lab|risk|risk-lab|ops|ops-lab|startups|startup-lab)$/.test(path);
   // A workspace counts as its section (/budget-workspace highlights Budget)
   var section = path.replace(/-workspace$/, '');
   if (/^\/(accounting|supply-chain)/.test(path)) section = '/budget';
-  if (/^\/(marketing|marketing-lab|risk|risk-lab)/.test(path)) section = '/business';
+  if (/^\/(marketing|marketing-lab|risk|risk-lab|ops|ops-lab|startups|startup-lab)/.test(path)) section = '/business';
   var onSupply = function(){ return /^\/(supply-chain)/.test(path) || (path === '/budget-workspace' && location.hash === '#supply'); };
   function same(href){
     if (href.indexOf('#supply') > -1) return onSupply();

@@ -14,23 +14,25 @@
 <link rel="stylesheet" href="/sp-design.css"/>
 <link rel="stylesheet" href="/sp-app.css"/>
 <link rel="stylesheet" href="/biz-shell.css?v=1"/>
-<script>window.BIZ_PAGE={tab:'overview',title:'Run a business with confidence.',sub:'Lessons, simulators and games for marketing and risk management. Short, plain English, free.'};</script>
-<script src="/biz-shell.js?v=1"></script>
+<script>window.BIZ_PAGE={tab:'overview',title:'Run a business with confidence.',sub:'Lessons, simulators and games for marketing, risk, operations and startups. Short, plain English, free.'};</script>
+<script src="/biz-shell.js?v=2"></script>
 </head>
 <body>
 <div class="wrap">
   <div id="pOver"></div>
+  <div id="pLabs" hidden></div>
   <div id="pGames" hidden></div>
 </div>
 <script src="/biz-lessons.js?v=1"></script>
+<script src="/biz-lessons2.js?v=1"></script>
 <script>
 (function(){
   'use strict';
   var $=function(i){return document.getElementById(i)};
   function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
   function load(k){try{return JSON.parse(localStorage.getItem(k)||'{}')||{};}catch(e){return {};}}
-  var L={marketing:window.BizLessons.marketing,risk:window.BizLessons.risk},K={marketing:'sp_biz_marketing_v1',risk:'sp_biz_risk_v1'};
-  var done={marketing:load(K.marketing),risk:load(K.risk)};
+  var L={marketing:window.BizLessons.marketing,risk:window.BizLessons.risk,ops:window.BizLessons.ops,startups:window.BizLessons.startups},K={marketing:'sp_biz_marketing_v1',risk:'sp_biz_risk_v1',ops:'sp_biz_ops_v1',startups:'sp_biz_startups_v1'},NM={marketing:'Marketing',risk:'Risk',ops:'Operations',startups:'Startups'};
+  var done={};for(var kk in K)done[kk]=load(K[kk]);
   function count(k){return L[k].filter(function(l){return done[k][l.id];}).length;}
   function tile(parent,href,h,p,tag,prog){
     var a=el('a','biz-tile');a.href=href;a.appendChild(el('h3',null,h));a.appendChild(el('p',null,p));
@@ -44,8 +46,8 @@
   function over(){
     var o=$('pOver');o.textContent='';
     var n=next(),box=el('div','biz-next'),left=el('div');
-    left.appendChild(el('small',null,n?(count('marketing')+count('risk')?'Pick up where you left off':'Start here'):'All lessons done'));
-    left.appendChild(el('h3',null,n?n.n+'. '+n.l.title+' ('+(n.k==='marketing'?'Marketing':'Risk')+')':'You finished every lesson. Try the games.'));
+    left.appendChild(el('small',null,n?(count('marketing')+count('risk')+count('ops')+count('startups')?'Pick up where you left off':'Start here'):'All lessons done'));
+    left.appendChild(el('h3',null,n?n.n+'. '+n.l.title+' ('+NM[n.k]+')':'You finished every lesson. Try the games.'));
     box.appendChild(left);
     var go=el('a','btn',n?'Open lesson':'Play the games');go.href=n?'/'+n.k+'#'+n.l.id:'#games';if(!n)go.addEventListener('click',function(e){e.preventDefault();show('games');});box.appendChild(go);
     o.appendChild(box);
@@ -53,13 +55,19 @@
     var g1=el('div','biz-grid');
     tile(g1,'/marketing','Marketing','Customers, the four Ps, funnels, cost per customer, lifetime value and pricing.',count('marketing')+' of 8 done',count('marketing')/8);
     tile(g1,'/risk','Risk management','Risk types, the risk map, registers, insurance, diversifying and stress tests.',count('risk')+' of 8 done',count('risk')/8);
+    tile(g1,'/ops','Operations','Capacity, costs, break-even, inventory, quality, suppliers and measuring.',count('ops')+' of 8 done',count('ops')/8);
+    tile(g1,'/startups','Startups','Finding a problem, talking to customers, unit economics, runway and funding.',count('startups')+' of 8 done',count('startups')/8);
     o.appendChild(g1);
-    o.appendChild(el('div','biz-label','Practice'));
-    var g2=el('div','biz-grid');
-    tile(g2,'/marketing-lab','Funnel Lab','Move the sliders on ads, clicks and price. Watch profit and payback change.','Simulator');
-    tile(g2,'/risk-lab','Risk Lab','Build a risk register and pick a response for each risk.','Simulator');
-    tile(g2,'/risk-lab#stress','Stress test','See if a small business survives fires, supplier failures and a recession.','Simulator');
-    o.appendChild(g2);
+      }
+  function labs(){
+    var o=$('pLabs');o.textContent='';var g=el('div','biz-grid');
+    tile(g,'/marketing-lab','Funnel Lab','Move the sliders on ads, clicks and price. Watch profit and payback change.','Marketing');
+    tile(g,'/risk-lab','Risk Lab','Build a risk register and pick a response for each risk.','Risk');
+    tile(g,'/risk-lab#stress','Stress test','See if a small business survives fires, supplier failures and a recession.','Risk');
+    tile(g,'/ops-lab','Break-even and capacity','Find your break-even point and the bottleneck in a process.','Operations');
+    tile(g,'/ops-lab#reorder','Reorder point','Know when to reorder so you never run out or overstock.','Operations');
+    tile(g,'/startup-lab','Startup Lab','See how long your cash lasts and whether each customer is worth winning.','Startups');
+    o.appendChild(g);
   }
   function games(){
     var o=$('pGames');o.textContent='';
@@ -70,13 +78,14 @@
     o.appendChild(g);
   }
   function show(w){
-    $('pOver').hidden=w==='games';$('pGames').hidden=w!=='games';
+    $('pOver').hidden=w!=='over';$('pLabs').hidden=w!=='labs';$('pGames').hidden=w!=='games';
     if(w==='games')bizSetTab('games','Games','Short games with a daily leaderboard. Use a class code so everyone plays the same game.');
-    else bizSetTab('overview','Run a business with confidence.','Lessons, simulators and games for marketing and risk management. Short, plain English, free.');
-    var h=w==='games'?'#games':'';if(location.hash!==h)history.replaceState(null,'',location.pathname+h);
+    else if(w==='labs')bizSetTab('labs','Labs','Hands-on simulators. Change the numbers and see what happens.');
+    else bizSetTab('overview','Run a business with confidence.','Lessons, simulators and games for marketing, risk, operations and startups. Short, plain English, free.');
+    var h=w==='games'?'#games':w==='labs'?'#labs':'';if(location.hash!==h)history.replaceState(null,'',location.pathname+h);
   }
-  over();games();
-  function route(){show(location.hash==='#games'?'games':'over');}
+  over();labs();games();
+  function route(){show(location.hash==='#games'?'games':location.hash==='#labs'?'labs':'over');}
   window.addEventListener('hashchange',route);
   var t=setInterval(function(){if(window.bizSetTab){clearInterval(t);route();}},20);
 })();
