@@ -54,6 +54,12 @@ table.t tr.chg td{background:var(--hl)}
 .tip{font-size:13px;color:var(--g600);margin:0 0 12px}
 .mtabs{display:none}
 @media(max-width:1000px){.lab{grid-template-columns:1fr}.side{position:static;max-height:none}.stm{grid-template-columns:1fr}.stm .card{display:none}.stm .card.show{display:block}.mtabs{display:inline-flex;margin-bottom:10px}.imp{grid-template-columns:1fr}}
+
+.sc{margin-bottom:12px;border-color:#c4b5fd}
+.sc .r{display:flex;flex-wrap:wrap;gap:10px;align-items:end}
+.sc .r label.f{flex:1;min-width:220px}
+.sc .st{font-size:14px;margin:10px 0 0;color:var(--g600)}
+.sc .nt{font-size:14px;margin-top:8px;padding:8px 10px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:6px;display:none}
 </style>
 </head>
 <body>
@@ -92,6 +98,10 @@ table.t tr.chg td{background:var(--hl)}
       <div id="txs"></div>
     </aside>
     <main>
+      <section class="card sc" id="scCard"><h2>Supply chain events</h2>
+        <p class="tip" style="margin:0 0 8px">Add a real-world supply problem to the month you are reporting on and watch what it does to all three statements.</p>
+        <div class="r"><label class="f">Event<select id="scEvent"></select></label><button class="btn" id="scGo" type="button">Add to this month</button></div>
+        <p class="st" id="scStory"></p><div class="nt" id="scNote"></div></section>
       <div class="seg mtabs" id="mtabs"><button data-t="0" class="on">Income</button><button data-t="1">Balance sheet</button><button data-t="2">Cash flow</button></div>
       <div class="stm" id="stm">
         <section class="card show" id="cIS"><h2>Income statement</h2><div class="sub" id="isSub"></div><table class="t" id="is"></table></section>
@@ -104,6 +114,7 @@ table.t tr.chg td{background:var(--hl)}
 </div>
 <script src="/acct-engine.js"></script>
 <script src="/acct-presets.js"></script>
+<script src="/acct-supply.js"></script>
 <script>
 (function(){
   'use strict';
@@ -348,11 +359,30 @@ table.t tr.chg td{background:var(--hl)}
     [].forEach.call(document.querySelectorAll('#mtabs button'),function(x){x.classList.toggle('on',x===b);});
     ['cIS','cBS','cCF'].forEach(function(id,i){$(id).classList.toggle('show',String(i)===b.dataset.t);});});
 
+
+  // ── Supply chain events ──
+  var EVENTS=window.AcctSupply||[];
+  EVENTS.forEach(function(ev){var o=el('option',null,ev.title);o.value=ev.id;$('scEvent').appendChild(o);});
+  function evSel(){return EVENTS.filter(function(x){return x.id===$('scEvent').value})[0];}
+  function showEvStory(){var ev=evSel();$('scStory').textContent=ev?ev.story:'';$('scNote').style.display='none';}
+  $('scEvent').addEventListener('change',showEvStory);showEvStory();
+  $('scGo').addEventListener('click',function(){
+    var ev=evSel();if(!ev)return;var warns=[],last=null,list=ev.entries;
+    if(ev.pay){var ap=E.statementsD(st,period,false).balance.ap;
+      if(ap<=0){showWarns(['You do not owe any suppliers at the end of '+E.periodName(st,period)+'. Buy something on credit first.']);return;}
+      list=[{type:'payAP',params:{amount:ap}}];}
+    for(var i=0;i<list.length;i++){var r=E.addEntry(st,period,list[i].type,list[i].params,ev.title);
+      if(!r.ok){showWarns([r.error]);return;}last=r.entry.id;(r.warnings||[]).forEach(function(w){if(warns.indexOf(w)<0)warns.push(w);});}
+    selected=last;render();showWarns(warns);
+    var n=$('scNote');n.textContent='What to notice: '+ev.notice;n.style.display='block';
+  });
+
   var saved=loadSaved();
   var qp=new URLSearchParams(location.search),want=qp.get('co');
   if(want&&PRESETS.some(function(p){return p.id===want}))start(want);
   else if(saved)start(saved.presetId,saved);
   else start('lemonade');
+  if(qp.get('sc')==='1'){setTimeout(function(){$('scCard').scrollIntoView({block:'center'});},100);}
 })();
 </script>
 <script src="/share.js"></script>

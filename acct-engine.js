@@ -193,6 +193,11 @@
     build: (p) => ({ lines: [["allowance", "dr", p.amount], ["ar", "cr", p.amount]], cf: null }),
     plain: (p, f) => `A customer is never going to pay ${f(p.amount)}. The business removes it from receivables against the allowance it set aside earlier. Net receivables, total assets and net income do not change, because the loss was already counted when the allowance was set up.`
   });
+  def("writeDown", {
+    group: "Adjustments", label: "Write off spoiled or lost inventory", fields: [{ k: "amount", label: "Cost of goods lost", t: "money" }],
+    build: (p) => ({ lines: [["cogs", "dr", p.amount], ["inventory", "cr", p.amount]], cf: null }),
+    plain: (p, f) => `${f(p.amount)} of inventory spoils, gets damaged or is lost. Inventory goes down and the loss goes to cost of goods sold, so profit falls. No cash moves now, because the cash left when the goods were bought.`
+  });
   def("sellEquipment", {
     group: "Adjustments", label: "Sell equipment",
     fields: [{ k: "proceeds", label: "Cash received", t: "money" }, { k: "cost", label: "Original cost", t: "money" }, { k: "accDep", label: "Depreciation taken so far", t: "money" }],

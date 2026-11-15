@@ -169,6 +169,33 @@ table.s td{padding:4px 3px;text-align:right;border-bottom:1px solid #f1f0f7;font
     [{k:'amt',label:'Amount ($)',v:1000},{k:'r',label:'Rate per year (%)',v:5},{k:'n',label:'Years',v:10}],
     function(v){var f=Math.pow(1+v.r/100,v.n);return [kv('Future value of the amount today',money(v.amt*f),'big'),kv('Present value of the amount received later',money(v.amt/f)),kv('Growth factor',f.toFixed(4)),el('p','note','Future value = amount x (1 + rate)^years. Present value divides by the same factor.')];});
 
+
+  // 10. Reorder point
+  tool('reorder','Reorder point and safety stock','When to place the next order.',
+    [{k:'d',label:'Average sales per day',v:20},{k:'l',label:'Lead time (days)',v:7},{k:'dmax',label:'Highest sales per day',v:30},{k:'lmax',label:'Longest lead time (days)',v:10}],
+    function(v){var ss=Math.max(0,v.dmax*v.lmax-v.d*v.l),rop=v.d*v.l+ss;
+      return [kv('Used while waiting',String(Math.round(v.d*v.l))+' units'),kv('Safety stock',String(Math.ceil(ss-1e-9))+' units'),kv('Reorder point',String(Math.ceil(rop-1e-9))+' units','big'),el('p','note','When stock falls to the reorder point, place the order. Safety stock covers the worst case you entered.')];});
+
+  // 11. EOQ
+  tool('eoq','Economic order quantity (EOQ)','The order size with the lowest combined ordering and holding cost.',
+    [{k:'D',label:'Yearly demand (units)',v:1200},{k:'S',label:'Cost per order ($)',v:50},{k:'H',label:'Holding cost per unit per year ($)',v:3}],
+    function(v){if(v.D<=0||v.S<=0||v.H<=0)return [el('p','note','Enter numbers above zero.')];
+      var q=Math.sqrt(2*v.D*v.S/v.H),n=v.D/q,oc=n*v.S,hc=q/2*v.H;
+      var q2=q*2,t2=v.D/q2*v.S+q2/2*v.H;
+      return [kv('Best order size',Math.round(q)+' units','big'),kv('Orders per year',n.toFixed(1)),kv('Ordering cost',money(oc)),kv('Holding cost',money(hc)),kv('Total yearly cost',money(oc+hc)),kv('Total if you ordered double',money(t2)),el('p','note','At the best size, ordering and holding costs are equal. Assumes steady demand and a fixed price.')];});
+
+  // 12. Stockout cost
+  tool('stockout','Stockout cost','What running out of stock really costs.',
+    [{k:'d',label:'Sales per day (units)',v:50},{k:'days',label:'Days out of stock',v:4},{k:'m',label:'Profit per unit ($)',v:3},{k:'rush',label:'Rush shipping and extras ($)',v:800},{k:'lost',label:'Customers who never return (%)',v:10}],
+    function(v){var lostUnits=v.d*v.days,lostProfit=lostUnits*v.m,gone=lostUnits*(v.lost/100)*v.m*12;
+      return [kv('Units not sold',String(Math.round(lostUnits))),kv('Profit lost',money(lostProfit)),kv('Rush costs',money(v.rush)),kv('Immediate cost',money(lostProfit+v.rush),'big'),kv('Profit from customers lost for a year',money(gone)),el('p','note','The last line assumes each lost customer would have bought about once a month. It is a rough guide, not an exact figure.')];});
+
+  // 13. Days of supply
+  tool('dos','Days of supply and cash tied up','How long your stock lasts and what cutting it would free.',
+    [{k:'inv',label:'Inventory on hand ($)',v:30000},{k:'cogs',label:'Yearly cost of goods sold ($)',v:240000},{k:'cut',label:'Days of stock you could cut',v:10}],
+    function(v){if(v.cogs<=0)return [el('p','note','Enter yearly cost of goods sold.')];var daily=v.cogs/365;
+      return [kv('Inventory turnover',(v.cogs/v.inv).toFixed(1)+'x a year','big'),kv('Days of supply',(v.inv/daily).toFixed(0)+' days'),kv('Cash freed by cutting '+Math.round(v.cut)+' days',money(daily*v.cut,0)),el('p','note','Days of supply = inventory / daily cost of goods sold. Cutting stock frees cash, but leaves less cushion.')];});
+
   if(location.hash){var t=$(location.hash.slice(1));if(t)setTimeout(function(){t.scrollIntoView();},50);}
 })();
 </script>

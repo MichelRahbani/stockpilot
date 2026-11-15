@@ -20,3 +20,13 @@ const P=require('./acct-presets.js');
 P.forEach(pr=>{try{const st=E.load(pr);for(let p=1;p<=st.periods;p++){const x=E.statements(st,p,true);
  if(!x.checks.balances||!x.checks.cashTies||!x.checks.operatingTies||x.balance.cash<0||x.balance.inventory<0)console.log('PRESET BAD',pr.id,p,x.checks,x.balance.cash,x.balance.inventory);}}catch(e){console.log('PRESET ERR',e.message)}});
 console.log('presets checked');
+// supply events on every preset, in every month
+const SUP=require('./acct-supply.js');
+let evBad=0;
+P.forEach(pr=>{SUP.forEach(ev=>{for(let per=1;per<=pr.periods;per+=3){const st=E.load(pr);
+  const pending=ev.pay?[{type:'payAP',params:{amount:Math.min(1000,Math.max(0,E.statements(st,per,true).balance.ap/100))}}]:ev.entries;
+  pending.forEach(e=>{if(e.params.amount===0)return;const r=E.addEntry(st,per,e.type,e.params);if(!r.ok){evBad++;console.log('EV FAIL',pr.id,ev.id,r.error)}});
+  for(let q=1;q<=st.periods;q++){const x=E.statements(st,q,true);if(!x.checks.balances||!x.checks.cashTies||!x.checks.operatingTies){evBad++;console.log('EV CHECK',pr.id,ev.id,q)}}}});});
+const w=E.create({periods:2});E.addEntry(w,1,'invest',{amount:1000});E.addEntry(w,1,'buyInventory',{amount:400,paid:'cash'});E.addEntry(w,1,'writeDown',{amount:150});
+const ws=E.statementsD(w,1,true);if(ws.balance.inventory!==250||ws.income.netIncome!==-150||ws.cashFlow.operating.total!==-400||!ws.checks.balances||!ws.checks.operatingTies){evBad++;console.log('WRITEDOWN BAD',JSON.stringify(ws.checks),ws.balance.inventory,ws.income.netIncome,ws.cashFlow.operating.total)}
+console.log(evBad?'EVENTS FAILED':'events ok');

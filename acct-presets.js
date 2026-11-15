@@ -64,6 +64,22 @@
         { period: 4, type: "sale", params: { amount: 7000, cost: 2800, paid: "credit" } },
         { period: 4, type: "tax", params: { amount: 700, paid: "cash" } }
       ] },
+    { id: "importer", name: "Importer", blurb: "Buys from overseas suppliers on credit. A long supply chain.", periods: 12, periodLabels: M,
+      entries: [
+        { period: 1, type: "invest", params: { amount: 50000 } },
+        { period: 1, type: "borrow", params: { amount: 15000 } },
+        { period: 1, type: "buyEquipment", params: { amount: 8000, paid: "cash" } },
+        { period: 1, type: "buyInventory", params: { amount: 30000, paid: "credit" } },
+        { period: 2, type: "sale", params: { amount: 20000, cost: 12000, paid: "credit" } },
+        { period: 2, type: "expense", params: { category: "rent", amount: 2500, paid: "cash" } },
+        { period: 2, type: "expense", params: { category: "wages", amount: 3500, paid: "cash" } },
+        { period: 3, type: "collect", params: { amount: 14000 } },
+        { period: 3, type: "payAP", params: { amount: 15000 } },
+        { period: 3, type: "buyInventory", params: { amount: 10000, paid: "credit" } },
+        { period: 3, type: "sale", params: { amount: 15000, cost: 9000, paid: "credit" } },
+        { period: 3, type: "depreciation", params: { amount: 150 } },
+        { period: 3, type: "interest", params: { amount: 120, paid: "cash" } }
+      ] },
     { id: "blank", name: "Blank company", blurb: "Start from zero and build your own.", periods: 12, periodLabels: M, entries: [] }
   ];
 });
