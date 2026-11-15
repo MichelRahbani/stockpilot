@@ -1,0 +1,47 @@
+/* Budget workspace: same clean look as the Accounting pages.
+   Compact title card, light bordered cards, plain labels. Layout only: no ids, classes or markup the app uses are changed. */
+
+/* slim top area: the long headline and the market status move out of the way, sign in and settings stay */
+html body main.app-shell > .workspace > header.topbar{display:flex!important;justify-content:flex-end!important;align-items:center!important;min-height:0!important;padding:6px 0 0!important;margin:0 0 4px!important;border:0!important;background:none!important}
+html body main.app-shell > .workspace > header.topbar > div:first-child,html body main.app-shell > .workspace > header.topbar > .topbar-actions,html body main.app-shell > .workspace > header.topbar #liveDataPill{display:none!important}
+html body main.app-shell > .workspace > header.topbar > .account-widget{margin:0!important}
+
+/* the title card */
+#savingsHub .savings-hero{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:14px!important;min-height:0!important;padding:18px 22px!important;margin:0 0 16px!important;background:#fff!important;border:1px solid #e1e9ff!important;border-radius:8px!important;box-shadow:none!important}
+#savingsHub .savings-hero .eyebrow{display:none!important}
+#savingsHub .savings-hero h2{font-size:28px!important;line-height:1.15!important;letter-spacing:-.02em!important;margin:0 0 6px!important}
+#savingsHub .savings-hero p:not(.eyebrow){font-size:15px!important;line-height:1.5!important;color:#475569!important;margin:0!important;max-width:640px!important}
+#savingsHub .savings-score-card{flex:none!important;width:100%!important;max-width:none!important;margin:0!important;padding:14px 16px!important;border-radius:8px!important;box-shadow:none!important;display:grid!important;grid-template-columns:200px repeat(2,minmax(0,230px))!important;grid-template-rows:auto auto auto!important;gap:6px 12px!important;align-items:center!important;justify-content:start!important}
+#savingsHub .savings-score-card>span{grid-column:1!important;grid-row:1!important}
+#savingsHub .savings-score-card>strong{grid-column:1!important;grid-row:2!important;font-size:34px!important;line-height:1!important}
+#savingsHub .savings-score-card>p{grid-column:1!important;grid-row:3!important;margin:0!important;font-size:13px!important}
+#savingsHub .savings-score-card>#clearSavingsButton{grid-column:2!important;grid-row:1!important}
+#savingsHub .savings-score-card>#submitBudgetBtn{grid-column:3!important;grid-row:1!important}
+#savingsHub .savings-score-card>a[href="/budget-challenge"]{grid-column:2!important;grid-row:2!important}
+#savingsHub .savings-score-card>a[href="/daily-challenge"]{grid-column:3!important;grid-row:2!important}
+#savingsHub .savings-score-card>#submitBudgetMsg{grid-column:2 / span 2!important;grid-row:3!important}
+#savingsHub .savings-score-card>button,#savingsHub .savings-score-card>a{margin:0!important;text-align:center!important;border-radius:6px!important}
+
+/* cards */
+#savingsHub .savings-panel,#savingsHub .sp-accordion,#savingsHub article.savings-panel{background:#fff!important;border:1px solid #e1e9ff!important;border-radius:8px!important;box-shadow:none!important;padding:16px!important}
+#savingsHub .section-title h2,#savingsHub .savings-panel h2,#savingsHub .sp-accordion summary h2{font-size:19px!important;font-weight:700!important;letter-spacing:-.02em!important;line-height:1.25!important;margin:0 0 4px!important}
+#savingsHub .table-note{font-size:13px!important;color:#475569!important;line-height:1.45!important}
+
+/* form labels and inputs */
+#savingsHub .field>span{text-transform:none!important;letter-spacing:0!important;font-size:12px!important;font-weight:600!important;color:#475569!important}
+#savingsHub input:not([type=range]):not([type=checkbox]):not([type=radio]),#savingsHub select,#savingsHub textarea{border:1px solid #e2e8f0!important;border-radius:6px!important;background:#fff!important;font-size:14px!important;box-shadow:none!important}
+#savingsHub input:focus,#savingsHub select:focus,#savingsHub textarea:focus{outline:2px solid #2563eb!important;outline-offset:1px!important}
+
+/* result boxes read like the key points in the lessons */
+#savingsHub .calc-result,#savingsHub .savings-result{border-radius:6px!important;box-shadow:none!important}
+
+/* buttons */
+#savingsHub .savings-hero .ghost-button,#savingsHub .savings-panel .ghost-button{border-radius:6px!important}
+
+@media(max-width:800px){
+  #savingsHub .savings-hero{padding:16px!important}
+  #savingsHub .savings-hero h2{font-size:23px!important}
+  #savingsHub .savings-score-card{display:flex!important;flex-wrap:wrap!important;gap:8px!important;padding:14px!important}
+  #savingsHub .savings-score-card>span,#savingsHub .savings-score-card>strong,#savingsHub .savings-score-card>p,#savingsHub .savings-score-card>#submitBudgetMsg{flex:1 1 100%!important}
+  #savingsHub .savings-score-card>button,#savingsHub .savings-score-card>a{flex:1 1 calc(50% - 8px)!important;min-width:130px!important;box-sizing:border-box!important}
+}

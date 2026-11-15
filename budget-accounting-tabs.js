@@ -21,11 +21,11 @@
 
   var css = document.createElement('style');
   css.textContent =
-    '#acctPanel{position:relative;max-width:1400px;margin:0 auto;padding:72px 16px 40px}' +
+    '#acctPanel{position:relative;max-width:1400px;margin:0 auto;padding:83px 16px 40px}' +
     '#acctPanel[hidden]{display:none}' +
     '#acctPanel iframe{display:block;width:100%;border:0;min-height:600px;background:transparent}' +
     '#acctPanel .acct-nav{margin:0 0 14px}' +
-    '@media(max-width:700px){#acctPanel{padding:64px 10px 30px}}';
+    '@media(max-width:700px){#acctPanel{padding:72px 10px 30px}}';
   document.head.appendChild(css);
 
   function makeBtn(t) {
@@ -38,6 +38,10 @@
       '<div class="duo-subject-info"><strong>' + t.label + '</strong><span>' + t.sub + '</span></div>';
     return b;
   }
+  // Put the blue row first on the page, right under the site menu, like the accounting pages
+  var ws = document.querySelector('main.app-shell > .workspace');
+  if (realNav && ws) ws.insertBefore(realNav, ws.firstChild);
+
   // Add the accounting entries to the existing blue row
   if (realNav) {
     TABS.forEach(function (t) {
