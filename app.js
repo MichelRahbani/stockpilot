@@ -5429,7 +5429,10 @@ const completeLearningLesson = (lessonId, stay) => {
   const lessonIndex = lessons.findIndex((lesson) => lesson.id === lessonId);
   if (lessonIndex < 0 || !isLearningLessonUnlocked(lessonIndex, lessons)) return;
   const lesson = lessons[lessonIndex];
-  if (!completedLessons.includes(lesson.id)) completedLessons.push(lesson.id);
+  if (!completedLessons.includes(lesson.id)) {
+    completedLessons.push(lesson.id);
+    if (window.lhTouch) window.lhTouch();
+  }
   if (!stay) showLearningPanel(lesson.panel);
   renderLearningPath();
   renderLearningDashboard();
