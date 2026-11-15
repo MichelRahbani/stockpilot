@@ -7,7 +7,7 @@
  *   GET /api/public/showdown/<CODE>   Showdown
  *   GET /api/public/teams/<CODE>      Team competition
  *   GET /api/public/madness/<CODE>    Madness bracket
- *   GET /api/public/crash|puzzle|speedround|blitz|streak/top   solo game top 10
+ *   GET /api/public/crash|puzzle|speedround|blitz|crunch|spot|streak/top   solo game top 10
  *
  * Every answer has the same shape:
  *   { game, league: { code, name, ... }, columns: { score: "Return" },
@@ -197,10 +197,12 @@ const SOLO = {
   crash: { table: "bullpen_crash_scores", field: "final_return", order: "final_return.desc", label: "Return", fmt: (v) => pctText(v) },
   puzzle: { table: "bullpen_puzzle_scores", field: "score", order: "score.desc", label: "Score", fmt: (v) => String(v), today: true, title: "Daily puzzle" },
   speedround: { table: "bullpen_speedround_scores", field: "score", order: "score.desc", label: "Score", fmt: (v) => String(v) },
+  crunch: { table: "bullpen_crunch_scores", field: "score", order: "score.desc", label: "Score", fmt: (v) => String(v) },
+  spot: { table: "bullpen_spot_scores", field: "score", order: "score.desc", label: "Score", fmt: (v) => String(v), today: true, title: "Spot the Error" },
   blitz: { table: "bullpen_blitz_scores", field: "score", order: "score.desc", label: "Score", fmt: (v) => String(v) },
   streak: { table: "bullpen_streak_scores", field: "best_streak", order: "best_streak.desc", label: "Best streak", fmt: (v) => String(v) }
 };
-const TITLES = { crash: "Crash", puzzle: "Daily puzzle", speedround: "Speed round", blitz: "Debit/Credit Blitz", streak: "Streak" };
+const TITLES = { crash: "Crash", puzzle: "Daily puzzle", speedround: "Speed round", blitz: "Debit/Credit Blitz", crunch: "Cash Crunch", spot: "Spot the Error", streak: "Streak" };
 const solo = async (game) => {
   const s = SOLO[game];
   const today = new Date().toISOString().split("T")[0];

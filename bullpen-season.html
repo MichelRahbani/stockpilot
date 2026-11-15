@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Run the Company Season | StockPilot</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏆</text></svg>">
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0f1420; --bg3:#151b28; --border:#232b3a;
+    --text:#e8ecf3; --muted:#8b95a8; --green:#3ecf8e; --red:#ff5c5c; --gold:#ffc107; --blue:#2979ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sp-font-sans);min-height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+  .brand-badge{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px}
+  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px}
+  h1{text-align:center;font-size:28px;margin:0 0 4px}
+  .subtitle{text-align:center;color:var(--muted);font-size:14px;margin-bottom:28px}
+  .stat-row{display:flex;gap:12px;justify-content:center;margin-bottom:24px}
+  .stat-pill{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 20px;text-align:center}
+  .stat-pill .num{font-size:22px;font-weight:800}
+  .stat-pill .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px}
+  .ticker-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+  .ticker-name{font-size:20px;font-weight:800}
+  .ticker-sub{color:var(--muted);font-size:12px}
+  .chart-box{background:var(--bg3);border-radius:6px;padding:16px 8px;margin-bottom:20px}
+  .empty-feed{padding:40px 20px;text-align:center;color:var(--muted)}
+  .btn-row{display:flex;gap:12px}
+  .btn-guess{flex:1;padding:18px;border:none;border-radius:6px;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform 0.1s}
+  .btn-guess:active{transform:scale(0.97)}
+  .btn-bull{background:var(--green);color:#003820}
+  .btn-bear{background:var(--red);color:#3a0000}
+  .btn-guess:disabled{opacity:0.4;cursor:default}
+  .reveal{text-align:center;padding:20px 0}
+  .reveal-move{font-size:32px;font-weight:800;margin-bottom:6px}
+  .reveal-move.up{color:var(--green)}
+  .reveal-move.down{color:var(--red)}
+  .reveal-verdict{font-size:15px;margin-bottom:20px}
+  .reveal-verdict.correct{color:var(--green)}
+  .reveal-verdict.wrong{color:var(--red)}
+  .btn-continue{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+  .gameover{text-align:center;padding:10px 0}
+  .gameover .final{font-size:40px;font-weight:800;margin:6px 0}
+  .name-row{display:flex;gap:8px;margin:18px 0}
+  .name-row input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit}
+  .btn-save{padding:11px 18px;background:var(--gold);color:#000;border:none;border-radius:4px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px}
+  .btn-again{width:100%;padding:14px;background:var(--green);color:#003820;border:none;border-radius:6px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px}
+  .leaderboard{margin-top:28px}
+  .leaderboard h2{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+  .lb-row{display:flex;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;font-size:14px}
+  .lb-row .rank{color:var(--muted);width:24px}
+  .loading{text-align:center;padding:60px 0;color:var(--muted)}
+  .how{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:18px 20px}
+  .how h2{font-size:14px;margin:0 0 8px}
+  .how li{color:var(--muted);font-size:13px;margin-bottom:6px;line-height:1.5}
+
+  .k{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+  .k div{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
+  .k b{display:block;font-size:18px}.k span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .news{background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.4);border-radius:6px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+  .chip{padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+  .chip.on{border-color:var(--blue);background:rgba(41,121,255,.2)}
+  .lbl2{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .btn-go{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit}
+  .rowx{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
+  .seedrow{display:flex;gap:8px;margin:14px 0}
+  .seedrow input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:11px 14px;color:var(--text);font:inherit}
+  .neg{color:var(--red)}.pos{color:var(--green)}
+  @media(max-width:480px){.k{grid-template-columns:repeat(2,1fr)}}
+  .lg{width:100%;border-collapse:collapse;font-size:13px}.lg td,.lg th{padding:9px 8px;border-bottom:1px solid var(--border);text-align:right}.lg td:first-child,.lg th:first-child{text-align:left}.lg th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .lg tr.me td{color:var(--gold)}.rbtn{display:inline-block;text-decoration:none;text-align:center}.rbtn.done{opacity:.5;pointer-events:none}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wdth,wght@62..100,500..900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/sp-game.css"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/lang-toggle.js" defer></script>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
+  <a class="back" href="/bullpen.html">← All Modes</a>
+</div>
+<div class="wrap">
+  <h1>Run the Company: Season</h1>
+  <div class="subtitle">A 4 round league. Same company and same events for everyone in your league.</div>
+  <div class="card" id="game"></div>
+  <div class="leaderboard"><h2 id="lbTitle">Standings</h2><div id="leaderboardList"><div class="empty-feed">Join a season to see standings.</div></div></div>
+  <div class="how"><h2>How a season works</h2><ul>
+    <li>A season is 4 rounds. Each round is a Supply Chain Showdown with its own events, the same for everyone in the league.</li>
+    <li>Pick any league code (a teacher can share one with a class). Everyone with the code is in the same league.</li>
+    <li>You get one try per round. Your season score is the total of your rounds.</li>
+  </ul></div>
+</div>
+<script src="bullpen-shared.js"></script>
+<script>
+(function(){
+  var ROUNDS=4,KEY='sp_season_v1';
+  var $=function(i){return document.getElementById(i)};
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function money(n){var s=Math.abs(Math.round(n)).toLocaleString('en-US');return (n<0?'-$':'$')+s;}
+
+  var lg='',nm='';
+  try{var s=JSON.parse(localStorage.getItem(KEY)||'{}');lg=s.lg||'';nm=s.nm||'';}catch(e){}
+  function saveLocal(){try{localStorage.setItem(KEY,JSON.stringify({lg:lg,nm:nm}));}catch(e){}}
+  function join(){
+    var c=$('game');c.textContent='';
+    c.appendChild(el('p','subtitle','Enter a league code and your name.'));
+    var r=el('div','seedrow');var a=el('input');a.id='lc';a.maxLength=16;a.placeholder='League code';a.value=lg;
+    var b=el('input');b.id='pn';b.maxLength=20;b.placeholder='Your name';b.value=nm;r.appendChild(a);c.appendChild(r);
+    var r2=el('div','seedrow');r2.appendChild(b);c.appendChild(r2);
+    var go=el('button','btn-go','Join season');go.type='button';go.addEventListener('click',function(){var l=(a.value||'').trim().toUpperCase().replace(/[^A-Z0-9]/g,''),n=(b.value||'').trim();if(!l){a.focus();return;}if(!n){b.focus();return;}lg=l;nm=n;saveLocal();home();});c.appendChild(go);
+  }
+  async function home(){
+    var c=$('game');c.textContent='Loading...';
+    var rows=[];try{rows=await sbGet('bullpen_season_scores','league=eq.'+encodeURIComponent(lg)+'&order=round.asc&limit=1000');if(!Array.isArray(rows))rows=[];}catch(e){rows=[];}
+    var mine={};rows.forEach(function(r){if(r.player_name.toLowerCase()===nm.toLowerCase())mine[r.round]=r.score;});
+    c.textContent='';c.appendChild(el('div','step','League '+lg+' · playing as '+nm));
+    c.appendChild(el('div','tx','Your rounds'));
+    var box=el('div','chips');
+    for(var k=1;k<=ROUNDS;k++){(function(k){var done=mine[k]!=null;var a=el('a','chip rbtn'+(done?' done':''),done?('Round '+k+': '+money(mine[k])):('Play round '+k));if(!done)a.href='/bullpen-supply.html?league='+encodeURIComponent(lg)+'&round='+k+'&name='+encodeURIComponent(nm);box.appendChild(a);})(k);}
+    c.appendChild(box);
+    var sw=el('button','btn-save','Change league or name');sw.type='button';sw.style.cssText='background:var(--bg3);color:var(--text)';sw.addEventListener('click',join);c.appendChild(sw);
+    standings(rows);
+  }
+  function standings(rows){
+    var by={};rows.forEach(function(r){var k=r.player_name.toLowerCase();(by[k]=by[k]||{name:r.player_name,rounds:{},total:0});by[k].rounds[r.round]=r.score;by[k].total+=r.score;});
+    var list=Object.keys(by).map(function(k){return by[k];}).sort(function(a,b){return b.total-a.total;});
+    $('lbTitle').textContent='Standings for '+lg;var l=$('leaderboardList');
+    if(!list.length){l.innerHTML='<div class="empty-feed">No scores yet. Play round 1.</div>';return;}
+    var h='<table class="lg"><tr><th>Player</th>';for(var k=1;k<=ROUNDS;k++)h+='<th>R'+k+'</th>';h+='<th>Total</th></tr>';
+    list.forEach(function(p,i){h+='<tr'+(p.name.toLowerCase()===nm.toLowerCase()?' class="me"':'')+'><td>'+(i+1)+'. '+escapeHtml(p.name)+'</td>';for(var k=1;k<=ROUNDS;k++)h+='<td>'+(p.rounds[k]!=null?money(p.rounds[k]):'-')+'</td>';h+='<td><b>'+money(p.total)+'</b></td></tr>';});
+    l.innerHTML=h+'</table>';
+  }
+  if(lg&&nm)home();else join();
+})();
+</script>
+</body>
+</html>

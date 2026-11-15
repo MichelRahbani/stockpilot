@@ -38,8 +38,8 @@ tr.top1 td.name{font-weight:700}
 <script>
 (function(){
   var API='https://stockpilot-production-c94f.up.railway.app';
-  var GAMES=['league','fantasy','sports','showdown','teams','madness','crash','puzzle','speedround','blitz','streak'];
-  var SOLO=['crash','puzzle','speedround','blitz','streak'];
+  var GAMES=['league','fantasy','sports','showdown','teams','madness','crash','puzzle','speedround','blitz','crunch','spot','streak'];
+  var SOLO=['crash','puzzle','speedround','blitz','crunch','spot','streak'];
   var p=new URLSearchParams(location.search);
   var game=(p.get('game')||'league').toLowerCase();
   if(GAMES.indexOf(game)<0) game='league';
