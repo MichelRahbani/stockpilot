@@ -1,6 +1,6 @@
 /* Shared styles for StockPilot Budget & Accounting pages */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--purple:#7c3aed;--purple-d:#6d28d9;--purple-l:#f5f3ff;--g100:#ede9fe;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g900:#0f172a;--white:#fff;--off:#faf9ff;--green:#0f9d6e;--red:#dc2626;--amber:#b45309;--hl:#fef3c7}
+:root{--purple:#2563eb;--purple-d:#1d4ed8;--purple-l:#eff6ff;--g100:#e1e9ff;--g200:#e2e8f0;--g400:#94a3b8;--g600:#475569;--g900:#0f172a;--white:#fff;--off:#f8fafc;--green:#0f9d6e;--red:#dc2626;--amber:#b45309;--hl:#fef3c7}
 html{scroll-behavior:smooth}
 body{font-family:var(--sp-font-sans,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif);background:var(--off);color:var(--g900);line-height:1.5;overflow-x:hidden}
 a{color:var(--purple)}
