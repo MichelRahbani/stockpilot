@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shield | StockPilot</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
+<style>
+  :root{
+    --bg:#0a0e14; --bg2:#0f1420; --bg3:#151b28; --border:#232b3a;
+    --text:#e8ecf3; --muted:#8b95a8; --green:#3ecf8e; --red:#ff5c5c; --gold:#ffc107; --blue:#eab308;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sp-font-sans);min-height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:1px solid var(--border)}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:800;font-size:18px}
+  .brand-badge{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:3px 8px;font-size:11px;color:var(--muted);font-weight:700}
+  a.back{color:var(--muted);text-decoration:none;font-size:13px}
+  .wrap{max-width:640px;margin:0 auto;padding:32px 20px 60px}
+  h1{text-align:center;font-size:28px;margin:0 0 4px}
+  .subtitle{text-align:center;color:var(--muted);font-size:14px;margin-bottom:28px}
+  .stat-row{display:flex;gap:12px;justify-content:center;margin-bottom:24px}
+  .stat-pill{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 20px;text-align:center}
+  .stat-pill .num{font-size:22px;font-weight:800}
+  .stat-pill .lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+  .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:24px}
+  .ticker-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px}
+  .ticker-name{font-size:20px;font-weight:800}
+  .ticker-sub{color:var(--muted);font-size:12px}
+  .chart-box{background:var(--bg3);border-radius:6px;padding:16px 8px;margin-bottom:20px}
+  .empty-feed{padding:40px 20px;text-align:center;color:var(--muted)}
+  .btn-row{display:flex;gap:12px}
+  .btn-guess{flex:1;padding:18px;border:none;border-radius:6px;font-size:17px;font-weight:800;cursor:pointer;font-family:inherit;transition:transform 0.1s}
+  .btn-guess:active{transform:scale(0.97)}
+  .btn-bull{background:var(--green);color:#003820}
+  .btn-bear{background:var(--red);color:#3a0000}
+  .btn-guess:disabled{opacity:0.4;cursor:default}
+  .reveal{text-align:center;padding:20px 0}
+  .reveal-move{font-size:32px;font-weight:800;margin-bottom:6px}
+  .reveal-move.up{color:var(--green)}
+  .reveal-move.down{color:var(--red)}
+  .reveal-verdict{font-size:15px;margin-bottom:20px}
+  .reveal-verdict.correct{color:var(--green)}
+  .reveal-verdict.wrong{color:var(--red)}
+  .btn-continue{width:100%;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
+  .gameover{text-align:center;padding:10px 0}
+  .gameover .final{font-size:40px;font-weight:800;margin:6px 0}
+  .name-row{display:flex;gap:8px;margin:18px 0}
+  .name-row input{min-width:0;flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:11px 14px;color:var(--text);font-size:14px;font-family:inherit}
+  .btn-save{padding:11px 18px;background:var(--gold);color:#000;border:none;border-radius:4px;font-weight:700;cursor:pointer;font-family:inherit;font-size:14px}
+  .btn-again{width:100%;padding:14px;background:var(--green);color:#003820;border:none;border-radius:6px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;margin-top:10px}
+  .leaderboard{margin-top:28px}
+  .leaderboard h2{font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px}
+  .lb-row{display:flex;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:4px;margin-bottom:6px;font-size:14px}
+  .lb-row .rank{color:var(--muted);width:24px}
+  .loading{text-align:center;padding:60px 0;color:var(--muted)}
+  .how{margin-top:32px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:18px 20px}
+  .how h2{font-size:14px;margin:0 0 8px}
+  .how li{color:var(--muted);font-size:13px;margin-bottom:6px;line-height:1.5}
+
+  .k{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+  .k div{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;text-align:center}
+  .k b{display:block;font-size:18px}.k span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+  .news{background:rgba(255,193,7,.12);border:1px solid rgba(255,193,7,.4);border-radius:6px;padding:10px 12px;font-size:13px;margin-bottom:14px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 14px}
+  .chip{padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);font:inherit;font-weight:700;cursor:pointer}
+  .chip.on{border-color:var(--blue);background:rgba(41,121,255,.2)}
+  .lbl2{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;font-weight:700}
+  .btn-go{width:100%;padding:15px;background:var(--blue);color:#fff;border:none;border-radius:6px;font-size:16px;font-weight:800;cursor:pointer;font-family:inherit}
+  .rowx{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px}
+  .seedrow{display:flex;gap:8px;margin:14px 0}
+  .seedrow input{min-width:0;flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:11px 14px;color:var(--text);font:inherit}
+  .neg{color:var(--red)}.pos{color:var(--green)}
+  @media(max-width:480px){.k{grid-template-columns:repeat(2,1fr)}}
+.btn-go,.chip.on{color:#1c1917}.chip.on{color:var(--text)}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&family=Archivo:wdth,wght@62..100,500..900&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/sp-game.css"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<script src="/lang-toggle.js" defer></script>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><img src="/logo-mark-256.png" alt="" class="sp-mark"/> <span>StockPilot</span> <span class="brand-badge">BULLPEN</span></div>
+  <a class="back" href="/bullpen.html">← All Modes</a>
+</div>
+<div class="wrap">
+  <h1>Shield</h1>
+  <div class="subtitle">Protect a small business for 8 months. Bad events hit without warning. Same code, same events.</div>
+  <div class="card" id="game"></div>
+  <div class="leaderboard"><h2 id="lbTitle">Top 10</h2><div id="leaderboardList"><div class="empty-feed">Loading...</div></div></div>
+  <div class="how"><h2>How it works</h2><ul><li>You start with $30,000. Sales are $12,000 a month and costs are $10,000.</li><li>Every month you can buy protection. It costs money whether or not anything goes wrong.</li><li>Fires, supplier failures, cyber attacks, recessions and lawsuits hit at random. The right protection turns a disaster into a small bill.</li><li>If cash goes below zero, you are out. Score is your final cash, or 100 points for each month you survived. <a href="/risk-lab#stress" style="color:var(--blue)">Try the Stress Test first</a>.</li></ul></div>
+</div>
+<script src="bullpen-shared.js"></script>
+<script src="/biz-risk.js?v=1"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  function money(n){var s=Math.abs(Math.round(n)).toLocaleString('en-US');return (n<0?'-$':'$')+s;}
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  function today(){return new Date().toISOString().split('T')[0];}
+  var g=null,seed='';
+  function menu(){
+    var c=$('game');c.textContent='';
+    var p=el('p','subtitle','Pick a game. The same code always means the same months, so a class can compete on one score board.');p.style.marginBottom='0';c.appendChild(p);
+    var b=el('button','btn-go',"Play today's game");b.type='button';b.style.marginTop='14px';b.addEventListener('click',function(){begin(today());});c.appendChild(b);
+    var r=el('div','seedrow');var i=el('input');i.id='code';i.maxLength=20;i.placeholder='Class code (optional)';var cb=el('button','btn-save','Play code');cb.type='button';
+    cb.addEventListener('click',function(){var v=(i.value||'').trim().toUpperCase();if(!v){i.focus();return;}begin(v);});
+    r.appendChild(i);r.appendChild(cb);c.appendChild(r);loadBoard(today());
+  }
+  function kpis(arr){var k=el('div','k');arr.forEach(function(x){var d=el('div');d.appendChild(el('b',null,x[0]));d.appendChild(el('span',null,x[1]));k.appendChild(d);});return k;}
+  function row(c,a,b){var d=el('div','rowx');d.appendChild(el('span',null,a));d.appendChild(el('b',null,b));c.appendChild(d);}
+  function finishUI(res,line,table,ev){
+    var c=$('game');c.textContent='';
+    var d=el('div','gameover');d.appendChild(el('div','step','Final score · code '+seed));
+    d.appendChild(el('div','final '+(res.score<0?'neg':'pos'),fmt(res.score)));
+    d.appendChild(el('div','subtitle',line));
+    var nr=el('div','name-row');var i=el('input');i.id='nm';i.maxLength=20;i.placeholder='Your name';var sv=el('button','btn-save','Save');sv.type='button';nr.appendChild(i);nr.appendChild(sv);d.appendChild(nr);
+    sv.addEventListener('click',async function(){
+      var n=(i.value||'').trim();if(!n){i.focus();return;}sv.textContent='Saving...';sv.disabled=true;
+      try{await sbPost(table,{player_name:n,score:res.score,seed:seed});sv.textContent='Saved!';loadBoard(seed);}catch(e){sv.textContent='Save';sv.disabled=false;alert('Could not save. Try again.');}
+    });
+    var again=el('button','btn-again','Play again');again.type='button';again.addEventListener('click',function(){begin(seed);});d.appendChild(again);
+    var m=el('button','btn-save','Change game');m.type='button';m.style.cssText='box-sizing:border-box;width:100%;margin-top:10px;background:var(--bg3);color:var(--text)';m.addEventListener('click',menu);d.appendChild(m);
+    c.appendChild(d);try{if(typeof trackEvent==='function')trackEvent(ev,{score:res.score});}catch(e){}
+  }
+  async function loadBoard(s){
+    var l=$('leaderboardList');$('lbTitle').textContent=(s===today()?"Today's top 10":'Top 10 for code '+s);
+    try{var rows=await sbGet(TABLE,'seed=eq.'+encodeURIComponent(s)+'&order=score.desc&limit=10');
+      if(!rows.length){l.innerHTML='<div class="empty-feed">No scores yet - be the first!</div>';return;}
+      l.innerHTML=rows.map(function(r,i){return '<div class="lb-row"><span><span class="rank">#'+(i+1)+'</span> '+escapeHtml(r.player_name)+'</span><span style="font-weight:700">'+fmt(r.score)+'</span></div>';}).join('');
+    }catch(e){l.innerHTML='<div class="empty-feed">Couldn\'t load leaderboard</div>';}
+  }
+  var R=window.BizRisk,TABLE='bullpen_shield_scores',pick={};
+  function fmt(n){return n<0?'-$'+Math.abs(n).toLocaleString('en-US'):'$'+Math.round(n).toLocaleString('en-US');}
+  var NAMES={insurance:['Property insurance','Pays a fire above $3,000'],backup:['Backup supplier','Cuts a supplier failure hit by 60%'],security:['Security upgrade','Cuts a cyber attack by 75%'],legal:['Legal cover','Caps a lawsuit at $2,000'],reserve:['Credit line','Rescues you once if cash goes below zero']};
+  function begin(s){seed=s;g=R.newGame(s);pick={};loadBoard(s);turn();}
+  function turn(){
+    var c=$('game');c.textContent='';
+    c.appendChild(el('div','step','Month '+g.month+' of '+R.MONTHS+' \u00b7 code '+seed));
+    c.appendChild(kpis([[money(g.cash),'Cash'],[money(R.G.revenue),'Sales a month'],[money(R.G.costs),'Costs a month'],[g.usedReserve?'Used':'Ready','Credit line']]));
+    c.appendChild(el('div','news','You will not know what is coming. Choose what to protect this month, then see what happens. Protection costs money every month you buy it.'));
+    Object.keys(R.PRICE).forEach(function(k){
+      var l=el('label');l.style.cssText='display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;cursor:pointer;font-size:14px';
+      var i=el('input');i.type='checkbox';i.checked=!!pick[k];i.style.cssText='margin-top:3px;accent-color:#eab308';i.addEventListener('change',function(){pick[k]=i.checked;});
+      l.appendChild(i);var d=el('div');d.appendChild(document.createTextNode(NAMES[k][0]+' ('+money(R.PRICE[k])+' this month)'));var sm=el('div','ticker-sub',NAMES[k][1]);d.appendChild(sm);l.appendChild(d);c.appendChild(l);
+    });
+    var go=el('button','btn-go','Run the month');go.type='button';go.style.marginTop='8px';go.addEventListener('click',function(){report(R.play(g,pick));});c.appendChild(go);
+  }
+  function report(r){
+    var c=$('game');c.textContent='';
+    c.appendChild(el('div','step','Month '+r.month+' result'));
+    c.appendChild(el('div','tx',r.event?r.event.name+'. '+r.event.label:'A quiet month. Nothing went wrong.'));
+    row(c,'Sales',money(r.revenue));row(c,'Costs and protection',money(r.cost));
+    if(r.shock)row(c,'Bill from the bad event',money(r.shock));
+    if(r.reserveUsed)row(c,'Credit line used','+'+money(7200));
+    row(c,'Profit this month',money(r.profit));row(c,'Cash',money(r.cash));
+    if(r.broke)c.appendChild(el('div','news','You ran out of cash. The business is closed.'));
+    var b=el('button','btn-go',g.over?'See final score':'Next month');b.type='button';b.style.marginTop='16px';b.addEventListener('click',function(){g.over?finish():turn();});c.appendChild(b);
+  }
+  function finish(){var res=R.result(g);finishUI(res,res.broke?'The business ran out of cash after '+res.months+' months. You earn 100 points for every month you survived.':'You survived all '+R.MONTHS+' months and finished with '+money(res.cash)+'.',TABLE,'shield_done');}
+  menu();
+
+})();
+</script>
+</body>
+</html>

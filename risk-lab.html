@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Risk Lab | StockPilot Risk Management</title>
+<meta name="description" content="Build a risk register, see which risks cost the most, choose a response for each, then stress test a small business against fires, supplier failures and recessions. Free."/>
+<link rel="canonical" href="https://mystockspilot.com/risk-lab"/>
+<link rel="stylesheet" href="/acct.css?v=3"/>
+<link rel="stylesheet" href="/business.css?v=1"/>
+<script src="/acct-embed.js?v=3"></script>
+<style>
+.seg{display:inline-flex;border:1px solid var(--g200);border-radius:6px;overflow:hidden;margin-bottom:14px}
+.seg button{border:0;background:#fff;padding:9px 16px;font:600 14px inherit;cursor:pointer;color:var(--g600)}
+.seg button.on{background:#eab308;color:#1c1917}
+.kp{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.k{border:1px solid var(--g100);border-radius:8px;padding:10px 12px;background:#fff}.k span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--g400);font-weight:700}.k b{display:block;font-size:22px;margin-top:2px}.k.hl{background:var(--hl)}
+.rk{display:grid;grid-template-columns:1.6fr .8fr .9fr 1fr;gap:10px;align-items:end;border:1px solid var(--g100);border-radius:8px;background:#fff;padding:10px 12px;margin-bottom:10px}
+.rk .more{grid-column:1 / -1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-items:end}
+.rk .out{grid-column:1 / -1;font-size:13px;color:var(--g600);display:flex;gap:16px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--g100);padding-top:8px}
+.rk .out b{color:var(--g900)}
+.rk .del{margin-left:auto;border:0;background:none;color:var(--g400);cursor:pointer;font-size:13px;text-decoration:underline}
+.num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#ca8a04;color:#1c1917;font-size:12px;font-weight:700;align-items:center;justify-content:center}
+.two{display:grid;grid-template-columns:1fr 340px;gap:16px;align-items:start}
+.heat{display:grid;grid-template-columns:repeat(5,1fr);gap:3px}
+.heat div{aspect-ratio:1;border-radius:4px;display:flex;flex-wrap:wrap;gap:2px;align-items:center;justify-content:center;padding:2px;font-size:10px}
+.axis{display:flex;justify-content:space-between;font-size:11px;color:var(--g400);margin-top:6px}
+.win{color:#047857;font-weight:700}.lose{color:var(--red);font-weight:700}
+.sx{display:grid;grid-template-columns:320px 1fr;gap:16px;align-items:start}
+.chk{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;font-size:14px}.chk input{margin-top:3px;accent-color:#ca8a04}.chk small{display:block;color:var(--g400);font-size:12px}
+.shock{display:flex;justify-content:space-between;gap:8px;align-items:center;border:1px solid var(--g100);border-radius:6px;padding:6px 10px;margin-bottom:6px;font-size:13px;background:#fff}
+.shock button{border:0;background:none;color:var(--g400);cursor:pointer;font-size:18px}
+svg.ch{width:100%;height:auto;display:block}
+.legend{display:flex;gap:16px;font-size:12px;color:var(--g600);margin-top:6px;flex-wrap:wrap}.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:6px}
+@media(max-width:900px){.two,.sx{grid-template-columns:1fr}.kp{grid-template-columns:repeat(2,minmax(0,1fr))}.rk{grid-template-columns:1fr 1fr}.rk .more{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<nav class="top">
+  <a href="/" class="logo"><img src="/logo-mark-256.png" class="sp-mark" alt="StockPilot" width="30" height="30"><span class="logo-text">StockPilot</span></a>
+  <div class="nav-links">
+    <a href="/budget-workspace.html#supply" class="nav-link">Supply Chain</a>
+    <a href="/investing" class="nav-link">Investing</a>
+    <a href="/budget" class="nav-link">Budget</a>
+    <a href="/trade" class="nav-link">Virtual Market</a>
+  </div>
+</nav>
+<div class="sub-tabs"><a href="/business">Business</a><a href="/marketing">Marketing lessons</a><a href="/marketing-lab">Funnel Lab</a><a href="/risk">Risk lessons</a><a class="on" href="/risk-lab">Risk Lab</a></div>
+<div class="wrap">
+  <h1>Risk Lab</h1>
+  <p class="lede">Rank your risks, choose what to do about each one, then see if a small business survives a bad year.</p>
+  <div class="seg"><button id="tReg" class="on" type="button">Risk register</button><button id="tStress" type="button">Stress test</button></div>
+  <div id="pReg">
+    <div class="kp" id="kp"></div>
+    <div class="two">
+      <div><div id="list"></div><button class="btn ghost" id="add" type="button">Add a risk</button> <button class="btn ghost" id="resetReg" type="button">Reset the example</button></div>
+      <section class="card"><h2>Risk map</h2><div class="heat" id="heat"></div><div class="axis"><span>Less likely</span><span>More likely &rarr;</span></div><p class="lede" style="font-size:12px;margin:8px 0 0">Up means a bigger loss. Numbers match the list.</p></section>
+    </div>
+  </div>
+  <div id="pStress" hidden>
+    <div class="sx">
+      <section class="card"><h2>The business</h2>
+        <label class="f">Cash in the bank ($)<input type="number" id="sCash" value="15000"></label>
+        <label class="f" style="margin-top:8px">Monthly sales ($)<input type="number" id="sRev" value="12000"></label>
+        <label class="f" style="margin:8px 0 14px">Monthly costs ($)<input type="number" id="sCost" value="10800"></label>
+        <h2>Protection</h2><div id="prot"></div>
+        <h2 style="margin-top:14px">Bad things that happen</h2><div id="shocks"></div>
+        <div style="display:grid;grid-template-columns:1fr 90px;gap:8px;margin-top:8px"><select id="shK"></select><select id="shM"></select></div>
+        <div style="display:flex;gap:8px;margin-top:8px"><button class="btn" id="shAdd" type="button">Add</button><button class="btn ghost" id="shBad" type="button">A bad year</button><button class="btn ghost" id="shClr" type="button">Clear</button></div>
+      </section>
+      <div><div class="kp" id="skp"></div><section class="card"><h2>Cash month by month</h2><div id="chart"></div><div class="legend"><span><i style="background:#ca8a04"></i>With your protection</span><span><i style="background:#94a3b8"></i>With none</span><span><i style="background:#dc2626"></i>Zero cash</span></div><ul class="ins" id="sins" style="margin:12px 0 0 18px"></ul></section></div>
+    </div>
+  </div>
+</div>
+<script src="/biz-risk.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  var R=window.BizRisk,$=function(i){return document.getElementById(i)};
+  function money(n){var s=Math.abs(Math.round(n)).toLocaleString('en-US');return (n<0?'-$':'$')+s;}
+  function el(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e;}
+  var risks=JSON.parse(JSON.stringify(R.SAMPLE));
+  function field(label,type,val,fn,w){var l=el('label','f',label);var i=el('input');i.type=type;i.value=val;if(type==='number'){i.min=0;i.step='any';}i.addEventListener('input',function(){fn(type==='number'?(parseFloat(i.value)||0):i.value);});l.appendChild(i);return l;}
+  function renderReg(){
+    var list=$('list');var focus=document.activeElement&&document.activeElement.dataset?document.activeElement.dataset.k:null;list.textContent='';
+    risks.forEach(function(r,idx){
+      var a=R.analyze(r),card=el('div','rk');
+      var nm=field('Risk '+(idx+1),'text',r.name,function(v){r.name=v;updateOut();});card.appendChild(nm);
+      card.appendChild(field('Chance per year (%)','number',r.prob,function(v){r.prob=v;updateAll();}));
+      card.appendChild(field('Cost if it happens ($)','number',r.cost,function(v){r.cost=v;updateAll();}));
+      var l=el('label','f','What you do');var s=el('select');[['accept','Accept it'],['reduce','Reduce it'],['transfer','Insure it'],['avoid','Avoid it']].forEach(function(o){var op=el('option',null,o[1]);op.value=o[0];if(r.response===o[0])op.selected=true;s.appendChild(op);});
+      s.addEventListener('change',function(){r.response=s.value;renderReg();});l.appendChild(s);card.appendChild(l);
+      var more=el('div','more');
+      if(r.response==='reduce'){more.appendChild(field('Cost of the fix per year ($)','number',r.mitCost,function(v){r.mitCost=v;updateAll();}));more.appendChild(el('p',null,'A fix halves the chance.'));}
+      if(r.response==='transfer'){more.appendChild(field('Premium per year ($)','number',r.premium,function(v){r.premium=v;updateAll();}));more.appendChild(field('Deductible, your share ($)','number',r.deductible,function(v){r.deductible=v;updateAll();}));more.appendChild(el('p',null,'The insurer pays the rest.'));}
+      if(r.response==='avoid'){more.appendChild(field('Profit you give up per year ($)','number',r.giveUp,function(v){r.giveUp=v;updateAll();}));more.appendChild(el('p',null,'Chance drops to zero.'));}
+      if(more.children.length)card.appendChild(more);
+      var out=el('div','out');out.dataset.i=idx;card.appendChild(out);list.appendChild(card);
+    });
+    updateAll();
+  }
+  function updateOut(){[].forEach.call(document.querySelectorAll('.rk .out'),function(o){var r=risks[+o.dataset.i],a=R.analyze(r);o.textContent='';
+    var n=el('span','num',String(+o.dataset.i+1));o.appendChild(n);
+    var b1=el('span');b1.appendChild(document.createTextNode('Expected loss a year: '));b1.appendChild(el('b',null,money(a.before)));o.appendChild(b1);
+    if(r.response!=='accept'){var b2=el('span');b2.appendChild(document.createTextNode('after your response: '));b2.appendChild(el('b',null,money(a.after)));b2.appendChild(document.createTextNode(', response costs '));b2.appendChild(el('b',null,money(a.spend)));o.appendChild(b2);
+      var v=el('span',a.net>=0?'win':'lose',a.net>=0?'Saves you '+money(a.net)+' a year':'Costs you '+money(-a.net)+' more than it saves');o.appendChild(v);}
+    var d=el('button','del','Remove');d.type='button';d.addEventListener('click',function(){risks.splice(+o.dataset.i,1);renderReg();});o.appendChild(d);});}
+  function updateAll(){
+    updateOut();var t=R.totals(risks),kp=$('kp');kp.textContent='';
+    [['Expected loss a year, no action',money(t.before)],['After your responses',money(t.after)],['What responses cost',money(t.spend)],['Net benefit',money(t.net)]].forEach(function(x,i){var k=el('div','k'+(i===3?' hl':''));k.appendChild(el('span',null,x[0]));k.appendChild(el('b',null,x[1]));kp.appendChild(k);});
+    var h=$('heat');h.textContent='';
+    var cells=[];for(var y=4;y>=0;y--)for(var x=0;x<5;x++){var s=(x+1)*(y+1),bg=s>=15?'#fecaca':s>=8?'#fde68a':s>=4?'#fef9c3':'#f1f5f9';var c=el('div');c.style.background=bg;cells.push({x:x,y:y,c:c});h.appendChild(c);}
+    risks.forEach(function(r,i){var L=R.level(r.prob,r.cost);cells.forEach(function(c){if(c.x===L.p&&c.y===L.c)c.c.appendChild(el('span','num',String(i+1)));});});
+  }
+  $('add').addEventListener('click',function(){risks.push({name:'New risk',prob:10,cost:10000,response:'accept',premium:500,deductible:1000,mitCost:800,giveUp:0});renderReg();});
+  $('resetReg').addEventListener('click',function(){risks=JSON.parse(JSON.stringify(R.SAMPLE));renderReg();});
+
+  // ---- stress test
+  var protect={insurance:true,backup:false,security:false,legal:false,reserve:false},shocks=[{month:3,kind:'fire'},{month:6,kind:'supplier'}];
+  var PD={insurance:['Property insurance','Pays everything above a $3,000 deductible on a fire'],backup:['Backup supplier','Cuts the sales hit from a supplier failure by 60%'],security:['Security upgrade','Cuts a cyber attack cost by 75%'],legal:['Legal cover','Caps a lawsuit at $2,000'],reserve:['Credit line (not in this test)','See the Shield game']};
+  function renderProt(){var p=$('prot');p.textContent='';Object.keys(R.PRICE).forEach(function(k){if(k==='reserve')return;var l=el('label','chk');var c=el('input');c.type='checkbox';c.checked=!!protect[k];c.addEventListener('change',function(){protect[k]=c.checked;renderStress();});l.appendChild(c);var d=el('div');d.appendChild(document.createTextNode(PD[k][0]+' ('+money(R.PRICE[k])+' a month)'));d.appendChild(el('small',null,PD[k][1]));l.appendChild(d);p.appendChild(l);});}
+  function renderShocks(){var s=$('shocks');s.textContent='';if(!shocks.length)s.appendChild(el('p','lede','No shocks. Add one below.'));shocks.sort(function(a,b){return a.month-b.month;}).forEach(function(x,i){var d=el('div','shock');d.appendChild(el('span',null,'Month '+x.month+': '+R.KINDS[x.kind].name));var b=el('button',null,'\u00d7');b.type='button';b.addEventListener('click',function(){shocks.splice(i,1);renderShocks();renderStress();});d.appendChild(b);s.appendChild(d);});}
+  function renderStress(){
+    var o={cash:+$('sCash').value||0,revenue:+$('sRev').value||0,costs:+$('sCost').value||0,shocks:shocks},a=R.simulate(Object.assign({protect:protect},o)),b=R.simulate(Object.assign({protect:{}},o));
+    var pc=0;Object.keys(protect).forEach(function(k){if(protect[k]&&R.PRICE[k]&&k!=='reserve')pc+=R.PRICE[k]*12;});
+    var kp=$('skp');kp.textContent='';
+    [['Lowest cash',money(a.low),a.low<0],['Cash after 12 months',money(a.end),false],['Protection cost a year',money(pc),false],['Without protection, lowest cash',money(b.low),b.low<0]].forEach(function(x,i){var k=el('div','k'+(x[2]?' hl':''));k.appendChild(el('span',null,x[0]));k.appendChild(el('b',null,x[1]));kp.appendChild(k);});
+    // chart
+    var W=640,H=260,pad=44,all=a.rows.concat(b.rows).map(function(r){return r.cash;}).concat([0,o.cash]),mn=Math.min.apply(null,all),mx=Math.max.apply(null,all);if(mx===mn)mx=mn+1;
+    var X=function(m){return pad+(W-pad-10)*(m-1)/11;},Y=function(v){return 10+(H-34)*(1-(v-mn)/(mx-mn));};
+    var ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.setAttribute('class','ch');
+    function line(rows,color,dash){var d=rows.map(function(r,i){return (i?'L':'M')+X(r.month)+' '+Y(r.cash);}).join(' ');var p=document.createElementNS(ns,'path');p.setAttribute('d',d);p.setAttribute('fill','none');p.setAttribute('stroke',color);p.setAttribute('stroke-width','3');if(dash)p.setAttribute('stroke-dasharray','6 5');svg.appendChild(p);}
+    var z=document.createElementNS(ns,'line');z.setAttribute('x1',pad);z.setAttribute('x2',W-10);z.setAttribute('y1',Y(0));z.setAttribute('y2',Y(0));z.setAttribute('stroke','#dc2626');z.setAttribute('stroke-width','1.5');svg.appendChild(z);
+    line(b.rows,'#94a3b8',true);line(a.rows,'#ca8a04');
+    for(var m=1;m<=12;m++){var t=document.createElementNS(ns,'text');t.setAttribute('x',X(m));t.setAttribute('y',H-8);t.setAttribute('text-anchor','middle');t.setAttribute('font-size','11');t.setAttribute('fill','#64748b');t.textContent='M'+m;svg.appendChild(t);}
+    [mn,0,mx].forEach(function(v){var t=document.createElementNS(ns,'text');t.setAttribute('x',pad-6);t.setAttribute('y',Y(v)+4);t.setAttribute('text-anchor','end');t.setAttribute('font-size','11');t.setAttribute('fill','#64748b');t.textContent=money(v);svg.appendChild(t);});
+    shocks.forEach(function(s){var c=document.createElementNS(ns,'circle');c.setAttribute('cx',X(s.month));c.setAttribute('cy',Y(a.rows[s.month-1].cash));c.setAttribute('r','5');c.setAttribute('fill','#dc2626');svg.appendChild(c);});
+    var ch=$('chart');ch.textContent='';ch.appendChild(svg);
+    var ins=$('sins');ins.textContent='';
+    function li(t){ins.appendChild(el('li',null,t));}
+    if(a.brokeMonth)li('With your protection the business runs out of cash in month '+a.brokeMonth+'. Add protection or build a bigger cash buffer.');
+    else li('With your protection the business stays above zero all year. The lowest point is '+money(a.low)+'.');
+    if(b.brokeMonth&&!a.brokeMonth)li('Without protection it would have run out of cash in month '+b.brokeMonth+'. Protection turned a failure into a dip, for '+money(pc)+' a year.');
+    if(!b.brokeMonth&&pc>0&&shocks.length)li('This scenario was survivable without protection, so the protection mostly cost money. Try stacking a worse year.');
+    if(!shocks.length)li('Add a bad event to see what it does to cash.');
+  }
+  var K=$('shK');Object.keys(R.KINDS).forEach(function(k){var o=el('option',null,R.KINDS[k].name);o.value=k;K.appendChild(o);});
+  var Mo=$('shM');for(var i=1;i<=12;i++){var o=el('option',null,'Month '+i);o.value=i;Mo.appendChild(o);}Mo.value=4;
+  $('shAdd').addEventListener('click',function(){shocks.push({month:+Mo.value,kind:K.value});renderShocks();renderStress();});
+  $('shBad').addEventListener('click',function(){shocks=[{month:3,kind:'fire'},{month:5,kind:'supplier'},{month:8,kind:'recession'},{month:10,kind:'lawsuit'}];renderShocks();renderStress();});
+  $('shClr').addEventListener('click',function(){shocks=[];renderShocks();renderStress();});
+  ['sCash','sRev','sCost'].forEach(function(id){$(id).addEventListener('input',renderStress);});
+  function tab(w){$('pReg').hidden=w!=='reg';$('pStress').hidden=w!=='stress';$('tReg').classList.toggle('on',w==='reg');$('tStress').classList.toggle('on',w==='stress');if(w==='stress')renderStress();if(location.hash!=='#'+(w==='stress'?'stress':'register'))history.replaceState(null,'','#'+(w==='stress'?'stress':'register'));}
+  $('tReg').addEventListener('click',function(){tab('reg');});$('tStress').addEventListener('click',function(){tab('stress');});
+  renderReg();renderProt();renderShocks();renderStress();
+  tab(location.hash==='#stress'?'stress':'reg');
+})();
+</script>
+<script>['/share.js','/cross-promo.js','/nav-fix.js'].forEach(function(s){document.write('<script src="'+s+'"><\/script>');});</script>
+<script src="/lang-toggle.js"></script>
+</body>
+</html>

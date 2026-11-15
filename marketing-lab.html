@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Funnel Lab | StockPilot Marketing</title>
+<meta name="description" content="Change ad spend, price and conversion rates and watch customers, cost per customer, lifetime value and profit update. Free marketing funnel simulator."/>
+<link rel="canonical" href="https://mystockspilot.com/marketing-lab"/>
+<link rel="stylesheet" href="/acct.css?v=3"/>
+<link rel="stylesheet" href="/business.css?v=1"/>
+<script src="/acct-embed.js?v=3"></script>
+<style>
+.lab{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start}
+.side{position:sticky;top:64px}
+.fld{margin-bottom:12px}
+.fld .r{display:flex;gap:8px;align-items:center}
+.fld input[type=range]{flex:1;accent-color:#ca8a04;padding:0}
+.fld input[type=number]{width:96px}
+.fld small{display:block;color:var(--g400);font-size:11px;margin-top:2px}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{border:1px solid var(--g100);border-radius:8px;padding:10px 12px;background:#fff}
+.kpi span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--g400);font-weight:700}
+.kpi b{display:block;font-size:22px;margin-top:2px}
+.kpi small{color:var(--g600);font-size:12px}
+.kpi.hl{background:var(--hl)}
+.fun{margin:6px 0 14px}
+.fun .row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fun .row span{width:92px;font-size:13px;font-weight:600;color:var(--g600)}
+.fun .bar{height:28px;background:#fef9c3;border-radius:4px;flex:1;position:relative;overflow:hidden}
+.fun .bar i{display:block;height:100%;background:#eab308;border-radius:4px;transition:width .25s}
+.fun .row b{width:86px;text-align:right;font-size:14px}
+.ins{margin:8px 0 0 18px}.ins li{margin-bottom:6px}
+.lv .row{display:grid;grid-template-columns:1fr 120px 70px;gap:8px;align-items:center;font-size:13px;margin-bottom:6px}
+.lv .bar2{height:10px;background:#fef9c3;border-radius:999px;overflow:hidden}.lv .bar2 i{display:block;height:100%;background:#ca8a04}
+.lv b{text-align:right}
+.top-row{display:flex;gap:10px;flex-wrap:wrap;align-items:end;margin-bottom:14px}
+@media(max-width:900px){.lab{grid-template-columns:1fr}.side{position:static}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.lv .row{grid-template-columns:1fr 80px 64px}}
+</style>
+</head>
+<body>
+<nav class="top">
+  <a href="/" class="logo"><img src="/logo-mark-256.png" class="sp-mark" alt="StockPilot" width="30" height="30"><span class="logo-text">StockPilot</span></a>
+  <div class="nav-links">
+    <a href="/budget-workspace.html#supply" class="nav-link">Supply Chain</a>
+    <a href="/investing" class="nav-link">Investing</a>
+    <a href="/budget" class="nav-link">Budget</a>
+    <a href="/trade" class="nav-link">Virtual Market</a>
+  </div>
+</nav>
+<div class="sub-tabs"><a href="/business">Business</a><a href="/marketing">Marketing lessons</a><a class="on" href="/marketing-lab">Funnel Lab</a><a href="/risk">Risk lessons</a><a href="/risk-lab">Risk Lab</a></div>
+<div class="wrap">
+  <h1>Funnel Lab</h1>
+  <p class="lede">Move a slider and see what it does to customers, what each one costs you, and your profit. Changed numbers turn yellow.</p>
+  <div class="top-row">
+    <label class="f" style="min-width:230px">Start from<select id="preset"></select></label>
+    <button class="btn ghost" id="reset" type="button">Reset</button>
+    <a class="btn" href="/marketing">Marketing lessons</a>
+    <a class="btn ghost" href="/bullpen-campaign.html">Play Campaign Manager</a>
+  </div>
+  <div class="lab">
+    <section class="card side"><h2>Your campaign</h2><div id="inputs"></div></section>
+    <div>
+      <div class="kpis" id="kpis"></div>
+      <section class="card" style="margin-bottom:14px"><h2>The funnel</h2><div class="fun" id="fun"></div></section>
+      <section class="card" style="margin-bottom:14px"><h2>What this means</h2><ul class="ins" id="ins"></ul></section>
+      <section class="card"><h2>What moves profit most</h2><p class="lede" style="margin:0 0 10px">Each lever moved 10% in the good direction, on its own. Bigger bar means more extra lifetime profit.</p><div class="lv" id="lv"></div></section>
+    </div>
+  </div>
+</div>
+<script src="/biz-marketing.js?v=1"></script>
+<script>
+(function(){
+  'use strict';
+  var M=window.BizMarketing,$=function(i){return document.getElementById(i)};
+  var F=[
+    ['spend','Monthly ad spend','$',0,10000,100,'What you pay for ads each month'],
+    ['cpc','Cost per click','$',0.1,6,0.05,'What each visitor costs you'],
+    ['visitToLead','Visitors who become leads','%',0.5,40,0.5,'Sign up, enquire or book'],
+    ['leadToCust','Leads who buy','%',1,80,1,'Of the leads, how many become customers'],
+    ['price','Price per sale','$',1,300,1,'What the customer pays'],
+    ['unitCost','Cost to make and deliver','$',0,200,1,'Per sale'],
+    ['orders','Orders per customer, lifetime','x',1,30,1,'How many times a customer buys from you'],
+    ['fixed','Other monthly costs','$',0,5000,50,'Rent, wages, tools']
+  ];
+  var base=M.PRESETS[0],cur={},prev=null,inputs={};
+  function money(n){var s=Math.abs(Math.round(n)).toLocaleString('en-US');return (n<0?'-$':'$')+s;}
+  function num(n){return Math.round(n).toLocaleString('en-US');}
+  function build(){
+    var box=$('inputs');box.textContent='';
+    F.forEach(function(f){
+      var w=document.createElement('div');w.className='fld';
+      var l=document.createElement('label');l.className='f';l.textContent=f[1]+(f[2]==='%'?' (%)':f[2]==='$'?' ($)':'');w.appendChild(l);
+      var r=document.createElement('div');r.className='r';
+      var rg=document.createElement('input');rg.type='range';rg.min=f[3];rg.max=f[4];rg.step=f[5];
+      var nb=document.createElement('input');nb.type='number';nb.min=f[3];nb.step=f[5];
+      function set(v){v=parseFloat(v);if(!isFinite(v))return;cur[f[0]]=v;rg.value=v;nb.value=v;render();}
+      rg.addEventListener('input',function(){set(rg.value);});nb.addEventListener('input',function(){set(nb.value);});
+      r.appendChild(rg);r.appendChild(nb);w.appendChild(r);var s=document.createElement('small');s.textContent=f[6];w.appendChild(s);box.appendChild(w);
+      inputs[f[0]]={rg:rg,nb:nb};
+    });
+  }
+  function load(p){cur=JSON.parse(JSON.stringify(p.i));F.forEach(function(f){inputs[f[0]].rg.value=cur[f[0]];inputs[f[0]].nb.value=cur[f[0]];});prev=null;render();}
+  function kpi(label,val,sub,hl){var d=document.createElement('div');d.className='kpi'+(hl?' hl':'');var a=document.createElement('span');a.textContent=label;var b=document.createElement('b');b.textContent=val;var c=document.createElement('small');c.textContent=sub;d.appendChild(a);d.appendChild(b);d.appendChild(c);return d;}
+  function render(){
+    var r=M.calc(cur),p=prev;
+    var k=$('kpis');k.textContent='';
+    var items=[['New customers',num(r.customers),num(r.clicks)+' visits, '+num(r.leads)+' leads',p&&Math.abs(p.customers-r.customers)>=0.5],
+      ['Cost to win one',r.customers>0?money(r.cac):'none yet','CAC',p&&Math.abs(p.cac-r.cac)>=0.5],
+      ['Worth over time',money(r.ltv),'profit per customer, lifetime',p&&Math.abs(p.ltv-r.ltv)>=0.5],
+      ['Worth vs cost',r.cac>0?r.ltvCac.toFixed(1)+' to 1':'none yet','aim for 3 to 1 or more',p&&Math.abs(p.ltvCac-r.ltvCac)>=0.05],
+      ['Profit this month',money(r.profitFirst),'after ads and other costs',p&&Math.abs(p.profitFirst-r.profitFirst)>=1],
+      ['Profit over their life',money(r.profitLifetime),'counting repeat orders',p&&Math.abs(p.profitLifetime-r.profitLifetime)>=1]];
+    items.forEach(function(x){k.appendChild(kpi(x[0],x[1],x[2],x[3]));});
+    var f=$('fun');f.textContent='';
+    var top=Math.max(r.clicks,1);
+    [['Visits',r.clicks],['Leads',r.leads],['Customers',r.customers]].forEach(function(x){
+      var row=document.createElement('div');row.className='row';var a=document.createElement('span');a.textContent=x[0];var bar=document.createElement('div');bar.className='bar';var i=document.createElement('i');i.style.width=Math.max(1,Math.round(100*x[1]/top))+'%';bar.appendChild(i);var b=document.createElement('b');b.textContent=num(x[1]);row.appendChild(a);row.appendChild(bar);row.appendChild(b);f.appendChild(row);});
+    var ins=$('ins');ins.textContent='';M.insights(cur,r).forEach(function(t){var li=document.createElement('li');li.textContent=t;ins.appendChild(li);});
+    var lv=$('lv');lv.textContent='';var rows=M.levers(cur),mx=Math.max.apply(null,rows.map(function(x){return Math.abs(x.gain);}).concat([1]));
+    rows.forEach(function(x){var row=document.createElement('div');row.className='row';var a=document.createElement('span');a.textContent=x.label;var b=document.createElement('div');b.className='bar2';var i=document.createElement('i');i.style.width=Math.round(100*Math.max(0,x.gain)/mx)+'%';b.appendChild(i);var v=document.createElement('b');v.textContent=(x.gain>=0?'+':'-')+money(Math.abs(x.gain));row.appendChild(a);row.appendChild(b);row.appendChild(v);lv.appendChild(row);});
+    prev=r;
+  }
+  var sel=$('preset');M.PRESETS.forEach(function(p){var o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
+  build();
+  var q=(location.search.match(/[?&]co=([a-z]+)/)||[])[1];
+  var start=M.PRESETS.filter(function(p){return p.id===q;})[0]||M.PRESETS[0];sel.value=start.id;load(start);
+  sel.addEventListener('change',function(){load(M.PRESETS.filter(function(p){return p.id===sel.value;})[0]);});
+  $('reset').addEventListener('click',function(){load(M.PRESETS.filter(function(p){return p.id===sel.value;})[0]);});
+})();
+</script>
+<script>['/share.js','/cross-promo.js','/nav-fix.js'].forEach(function(s){document.write('<script src="'+s+'"><\/script>');});</script>
+<script src="/lang-toggle.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+/* Business section: same pages as Accounting, in yellow. Loaded after acct.css. */
+:root{--purple:#ca8a04;--purple-d:#a16207;--purple-l:#fefce8;--g100:#f6ecc4;--off:#fffef8;--hl:#fef08a}
+a{color:#a16207}
+.top{background:rgba(255,254,247,.94)}
+.btn{color:#1c1917}
+.btn:hover{background:#eab308;color:#1c1917}
+.btn.ghost{color:#854d0e;border-color:#ca8a04}
+.btn.ghost:hover{background:#fefce8}
+.sub-tabs a:hover,.sub-tabs a.on{background:#fef9c3;color:#854d0e}
+.pill{color:#854d0e;background:#fef9c3}
+input:focus,select:focus,.btn:focus-visible{outline-color:#ca8a04}

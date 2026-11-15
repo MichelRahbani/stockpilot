@@ -6,6 +6,7 @@
   // A workspace counts as its section (/budget-workspace highlights Budget)
   var section = path.replace(/-workspace$/, '');
   if (/^\/(accounting|supply-chain)/.test(path)) section = '/budget';
+  if (/^\/(marketing|marketing-lab|risk|risk-lab)/.test(path)) section = '/business';
   var onSupply = function(){ return /^\/(supply-chain)/.test(path) || (path === '/budget-workspace' && location.hash === '#supply'); };
   function same(href){
     if (href.indexOf('#supply') > -1) return onSupply();
@@ -25,6 +26,7 @@
     {href:'/budget',       label:'Budget & Accounting'},
     {href:'/budget-workspace.html#supply', label:'Supply Chain'},
     {href:'/learn',        label:'Learn'},
+    {href:'/business',     label:'Business'},
     {href:'/bullpen.html', label:'Bullpen'},
     {href:'/classroom.html', label:'Classroom'}
   ];
