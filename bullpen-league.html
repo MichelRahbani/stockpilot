@@ -278,10 +278,24 @@ body{background:var(--bg);color:var(--text);font-family:var(--sp-font-sans);min-
           <div class="card-title">Leaderboard</div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="exportLeagueCsv()"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="square" aria-hidden="true" style="vertical-align:-1px;margin-right:5px"><path d="M12 4v11"/><path d="M7 10l5 5 5-5"/><path d="M5 20h14"/></svg>Export CSV</button>
-            <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="loadData()">↻ Refresh</button>
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="window._whLoaded=0;loadData()">↻ Refresh</button>
           </div>
         </div>
         <div id="leaderboard"><div style="padding:32px;text-align:center;color:var(--muted)">Loading...</div></div>
+      </div>
+
+
+      <!-- WEEKLY HISTORY -->
+      <div class="card" id="weeklyHistoryCard" style="display:none">
+        <div class="card-head">
+          <div class="card-title">Week by Week</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost" id="whModeBtn" style="font-size:12px;padding:5px 12px" onclick="toggleWeeklyMode()">Show points</button>
+            <button class="btn btn-ghost" style="font-size:12px;padding:5px 12px" onclick="exportWeeklyCsv()">Export CSV</button>
+          </div>
+        </div>
+        <div id="weeklyHistory" style="overflow-x:auto"></div>
+        <div id="weeklyHistoryNote" style="padding:10px 20px 14px;font-size:11px;color:var(--muted)"></div>
       </div>
 
       <!-- DISCUSSION -->
@@ -887,9 +901,81 @@ function renderSeasonStandings(){
   }).join('');
 }
 
+
+// ── Week by week history ──
+let weeklyRows=[], weeklyMode='return';
+async function loadWeeklyHistory(){
+  try{
+    weeklyRows=await sbGet('bullpen_weekly_scores',`league_code=eq.${leagueCode}&order=week_number.asc`)||[];
+  }catch(e){weeklyRows=[];}
+  renderWeeklyHistory();
+}
+function toggleWeeklyMode(){
+  weeklyMode=weeklyMode==='return'?'points':'return';
+  document.getElementById('whModeBtn').textContent=weeklyMode==='return'?'Show points':'Show returns';
+  renderWeeklyHistory();
+}
+function weeklyTable(){
+  const weeks=[...new Set(weeklyRows.map(r=>r.week_number))].sort((a,b)=>a-b);
+  const byMember={};
+  weeklyRows.forEach(r=>{
+    const key=r.member_id;
+    (byMember[key]=byMember[key]||{name:r.member_name,w:{}}).w[r.week_number]=r;
+  });
+  members.forEach(m=>{ if(byMember[m.id]) byMember[m.id].name=m.name; });
+  const people=Object.entries(byMember).map(([id,v])=>{
+    const pts=weeks.reduce((a,w)=>a+((v.w[w]&&v.w[w].season_points)||0),0);
+    const ret=weeks.reduce((a,w)=>a+((v.w[w]&&v.w[w].score)||0),0);
+    return {id,name:v.name,w:v.w,pts,ret};
+  }).sort((a,b)=>b.pts-a.pts||b.ret-a.ret);
+  return {weeks,people};
+}
+function renderWeeklyHistory(){
+  const card=document.getElementById('weeklyHistoryCard');
+  if(!weeklyRows.length){card.style.display='none';return;}
+  card.style.display='block';
+  const {weeks,people}=weeklyTable();
+  const pm=weeklyMode==='points';
+  const fmt=r=>{
+    if(!r) return '<span style="color:var(--muted)">-</span>';
+    if(pm) return String(r.season_points||0);
+    const v=r.score||0;
+    return `<span style="color:${v>0?'var(--green)':v<0?'var(--red)':'var(--muted)'}">${v>=0?'+':''}${v.toFixed(2)}%</span>`;
+  };
+  const th='padding:8px 10px;text-align:right;font-size:11px;color:var(--muted);font-weight:600;white-space:nowrap;border-bottom:1px solid var(--border)';
+  const td='padding:8px 10px;text-align:right;font-family:var(--sp-font-mono);font-size:12px;white-space:nowrap;border-bottom:1px solid var(--border)';
+  let h=`<table style="border-collapse:collapse;width:100%;min-width:max-content"><thead><tr><th style="${th};text-align:left;position:sticky;left:0;background:var(--bg2)">Player</th>${weeks.map(w=>`<th style="${th}">Wk ${w}</th>`).join('')}<th style="${th};color:var(--gold)">${pm?'Season pts':'Total pts'}</th></tr></thead><tbody>`;
+  people.forEach(p=>{
+    const isMe=p.id===myMemberId||p.name===myName;
+    h+=`<tr><td style="${td};text-align:left;font-family:inherit;font-size:13px;position:sticky;left:0;background:var(--bg2);${isMe?'color:var(--green);':''}">${escapeHtmlLeague(p.name)}</td>${weeks.map(w=>`<td style="${td}">${fmt(p.w[w])}</td>`).join('')}<td style="${td};color:var(--gold);font-weight:700">${p.pts}</td></tr>`;
+  });
+  h+='</tbody></table>';
+  document.getElementById('weeklyHistory').innerHTML=h;
+  document.getElementById('weeklyHistoryNote').textContent=pm
+    ?'League points earned each week. The best return of the week gets the most points, the worst gets 1.'
+    :'Each cell is that player\'s return for the week. Tap "Show points" to see league points instead.';
+}
+function exportWeeklyCsv(){
+  if(!weeklyRows.length){ showToast('No weekly history yet','err'); return; }
+  const rows=[['Week','Week Start','Week End','Player','Return %','League Points']];
+  [...weeklyRows].sort((a,b)=>a.week_number-b.week_number||(b.season_points||0)-(a.season_points||0)).forEach(r=>{
+    const nm=(members.find(m=>m.id===r.member_id)||{}).name||r.member_name;
+    rows.push([r.week_number,r.week_start||'',r.week_end||'',nm,(r.score||0).toFixed(2),r.season_points||0]);
+  });
+  const csv=rows.map(row=>row.map(csvEscape).join(',')).join('\r\n');
+  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  const safeName=(league?.name||'bullpen-league').replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+  a.href=url;a.download=`${safeName}-weekly-scores.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url);
+  showToast('Exported!','ok');
+}
+
 // ── Render leaderboard ──
 function renderLeaderboard(){
   const el=document.getElementById('leaderboard');
+  if(!window._whLoaded&&typeof leagueCode!=='undefined'&&leagueCode){window._whLoaded=1;loadWeeklyHistory();}
   if(!members.length){el.innerHTML='<div style="padding:32px;text-align:center;color:var(--muted)">No members yet. Share the code!</div>';return;}
   el.innerHTML=members.map((m,i)=>{
     const isMe=m.id===myMemberId||m.name===myName;
