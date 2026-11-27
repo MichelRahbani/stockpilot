@@ -76,6 +76,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
 .search-bar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;gap:8px;flex-shrink:0}
 .search-inp{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:9px 12px;color:var(--text);font-family:var(--sp-font-mono);font-size:14px;outline:none;transition:border-color 0.2s}
 .search-inp:focus{border-color:var(--accent)}
+.search-wrap{position:relative;flex:1;display:flex}
+.search-wrap .search-inp{flex:1;width:100%}
+.sym-dd{position:absolute;left:0;right:0;top:calc(100% + 4px);background:var(--bg2,var(--bg3));border:1px solid var(--border);border-radius:4px;z-index:60;max-height:320px;overflow-y:auto;display:none;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+.sym-dd.open{display:block}
+.sym-dd-item{display:flex;align-items:center;gap:10px;padding:9px 12px;cursor:pointer;border-bottom:1px solid var(--border)}
+.sym-dd-item:last-child{border-bottom:0}
+.sym-dd-item:hover,.sym-dd-item.active{background:var(--bg3)}
+.sym-dd-sym{font-family:var(--sp-font-mono);font-weight:700;font-size:13px;color:var(--accent);min-width:64px}
+.sym-dd-name{flex:1;font-size:13px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sym-dd-meta{font-size:11px;color:var(--muted);white-space:nowrap}
+.sym-dd-empty{padding:10px 12px;font-size:13px;color:var(--muted)}
 .search-inp::placeholder{color:var(--muted)}
 .search-btn{background:var(--accent);color:white;border:none;border-radius:4px;padding:9px 16px;font-family:var(--sp-font-sans);font-size:13px;font-weight:600;cursor:pointer}
 .search-btn:hover{background:var(--accent-d)}
@@ -327,7 +338,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:cen
   <!-- TRADE -->
   <div class="trade-panel">
     <div class="search-bar">
-      <input class="search-inp" id="symInput" placeholder="Search any ticker — AAPL, TSLA, BTC-USD, SPY..." autocomplete="off" autocapitalize="characters"/>
+      <div class="search-wrap"><input class="search-inp" id="symInput" placeholder="Search any ticker — AAPL, TSLA, BTC-USD, SPY..." autocomplete="off" autocapitalize="off" spellcheck="false" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="symDD"/><div class="sym-dd" id="symDD" role="listbox"></div></div>
       <button class="search-btn" id="searchBtn">Search</button>
     </div>
     <div class="quote-area" id="quoteArea">
@@ -996,9 +1007,14 @@ async function search(){
       document.getElementById('tradeForm').style.display='none';
       return;
     }
-    const q=await getQuote(sym);
+    let q=await getQuote(sym);
     if(!q||!q.regularMarketPrice){
-      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div>Could not find '+sym+'. Try a valid '+mkt.name+' ticker.</div>';
+      // Not a ticker: treat what was typed as a company name and use the top match
+      const hit=await symLookupTop((document.getElementById('symInput').value||'').trim());
+      if(hit && hit!==sym){ document.getElementById('symInput').value=hit; q=await getQuote(hit); }
+    }
+    if(!q||!q.regularMarketPrice){
+      document.getElementById('quoteArea').innerHTML='<div class="quote-empty"><div class="sp-empty-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="square" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9 9l6 6M15 9l-6 6"/></svg></div>Could not find '+sym+'. Try a company name or a valid '+mkt.name+' ticker.</div>';
       return;
     }
     current=q;
@@ -2019,7 +2035,75 @@ function reset(){
 
 // Event listeners
 document.getElementById('searchBtn').addEventListener('click', search);
-document.getElementById('symInput').addEventListener('keydown', e=>{ if(e.key==='Enter') search(); });
+
+// Search suggestions: type a ticker or a company name
+var _ddItems=[], _ddIdx=-1, _ddTimer=null, _ddCtl=null;
+async function symLookup(q){
+  if(_ddCtl) _ddCtl.abort();
+  _ddCtl = new AbortController();
+  const r = await fetch(API+'/api/search?q='+encodeURIComponent(q), {signal:_ddCtl.signal});
+  const d = await r.json();
+  return (d && d.quotes || []).filter(function(x){ return x && x.symbol && (x.shortname||x.longname); }).slice(0,8);
+}
+async function symLookupTop(q){
+  if(!q) return null;
+  try{
+    const r = await fetch(API+'/api/search?q='+encodeURIComponent(q));
+    const d = await r.json();
+    const hit = (d && d.quotes || []).find(function(x){ return x && x.symbol && ['EQUITY','ETF','CRYPTOCURRENCY','INDEX','MUTUALFUND'].indexOf(x.quoteType)>=0; });
+    return hit ? hit.symbol.toUpperCase() : null;
+  }catch(e){ return null; }
+}
+function ddClose(){
+  const dd=document.getElementById('symDD'); dd.classList.remove('open'); dd.innerHTML='';
+  document.getElementById('symInput').setAttribute('aria-expanded','false'); _ddItems=[]; _ddIdx=-1;
+  var oc=document.getElementById('sp-onb-overlay'); if(oc) oc.style.visibility='';
+}
+function ddPick(sym){
+  document.getElementById('symInput').value=sym; ddClose(); search();
+}
+function ddMark(){
+  document.querySelectorAll('#symDD .sym-dd-item').forEach(function(el,i){ el.classList.toggle('active', i===_ddIdx); });
+  const a=document.querySelector('#symDD .sym-dd-item.active'); if(a) a.scrollIntoView({block:'nearest'});
+}
+function ddRender(items, q){
+  const dd=document.getElementById('symDD'); dd.innerHTML=''; _ddItems=items; _ddIdx=-1;
+  if(!items.length){
+    const e=document.createElement('div'); e.className='sym-dd-empty'; e.textContent='No matches for "'+q+'"'; dd.appendChild(e);
+  }
+  items.forEach(function(x){
+    const row=document.createElement('div'); row.className='sym-dd-item'; row.setAttribute('role','option');
+    const a=document.createElement('span'); a.className='sym-dd-sym'; a.textContent=x.symbol;
+    const b=document.createElement('span'); b.className='sym-dd-name'; b.textContent=x.shortname||x.longname||'';
+    const c=document.createElement('span'); c.className='sym-dd-meta'; c.textContent=[x.quoteType==='EQUITY'?'':x.quoteType, x.exchDisp||x.exchange].filter(Boolean).join(' · ');
+    row.appendChild(a); row.appendChild(b); row.appendChild(c);
+    row.addEventListener('mousedown', function(ev){ ev.preventDefault(); ddPick(x.symbol.toUpperCase()); });
+    dd.appendChild(row);
+  });
+  dd.classList.add('open'); document.getElementById('symInput').setAttribute('aria-expanded','true');
+  var oc=document.getElementById('sp-onb-overlay'); if(oc) oc.style.visibility='hidden'; // keep the first-run tour from covering the list
+}
+document.getElementById('symInput').addEventListener('input', function(e){
+  const q=e.target.value.trim();
+  clearTimeout(_ddTimer);
+  if(q.length<1){ ddClose(); return; }
+  _ddTimer=setTimeout(async function(){
+    try{ const items=await symLookup(q); if(document.getElementById('symInput').value.trim()===q) ddRender(items,q); }
+    catch(err){ if(err && err.name!=='AbortError') ddClose(); }
+  },200);
+});
+document.getElementById('symInput').addEventListener('keydown', function(e){
+  const open=document.getElementById('symDD').classList.contains('open');
+  if(e.key==='ArrowDown' && open && _ddItems.length){ e.preventDefault(); _ddIdx=(_ddIdx+1)%_ddItems.length; ddMark(); }
+  else if(e.key==='ArrowUp' && open && _ddItems.length){ e.preventDefault(); _ddIdx=(_ddIdx<=0?_ddItems.length:_ddIdx)-1; ddMark(); }
+  else if(e.key==='Escape'){ ddClose(); }
+  else if(e.key==='Enter'){
+    clearTimeout(_ddTimer);
+    if(open && _ddIdx>=0 && _ddItems[_ddIdx]){ e.preventDefault(); ddPick(_ddItems[_ddIdx].symbol.toUpperCase()); }
+    else { ddClose(); search(); }
+  }
+});
+document.getElementById('symInput').addEventListener('blur', function(){ setTimeout(ddClose,120); });
 document.getElementById('tabBuy').addEventListener('click', ()=>setSide('buy'));
 document.getElementById('tabSell').addEventListener('click', ()=>setSide('sell'));
 document.getElementById('sharesInp').addEventListener('input', updateSummary);
