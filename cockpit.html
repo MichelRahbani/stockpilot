@@ -223,6 +223,22 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
 .msgform input:focus{border-color:rgba(46,204,154,.5)}
 .notice{background:rgba(255,210,74,.08);border:1px solid rgba(255,210,74,.25);color:#f1dc9b;border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.45;margin-bottom:10px}
 .pname.dm,.rn.dm{cursor:pointer}
+.pm{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(3px)}
+.pm.open{display:flex}
+.pcard{width:100%;max-width:380px;background:var(--bg2);border:1px solid var(--line);border-radius:20px;padding:22px;text-align:center;position:relative}
+.pcard .x{position:absolute;right:12px;top:10px;background:none;border:0;color:var(--muted);font-size:22px;cursor:pointer}
+.pcard .big{display:flex;justify-content:center;margin-bottom:10px}
+.pcard h3{font-size:19px;font-weight:800}
+.pcard .st{font-size:13px;color:var(--muted);margin:4px 0 16px;min-height:18px}
+.pcard .acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.pcard .inv{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);text-align:left}
+.pcard .inv label{font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:700;display:block;margin-bottom:6px}
+.pcard .inv select{width:100%;background:var(--bg);border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px;font:400 14px var(--sp-font-sans,sans-serif);margin-bottom:8px}
+.frow{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.frow .fn{flex:1;font-weight:700;font-size:15px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.frow .fn small{display:block;font-weight:400;font-size:12px;color:var(--muted)}
+.frow .fb{display:flex;gap:6px}
+.tab3 .tab{font-size:13px}
 .pname.dm:hover,.rn.dm:hover{text-decoration:underline}
 .tabbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:95;background:rgba(10,10,10,.97);border-top:1px solid var(--line);padding:6px 0 8px}
 .tabbar button{flex:1;background:none;border:0;color:var(--muted);font:600 11px var(--sp-font-sans,sans-serif);display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;position:relative}
@@ -267,6 +283,7 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
     <button id="railBear" onclick="setSent('bear')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg><span>Bears</span></button>
     <button id="railGroups" onclick="openGroupsView()"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M17 14.2c2.4.2 4.2 2.3 4.2 4.8"/></svg><span>Groups</span></button>
     <button id="railMsgs" onclick="openMessagesView()"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg><span>Messages</span><i class="badge-dot" id="badgeRail"></i></button>
+    <button id="railFriends" onclick="openFriendsView()"><svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.3"/><path d="M4 20c0-3.4 2.7-6 6-6s6 2.6 6 6"/><path d="M19 8v6M16 11h6"/></svg><span>Friends</span><i class="badge-dot" id="badgeFr"></i></button>
     <button class="postbtn" onclick="focusComposer()"><span>Post</span></button>
   </aside>
 
@@ -275,6 +292,7 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
       <div class="feed-title"><span id="feedTitle">Cockpit</span> <span id="filterChip" class="filter-chip" onclick="clearFilter()"></span></div>
       <div class="tabs" id="tabsBar">
         <button class="tab on" id="tabNew" onclick="setTab('new')">Latest</button>
+        <button class="tab" id="tabFollow" onclick="setTab('following')">Following</button>
         <button class="tab" id="tabTop" onclick="setTab('top')">Top</button>
       </div>
     </div>
@@ -286,6 +304,7 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
     </div>
     <div id="groupsView" class="view" style="display:none"></div>
     <div id="msgView" class="view" style="display:none"></div>
+    <div id="friendsView" class="view" style="display:none"></div>
   </main>
 
   <aside class="side">
@@ -307,12 +326,14 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
 <div class="tabbar">
   <button id="tbHome" class="on" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
   <button id="tbGroups" onclick="openGroupsView()"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M17 14.2c2.4.2 4.2 2.3 4.2 4.8"/></svg>Groups</button>
+  <button id="tbFriends" onclick="openFriendsView()"><svg viewBox="0 0 24 24"><circle cx="10" cy="8" r="3.3"/><path d="M4 20c0-3.4 2.7-6 6-6s6 2.6 6 6"/><path d="M19 8v6M16 11h6"/></svg>Friends<i class="badge-dot" id="badgeTabF"></i></button>
   <button id="tbMsgs" onclick="openMessagesView()"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>Messages<i class="badge-dot" id="badgeTab"></i></button>
 </div>
 <button class="fab" onclick="focusComposer()" aria-label="New post"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="toast" id="toast"></div>
 
 <!-- SIGN IN -->
+<div class="pm" id="profModal" onclick="if(event.target===this)closeProfile()"><div class="pcard" id="profCard"></div></div>
 <div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
   <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:30px;width:90%;max-width:400px;position:relative">
     <button onclick="closeSignin()" style="position:absolute;top:14px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.45);font-size:22px;cursor:pointer">&times;</button>
@@ -349,6 +370,7 @@ const SUPA_URL = SUPABASE_URL, SUPA_KEY = SUPABASE_KEY;
 const MAX_POST = 500, MAX_REPLY = 300;
 
 let posts = [], likesBy = {}, repliesBy = {}, quoteCache = {};
+let following = [], followers = [], invites = [];
 let view = 'feed', groupId = null, curGroup = null, myGroups = [], openGroups = [], groupMembers = [], dms = [], blocks = [], peer = null, allowDms = false, msgTimer = null;
 let tab = 'new', tickerFilter = null, sentFilter = null, composeSent = null, loaded = false;
 const openThreads = new Set();
@@ -419,7 +441,11 @@ const I = {
 /* ---------- data ---------- */
 async function loadFeed(){
   try{
-    const scope = groupId ? 'group_id=eq.'+groupId : 'group_id=is.null';
+    let scope = groupId ? 'group_id=eq.'+groupId : 'group_id=is.null';
+    if(tab === 'following' && !groupId){
+      const ids = following.map(function(f){ return f.followee_id; }).concat([myId()]).filter(Boolean);
+      scope += '&user_id=in.('+ids.join(',')+')';
+    }
     const data = await authGet('cockpit_posts', 'select=*&hidden=eq.false&'+scope+'&order=created_at.desc&limit=100');
     posts = Array.isArray(data) ? data : [];
     const ids = posts.map(function(p){ return p.id; });
@@ -551,7 +577,8 @@ function draw(keepFocus){
   const list = visiblePosts();
   let html = pinnedHtml() + debatesHtml();
   if(!list.length){
-    html += '<div class="empty"><b>'+(tickerFilter||sentFilter ? 'Nothing here yet' : 'No posts yet')+'</b>'+(tickerFilter ? 'Be the first to post a take on $'+tickerFilter+'.' : 'Be the first to post a take.')+'</div>';
+    if(tab === 'following' && !groupId) html += '<div class="empty"><b>'+(following.length ? 'Nothing from people you follow yet' : 'You are not following anyone yet')+'</b>Tap a name on any post, then Follow, to fill this tab with people you want to hear from.</div>';
+    else html += '<div class="empty"><b>'+(tickerFilter||sentFilter ? 'Nothing here yet' : 'No posts yet')+'</b>'+(tickerFilter ? 'Be the first to post a take on $'+tickerFilter+'.' : 'Be the first to post a take.')+'</div>';
   } else html += list.map(postHtml).join('');
   feed.innerHTML = html;
   renderTrending();
@@ -676,7 +703,11 @@ async function reportPost(id){
 }
 
 /* ---------- navigation ---------- */
-function setTab(t){ tab = t; draw(); }
+function setTab(t){
+  if(t === 'following' && !signedIn()){ openSignin(); return; }
+  const was = tab; tab = t;
+  if(was === 'following' || t === 'following'){ loadSocial().then(loadFeed); } else draw();
+}
 function setSent(s){ sentFilter = (sentFilter === s) ? null : s; tickerFilter = null; tab = 'new'; draw(); window.scrollTo({top:0,behavior:'smooth'}); }
 function setTicker(t){ tickerFilter = t; sentFilter = null; tab = 'new'; draw(); window.scrollTo({top:0,behavior:'smooth'}); }
 function clearFilter(){ tickerFilter = null; sentFilter = null; draw(); }
@@ -691,7 +722,7 @@ document.addEventListener('click', function(e){
   const db = e.target.closest('[data-debate]');
   if(db){ takeDebate(+db.getAttribute('data-debate'), db.getAttribute('data-s')); return; }
   const dmEl = e.target.closest('[data-dm]');
-  if(dmEl){ startDm(dmEl.getAttribute('data-dm'), dmEl.getAttribute('data-n')); return; }
+  if(dmEl){ if(dmEl.tagName === 'BUTTON') startDm(dmEl.getAttribute('data-dm'), dmEl.getAttribute('data-n')); else openProfile(dmEl.getAttribute('data-dm'), dmEl.getAttribute('data-n')); return; }
   const a = e.target.closest('[data-act]'); if(!a) return;
   const id = a.getAttribute('data-id'), act = a.getAttribute('data-act');
   if(act === 'like') toggleLike(id, a);
@@ -712,9 +743,10 @@ function renderRail(){
   set('railHome', feedV && !groupId && !sentFilter && tab === 'new' && !tickerFilter);
   set('railTop', feedV && !groupId && tab === 'top');
   set('railBull', feedV && sentFilter === 'bull'); set('railBear', feedV && sentFilter === 'bear');
-  set('railGroups', view === 'groups' || !!groupId); set('railMsgs', view === 'messages');
+  set('railGroups', view === 'groups' || !!groupId); set('railMsgs', view === 'messages'); set('railFriends', view === 'friends'); set('tbFriends', view === 'friends');
   set('tbHome', feedV && !groupId); set('tbGroups', view === 'groups' || !!groupId); set('tbMsgs', view === 'messages');
   document.getElementById('tabNew').className = 'tab' + (tab === 'new' ? ' on' : '');
+  document.getElementById('tabFollow').className = 'tab' + (tab === 'following' ? ' on' : '');
   document.getElementById('tabTop').className = 'tab' + (tab === 'top' ? ' on' : '');
 }
 function setView(v){
@@ -722,8 +754,9 @@ function setView(v){
   document.getElementById('feedWrap').style.display = v === 'feed' ? '' : 'none';
   document.getElementById('groupsView').style.display = v === 'groups' ? '' : 'none';
   document.getElementById('msgView').style.display = v === 'messages' ? '' : 'none';
+  document.getElementById('friendsView').style.display = v === 'friends' ? '' : 'none';
   document.getElementById('tabsBar').style.display = v === 'feed' ? '' : 'none';
-  document.getElementById('feedTitle').textContent = v === 'groups' ? 'Groups' : v === 'messages' ? 'Messages' : (curGroup ? curGroup.name : 'Cockpit');
+  document.getElementById('feedTitle').textContent = v === 'groups' ? 'Groups' : v === 'messages' ? 'Messages' : v === 'friends' ? 'Friends' : (curGroup ? curGroup.name : 'Cockpit');
   if(v !== 'messages') peer = null;
   clearInterval(msgTimer); if(v === 'messages') msgTimer = setInterval(pollMsgs, 6000);
   renderRail();
@@ -853,7 +886,13 @@ function convs(){
   return Object.keys(map).map(function(k){ return map[k]; }).sort(function(a,b){ return new Date(b.last.created_at) - new Date(a.last.created_at); });
 }
 function unreadTotal(){ const me = myId(); return dms.filter(function(m){ return m.recipient_id === me && !m.read_at; }).length; }
+function friendBadgeCount(){
+  const fids = following.map(function(f){ return f.followee_id; });
+  return invites.length + followers.filter(function(f){ return fids.indexOf(f.follower_id) < 0; }).length;
+}
 function updateBadge(){
+  const fb = friendBadgeCount();
+  ['badgeFr','badgeTabF'].forEach(function(id){ const e = document.getElementById(id); if(!e) return; e.textContent = fb > 9 ? '9+' : fb; e.className = 'badge-dot' + (fb ? ' on' : ''); });
   const n = unreadTotal();
   ['badgeRail','badgeTab'].forEach(function(id){ const e = document.getElementById(id); if(!e) return; e.textContent = n > 9 ? '9+' : n; e.className = 'badge-dot' + (n ? ' on' : ''); });
 }
@@ -939,6 +978,7 @@ async function toggleBlock(){
   if(!blocked && !confirm('Block '+peer.name+'? They will not be able to message you.')) return;
   if(blocked){ const ok = await sbDelete('cockpit_blocks', 'blocked_id=eq.'+peer.id+'&user_id=eq.'+myId()); if(ok) blocks = blocks.filter(function(b){ return b !== peer.id; }); else { toast('Could not unblock', true); return; } }
   else { const r = await sbPost('cockpit_blocks', { blocked_id: peer.id }); if(Array.isArray(r) && r[0]) blocks.push(peer.id); else { toast('Could not block', true); return; } }
+  if(!blocked) loadSocial();
   renderThread(); toast(blocked ? 'Unblocked' : 'Blocked');
 }
 async function reportDm(id){
@@ -950,6 +990,111 @@ async function pollMsgs(){
   const before = dms.length; await loadInbox();
   if(peer){ const m = document.getElementById('msgs'); if(m && dms.length !== before){ const atEnd = m.scrollHeight - m.scrollTop - m.clientHeight < 80; m.innerHTML = msgsHtml(); if(atEnd) m.scrollTop = m.scrollHeight; markRead(); } }
   else if(!document.activeElement.matches('button.sw')) renderMsgView();
+}
+
+/* ---------- follows, friends, invites ---------- */
+async function loadSocial(){
+  if(!signedIn()){ following = []; followers = []; invites = []; updateBadge(); return; }
+  const me = myId();
+  const r = await Promise.all([ authGet('cockpit_follows', 'select=*&follower_id=eq.'+me+'&order=created_at.desc'), authGet('cockpit_follows', 'select=*&followee_id=eq.'+me+'&order=created_at.desc'), authGet('cockpit_group_invites', 'select=*&invitee_id=eq.'+me+'&order=created_at.desc') ]);
+  following = Array.isArray(r[0]) ? r[0] : []; followers = Array.isArray(r[1]) ? r[1] : []; invites = Array.isArray(r[2]) ? r[2] : [];
+  updateBadge();
+}
+function isFollowing(id){ return following.some(function(f){ return f.followee_id === id; }); }
+function followsMe(id){ return followers.some(function(f){ return f.follower_id === id; }); }
+function isFriend(id){ return isFollowing(id) && followsMe(id); }
+async function doFollow(uid, name){
+  const res = await sbPost('cockpit_follows', { followee_id: uid, follower_name: myName().slice(0,40), followee_name: (name||'Member').slice(0,40) });
+  if(Array.isArray(res) && res[0]){ following.unshift(res[0]); updateBadge(); return true; }
+  toast(errText(res, 'Could not follow'), true); return false;
+}
+async function doUnfollow(uid){
+  const ok = await sbDelete('cockpit_follows', 'follower_id=eq.'+myId()+'&followee_id=eq.'+uid);
+  if(ok){ following = following.filter(function(f){ return f.followee_id !== uid; }); updateBadge(); return true; }
+  toast('Could not unfollow', true); return false;
+}
+let prof = null;
+async function openProfile(uid, name){
+  if(!uid || uid === myId()) return;
+  if(!signedIn()){ openSignin(); return; }
+  prof = { id: uid, name: (name || 'Member').slice(0,40) };
+  document.getElementById('profModal').classList.add('open');
+  document.getElementById('profCard').innerHTML = '<button class="x" onclick="closeProfile()">&times;</button><div class="loading">Loading...</div>';
+  if(!following.length && !followers.length) await loadSocial();
+  if(!myGroups.length) { try{ await loadGroups(); }catch(e){} }
+  renderProfile();
+}
+function closeProfile(){ document.getElementById('profModal').classList.remove('open'); prof = null; }
+function renderProfile(){
+  if(!prof) return;
+  const f = isFollowing(prof.id), m = followsMe(prof.id), fr = f && m;
+  const status = fr ? 'Friends. You follow each other.' : f ? 'You follow them. When they follow back, you are friends.' : m ? 'Follows you.' : '';
+  const mine = myGroups.filter(function(g){ return g._role; });
+  document.getElementById('profCard').innerHTML = '<button class="x" onclick="closeProfile()">&times;</button>'
+    +'<div class="big">'+avatar(prof.name)+'</div><h3>'+escapeHtml(prof.name)+'</h3><div class="st">'+status+'</div>'
+    +'<div class="acts">'+(f ? '<button class="btn2" onclick="profUnfollow()">'+(fr ? 'Unfriend' : 'Unfollow')+'</button>' : '<button class="btn2 g" onclick="profFollow()">'+(m ? 'Follow back' : 'Follow')+'</button>')
+    +'<button class="btn2" onclick="profMessage()">Message</button></div>'
+    +(fr && mine.length ? '<div class="inv"><label>Invite to a group</label><select id="profGroup">'+mine.map(function(g){ return '<option value="'+g.id+'">'+escapeHtml(g.name)+'</option>'; }).join('')+'</select><button class="btn2 sm g" onclick="profInvite()">Send invite</button></div>' : '')
+    +(!fr && mine.length ? '<div class="st" style="margin:14px 0 0">Become friends to invite them to a group.</div>' : '');
+}
+async function profFollow(){ if(await doFollow(prof.id, prof.name)){ renderProfile(); toast(followsMe(prof.id) ? 'You are now friends' : 'Following '+prof.name); refreshFriends(); } }
+async function profUnfollow(){ if(await doUnfollow(prof.id)){ renderProfile(); refreshFriends(); } }
+function profMessage(){ const p = prof; closeProfile(); startDm(p.id, p.name); }
+async function profInvite(){
+  const gid = document.getElementById('profGroup').value;
+  const res = await rpc('cockpit_invite_to_group', { p_group: gid, p_invitee: prof.id, p_inviter_name: myName().slice(0,40) });
+  if(res === true) toast('Invite sent to '+prof.name); else toast(errText(res, 'Could not send the invite'), true);
+}
+function refreshFriends(){ if(view === 'friends') renderFriendsView(); if(tab === 'following' && view === 'feed') loadFeed(); }
+
+async function openFriendsView(){
+  leaveGroup_(); setView('friends');
+  const el = document.getElementById('friendsView');
+  if(!signedIn()){ needSignin(el, 'Friends are for members'); return; }
+  el.innerHTML = '<div class="loading">Loading...</div>';
+  await loadSocial(); renderFriendsView();
+}
+function frow(name, uid, extra, sub){
+  return '<div class="frow">'+avatar(name)+'<div class="fn" data-dm="'+uid+'" data-n="'+escapeHtml(name)+'">'+escapeHtml(name)+(sub ? '<small>'+sub+'</small>' : '')+'</div><div class="fb">'+extra+'</div></div>';
+}
+function renderFriendsView(){
+  const el = document.getElementById('friendsView'); if(view !== 'friends') return;
+  const fids = following.map(function(f){ return f.followee_id; });
+  const reqs = followers.filter(function(f){ return fids.indexOf(f.follower_id) < 0; });
+  const friends = following.filter(function(f){ return followsMe(f.followee_id); });
+  const onlyFollowing = following.filter(function(f){ return !followsMe(f.followee_id); });
+  let h = '<h2>Friends</h2><div class="lead">Follow someone and when they follow you back, you are friends. Friends can message you and invite you to groups. Tap any name on a post to follow.</div>';
+  if(invites.length){
+    h += '<div class="sec">Group invites</div>' + invites.map(function(i){
+      return '<div class="frow"><div class="fn">'+escapeHtml(i.group_name)+'<small>Invited by '+escapeHtml(i.inviter_name)+'</small></div><div class="fb"><button class="btn2 sm g" onclick="acceptInvite(\''+i.id+'\')">Join</button><button class="btn2 sm" onclick="declineInvite(\''+i.id+'\')">Decline</button></div></div>';
+    }).join('');
+  }
+  if(reqs.length){
+    h += '<div class="sec">Follow requests</div>' + reqs.map(function(f){
+      return frow(f.follower_name, f.follower_id, '<button class="btn2 sm g" onclick="followBack(\''+f.follower_id+'\',\''+escapeHtml(f.follower_name).replace(/'/g,'')+'\')">Follow back</button>', 'Follows you');
+    }).join('');
+  }
+  h += '<div class="sec">Your friends ('+friends.length+')</div>' + (friends.length ? friends.map(function(f){
+    return frow(f.followee_name, f.followee_id, '<button class="btn2 sm" data-dm="'+f.followee_id+'" data-n="'+escapeHtml(f.followee_name)+'">Message</button>');
+  }).join('') : '<div class="lead">No friends yet. Follow people from the feed. When they follow you back they show up here.</div>');
+  if(onlyFollowing.length){
+    h += '<div class="sec">Following ('+onlyFollowing.length+')</div>' + onlyFollowing.map(function(f){
+      return frow(f.followee_name, f.followee_id, '<button class="btn2 sm" onclick="unfollowRow(\''+f.followee_id+'\')">Unfollow</button>', 'Waiting for them to follow back');
+    }).join('');
+  }
+  el.innerHTML = h;
+}
+async function followBack(uid, name){ if(await doFollow(uid, name)){ toast('You are now friends'); renderFriendsView(); } }
+async function unfollowRow(uid){ if(await doUnfollow(uid)) renderFriendsView(); }
+async function acceptInvite(id){
+  const res = await rpc('cockpit_accept_invite', { p_invite: id, p_display: myName().slice(0,40) });
+  if(!res || !res.id){ toast(errText(res, 'Could not join'), true); return; }
+  invites = invites.filter(function(i){ return i.id !== id; }); updateBadge(); toast('Joined '+res.name);
+  await loadGroups(); openGroup(res.id);
+}
+async function declineInvite(id){
+  const ok = await sbDelete('cockpit_group_invites', 'id=eq.'+id);
+  if(ok){ invites = invites.filter(function(i){ return i.id !== id; }); updateBadge(); renderFriendsView(); } else toast('Could not decline', true);
 }
 
 /* ---------- auth ---------- */
@@ -967,9 +1112,9 @@ function setSiMode(m){
 function doSiSubmit(){ return siMode === 'up' ? doSignup() : doSignin(); }
 function afterAuth(){
   updateAuthUI(); renderComposer();
-  if(!signedIn()){ dms = []; blocks = []; myGroups = []; updateBadge(); if(view !== 'feed' || groupId){ goHome(); return; } }
-  if(view === 'feed') loadFeed(); else if(view === 'groups') openGroupsView(); else if(view === 'messages') openMessagesView();
-  if(signedIn()) loadInbox();
+  if(!signedIn()){ dms = []; blocks = []; myGroups = []; following = []; followers = []; invites = []; updateBadge(); if(tab === 'following') tab = 'new'; if(view !== 'feed' || groupId){ goHome(); return; } }
+  if(view === 'feed') loadFeed(); else if(view === 'groups') openGroupsView(); else if(view === 'messages') openMessagesView(); else if(view === 'friends') openFriendsView();
+  if(signedIn()){ loadInbox(); loadSocial(); }
 }
 async function doSignup(){
   const name = document.getElementById('siName').value.trim(), email = document.getElementById('siEmail').value.trim(), pass = document.getElementById('siPass').value;
@@ -1028,12 +1173,13 @@ updateAuthUI(); renderComposer(); loadFeed();
 (function(){
   const h = location.hash || '';
   if(!signedIn()) return;
-  loadInbox();
-  if(h === '#groups') openGroupsView();
+  loadInbox(); loadSocial();
+  if(h === '#friends') openFriendsView();
+  else if(h === '#groups') openGroupsView();
   else if(h === '#messages') openMessagesView();
   else if(h.indexOf('#g=') === 0){ const id = h.slice(3); loadGroups().then(function(){ if(myGroups.some(function(g){ return g.id === id; })) openGroup(id); }); }
 })();
-setInterval(function(){ if(signedIn() && document.visibilityState === 'visible') loadInbox(); }, 45000);
+setInterval(function(){ if(signedIn() && document.visibilityState === 'visible'){ loadInbox(); loadSocial(); } }, 45000);
 setInterval(function(){ if(document.visibilityState === 'visible' && !document.activeElement.matches('input,textarea')) loadFeed(); }, 60000);
 </script>
 <script src="/nav-fix.js"></script>
