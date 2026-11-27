@@ -40,6 +40,7 @@
       '#sp-nav-center { display:flex; align-items:center; gap:0; position:absolute; left:50%; transform:translateX(-50%); top:50%; margin-top:-17px; z-index:1; pointer-events:all; }',
       '#sp-nav-center a { display:block; line-height:34px; text-decoration-thickness:2px !important; text-underline-offset:9px; }',
       '#sp-nav-center a:hover { color:' + ac + ' !important; }',
+      '#sp-more-panel a:hover { background:' + (isDark?'rgba(255,255,255,0.06)':'#f2f4f7') + '; }',
       '#sp-hamburger { display:none !important; background:none; border:none; cursor:pointer; padding:8px; margin-right:-8px; z-index:10; flex-shrink:0; }',
       '#sp-mobile-menu { display:none; position:fixed; top:56px; left:0; right:0; background:' + (isDark?'#0d1117':'#fff') + '; padding:4px 20px 16px; z-index:999; flex-direction:column; gap:0; box-shadow:0 12px 24px rgba(0,0,0,' + (isDark?'0.35':'0.06') + '); border-bottom:1px solid ' + line + '; border-top:1px solid ' + line + '; }',
       '#sp-mobile-menu a { font-size:16px; font-weight:500; color:' + ac + '; text-decoration:none; padding:14px 2px; border-radius:0; border-bottom:1px solid ' + line + '; display:block; }',
@@ -58,14 +59,46 @@
     document.head.appendChild(style);
   }
 
+  // Core links stay in the bar; the rest live under "More"
+  var MORE = ['/budget','/budget-workspace.html#supply','/business'];
+  function linkHtml(l){
+    var active = same(l.href);
+    return '<a href="'+l.href+'"'+(active?' aria-current="page"':'')+' style="font-size:14px;font-weight:'+(active?'600':'500')+';color:'+(active?ac:tc)+';text-decoration:'+(active?'underline':'none')+';text-decoration-color:'+accent+';padding:0 12px;transition:color 0.15s;white-space:nowrap">'+l.label+'</a>';
+  }
   function makeCenterDiv(){
-    var html = links.map(function(l){
-      var active = same(l.href);
-      return '<a href="'+l.href+'"'+(active?' aria-current="page"':'')+' style="font-size:14px;font-weight:'+(active?'600':'500')+';color:'+(active?ac:tc)+';text-decoration:'+(active?'underline':'none')+';text-decoration-color:'+accent+';padding:0 12px;transition:color 0.15s;white-space:nowrap">'+l.label+'</a>';
-    }).join('');
+    var main = links.filter(function(l){ return MORE.indexOf(l.href) < 0; });
+    var more = links.filter(function(l){ return MORE.indexOf(l.href) >= 0; });
+    var moreActive = more.some(function(l){ return same(l.href); });
+    var panelBg = isDark ? '#0d1117' : '#ffffff';
+    var html = main.map(linkHtml).join('');
+    // Put "More" just before Classroom so Cockpit and Classroom stay on the right
+    var moreBtn = '<span id="sp-more" style="position:relative;display:block">'
+      + '<button id="sp-more-btn" type="button" aria-haspopup="true" aria-expanded="false" style="background:none;border:0;cursor:pointer;font-family:inherit;font-size:14px;font-weight:'+(moreActive?'600':'500')+';color:'+(moreActive?ac:tc)+';padding:0 12px;line-height:34px;white-space:nowrap;text-decoration:'+(moreActive?'underline':'none')+';text-decoration-color:'+accent+';text-underline-offset:9px;text-decoration-thickness:2px">More &#9662;</button>'
+      + '<div id="sp-more-panel" style="display:none;position:absolute;top:38px;left:0;min-width:210px;background:'+panelBg+';border:1px solid '+line+';border-radius:8px;padding:6px;box-shadow:0 12px 32px rgba(0,0,0,.35);z-index:1000">'
+      + more.map(function(l){
+          var act = same(l.href);
+          return '<a href="'+l.href+'" style="display:block;line-height:20px;padding:10px 12px;border-radius:6px;font-size:14px;font-weight:'+(act?'600':'500')+';color:'+(act?ac:tc)+';text-decoration:none;white-space:nowrap">'+l.label+'</a>';
+        }).join('')
+      + '</div></span>';
+    var idx = html.lastIndexOf('<a href="/classroom');
+    html = idx >= 0 ? html.slice(0, idx) + moreBtn + html.slice(idx) : html + moreBtn;
     var div = document.createElement('div');
     div.id = 'sp-nav-center';
     div.innerHTML = html;
+    if(!div.dataset.moreBound){
+      div.dataset.moreBound = '1';
+      div.addEventListener('click', function(e){
+        var btn = e.target.closest('#sp-more-btn');
+        if(!btn) return;
+        e.stopPropagation();
+        var p = document.getElementById('sp-more-panel'), open = p.style.display === 'block';
+        p.style.display = open ? 'none' : 'block'; btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+      });
+      document.addEventListener('click', function(){
+        var p = document.getElementById('sp-more-panel'); if(p) p.style.display = 'none';
+        var b = document.getElementById('sp-more-btn'); if(b) b.setAttribute('aria-expanded','false');
+      });
+    }
     return div;
   }
 
