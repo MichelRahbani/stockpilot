@@ -144,6 +144,85 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
 .fab{display:none;position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;background:var(--green);color:#04110b;border:0;z-index:90;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;align-items:center;justify-content:center}
 .fab svg{width:26px;height:26px;stroke:#04110b;fill:none;stroke-width:2.4;stroke-linecap:round}
 
+
+.rail .badge-dot{margin-left:auto;min-width:20px;height:20px;border-radius:10px;background:#ff4d5e;color:#fff;font:800 11px var(--sp-font-sans,sans-serif);display:none;align-items:center;justify-content:center;padding:0 6px}
+.rail .badge-dot.on,.tabbar .badge-dot.on{display:inline-flex}
+.view{padding:16px 18px 80px}
+.view h2{font-size:20px;font-weight:800;margin:6px 0 4px}
+.view .lead{color:var(--muted);font-size:14px;line-height:1.5;margin-bottom:16px}
+.row-btns{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.btn2{background:var(--bg3);border:1px solid var(--line);color:var(--text);font:700 14px var(--sp-font-sans,sans-serif);padding:10px 18px;border-radius:999px;cursor:pointer}
+.btn2:hover{border-color:rgba(46,204,154,.5)}
+.btn2.g{background:var(--green);color:#04110b;border-color:var(--green)}
+.btn2.r{color:var(--red);border-color:rgba(255,77,94,.4)}
+.btn2.sm{padding:6px 12px;font-size:12px}
+.fbox{background:var(--bg2);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:16px;display:none}
+.fbox.open{display:block}
+.fbox label{display:block;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);margin:10px 0 6px;font-weight:700}
+.fbox input[type=text],.fbox textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 13px;color:var(--text);font:400 15px var(--sp-font-sans,sans-serif);outline:0;resize:none}
+.fbox input:focus,.fbox textarea:focus{border-color:rgba(46,204,154,.5)}
+.vis{display:flex;gap:10px}
+.vis button{flex:1;text-align:left;background:var(--bg);border:1.5px solid var(--line);border-radius:12px;padding:12px;color:var(--muted);cursor:pointer;font-family:inherit}
+.vis button b{display:block;color:var(--text);font-size:14px;margin-bottom:2px}
+.vis button span{font-size:12px;line-height:1.4}
+.vis button.on{border-color:var(--green);background:rgba(46,204,154,.08)}
+.sec{font-size:12px;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);font-weight:700;margin:22px 0 10px}
+.gcard{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--line);border-radius:14px;margin-bottom:10px;background:var(--bg2)}
+.gcard:hover{border-color:rgba(46,204,154,.35)}
+.gcard .gav{flex:none;width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff}
+.gcard .gi{flex:1;min-width:0}
+.gcard .gn{font-weight:800;font-size:15px;display:flex;align-items:center;gap:8px}
+.gcard .gd{font-size:13px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag2{font:700 10px var(--sp-font-mono,monospace);letter-spacing:.6px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,.07);color:var(--muted)}
+.tag2.priv{background:rgba(255,210,74,.12);color:var(--gold)}
+.tag2.open{background:rgba(46,204,154,.12);color:var(--green)}
+.ghead{padding:14px 18px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,rgba(46,204,154,.06),transparent)}
+.ghead .gt{display:flex;align-items:center;gap:12px}
+.ghead .gav{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;color:#fff;flex:none}
+.ghead h3{font-size:18px;font-weight:800}
+.ghead p{font-size:13px;color:var(--muted);margin-top:2px}
+.ghead .gmeta{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.codepill{font:700 13px var(--sp-font-mono,monospace);letter-spacing:2px;background:var(--bg3);border:1px dashed rgba(46,204,154,.5);color:var(--green);padding:6px 12px;border-radius:8px;cursor:pointer}
+.members{display:none;margin-top:12px;max-height:200px;overflow:auto}
+.members.open{display:block}
+.mem{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:14px}
+.mem .mrm{margin-left:auto}
+.back{background:none;border:0;color:var(--muted);font:600 14px var(--sp-font-sans,sans-serif);cursor:pointer;padding:0 0 8px}
+.back:hover{color:var(--text)}
+.conv{display:flex;align-items:center;gap:12px;padding:12px;border-bottom:1px solid var(--line);cursor:pointer}
+.conv:hover{background:rgba(255,255,255,.03)}
+.conv .ci{flex:1;min-width:0}
+.conv .cn{font-weight:800;font-size:15px;display:flex;justify-content:space-between;gap:8px}
+.conv .cn small{color:var(--muted);font-weight:500;font-size:12px}
+.conv .cm{font-size:14px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.conv.unr .cm{color:var(--text);font-weight:600}
+.unr-dot{width:10px;height:10px;border-radius:50%;background:var(--green);flex:none}
+.setrow{display:flex;align-items:center;gap:12px;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:14px}
+.setrow .st{flex:1;font-size:13px;color:var(--muted);line-height:1.45}
+.setrow .st b{display:block;color:var(--text);font-size:14px}
+.sw{position:relative;width:46px;height:26px;border-radius:13px;background:#2a323c;border:0;cursor:pointer;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .15s}
+.sw.on{background:var(--green)}.sw.on::after{left:23px}
+.thead{display:flex;align-items:center;gap:10px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:12px}
+.thead .tn{font-weight:800;font-size:16px;flex:1}
+.msgs{display:flex;flex-direction:column;gap:8px;min-height:240px;max-height:56vh;overflow:auto;padding:4px 2px 10px}
+.bub{max-width:78%;padding:9px 13px;border-radius:18px;font-size:15px;line-height:1.4;overflow-wrap:anywhere;white-space:pre-wrap;position:relative}
+.bub.me{align-self:flex-end;background:var(--green);color:#04110b;border-bottom-right-radius:5px}
+.bub.them{align-self:flex-start;background:var(--bg3);border-bottom-left-radius:5px}
+.bub small{display:block;font-size:11px;opacity:.6;margin-top:3px}
+.bub .rp{background:none;border:0;color:inherit;opacity:.45;font-size:11px;cursor:pointer;margin-left:8px}
+.bub .rp:hover{opacity:1}
+.msgform{display:flex;gap:8px;margin-top:8px}
+.msgform input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:12px 16px;color:var(--text);font:400 15px var(--sp-font-sans,sans-serif);outline:0}
+.msgform input:focus{border-color:rgba(46,204,154,.5)}
+.notice{background:rgba(255,210,74,.08);border:1px solid rgba(255,210,74,.25);color:#f1dc9b;border-radius:12px;padding:10px 14px;font-size:13px;line-height:1.45;margin-bottom:10px}
+.pname.dm,.rn.dm{cursor:pointer}
+.pname.dm:hover,.rn.dm:hover{text-decoration:underline}
+.tabbar{display:none;position:fixed;left:0;right:0;bottom:0;z-index:95;background:rgba(10,10,10,.97);border-top:1px solid var(--line);padding:6px 0 8px}
+.tabbar button{flex:1;background:none;border:0;color:var(--muted);font:600 11px var(--sp-font-sans,sans-serif);display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px;cursor:pointer;position:relative}
+.tabbar button.on{color:var(--green)}
+.tabbar svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabbar .badge-dot{position:absolute;top:2px;left:calc(50% + 6px);min-width:18px;height:18px;border-radius:9px;background:#ff4d5e;color:#fff;font:800 10px var(--sp-font-sans,sans-serif);display:none;align-items:center;justify-content:center;padding:0 5px}
 @media(max-width:1020px){.shell{grid-template-columns:72px minmax(0,1fr)}.side{display:none}.rail button span{display:none}.rail h3{display:none}.rail button{justify-content:center;padding:12px}.rail .postbtn{display:none}}
 @media(max-width:640px){
   nav{padding:0 14px}
@@ -152,7 +231,11 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
   .feed{border:0}
   .composer{padding:12px}.post{padding:14px 12px}
   .comp-hint{display:none}
-  .fab{display:flex}
+  .fab{display:flex;bottom:78px}
+  .tabbar{display:flex}
+  body{padding-bottom:64px}
+  .view{padding:14px 12px 100px}
+  .bub{max-width:86%}
 }
 </style>
 </head>
@@ -176,20 +259,27 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
     <button id="railTop" onclick="setTab('top');window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Top</span></button>
     <button id="railBull" onclick="setSent('bull')"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>Bulls</span></button>
     <button id="railBear" onclick="setSent('bear')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg><span>Bears</span></button>
+    <button id="railGroups" onclick="openGroupsView()"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M17 14.2c2.4.2 4.2 2.3 4.2 4.8"/></svg><span>Groups</span></button>
+    <button id="railMsgs" onclick="openMessagesView()"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg><span>Messages</span><i class="badge-dot" id="badgeRail"></i></button>
     <button class="postbtn" onclick="focusComposer()"><span>Post</span></button>
   </aside>
 
   <main class="feed">
     <div class="feed-head">
-      <div class="feed-title">Cockpit <span id="filterChip" class="filter-chip" onclick="clearFilter()"></span></div>
-      <div class="tabs">
+      <div class="feed-title"><span id="feedTitle">Cockpit</span> <span id="filterChip" class="filter-chip" onclick="clearFilter()"></span></div>
+      <div class="tabs" id="tabsBar">
         <button class="tab on" id="tabNew" onclick="setTab('new')">Latest</button>
         <button class="tab" id="tabTop" onclick="setTab('top')">Top</button>
       </div>
     </div>
 
-    <div id="composerWrap"></div>
-    <div id="feed"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    <div id="feedWrap">
+      <div id="groupHead"></div>
+      <div id="composerWrap"></div>
+      <div id="feed"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+    </div>
+    <div id="groupsView" class="view" style="display:none"></div>
+    <div id="msgView" class="view" style="display:none"></div>
   </main>
 
   <aside class="side">
@@ -208,6 +298,11 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
   </aside>
 </div>
 
+<div class="tabbar">
+  <button id="tbHome" class="on" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button id="tbGroups" onclick="openGroupsView()"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17.5" cy="9" r="2.4"/><path d="M17 14.2c2.4.2 4.2 2.3 4.2 4.8"/></svg>Groups</button>
+  <button id="tbMsgs" onclick="openMessagesView()"><svg viewBox="0 0 24 24"><path d="M3 6h18v12H3z"/><path d="M3 7l9 6 9-6"/></svg>Messages<i class="badge-dot" id="badgeTab"></i></button>
+</div>
 <button class="fab" onclick="focusComposer()" aria-label="New post"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
 <div class="toast" id="toast"></div>
 
@@ -248,6 +343,7 @@ const SUPA_URL = SUPABASE_URL, SUPA_KEY = SUPABASE_KEY;
 const MAX_POST = 500, MAX_REPLY = 300;
 
 let posts = [], likesBy = {}, repliesBy = {}, quoteCache = {};
+let view = 'feed', groupId = null, curGroup = null, myGroups = [], openGroups = [], groupMembers = [], dms = [], blocks = [], peer = null, allowDms = false, msgTimer = null;
 let tab = 'new', tickerFilter = null, sentFilter = null, composeSent = null, loaded = false;
 const openThreads = new Set();
 
@@ -259,6 +355,26 @@ function myId(){
 }
 function myName(){ return (localStorage.getItem('supabase_name') || '').trim() || (localStorage.getItem('supabase_email')||'player').split('@')[0]; }
 function signedIn(){ return !!myId(); }
+function authToken(){ return myToken() || SUPA_KEY; }
+async function authGet(table, qs){
+  const r = await fetch(SUPA_URL+'/rest/v1/'+table+'?'+qs, { headers:{ apikey:SUPA_KEY, Authorization:'Bearer '+authToken() } });
+  return r.json();
+}
+async function rpc(name, args){
+  const r = await fetch(SUPA_URL+'/rest/v1/rpc/'+name, { method:'POST', headers:{ apikey:SUPA_KEY, Authorization:'Bearer '+authToken(), 'Content-Type':'application/json' }, body: JSON.stringify(args) });
+  return r.json();
+}
+async function upsertProfile(allow){
+  const r = await fetch(SUPA_URL+'/rest/v1/cockpit_profiles?on_conflict=user_id', { method:'POST', headers:{ apikey:SUPA_KEY, Authorization:'Bearer '+authToken(), 'Content-Type':'application/json', Prefer:'resolution=merge-duplicates,return=representation' }, body: JSON.stringify({ user_id: myId(), allow_dms: allow }) });
+  return r.ok;
+}
+function errText(res, fallback){
+  if(res && !Array.isArray(res) && res.message){
+    if(res.code === 'P0001') return res.message;
+    if(res.code === '42501') return 'not allowed';
+  }
+  return fallback;
+}
 function toast(msg, err){
   const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); t.style.display = 'block';
   clearTimeout(toast._t); toast._t = setTimeout(function(){ t.style.display = 'none'; }, 2600);
@@ -297,15 +413,16 @@ const I = {
 /* ---------- data ---------- */
 async function loadFeed(){
   try{
-    const data = await sbGet('cockpit_posts', 'select=*&hidden=eq.false&order=created_at.desc&limit=100');
+    const scope = groupId ? 'group_id=eq.'+groupId : 'group_id=is.null';
+    const data = await authGet('cockpit_posts', 'select=*&hidden=eq.false&'+scope+'&order=created_at.desc&limit=100');
     posts = Array.isArray(data) ? data : [];
     const ids = posts.map(function(p){ return p.id; });
     likesBy = {}; repliesBy = {};
     if(ids.length){
       const list = ids.join(',');
       const [likes, reps] = await Promise.all([
-        sbGet('cockpit_likes', 'select=post_id,user_id&post_id=in.('+list+')'),
-        sbGet('cockpit_replies', 'select=*&post_id=in.('+list+')&order=created_at.asc')
+        authGet('cockpit_likes', 'select=post_id,user_id&post_id=in.('+list+')'),
+        authGet('cockpit_replies', 'select=*&post_id=in.('+list+')&order=created_at.asc')
       ]);
       (Array.isArray(likes)?likes:[]).forEach(function(l){ (likesBy[l.post_id] = likesBy[l.post_id] || []).push(l.user_id); });
       (Array.isArray(reps)?reps:[]).forEach(function(r){ (repliesBy[r.post_id] = repliesBy[r.post_id] || []).push(r); });
@@ -354,7 +471,7 @@ const PINNED = {
   name:'StockPilot', body:'Welcome to the Cockpit. Post your take on any stock and tag it with a $TICKER, like $NVDA or $AAPL. Mark it bull or bear, argue it out in the replies, and let the market decide who was right.\n\nBe sharp, be fair, and keep it about the stock.'
 };
 function pinnedHtml(){
-  if(tickerFilter || sentFilter || tab !== 'new') return '';
+  if(tickerFilter || sentFilter || tab !== 'new' || groupId) return '';
   return '<article class="post pinned"><div class="av sp"><img src="/logo-mark-256.png" alt=""></div><div class="post-main">'
     +'<div class="pin-tag">'+'Pinned'+'</div>'
     +'<div class="post-top"><span class="pname">'+PINNED.name+'</span>'+I.ver+'<span class="pmeta">@stockpilot</span></div>'
@@ -364,12 +481,12 @@ function postHtml(p){
   const me = myId(), likes = likesBy[p.id]||[], reps = repliesBy[p.id]||[], liked = me && likes.indexOf(me) >= 0, mine = me && p.user_id === me;
   const open = openThreads.has(p.id);
   const repHtml = reps.map(function(r){
-    return '<div class="reply">'+avatar(r.author_name,'sm')+'<div class="rb"><div><span class="rn">'+escapeHtml(r.author_name)+'</span><span class="rt">'+ago(r.created_at)+'</span>'
+    return '<div class="reply">'+avatar(r.author_name,'sm')+'<div class="rb"><div><span class="rn dm" data-dm="'+r.user_id+'" data-n="'+escapeHtml(r.author_name)+'">'+escapeHtml(r.author_name)+'</span><span class="rt">'+ago(r.created_at)+'</span>'
       +(me && r.user_id === me ? '<button class="rdel" data-act="rdel" data-id="'+r.id+'" data-p="'+p.id+'">Delete</button>' : '')
       +'</div><div class="rx">'+render(r.body)+'</div></div></div>';
   }).join('');
   return '<article class="post" id="p_'+p.id+'">'+avatar(p.author_name)
-    +'<div class="post-main"><div class="post-top"><span class="pname">'+escapeHtml(p.author_name)+'</span>'
+    +'<div class="post-main"><div class="post-top"><span class="pname dm" data-dm="'+p.user_id+'" data-n="'+escapeHtml(p.author_name)+'">'+escapeHtml(p.author_name)+'</span>'
     +(p.sentiment ? '<span class="senti-pill '+p.sentiment+'">'+(p.sentiment==='bull'?'BULL':'BEAR')+'</span>' : '')
     +'<span class="pmeta">· '+ago(p.created_at)+'</span></div>'
     +'<div class="pbody">'+render(p.body)+'</div>'+quoteChips(p)
@@ -413,14 +530,6 @@ function renderChip(){
   const label = tickerFilter ? '$'+tickerFilter : (sentFilter ? (sentFilter==='bull'?'Bulls':'Bears') : '');
   c.className = 'filter-chip' + (label ? ' on' : ''); c.innerHTML = label ? escapeHtml(label)+' &times;' : '';
 }
-function renderRail(){
-  document.getElementById('railHome').className = (!sentFilter && tab==='new' && !tickerFilter) ? 'on' : '';
-  document.getElementById('railTop').className = tab==='top' ? 'on' : '';
-  document.getElementById('railBull').className = sentFilter==='bull' ? 'on' : '';
-  document.getElementById('railBear').className = sentFilter==='bear' ? 'on' : '';
-  document.getElementById('tabNew').className = 'tab' + (tab==='new' ? ' on' : '');
-  document.getElementById('tabTop').className = 'tab' + (tab==='top' ? ' on' : '');
-}
 function renderComposer(){
   const w = document.getElementById('composerWrap');
   if(!signedIn()){
@@ -429,7 +538,7 @@ function renderComposer(){
   }
   const keep = document.getElementById('cText') ? document.getElementById('cText').value : '';
   w.innerHTML = '<div class="composer">'+avatar(myName())+'<div class="comp-main">'
-    +'<textarea id="cText" maxlength="'+MAX_POST+'" rows="2" placeholder="What is your take? Tag a stock like $NVDA"></textarea>'
+    +'<textarea id="cText" maxlength="'+MAX_POST+'" rows="2" placeholder="'+(curGroup ? 'Post to '+escapeHtml(curGroup.name)+'. Tag a stock like $NVDA' : 'What is your take? Tag a stock like $NVDA')+'"></textarea>'
     +'<div class="comp-bar"><div class="senti"><button class="sbtn bull" id="sBull" onclick="pickSent(\'bull\')">Bull</button><button class="sbtn bear" id="sBear" onclick="pickSent(\'bear\')">Bear</button></div>'
     +'<span class="comp-hint">Ctrl+Enter to post</span><span class="count" id="cCount">0/'+MAX_POST+'</span><button class="btn-post" id="cPost" disabled>Post</button></div></div></div>';
   const ta = document.getElementById('cText'); ta.value = keep;
@@ -468,7 +577,7 @@ async function submitPost(){
   const ta = document.getElementById('cText'), body = ta.value.trim();
   if(!body) return;
   busy = true; document.getElementById('cPost').disabled = true;
-  const res = await sbPost('cockpit_posts', { author_name: myName().slice(0,40), body: body.slice(0,MAX_POST), tickers: extractTickers(body), sentiment: composeSent });
+  const res = await sbPost('cockpit_posts', { author_name: myName().slice(0,40), body: body.slice(0,MAX_POST), tickers: extractTickers(body), sentiment: composeSent, group_id: groupId || null });
   busy = false;
   const err = dbError(res);
   if(err || !Array.isArray(res) || !res[0]){ toast(err || 'Could not post. Sign in again and retry.', true); updateCount(); return; }
@@ -526,7 +635,7 @@ function setTab(t){ tab = t; draw(); }
 function setSent(s){ sentFilter = (sentFilter === s) ? null : s; tickerFilter = null; tab = 'new'; draw(); window.scrollTo({top:0,behavior:'smooth'}); }
 function setTicker(t){ tickerFilter = t; sentFilter = null; tab = 'new'; draw(); window.scrollTo({top:0,behavior:'smooth'}); }
 function clearFilter(){ tickerFilter = null; sentFilter = null; draw(); }
-function goHome(){ tickerFilter = null; sentFilter = null; tab = 'new'; draw(); window.scrollTo({top:0,behavior:'smooth'}); }
+function goHome(){ tickerFilter = null; sentFilter = null; tab = 'new'; leaveGroup_(); setView('feed'); loadFeed(); window.scrollTo({top:0,behavior:'smooth'}); }
 function focusComposer(){
   if(!signedIn()){ openSignin(); return; }
   window.scrollTo({top:0,behavior:'smooth'}); const ta = document.getElementById('cText'); if(ta) setTimeout(function(){ ta.focus(); }, 250);
@@ -534,6 +643,8 @@ function focusComposer(){
 
 document.addEventListener('click', function(e){
   const t = e.target.closest('[data-t]'); if(t && !t.closest('.composer')){ e.preventDefault(); setTicker(t.getAttribute('data-t')); return; }
+  const dmEl = e.target.closest('[data-dm]');
+  if(dmEl){ startDm(dmEl.getAttribute('data-dm'), dmEl.getAttribute('data-n')); return; }
   const a = e.target.closest('[data-act]'); if(!a) return;
   const id = a.getAttribute('data-id'), act = a.getAttribute('data-act');
   if(act === 'like') toggleLike(id, a);
@@ -546,6 +657,253 @@ document.addEventListener('click', function(e){
 document.addEventListener('keydown', function(e){
   if(e.key === 'Enter' && e.target && e.target.id && e.target.id.indexOf('ri_') === 0){ e.preventDefault(); sendReply(e.target.getAttribute('data-id')); }
 });
+
+/* ---------- views, groups, messages ---------- */
+function renderRail(){
+  const set = function(id, on){ const e = document.getElementById(id); if(!e) return; e.className = (e.className.replace(/\bon\b/g,'').trim() + (on ? ' on' : '')).trim(); };
+  const feedV = view === 'feed';
+  set('railHome', feedV && !groupId && !sentFilter && tab === 'new' && !tickerFilter);
+  set('railTop', feedV && !groupId && tab === 'top');
+  set('railBull', feedV && sentFilter === 'bull'); set('railBear', feedV && sentFilter === 'bear');
+  set('railGroups', view === 'groups' || !!groupId); set('railMsgs', view === 'messages');
+  set('tbHome', feedV && !groupId); set('tbGroups', view === 'groups' || !!groupId); set('tbMsgs', view === 'messages');
+  document.getElementById('tabNew').className = 'tab' + (tab === 'new' ? ' on' : '');
+  document.getElementById('tabTop').className = 'tab' + (tab === 'top' ? ' on' : '');
+}
+function setView(v){
+  view = v;
+  document.getElementById('feedWrap').style.display = v === 'feed' ? '' : 'none';
+  document.getElementById('groupsView').style.display = v === 'groups' ? '' : 'none';
+  document.getElementById('msgView').style.display = v === 'messages' ? '' : 'none';
+  document.getElementById('tabsBar').style.display = v === 'feed' ? '' : 'none';
+  document.getElementById('feedTitle').textContent = v === 'groups' ? 'Groups' : v === 'messages' ? 'Messages' : (curGroup ? curGroup.name : 'Cockpit');
+  if(v !== 'messages') peer = null;
+  clearInterval(msgTimer); if(v === 'messages') msgTimer = setInterval(pollMsgs, 6000);
+  renderRail();
+  try{ history.replaceState(null, '', location.pathname + (v === 'feed' ? (groupId ? '#g='+groupId : '') : '#'+v)); }catch(e){}
+}
+function leaveGroup_(){ groupId = null; curGroup = null; document.getElementById('groupHead').innerHTML = ''; }
+function gHue(n){ const h = hue((n||'').toLowerCase()); return 'linear-gradient(135deg,hsl('+h+',60%,44%),hsl('+((h+50)%360)+',60%,32%))'; }
+function gAv(g, cls){ return '<div class="'+(cls||'gav')+'" style="background:'+gHue(g.name)+'">'+escapeHtml((g.name||'?').charAt(0).toUpperCase())+'</div>'; }
+function needSignin(el, text){
+  el.innerHTML = '<div class="gate" style="border:1px solid var(--line);border-radius:14px"><div><b>'+text+'</b><span>Join free to continue.</span></div><button class="btn-post" onclick="openSignin()">Join</button></div>';
+}
+
+/* groups */
+async function openGroupsView(){
+  leaveGroup_(); setView('groups');
+  const el = document.getElementById('groupsView');
+  if(!signedIn()){ needSignin(el, 'Groups are for members'); return; }
+  el.innerHTML = '<div class="loading">Loading groups...</div>';
+  await loadGroups(); renderGroupsView();
+}
+async function loadGroups(){
+  const me = myId();
+  const mem = await authGet('cockpit_group_members', 'select=group_id,role&user_id=eq.'+me);
+  const list = Array.isArray(mem) ? mem : [], ids = list.map(function(m){ return m.group_id; }), role = {};
+  list.forEach(function(m){ role[m.group_id] = m.role; });
+  let mine = ids.length ? await authGet('cockpit_groups', 'select=*&id=in.('+ids.join(',')+')&order=created_at.desc') : [];
+  myGroups = Array.isArray(mine) ? mine : []; myGroups.forEach(function(g){ g._role = role[g.id]; });
+  const open = await authGet('cockpit_groups', 'select=*&visibility=eq.open&order=member_count.desc&limit=30');
+  openGroups = (Array.isArray(open) ? open : []).filter(function(g){ return ids.indexOf(g.id) < 0; });
+}
+let newVis = 'private';
+function gcard(g, mine){
+  return '<div class="gcard">'+gAv(g)+'<div class="gi"><div class="gn">'+escapeHtml(g.name)+'<span class="tag2 '+(g.visibility==='open'?'open':'priv')+'">'+(g.visibility==='open'?'OPEN':'PRIVATE')+'</span></div>'
+    +'<div class="gd">'+(g.member_count||1)+' member'+((g.member_count||1)===1?'':'s')+(g.description ? ' · '+escapeHtml(g.description) : '')+'</div></div>'
+    +(mine ? '<button class="btn2 sm g" onclick="openGroup(\''+g.id+'\')">Open</button>' : '<button class="btn2 sm g" onclick="joinGroup(\''+g.code+'\')">Join</button>')+'</div>';
+}
+function renderGroupsView(){
+  const el = document.getElementById('groupsView');
+  el.innerHTML = '<h2>Your groups</h2><div class="lead">Private spaces to post and talk with your club, class or friends. Only members can see what is inside.</div>'
+    +'<div class="row-btns"><button class="btn2 g" onclick="toggleBox(\'createBox\')">Create a group</button><button class="btn2" onclick="toggleBox(\'joinBox\')">Join with a code</button></div>'
+    +'<div class="fbox" id="createBox"><label>Group name</label><input type="text" id="gName" maxlength="50" placeholder="e.g. Penn State Wealth Management">'
+    +'<label>What is it about? (optional)</label><textarea id="gDesc" rows="2" maxlength="200" placeholder="One line about the group"></textarea>'
+    +'<label>Who can join</label><div class="vis"><button type="button" id="visPriv" class="on" onclick="pickVis(\'private\')"><b>Private</b><span>Only people with your code can join and see it.</span></button>'
+    +'<button type="button" id="visOpen" onclick="pickVis(\'open\')"><b>Open</b><span>Listed for everyone. Anyone can join.</span></button></div>'
+    +'<div class="row-btns" style="margin:14px 0 0"><button class="btn2 g" onclick="submitGroup()">Create group</button></div></div>'
+    +'<div class="fbox" id="joinBox"><label>Group code</label><input type="text" id="gCode" maxlength="6" placeholder="6 characters" style="text-transform:uppercase;letter-spacing:3px;font-family:var(--sp-font-mono,monospace)" onkeydown="if(event.key===\'Enter\')joinFromBox()">'
+    +'<div class="row-btns" style="margin:14px 0 0"><button class="btn2 g" onclick="joinFromBox()">Join</button></div></div>'
+    +(myGroups.length ? myGroups.map(function(g){ return gcard(g, true); }).join('') : '<div class="empty" style="padding:26px 10px"><b>No groups yet</b>Create one, or join an open group below.</div>')
+    +'<div class="sec">Discover open groups</div>'
+    +(openGroups.length ? openGroups.map(function(g){ return gcard(g, false); }).join('') : '<div class="lead">No open groups yet. Be the first to start one.</div>');
+  newVis = 'private';
+}
+function toggleBox(id){ const b = document.getElementById(id); b.classList.toggle('open'); const o = id === 'createBox' ? 'joinBox' : 'createBox'; document.getElementById(o).classList.remove('open'); }
+function pickVis(v){ newVis = v; document.getElementById('visPriv').className = v === 'private' ? 'on' : ''; document.getElementById('visOpen').className = v === 'open' ? 'on' : ''; }
+async function submitGroup(){
+  const name = document.getElementById('gName').value.trim(), desc = document.getElementById('gDesc').value.trim();
+  if(name.length < 2){ toast('Give your group a name', true); return; }
+  const res = await rpc('cockpit_create_group', { p_name: name, p_desc: desc, p_vis: newVis, p_display: myName().slice(0,40) });
+  if(!res || !res.id){ toast(errText(res, 'Could not create the group'), true); return; }
+  res._role = 'owner'; myGroups.unshift(res); toast('Group created. Share the code '+res.code); openGroup(res.id);
+}
+async function joinGroup(code){
+  const res = await rpc('cockpit_join_group', { p_code: code, p_display: myName().slice(0,40) });
+  if(!res || !res.id){ toast(errText(res, 'Could not join that group'), true); return; }
+  toast('Joined '+res.name); await loadGroups(); openGroup(res.id);
+}
+function joinFromBox(){ const c = document.getElementById('gCode').value.trim(); if(c.length < 4){ toast('Enter the group code', true); return; } joinGroup(c); }
+async function openGroup(id){
+  let g = myGroups.concat(openGroups).find(function(x){ return x.id === id; });
+  if(!g){ await loadGroups(); g = myGroups.find(function(x){ return x.id === id; }); }
+  if(!g){ toast('Could not open that group', true); return; }
+  groupId = id; curGroup = g; tab = 'new'; tickerFilter = null; sentFilter = null; posts = []; 
+  setView('feed'); renderGroupHead(); renderComposer();
+  document.getElementById('feed').innerHTML = '<div class="skel"></div><div class="skel"></div>';
+  loadFeed(); window.scrollTo({top:0});
+}
+function renderGroupHead(){
+  const h = document.getElementById('groupHead'); if(!curGroup){ h.innerHTML = ''; return; }
+  const g = curGroup, owner = g._role === 'owner' || g.created_by === myId();
+  h.innerHTML = '<div class="ghead"><button class="back" onclick="openGroupsView()">&larr; All groups</button><div class="gt">'+gAv(g)+'<div><h3>'+escapeHtml(g.name)+'</h3><p>'+escapeHtml(g.description || (g.visibility==='open' ? 'Open group' : 'Private group'))+'</p></div></div>'
+    +'<div class="gmeta"><span class="tag2 '+(g.visibility==='open'?'open':'priv')+'">'+(g.visibility==='open'?'OPEN':'PRIVATE')+'</span>'
+    +'<span class="codepill" title="Tap to copy" onclick="copyCode(\''+g.code+'\')">'+g.code+'</span><span class="pmeta">invite code</span>'
+    +'<button class="btn2 sm" onclick="toggleMembers()">'+(g.member_count||1)+' members</button>'
+    +(owner ? '<button class="btn2 sm r" onclick="deleteGroup()">Delete group</button>' : '<button class="btn2 sm r" onclick="leaveGroupAct()">Leave</button>')
+    +'</div><div class="members" id="membersBox"></div></div>';
+}
+function copyCode(c){ try{ navigator.clipboard.writeText(c); toast('Code copied: '+c); }catch(e){ toast('Code: '+c); } }
+async function toggleMembers(){
+  const box = document.getElementById('membersBox'); if(box.classList.contains('open')){ box.classList.remove('open'); return; }
+  box.classList.add('open'); box.innerHTML = '<div class="lead">Loading...</div>';
+  const m = await authGet('cockpit_group_members', 'select=*&group_id=eq.'+groupId+'&order=joined_at.asc');
+  groupMembers = Array.isArray(m) ? m : []; const me = myId(), owner = curGroup && curGroup.created_by === me;
+  box.innerHTML = groupMembers.map(function(x){
+    return '<div class="mem">'+avatar(x.display_name,'sm')+'<span class="rn '+(x.user_id!==me?'dm':'')+'" '+(x.user_id!==me?'data-dm="'+x.user_id+'" data-n="'+escapeHtml(x.display_name)+'"':'')+'>'+escapeHtml(x.display_name)+(x.user_id===me?' (you)':'')+'</span>'
+      +(x.role==='owner'?'<span class="tag2 open">OWNER</span>':'')
+      +(owner && x.user_id!==me ? '<button class="btn2 sm r mrm" onclick="removeMember(\''+x.user_id+'\')">Remove</button>' : '')+'</div>';
+  }).join('');
+}
+async function removeMember(uid){
+  if(!confirm('Remove this person from the group?')) return;
+  const ok = await sbDelete('cockpit_group_members', 'group_id=eq.'+groupId+'&user_id=eq.'+uid);
+  if(!ok){ toast('Could not remove', true); return; }
+  curGroup.member_count = Math.max(1, (curGroup.member_count||1)-1); renderGroupHead(); toggleMembers(); toast('Removed');
+}
+async function leaveGroupAct(){
+  if(!confirm('Leave this group?')) return;
+  const ok = await sbDelete('cockpit_group_members', 'group_id=eq.'+groupId+'&user_id=eq.'+myId());
+  if(!ok){ toast('Could not leave', true); return; }
+  toast('You left the group'); openGroupsView();
+}
+async function deleteGroup(){
+  if(!confirm('Delete this group and everything posted in it? This cannot be undone.')) return;
+  const ok = await sbDelete('cockpit_groups', 'id=eq.'+groupId);
+  if(!ok){ toast('Could not delete', true); return; }
+  toast('Group deleted'); openGroupsView();
+}
+
+/* messages */
+function convs(){
+  const me = myId(), map = {};
+  dms.forEach(function(m){
+    const mineMsg = m.sender_id === me, pid = mineMsg ? m.recipient_id : m.sender_id;
+    const c = map[pid] = map[pid] || { id: pid, name: '', last: null, unread: 0 };
+    c.name = mineMsg ? m.recipient_name : m.sender_name; c.last = m;
+    if(!mineMsg && !m.read_at) c.unread++;
+  });
+  return Object.keys(map).map(function(k){ return map[k]; }).sort(function(a,b){ return new Date(b.last.created_at) - new Date(a.last.created_at); });
+}
+function unreadTotal(){ const me = myId(); return dms.filter(function(m){ return m.recipient_id === me && !m.read_at; }).length; }
+function updateBadge(){
+  const n = unreadTotal();
+  ['badgeRail','badgeTab'].forEach(function(id){ const e = document.getElementById(id); if(!e) return; e.textContent = n > 9 ? '9+' : n; e.className = 'badge-dot' + (n ? ' on' : ''); });
+}
+async function loadInbox(){
+  if(!signedIn()) return;
+  const r = await Promise.all([ authGet('cockpit_dms', 'select=*&order=created_at.asc&limit=500'), authGet('cockpit_blocks', 'select=blocked_id'), authGet('cockpit_profiles', 'select=allow_dms&limit=1') ]);
+  dms = Array.isArray(r[0]) ? r[0] : []; blocks = (Array.isArray(r[1]) ? r[1] : []).map(function(x){ return x.blocked_id; });
+  allowDms = !!(Array.isArray(r[2]) && r[2][0] && r[2][0].allow_dms); updateBadge();
+}
+async function openMessagesView(){
+  leaveGroup_(); setView('messages');
+  const el = document.getElementById('msgView');
+  if(!signedIn()){ needSignin(el, 'Messages are for members'); return; }
+  el.innerHTML = '<div class="loading">Loading...</div>';
+  await loadInbox(); renderMsgView();
+}
+function renderMsgView(){
+  const el = document.getElementById('msgView'); if(view !== 'messages') return;
+  if(peer){ renderThread(); return; }
+  const list = convs();
+  el.innerHTML = '<div class="setrow"><div class="st"><b>Messages from anyone</b>'+(allowDms ? 'Anyone can message you. Turn off to limit it to people who share a group with you.' : 'Only people who share a group with you can start a conversation. Turn on to hear from anyone.')+'</div><button class="sw'+(allowDms?' on':'')+'" onclick="toggleAllow()" aria-label="Allow messages from anyone"></button></div>'
+    +(list.length ? list.map(function(c){
+        const me = myId(), preview = (c.last.sender_id === me ? 'You: ' : '') + c.last.body;
+        return '<div class="conv'+(c.unread?' unr':'')+'" onclick="openThread(\''+c.id+'\')">'+avatar(c.name)+'<div class="ci"><div class="cn"><span>'+escapeHtml(c.name)+'</span><small>'+ago(c.last.created_at)+'</small></div><div class="cm">'+escapeHtml(preview)+'</div></div>'+(c.unread?'<span class="unr-dot"></span>':'')+'</div>';
+      }).join('')
+      : '<div class="empty"><b>No messages yet</b>Tap a name on a post, or a member in one of your groups, to start a conversation.</div>');
+}
+async function toggleAllow(){
+  const next = !allowDms; allowDms = next; renderMsgView();
+  const ok = await upsertProfile(next);
+  if(!ok){ allowDms = !next; renderMsgView(); toast('Could not save that setting', true); }
+}
+function openThread(id){
+  const c = convs().find(function(x){ return x.id === id; }); if(!c) return;
+  peer = { id: c.id, name: c.name }; renderThread(); markRead();
+}
+async function startDm(uid, name){
+  if(!uid || uid === myId()){ return; }
+  if(!signedIn()){ openSignin(); return; }
+  leaveGroup_(); setView('messages');
+  document.getElementById('msgView').innerHTML = '<div class="loading">Loading...</div>';
+  await loadInbox();
+  peer = { id: uid, name: (name || 'Member').slice(0,40) }; renderThread(); markRead();
+  window.scrollTo({top:0});
+}
+function threadMsgs(){ const me = myId(); return dms.filter(function(m){ return (m.sender_id === me && m.recipient_id === peer.id) || (m.sender_id === peer.id && m.recipient_id === me); }); }
+function msgsHtml(){
+  const me = myId(), list = threadMsgs();
+  if(!list.length) return '<div class="empty" style="margin:auto"><b>Say hello</b>This is the start of your conversation with '+escapeHtml(peer.name)+'.</div>';
+  return list.map(function(m){
+    const mine = m.sender_id === me;
+    return '<div class="bub '+(mine?'me':'them')+'">'+escapeHtml(m.body)+'<small>'+ago(m.created_at)+(!mine?'<button class="rp" onclick="reportDm(\''+m.id+'\')">Report</button>':'')+'</small></div>';
+  }).join('');
+}
+function renderThread(){
+  const el = document.getElementById('msgView'), blocked = blocks.indexOf(peer.id) >= 0;
+  el.innerHTML = '<button class="back" onclick="peer=null;renderMsgView();updateBadge()">&larr; All messages</button>'
+    +'<div class="thead">'+avatar(peer.name)+'<div class="tn">'+escapeHtml(peer.name)+'</div>'
+    +(blocked ? '<button class="btn2 sm" onclick="toggleBlock()">Unblock</button>' : '<button class="btn2 sm r" onclick="toggleBlock()">Block</button>')+'</div>'
+    +(blocked ? '<div class="notice">You blocked this person. They cannot message you.</div>' : '')
+    +'<div class="msgs" id="msgs">'+msgsHtml()+'</div><div id="dmNotice"></div>'
+    +(blocked ? '' : '<div class="msgform"><input type="text" id="dmInput" maxlength="1000" placeholder="Write a message" onkeydown="if(event.key===\'Enter\')sendDm()"><button class="btn-post" onclick="sendDm()">Send</button></div>');
+  const m = document.getElementById('msgs'); m.scrollTop = m.scrollHeight;
+  const i = document.getElementById('dmInput'); if(i) i.focus();
+}
+async function sendDm(){
+  const inp = document.getElementById('dmInput'), body = inp.value.trim(); if(!body || !peer) return;
+  inp.disabled = true;
+  const res = await sbPost('cockpit_dms', { recipient_id: peer.id, recipient_name: peer.name.slice(0,40), sender_name: myName().slice(0,40), body: body.slice(0,1000) });
+  inp.disabled = false;
+  if(Array.isArray(res) && res[0]){ dms.push(res[0]); inp.value = ''; const m = document.getElementById('msgs'); m.innerHTML = msgsHtml(); m.scrollTop = m.scrollHeight; document.getElementById('dmNotice').innerHTML = ''; inp.focus(); return; }
+  const t = errText(res, 'Could not send. Try again.');
+  document.getElementById('dmNotice').innerHTML = '<div class="notice">'+(t === 'not allowed' ? 'You can message someone if you share a group with them, or if they allow messages from anyone.' : escapeHtml(t))+'</div>';
+}
+async function markRead(){
+  if(!peer) return; const me = myId(), unread = threadMsgs().filter(function(m){ return m.recipient_id === me && !m.read_at; });
+  if(!unread.length) return;
+  const now = new Date().toISOString(); unread.forEach(function(m){ m.read_at = now; }); updateBadge();
+  await sbPatch('cockpit_dms', 'recipient_id=eq.'+me+'&sender_id=eq.'+peer.id+'&read_at=is.null', { read_at: now });
+}
+async function toggleBlock(){
+  const blocked = blocks.indexOf(peer.id) >= 0;
+  if(!blocked && !confirm('Block '+peer.name+'? They will not be able to message you.')) return;
+  if(blocked){ const ok = await sbDelete('cockpit_blocks', 'blocked_id=eq.'+peer.id+'&user_id=eq.'+myId()); if(ok) blocks = blocks.filter(function(b){ return b !== peer.id; }); else { toast('Could not unblock', true); return; } }
+  else { const r = await sbPost('cockpit_blocks', { blocked_id: peer.id }); if(Array.isArray(r) && r[0]) blocks.push(peer.id); else { toast('Could not block', true); return; } }
+  renderThread(); toast(blocked ? 'Unblocked' : 'Blocked');
+}
+async function reportDm(id){
+  const r = await sbPost('cockpit_dm_reports', { message_id: id, reason: 'user report' });
+  if(Array.isArray(r) && r[0]) toast('Reported. We will review it.'); else if(r && /duplicate|unique/i.test(JSON.stringify(r))) toast('You already reported this'); else toast('Could not send report', true);
+}
+async function pollMsgs(){
+  if(view !== 'messages' || document.visibilityState !== 'visible') return;
+  const before = dms.length; await loadInbox();
+  if(peer){ const m = document.getElementById('msgs'); if(m && dms.length !== before){ const atEnd = m.scrollHeight - m.scrollTop - m.clientHeight < 80; m.innerHTML = msgsHtml(); if(atEnd) m.scrollTop = m.scrollHeight; markRead(); } }
+  else if(!document.activeElement.matches('button.sw')) renderMsgView();
+}
 
 /* ---------- auth ---------- */
 let siMode = 'in';
@@ -560,7 +918,12 @@ function setSiMode(m){
   document.getElementById('siTabUp').className = 'sitab' + (m==='up' ? ' on' : '');
 }
 function doSiSubmit(){ return siMode === 'up' ? doSignup() : doSignin(); }
-function afterAuth(){ updateAuthUI(); renderComposer(); draw(); }
+function afterAuth(){
+  updateAuthUI(); renderComposer();
+  if(!signedIn()){ dms = []; blocks = []; myGroups = []; updateBadge(); if(view !== 'feed' || groupId){ goHome(); return; } }
+  if(view === 'feed') loadFeed(); else if(view === 'groups') openGroupsView(); else if(view === 'messages') openMessagesView();
+  if(signedIn()) loadInbox();
+}
 async function doSignup(){
   const name = document.getElementById('siName').value.trim(), email = document.getElementById('siEmail').value.trim(), pass = document.getElementById('siPass').value;
   if(!name || !email || pass.length < 6){ showSiMsg('Add a display name, email, and a password with at least 6 characters.', false); return; }
@@ -615,6 +978,15 @@ function updateAuthUI(){
 }
 
 updateAuthUI(); renderComposer(); loadFeed();
+(function(){
+  const h = location.hash || '';
+  if(!signedIn()) return;
+  loadInbox();
+  if(h === '#groups') openGroupsView();
+  else if(h === '#messages') openMessagesView();
+  else if(h.indexOf('#g=') === 0){ const id = h.slice(3); loadGroups().then(function(){ if(myGroups.some(function(g){ return g.id === id; })) openGroup(id); }); }
+})();
+setInterval(function(){ if(signedIn() && document.visibilityState === 'visible') loadInbox(); }, 45000);
 setInterval(function(){ if(document.visibilityState === 'visible' && !document.activeElement.matches('input,textarea')) loadFeed(); }, 60000);
 </script>
 <script src="/nav-fix.js"></script>
