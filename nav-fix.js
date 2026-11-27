@@ -60,7 +60,7 @@
   }
 
   // Core links stay in the bar; the rest live under "More"
-  var MORE = ['/budget','/budget-workspace.html#supply','/business'];
+  var MORE = ['/cockpit.html','/budget-workspace.html#supply','/business'];
   function linkHtml(l){
     var active = same(l.href);
     return '<a href="'+l.href+'"'+(active?' aria-current="page"':'')+' style="font-size:14px;font-weight:'+(active?'600':'500')+';color:'+(active?ac:tc)+';text-decoration:'+(active?'underline':'none')+';text-decoration-color:'+accent+';padding:0 12px;transition:color 0.15s;white-space:nowrap">'+l.label+'</a>';
