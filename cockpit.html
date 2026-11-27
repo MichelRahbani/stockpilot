@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="icon" type="image/jpeg" href="https://mystockspilot.com/logo.jpg"/>
+<link rel="apple-touch-icon" href="https://mystockspilot.com/logo.jpg"/>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Cockpit | StockPilot</title>
+<meta name="description" content="The StockPilot Cockpit: post your take on any stock, debate it, and see who is actually winning."/>
+<script src="/bullpen-shared.js"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TZLSC36Y26"></script>
+<script>
+  window.dataLayer=window.dataLayer||[];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js',new Date());
+  gtag('config','G-TZLSC36Y26');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:ital,wght@0,400..800;1,400..600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="/sp-design.css"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0a;--bg2:#101418;--bg3:#161b22;--line:rgba(255,255,255,0.08);
+  --text:#e9eef4;--muted:#7d8896;--green:#2ecc9a;--green-d:#1a9e6e;--red:#ff4d5e;--gold:#ffd24a;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--sp-font-sans,'Schibsted Grotesk',system-ui,sans-serif);min-height:100vh;padding-top:56px;-webkit-font-smoothing:antialiased}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(10,10,10,0.97);border-bottom:1px solid var(--line)}
+nav .logo{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-weight:700;font-size:17px}
+nav .sp-mark{height:26px;width:26px}
+nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spacing:1.5px;color:var(--green);border:1px solid rgba(46,204,154,0.4);padding:2px 7px;border-radius:3px;margin-left:10px}
+.nav-btn{background:transparent;border:1px solid rgba(255,255,255,0.15);color:#fff;font:600 13px var(--sp-font-sans,sans-serif);padding:7px 14px;border-radius:4px;cursor:pointer}
+.nav-btn.red{background:#e03131;border-color:#e03131}
+#navUser{font-size:13px;color:var(--green);margin-right:6px}
+
+.shell{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:200px minmax(0,1fr) 300px;gap:0;min-height:calc(100vh - 56px)}
+.rail{position:sticky;top:56px;align-self:start;padding:20px 14px;height:calc(100vh - 56px)}
+.rail h3{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin:0 0 10px 12px;font-weight:600}
+.rail button{display:flex;align-items:center;gap:12px;width:100%;background:none;border:0;color:var(--muted);font:600 16px var(--sp-font-sans,sans-serif);padding:11px 12px;border-radius:999px;cursor:pointer;text-align:left}
+.rail button:hover{background:rgba(255,255,255,0.05);color:var(--text)}
+.rail button.on{color:#fff}
+.rail button.on svg{stroke:var(--green)}
+.rail svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.rail .postbtn{margin-top:18px;justify-content:center;background:var(--green);color:#04110b;padding:13px;font-size:15px;font-weight:800}
+.rail .postbtn:hover{background:#3ee0ab;color:#04110b}
+
+.feed{border-left:1px solid var(--line);border-right:1px solid var(--line);min-width:0}
+.feed-head{position:sticky;top:56px;z-index:20;background:rgba(10,10,10,0.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.feed-title{padding:14px 18px 8px;font-size:19px;font-weight:800;display:flex;align-items:center;gap:10px}
+.filter-chip{display:none;align-items:center;gap:6px;background:rgba(46,204,154,0.12);color:var(--green);border:1px solid rgba(46,204,154,0.35);padding:3px 6px 3px 10px;border-radius:999px;font:600 13px var(--sp-font-mono,monospace);cursor:pointer}
+.filter-chip.on{display:inline-flex}
+.tabs{display:flex}
+.tab{flex:1;text-align:center;padding:13px 0;color:var(--muted);font-weight:600;font-size:14px;cursor:pointer;position:relative;background:none;border:0;font-family:inherit}
+.tab:hover{background:rgba(255,255,255,0.03)}
+.tab.on{color:#fff}
+.tab.on::after{content:"";position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:56px;height:4px;border-radius:4px;background:var(--green)}
+
+.composer{display:flex;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.composer textarea{width:100%;background:transparent;border:0;outline:0;resize:none;color:var(--text);font:400 18px/1.4 var(--sp-font-sans,sans-serif);min-height:56px;padding-top:6px}
+.composer textarea::placeholder{color:#5d6773}
+.comp-main{flex:1;min-width:0}
+.comp-bar{display:flex;align-items:center;gap:8px;border-top:1px solid var(--line);padding-top:10px;margin-top:6px}
+.senti{display:flex;gap:6px}
+.sbtn{background:none;border:1px solid var(--line);color:var(--muted);font:700 12px var(--sp-font-sans,sans-serif);padding:6px 12px;border-radius:999px;cursor:pointer}
+.sbtn.bull.on{background:rgba(46,204,154,0.14);color:var(--green);border-color:rgba(46,204,154,0.5)}
+.sbtn.bear.on{background:rgba(255,77,94,0.14);color:var(--red);border-color:rgba(255,77,94,0.5)}
+.comp-hint{font-size:12px;color:var(--muted);flex:1;padding-left:6px}
+.count{font:500 12px var(--sp-font-mono,monospace);color:var(--muted)}
+.count.warn{color:var(--gold)}.count.bad{color:var(--red)}
+.btn-post{background:var(--green);color:#04110b;border:0;font:800 14px var(--sp-font-sans,sans-serif);padding:9px 20px;border-radius:999px;cursor:pointer}
+.btn-post:disabled{opacity:.4;cursor:default}
+.gate{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);background:linear-gradient(90deg,rgba(46,204,154,0.08),transparent)}
+.gate b{display:block;font-size:16px}.gate span{font-size:13px;color:var(--muted)}
+
+.av{flex:none;width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.av.sm{width:32px;height:32px;font-size:13px}
+.av.sp{background:#0d1117;border:1.5px solid var(--green);padding:6px}
+.av.sp img{width:100%;height:100%}
+
+.post{display:flex;gap:12px;padding:16px 18px;border-bottom:1px solid var(--line);transition:background .12s}
+.post:hover{background:rgba(255,255,255,0.018)}
+.post.pinned{background:linear-gradient(180deg,rgba(46,204,154,0.06),transparent)}
+.post-main{flex:1;min-width:0}
+.post-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:15px}
+.pname{font-weight:800}
+.ver{width:16px;height:16px;fill:var(--green);flex:none}
+.pmeta{color:var(--muted);font-size:14px}
+.pin-tag{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px;margin-bottom:4px;font-weight:600}
+.senti-pill{font:800 10px var(--sp-font-mono,monospace);letter-spacing:.8px;padding:2px 7px;border-radius:4px;margin-left:2px}
+.senti-pill.bull{background:rgba(46,204,154,0.14);color:var(--green)}
+.senti-pill.bear{background:rgba(255,77,94,0.14);color:var(--red)}
+.pbody{font-size:16px;line-height:1.45;margin:4px 0 10px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere}
+.tk{color:var(--green);font-weight:700;cursor:pointer;font-family:var(--sp-font-mono,monospace);font-size:.94em}
+.tk:hover{text-decoration:underline}
+.quotes{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.qchip{display:flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:6px 10px;cursor:pointer;font:600 12px var(--sp-font-mono,monospace)}
+.qchip:hover{border-color:rgba(46,204,154,0.4)}
+.qchip .px{color:var(--muted);font-weight:500}
+.up{color:var(--green)}.dn{color:var(--red)}
+.actions{display:flex;gap:6px;margin-left:-8px;max-width:420px}
+.act{display:flex;align-items:center;gap:7px;background:none;border:0;color:var(--muted);font:500 13px var(--sp-font-sans,sans-serif);padding:7px 10px;border-radius:999px;cursor:pointer}
+.act svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.act:hover{background:rgba(255,255,255,0.06);color:var(--text)}
+.act.like:hover,.act.liked{color:#ff4d8d}
+.act.liked svg{fill:#ff4d8d;stroke:#ff4d8d}
+.act.rep:hover{color:var(--green)}
+.act.rep.open{color:var(--green)}
+.act.del:hover{color:var(--red)}
+.act.push{margin-left:auto}
+.pop{animation:pop .28s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+.thread{margin-top:6px;border-top:1px solid var(--line);padding-top:12px;display:none}
+.thread.open{display:block}
+.reply{display:flex;gap:10px;margin-bottom:12px}
+.reply .rb{flex:1;min-width:0}
+.reply .rn{font-weight:700;font-size:14px}
+.reply .rt{font-size:13px;color:var(--muted);margin-left:6px;font-weight:400}
+.reply .rx{font-size:14.5px;line-height:1.4;overflow-wrap:anywhere;white-space:pre-wrap}
+.rdel{background:none;border:0;color:var(--muted);font-size:12px;cursor:pointer;margin-left:8px}
+.rdel:hover{color:var(--red)}
+.rform{display:flex;gap:8px;align-items:center}
+.rform input{flex:1;background:var(--bg2);border:1px solid var(--line);border-radius:999px;padding:9px 14px;color:var(--text);font:400 14px var(--sp-font-sans,sans-serif);outline:0}
+.rform input:focus{border-color:rgba(46,204,154,0.5)}
+.rform button{background:var(--green);color:#04110b;border:0;font:800 13px var(--sp-font-sans,sans-serif);padding:9px 16px;border-radius:999px;cursor:pointer}
+
+.side{padding:16px 16px 40px;position:sticky;top:56px;align-self:start;height:calc(100vh - 56px);overflow:auto}
+.sbox{background:var(--bg2);border:1px solid var(--line);border-radius:16px;margin-bottom:14px;overflow:hidden}
+.sbox h4{font-size:19px;font-weight:800;padding:14px 16px 8px}
+.trend{display:block;width:100%;text-align:left;background:none;border:0;color:var(--text);padding:10px 16px;cursor:pointer;font-family:inherit}
+.trend:hover{background:rgba(255,255,255,0.04)}
+.trend small{display:block;color:var(--muted);font-size:12px}
+.trend b{font:700 15px var(--sp-font-mono,monospace);color:var(--green)}
+.sbox p{padding:4px 16px 14px;font-size:13px;color:var(--muted);line-height:1.5}
+.sbox a{color:var(--green);text-decoration:none}
+.empty,.loading{padding:50px 24px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--text);font-size:18px;margin-bottom:6px}
+.skel{height:92px;margin:16px 18px;border-radius:12px;background:linear-gradient(90deg,#12161b,#1a2028,#12161b);background-size:200% 100%;animation:sh 1.2s infinite}
+@keyframes sh{to{background-position:-200% 0}}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#1c232c;border:1px solid var(--line);padding:11px 18px;border-radius:999px;font-size:14px;z-index:9999;display:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.toast.err{border-color:rgba(255,77,94,.5);color:#ffb3bb}
+
+.fab{display:none;position:fixed;right:18px;bottom:18px;width:56px;height:56px;border-radius:50%;background:var(--green);color:#04110b;border:0;z-index:90;box-shadow:0 8px 24px rgba(0,0,0,.5);cursor:pointer;align-items:center;justify-content:center}
+.fab svg{width:26px;height:26px;stroke:#04110b;fill:none;stroke-width:2.4;stroke-linecap:round}
+
+@media(max-width:1020px){.shell{grid-template-columns:72px minmax(0,1fr)}.side{display:none}.rail button span{display:none}.rail h3{display:none}.rail button{justify-content:center;padding:12px}.rail .postbtn{display:none}}
+@media(max-width:640px){
+  nav{padding:0 14px}
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .feed{border:0}
+  .composer{padding:12px}.post{padding:14px 12px}
+  .comp-hint{display:none}
+  .fab{display:flex}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="/" class="logo"><img src="/logo-mark-256.png" alt="StockPilot" class="sp-mark"/>StockPilot</a>
+    <span class="badge">COCKPIT</span>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center">
+    <span id="navUser"></span>
+    <button id="navSignIn" class="nav-btn red" onclick="openSignin()">Sign In</button>
+    <button id="navSignOut" class="nav-btn" style="display:none" onclick="signOutTrade()">Sign Out</button>
+  </div>
+</nav>
+
+<div class="shell">
+  <aside class="rail">
+    <button id="railHome" class="on" onclick="goHome()"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><span>Home</span></button>
+    <button id="railTop" onclick="setTab('top');window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg><span>Top</span></button>
+    <button id="railBull" onclick="setSent('bull')"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg><span>Bulls</span></button>
+    <button id="railBear" onclick="setSent('bear')"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12l7 7 7-7"/></svg><span>Bears</span></button>
+    <button class="postbtn" onclick="focusComposer()"><span>Post</span></button>
+  </aside>
+
+  <main class="feed">
+    <div class="feed-head">
+      <div class="feed-title">Cockpit <span id="filterChip" class="filter-chip" onclick="clearFilter()"></span></div>
+      <div class="tabs">
+        <button class="tab on" id="tabNew" onclick="setTab('new')">Latest</button>
+        <button class="tab" id="tabTop" onclick="setTab('top')">Top</button>
+      </div>
+    </div>
+
+    <div id="composerWrap"></div>
+    <div id="feed"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+  </main>
+
+  <aside class="side">
+    <div class="sbox">
+      <h4>Trending tickers</h4>
+      <div id="trending"><p>Nothing yet. Post a take with a $TICKER.</p></div>
+    </div>
+    <div class="sbox">
+      <h4>House rules</h4>
+      <p>Debate the stock, not the person. No spam, no pump-and-dump promos, no selling signals. Posts are opinions from students and learners, not investment advice. Report anything off and three reports hides it automatically.</p>
+    </div>
+    <div class="sbox">
+      <h4>Prove it</h4>
+      <p>Talk is cheap. Back your take in <a href="/bullpen.html">Bullpen</a> or the <a href="/trade.html">Virtual Market</a> and see how it plays out.</p>
+    </div>
+  </aside>
+</div>
+
+<button class="fab" onclick="focusComposer()" aria-label="New post"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+<div class="toast" id="toast"></div>
+
+<!-- SIGN IN -->
+<div id="signinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#0d1117;border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:30px;width:90%;max-width:400px;position:relative">
+    <button onclick="closeSignin()" style="position:absolute;top:14px;right:16px;background:transparent;border:none;color:rgba(255,255,255,0.45);font-size:22px;cursor:pointer">&times;</button>
+    <div style="font-size:26px;font-weight:800;margin-bottom:4px">Join the Cockpit</div>
+    <div style="font-size:14px;color:var(--muted);margin-bottom:20px">One free StockPilot account works everywhere, including the Virtual Market and Bullpen.</div>
+    <div style="display:flex;gap:8px;margin-bottom:14px">
+      <button type="button" id="siTabIn" onclick="setSiMode('in')" class="sitab on">Sign In</button>
+      <button type="button" id="siTabUp" onclick="setSiMode('up')" class="sitab">Create Account</button>
+    </div>
+    <div id="signinMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px"></div>
+    <div id="siNameField" style="display:none">
+      <label class="silab">Display name</label>
+      <input id="siName" type="text" maxlength="30" placeholder="How you will appear" class="siinp"/>
+    </div>
+    <label class="silab">Email</label>
+    <input id="siEmail" type="email" placeholder="your@email.com" class="siinp"/>
+    <label class="silab">Password</label>
+    <input id="siPass" type="password" placeholder="Your password" class="siinp" onkeydown="if(event.key==='Enter')doSiSubmit()"/>
+    <button id="siSubmitBtn" onclick="doSiSubmit()" style="width:100%;padding:13px;background:var(--green);color:#04110b;border:none;border-radius:999px;font:800 15px var(--sp-font-sans,sans-serif);cursor:pointer;margin:6px 0 10px">Sign In</button>
+    <div style="text-align:center"><span onclick="doForgot()" style="font-size:12px;color:rgba(255,255,255,0.35);cursor:pointer;text-decoration:underline">Forgot password?</span></div>
+  </div>
+</div>
+<style>
+.sitab{flex:1;padding:9px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.55);font:600 13px var(--sp-font-sans,sans-serif);cursor:pointer}
+.sitab.on{border-color:var(--green);background:rgba(46,204,154,0.1);color:var(--green)}
+.silab{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+.siinp{width:100%;background:#161b22;border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:11px 14px;color:#fff;font:400 14px var(--sp-font-sans,sans-serif);outline:none;margin-bottom:14px}
+.siinp:focus{border-color:var(--green)}
+</style>
+
+<script>
+const BACKEND = (location.hostname === 'mystockspilot.com' || location.hostname === 'michelrahbani.github.io') ? 'https://stockpilot-production-c94f.up.railway.app' : location.origin;
+const SUPA_URL = SUPABASE_URL, SUPA_KEY = SUPABASE_KEY;
+const MAX_POST = 500, MAX_REPLY = 300;
+
+let posts = [], likesBy = {}, repliesBy = {}, quoteCache = {};
+let tab = 'new', tickerFilter = null, sentFilter = null, composeSent = null, loaded = false;
+const openThreads = new Set();
+
+/* ---------- helpers ---------- */
+function myToken(){ const t = localStorage.getItem('supabase_token'); return (t && !isTokenExpired(t)) ? t : null; }
+function myId(){
+  const t = myToken(); if(!t) return null;
+  try{ return JSON.parse(atob(t.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).sub; }catch(e){ return null; }
+}
+function myName(){ return (localStorage.getItem('supabase_name') || '').trim() || (localStorage.getItem('supabase_email')||'player').split('@')[0]; }
+function signedIn(){ return !!myId(); }
+function toast(msg, err){
+  const t = document.getElementById('toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); t.style.display = 'block';
+  clearTimeout(toast._t); toast._t = setTimeout(function(){ t.style.display = 'none'; }, 2600);
+}
+function hue(s){ let h = 0; for(let i=0;i<s.length;i++) h = (h*31 + s.charCodeAt(i)) % 360; return h; }
+function avatar(name, cls){
+  const n = (name||'?').trim(); const h = hue(n.toLowerCase());
+  return '<div class="av '+(cls||'')+'" style="background:linear-gradient(135deg,hsl('+h+',62%,46%),hsl('+((h+40)%360)+',62%,34%))">'+escapeHtml(n.charAt(0).toUpperCase())+'</div>';
+}
+function ago(iso){
+  const s = Math.max(1, Math.floor((Date.now() - new Date(iso).getTime())/1000));
+  if(s < 60) return s+'s'; if(s < 3600) return Math.floor(s/60)+'m'; if(s < 86400) return Math.floor(s/3600)+'h';
+  if(s < 604800) return Math.floor(s/86400)+'d';
+  return new Date(iso).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+}
+const TK_RE = /\$([A-Za-z]{1,5}(?:[.\-][A-Za-z])?)(?![A-Za-z])/g;
+function extractTickers(text){
+  const out = []; let m; TK_RE.lastIndex = 0;
+  while((m = TK_RE.exec(text)) && out.length < 5){ const t = m[1].toUpperCase(); if(out.indexOf(t) < 0) out.push(t); }
+  return out;
+}
+function render(text){
+  return escapeHtml(text).replace(TK_RE, function(_, t){
+    const T = t.toUpperCase();
+    return '<span class="tk" data-t="'+T+'">$'+T+'</span>';
+  });
+}
+const I = {
+  heart:'<svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.6-9.2C1 8.6 2.9 5 6.3 5c2 0 3.6 1.1 4.4 2.6h2.6C14.1 6.1 15.7 5 17.7 5c3.4 0 5.3 3.6 3.9 6.8C19.5 16.4 12 21 12 21z"/></svg>',
+  chat:'<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L3 20.5l1.5-5.2A8 8 0 1 1 21 12z"/></svg>',
+  trash:'<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+  flag:'<svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h12l-2 4 2 4H5"/></svg>',
+  ver:'<svg class="ver" viewBox="0 0 24 24"><path d="M12 1.5l2.6 2 3.2-.3 1.2 3 2.9 1.5-.8 3.1 1.5 2.8-2.3 2.2-.4 3.2-3.2.4-2.4 2.2L12 20.4l-2.9 1.9-2.4-2.2-3.2-.4-.4-3.2L1 14.3l1.5-2.8-.8-3.1 2.9-1.5 1.2-3 3.2.3z"/><path d="M8 12.2l2.6 2.6L16 9.4" fill="none" stroke="#04110b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+
+/* ---------- data ---------- */
+async function loadFeed(){
+  try{
+    const data = await sbGet('cockpit_posts', 'select=*&hidden=eq.false&order=created_at.desc&limit=100');
+    posts = Array.isArray(data) ? data : [];
+    const ids = posts.map(function(p){ return p.id; });
+    likesBy = {}; repliesBy = {};
+    if(ids.length){
+      const list = ids.join(',');
+      const [likes, reps] = await Promise.all([
+        sbGet('cockpit_likes', 'select=post_id,user_id&post_id=in.('+list+')'),
+        sbGet('cockpit_replies', 'select=*&post_id=in.('+list+')&order=created_at.asc')
+      ]);
+      (Array.isArray(likes)?likes:[]).forEach(function(l){ (likesBy[l.post_id] = likesBy[l.post_id] || []).push(l.user_id); });
+      (Array.isArray(reps)?reps:[]).forEach(function(r){ (repliesBy[r.post_id] = repliesBy[r.post_id] || []).push(r); });
+    }
+    loaded = true;
+    draw();
+    loadQuotes();
+  }catch(e){
+    document.getElementById('feed').innerHTML = '<div class="empty"><b>Could not load the feed</b>Check your connection and refresh.</div>';
+  }
+}
+async function loadQuotes(){
+  const need = []; posts.forEach(function(p){ (p.tickers||[]).forEach(function(t){ if(!quoteCache[t] && need.indexOf(t) < 0) need.push(t); }); });
+  if(!need.length) return;
+  try{
+    const r = await fetch(BACKEND+'/api/quotes?symbols='+encodeURIComponent(need.slice(0,40).join(',')));
+    const d = await r.json();
+    ((d && d.quoteResponse && d.quoteResponse.result) || []).forEach(function(q){ quoteCache[q.symbol.toUpperCase()] = q; });
+    need.forEach(function(t){ if(!quoteCache[t]) quoteCache[t] = {none:true}; });
+    draw(true);
+  }catch(e){}
+}
+
+/* ---------- rendering ---------- */
+function visiblePosts(){
+  let list = posts.slice();
+  if(tickerFilter) list = list.filter(function(p){ return (p.tickers||[]).indexOf(tickerFilter) >= 0; });
+  if(sentFilter) list = list.filter(function(p){ return p.sentiment === sentFilter; });
+  if(tab === 'top'){
+    const cutoff = Date.now() - 7*86400000;
+    list = list.filter(function(p){ return new Date(p.created_at).getTime() > cutoff; });
+    list.sort(function(a,b){ return ((likesBy[b.id]||[]).length*2 + (repliesBy[b.id]||[]).length) - ((likesBy[a.id]||[]).length*2 + (repliesBy[a.id]||[]).length) || (new Date(b.created_at) - new Date(a.created_at)); });
+  }
+  return list;
+}
+function quoteChips(p){
+  const chips = (p.tickers||[]).map(function(t){
+    const q = quoteCache[t];
+    if(!q || q.none || q.regularMarketPrice == null) return '<div class="qchip" data-t="'+t+'">$'+t+'</div>';
+    const c = q.regularMarketChangePercent || 0;
+    return '<div class="qchip" data-t="'+t+'">$'+t+' <span class="px">'+Number(q.regularMarketPrice).toFixed(2)+'</span> <span class="'+(c>=0?'up':'dn')+'">'+(c>=0?'+':'')+c.toFixed(2)+'%</span></div>';
+  }).join('');
+  return chips ? '<div class="quotes">'+chips+'</div>' : '';
+}
+const PINNED = {
+  name:'StockPilot', body:'Welcome to the Cockpit. Post your take on any stock and tag it with a $TICKER, like $NVDA or $AAPL. Mark it bull or bear, argue it out in the replies, and let the market decide who was right.\n\nBe sharp, be fair, and keep it about the stock.'
+};
+function pinnedHtml(){
+  if(tickerFilter || sentFilter || tab !== 'new') return '';
+  return '<article class="post pinned"><div class="av sp"><img src="/logo-mark-256.png" alt=""></div><div class="post-main">'
+    +'<div class="pin-tag">'+'Pinned'+'</div>'
+    +'<div class="post-top"><span class="pname">'+PINNED.name+'</span>'+I.ver+'<span class="pmeta">@stockpilot</span></div>'
+    +'<div class="pbody">'+render(PINNED.body)+'</div></div></article>';
+}
+function postHtml(p){
+  const me = myId(), likes = likesBy[p.id]||[], reps = repliesBy[p.id]||[], liked = me && likes.indexOf(me) >= 0, mine = me && p.user_id === me;
+  const open = openThreads.has(p.id);
+  const repHtml = reps.map(function(r){
+    return '<div class="reply">'+avatar(r.author_name,'sm')+'<div class="rb"><div><span class="rn">'+escapeHtml(r.author_name)+'</span><span class="rt">'+ago(r.created_at)+'</span>'
+      +(me && r.user_id === me ? '<button class="rdel" data-act="rdel" data-id="'+r.id+'" data-p="'+p.id+'">Delete</button>' : '')
+      +'</div><div class="rx">'+render(r.body)+'</div></div></div>';
+  }).join('');
+  return '<article class="post" id="p_'+p.id+'">'+avatar(p.author_name)
+    +'<div class="post-main"><div class="post-top"><span class="pname">'+escapeHtml(p.author_name)+'</span>'
+    +(p.sentiment ? '<span class="senti-pill '+p.sentiment+'">'+(p.sentiment==='bull'?'BULL':'BEAR')+'</span>' : '')
+    +'<span class="pmeta">· '+ago(p.created_at)+'</span></div>'
+    +'<div class="pbody">'+render(p.body)+'</div>'+quoteChips(p)
+    +'<div class="actions">'
+    +'<button class="act rep'+(open?' open':'')+'" data-act="toggle" data-id="'+p.id+'">'+I.chat+'<span>'+(reps.length||'')+'</span></button>'
+    +'<button class="act like'+(liked?' liked':'')+'" data-act="like" data-id="'+p.id+'">'+I.heart+'<span>'+(likes.length||'')+'</span></button>'
+    +(mine ? '<button class="act del push" data-act="del" data-id="'+p.id+'" title="Delete">'+I.trash+'</button>'
+           : '<button class="act push" data-act="report" data-id="'+p.id+'" title="Report">'+I.flag+'</button>')
+    +'</div>'
+    +'<div class="thread'+(open?' open':'')+'" id="th_'+p.id+'">'+repHtml
+    +'<div class="rform"><input type="text" maxlength="'+MAX_REPLY+'" placeholder="'+(signedIn()?'Post your reply':'Sign in to reply')+'" id="ri_'+p.id+'" data-id="'+p.id+'"><button data-act="reply" data-id="'+p.id+'">Reply</button></div>'
+    +'</div></div></article>';
+}
+function draw(keepFocus){
+  const feed = document.getElementById('feed');
+  if(keepFocus){ const a = document.activeElement; if(a && a.tagName === 'INPUT' && a.id.indexOf('ri_') === 0) return; }
+  const list = visiblePosts();
+  let html = pinnedHtml();
+  if(!list.length){
+    html += '<div class="empty"><b>'+(tickerFilter||sentFilter ? 'Nothing here yet' : 'No posts yet')+'</b>'+(tickerFilter ? 'Be the first to post a take on $'+tickerFilter+'.' : 'Be the first to post a take.')+'</div>';
+  } else html += list.map(postHtml).join('');
+  feed.innerHTML = html;
+  renderTrending();
+  renderChip();
+  renderRail();
+}
+function renderTrending(){
+  const cutoff = Date.now() - 3*86400000, tally = {};
+  posts.forEach(function(p){ if(new Date(p.created_at).getTime() < cutoff) return; (p.tickers||[]).forEach(function(t){ tally[t] = (tally[t]||0) + 1 + (likesBy[p.id]||[]).length*0.5; }); });
+  const top = Object.keys(tally).sort(function(a,b){ return tally[b]-tally[a]; }).slice(0,6);
+  document.getElementById('trending').innerHTML = top.length
+    ? top.map(function(t,i){
+        const n = posts.filter(function(p){ return (p.tickers||[]).indexOf(t) >= 0; }).length;
+        const q = quoteCache[t], c = q && q.regularMarketChangePercent;
+        return '<button class="trend" data-t="'+t+'"><small>'+(i+1)+' · Trending</small><b>$'+t+'</b>'+(c!=null?' <span class="'+(c>=0?'up':'dn')+'" style="font:600 12px var(--sp-font-mono,monospace)">'+(c>=0?'+':'')+c.toFixed(2)+'%</span>':'')+'<small>'+n+' post'+(n===1?'':'s')+'</small></button>';
+      }).join('')
+    : '<p>Nothing yet. Post a take with a $TICKER.</p>';
+}
+function renderChip(){
+  const c = document.getElementById('filterChip');
+  const label = tickerFilter ? '$'+tickerFilter : (sentFilter ? (sentFilter==='bull'?'Bulls':'Bears') : '');
+  c.className = 'filter-chip' + (label ? ' on' : ''); c.innerHTML = label ? escapeHtml(label)+' &times;' : '';
+}
+function renderRail(){
+  document.getElementById('railHome').className = (!sentFilter && tab==='new' && !tickerFilter) ? 'on' : '';
+  document.getElementById('railTop').className = tab==='top' ? 'on' : '';
+  document.getElementById('railBull').className = sentFilter==='bull' ? 'on' : '';
+  document.getElementById('railBear').className = sentFilter==='bear' ? 'on' : '';
+  document.getElementById('tabNew').className = 'tab' + (tab==='new' ? ' on' : '');
+  document.getElementById('tabTop').className = 'tab' + (tab==='top' ? ' on' : '');
+}
+function renderComposer(){
+  const w = document.getElementById('composerWrap');
+  if(!signedIn()){
+    w.innerHTML = '<div class="gate"><div><b>What is your take?</b><span>Join free to post, reply and like.</span></div><button class="btn-post" onclick="openSignin()">Join</button></div>';
+    return;
+  }
+  const keep = document.getElementById('cText') ? document.getElementById('cText').value : '';
+  w.innerHTML = '<div class="composer">'+avatar(myName())+'<div class="comp-main">'
+    +'<textarea id="cText" maxlength="'+MAX_POST+'" rows="2" placeholder="What is your take? Tag a stock like $NVDA"></textarea>'
+    +'<div class="comp-bar"><div class="senti"><button class="sbtn bull" id="sBull" onclick="pickSent(\'bull\')">Bull</button><button class="sbtn bear" id="sBear" onclick="pickSent(\'bear\')">Bear</button></div>'
+    +'<span class="comp-hint">Ctrl+Enter to post</span><span class="count" id="cCount">0/'+MAX_POST+'</span><button class="btn-post" id="cPost" disabled>Post</button></div></div></div>';
+  const ta = document.getElementById('cText'); ta.value = keep;
+  ta.addEventListener('input', function(){ autosize(); updateCount(); });
+  ta.addEventListener('keydown', function(e){ if((e.ctrlKey || e.metaKey) && e.key === 'Enter') submitPost(); });
+  document.getElementById('cPost').addEventListener('click', submitPost);
+  pickSentUI(); updateCount(); autosize();
+}
+function autosize(){ const ta = document.getElementById('cText'); if(!ta) return; ta.style.height = 'auto'; ta.style.height = Math.min(ta.scrollHeight, 260)+'px'; }
+function updateCount(){
+  const ta = document.getElementById('cText'); if(!ta) return;
+  const n = ta.value.length, c = document.getElementById('cCount');
+  c.textContent = n+'/'+MAX_POST; c.className = 'count' + (n > MAX_POST-40 ? ' warn' : '');
+  document.getElementById('cPost').disabled = !ta.value.trim();
+}
+function pickSent(s){ composeSent = (composeSent === s) ? null : s; pickSentUI(); }
+function pickSentUI(){
+  const b = document.getElementById('sBull'), r = document.getElementById('sBear'); if(!b) return;
+  b.className = 'sbtn bull' + (composeSent==='bull' ? ' on' : ''); r.className = 'sbtn bear' + (composeSent==='bear' ? ' on' : '');
+}
+
+/* ---------- actions ---------- */
+let busy = false;
+function dbError(res){
+  if(res && !Array.isArray(res) && (res.message || res.error)){
+    const m = res.message || res.error || '';
+    if(/Slow down/i.test(m)) return m.replace(/^.*Slow down/, 'Slow down');
+    if(/reserved/i.test(m)) return 'That display name is reserved. Change it in your account.';
+    return 'Could not save. Try again.';
+  }
+  return null;
+}
+async function submitPost(){
+  if(busy) return;
+  if(!signedIn()){ openSignin(); return; }
+  const ta = document.getElementById('cText'), body = ta.value.trim();
+  if(!body) return;
+  busy = true; document.getElementById('cPost').disabled = true;
+  const res = await sbPost('cockpit_posts', { author_name: myName().slice(0,40), body: body.slice(0,MAX_POST), tickers: extractTickers(body), sentiment: composeSent });
+  busy = false;
+  const err = dbError(res);
+  if(err || !Array.isArray(res) || !res[0]){ toast(err || 'Could not post. Sign in again and retry.', true); updateCount(); return; }
+  posts.unshift(res[0]); ta.value = ''; composeSent = null; pickSentUI(); updateCount(); autosize();
+  if(tab !== 'new'){ tab = 'new'; } tickerFilter = null; sentFilter = null;
+  draw(); loadQuotes(); toast('Posted');
+  trackEvent('post', 'cockpit', 'post');
+}
+async function toggleLike(id, btn){
+  if(!signedIn()){ openSignin(); return; }
+  const me = myId(), list = likesBy[id] = likesBy[id] || [], had = list.indexOf(me) >= 0;
+  if(had) likesBy[id] = list.filter(function(u){ return u !== me; }); else list.push(me);
+  btn.className = 'act like'+(!had?' liked pop':''); btn.querySelector('span').textContent = likesBy[id].length || '';
+  const ok = had ? await sbDelete('cockpit_likes', 'post_id=eq.'+id+'&user_id=eq.'+me)
+                 : (function(r){ return r; })(await sbPost('cockpit_likes', { post_id: id }));
+  const failed = had ? !ok : !(Array.isArray(ok) && ok[0]);
+  if(failed){
+    if(had) likesBy[id].push(me); else likesBy[id] = likesBy[id].filter(function(u){ return u !== me; });
+    btn.className = 'act like'+(had?' liked':''); btn.querySelector('span').textContent = likesBy[id].length || '';
+    toast('Could not save that like', true);
+  }
+}
+async function sendReply(id){
+  if(!signedIn()){ openSignin(); return; }
+  const inp = document.getElementById('ri_'+id), body = inp.value.trim(); if(!body) return;
+  inp.disabled = true;
+  const res = await sbPost('cockpit_replies', { post_id: id, author_name: myName().slice(0,40), body: body.slice(0,MAX_REPLY) });
+  inp.disabled = false;
+  const err = dbError(res);
+  if(err || !Array.isArray(res) || !res[0]){ toast(err || 'Could not reply.', true); return; }
+  (repliesBy[id] = repliesBy[id] || []).push(res[0]); openThreads.add(id); draw();
+  const again = document.getElementById('ri_'+id); if(again) again.focus();
+}
+async function deletePost(id){
+  if(!confirm('Delete this post?')) return;
+  const ok = await sbDelete('cockpit_posts', 'id=eq.'+id+'&user_id=eq.'+myId());
+  if(!ok){ toast('Could not delete', true); return; }
+  posts = posts.filter(function(p){ return p.id !== id; }); draw(); toast('Deleted');
+}
+async function deleteReply(id, pid){
+  const ok = await sbDelete('cockpit_replies', 'id=eq.'+id+'&user_id=eq.'+myId());
+  if(!ok){ toast('Could not delete', true); return; }
+  repliesBy[pid] = (repliesBy[pid]||[]).filter(function(r){ return r.id !== id; }); draw();
+}
+async function reportPost(id){
+  if(!signedIn()){ openSignin(); return; }
+  const res = await sbPost('cockpit_reports', { post_id: id, reason: 'user report' });
+  if(Array.isArray(res) && res[0]) toast('Reported. Thanks for keeping the Cockpit clean.');
+  else if(res && /duplicate|unique/i.test(JSON.stringify(res))) toast('You already reported this');
+  else toast('Could not send report', true);
+}
+
+/* ---------- navigation ---------- */
+function setTab(t){ tab = t; draw(); }
+function setSent(s){ sentFilter = (sentFilter === s) ? null : s; tickerFilter = null; tab = 'new'; draw(); window.scrollTo({top:0,behavior:'smooth'}); }
+function setTicker(t){ tickerFilter = t; sentFilter = null; tab = 'new'; draw(); window.scrollTo({top:0,behavior:'smooth'}); }
+function clearFilter(){ tickerFilter = null; sentFilter = null; draw(); }
+function goHome(){ tickerFilter = null; sentFilter = null; tab = 'new'; draw(); window.scrollTo({top:0,behavior:'smooth'}); }
+function focusComposer(){
+  if(!signedIn()){ openSignin(); return; }
+  window.scrollTo({top:0,behavior:'smooth'}); const ta = document.getElementById('cText'); if(ta) setTimeout(function(){ ta.focus(); }, 250);
+}
+
+document.addEventListener('click', function(e){
+  const t = e.target.closest('[data-t]'); if(t && !t.closest('.composer')){ e.preventDefault(); setTicker(t.getAttribute('data-t')); return; }
+  const a = e.target.closest('[data-act]'); if(!a) return;
+  const id = a.getAttribute('data-id'), act = a.getAttribute('data-act');
+  if(act === 'like') toggleLike(id, a);
+  else if(act === 'toggle'){ if(openThreads.has(id)) openThreads.delete(id); else openThreads.add(id); document.getElementById('th_'+id).classList.toggle('open'); a.classList.toggle('open'); if(openThreads.has(id)){ const i = document.getElementById('ri_'+id); if(i && signedIn()) i.focus(); } }
+  else if(act === 'reply') sendReply(id);
+  else if(act === 'del') deletePost(id);
+  else if(act === 'rdel') deleteReply(id, a.getAttribute('data-p'));
+  else if(act === 'report') reportPost(id);
+});
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && e.target && e.target.id && e.target.id.indexOf('ri_') === 0){ e.preventDefault(); sendReply(e.target.getAttribute('data-id')); }
+});
+
+/* ---------- auth ---------- */
+let siMode = 'in';
+function openSignin(){ document.getElementById('signinModal').style.display = 'flex'; }
+function closeSignin(){ document.getElementById('signinModal').style.display = 'none'; }
+function showSiMsg(msg, ok){ const el = document.getElementById('signinMsg'); el.textContent = msg; el.style.display = 'block'; el.style.background = ok ? 'rgba(22,163,74,0.15)' : 'rgba(220,38,38,0.15)'; el.style.color = ok ? '#86efac' : '#fca5a5'; }
+function setSiMode(m){
+  siMode = m;
+  document.getElementById('siNameField').style.display = m === 'up' ? 'block' : 'none';
+  document.getElementById('siSubmitBtn').textContent = m === 'up' ? 'Create Account' : 'Sign In';
+  document.getElementById('siTabIn').className = 'sitab' + (m==='in' ? ' on' : '');
+  document.getElementById('siTabUp').className = 'sitab' + (m==='up' ? ' on' : '');
+}
+function doSiSubmit(){ return siMode === 'up' ? doSignup() : doSignin(); }
+function afterAuth(){ updateAuthUI(); renderComposer(); draw(); }
+async function doSignup(){
+  const name = document.getElementById('siName').value.trim(), email = document.getElementById('siEmail').value.trim(), pass = document.getElementById('siPass').value;
+  if(!name || !email || pass.length < 6){ showSiMsg('Add a display name, email, and a password with at least 6 characters.', false); return; }
+  if(/stockpilot|admin|moderator|official/i.test(name)){ showSiMsg('That display name is reserved. Pick another.', false); return; }
+  showSiMsg('Creating account...', true);
+  try{
+    const r = await fetch(SUPA_URL+'/auth/v1/signup', { method:'POST', headers:{'Content-Type':'application/json', apikey:SUPA_KEY}, body: JSON.stringify({ email: email, password: pass }) });
+    const d = await r.json();
+    if(d.error || !d.access_token){ showSiMsg((d.error && d.error.message) || d.msg || 'Could not create account. Try a different email.', false); return; }
+    localStorage.setItem('supabase_token', d.access_token); localStorage.setItem('supabase_email', email); localStorage.setItem('supabase_name', name);
+    if(d.refresh_token) localStorage.setItem('supabase_refresh_token', d.refresh_token);
+    showSiMsg('Welcome, '+name+'.', true); setTimeout(function(){ closeSignin(); afterAuth(); }, 500);
+  }catch(e){ showSiMsg('Error creating account. Try again.', false); }
+}
+async function doSignin(){
+  const email = document.getElementById('siEmail').value.trim(), pass = document.getElementById('siPass').value;
+  if(!email || !pass){ showSiMsg('Enter your email and password.', false); return; }
+  showSiMsg('Signing in...', true);
+  try{
+    const r = await fetch(SUPA_URL+'/auth/v1/token?grant_type=password', { method:'POST', headers:{'Content-Type':'application/json', apikey:SUPA_KEY}, body: JSON.stringify({ email: email, password: pass }) });
+    const d = await r.json();
+    if(!d.access_token){ showSiMsg(d.msg || d.error_description || 'Invalid email or password.', false); return; }
+    localStorage.setItem('supabase_token', d.access_token); localStorage.setItem('supabase_email', email);
+    if(d.refresh_token) localStorage.setItem('supabase_refresh_token', d.refresh_token);
+    const fallback = email.split('@')[0]; if(!localStorage.getItem('supabase_name')) localStorage.setItem('supabase_name', fallback);
+    showSiMsg('Signed in.', true);
+    Promise.all([
+      fetch(SUPA_URL+'/rest/v1/profiles?id=eq.'+d.user.id+'&select=full_name&limit=1', { headers:{ apikey:SUPA_KEY, Authorization:'Bearer '+d.access_token } }).then(function(x){ return x.json(); }).catch(function(){ return []; }),
+      fetch(SUPA_URL+'/rest/v1/leaderboard?user_id=eq.'+d.user.id+'&select=nickname&limit=1', { headers:{ apikey:SUPA_KEY, Authorization:'Bearer '+d.access_token } }).then(function(x){ return x.json(); }).catch(function(){ return []; })
+    ]).then(function(res){
+      const better = (res[1] && res[1][0] && res[1][0].nickname) || (res[0] && res[0][0] && res[0][0].full_name) || null;
+      if(better){ localStorage.setItem('supabase_name', better); afterAuth(); }
+    }).catch(function(){});
+    setTimeout(function(){ closeSignin(); afterAuth(); }, 500);
+  }catch(e){ showSiMsg('Error signing in. Try again.', false); }
+}
+async function doForgot(){
+  const email = document.getElementById('siEmail').value.trim();
+  if(!email){ showSiMsg('Enter your email first.', false); return; }
+  await fetch(SUPA_URL+'/auth/v1/recover', { method:'POST', headers:{'Content-Type':'application/json', apikey:SUPA_KEY}, body: JSON.stringify({ email: email }) });
+  showSiMsg('Password reset email sent.', true);
+}
+function signOutTrade(){
+  ['supabase_token','supabase_refresh_token','supabase_email','supabase_name'].forEach(function(k){ localStorage.removeItem(k); });
+  afterAuth();
+}
+function updateAuthUI(){
+  const on = signedIn();
+  document.getElementById('navSignIn').style.display = on ? 'none' : '';
+  document.getElementById('navSignOut').style.display = on ? '' : 'none';
+  document.getElementById('navUser').textContent = on ? myName() : '';
+}
+
+updateAuthUI(); renderComposer(); loadFeed();
+setInterval(function(){ if(document.visibilityState === 'visible' && !document.activeElement.matches('input,textarea')) loadFeed(); }, 60000);
+</script>
+<script src="/nav-fix.js"></script>
+</body>
+</html>
