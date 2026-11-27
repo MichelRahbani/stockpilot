@@ -90,6 +90,12 @@ nav .badge{font-family:var(--sp-font-mono,monospace);font-size:10px;letter-spaci
 .senti-pill{font:800 10px var(--sp-font-mono,monospace);letter-spacing:.8px;padding:2px 7px;border-radius:4px;margin-left:2px}
 .senti-pill.bull{background:rgba(46,204,154,0.14);color:var(--green)}
 .senti-pill.bear{background:rgba(255,77,94,0.14);color:var(--red)}
+.dq{border:1px solid rgba(46,204,154,.28);background:linear-gradient(180deg,rgba(46,204,154,.07),transparent)}
+.dq .dtag{font:700 11px var(--sp-font-mono,monospace);letter-spacing:1px;color:var(--green);margin-bottom:2px}
+.dq .dbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:2px}
+.dq .dbtns button{background:var(--bg3);border:1px solid var(--line);color:var(--text);font:700 13px var(--sp-font-sans,sans-serif);padding:7px 14px;border-radius:999px;cursor:pointer}
+.dq .dbtns button:hover{border-color:rgba(46,204,154,.6)}
+.dq .dbtns .b{color:var(--green)}.dq .dbtns .r{color:var(--red)}
 .pbody{font-size:16px;line-height:1.45;margin:4px 0 10px;white-space:pre-wrap;word-wrap:break-word;overflow-wrap:anywhere}
 .tk{color:var(--green);font-weight:700;cursor:pointer;font-family:var(--sp-font-mono,monospace);font-size:.94em}
 .tk:hover{text-decoration:underline}
@@ -436,6 +442,7 @@ async function loadFeed(){
 }
 async function loadQuotes(){
   const need = []; posts.forEach(function(p){ (p.tickers||[]).forEach(function(t){ if(!quoteCache[t] && need.indexOf(t) < 0) need.push(t); }); });
+  dayDebates().forEach(function(d){ d.t.forEach(function(t){ if(!quoteCache[t] && need.indexOf(t) < 0) need.push(t); }); });
   if(!need.length) return;
   try{
     const r = await fetch(BACKEND+'/api/quotes?symbols='+encodeURIComponent(need.slice(0,40).join(',')));
@@ -470,6 +477,44 @@ function quoteChips(p){
 const PINNED = {
   name:'StockPilot', body:'Welcome to the Cockpit. Post your take on any stock and tag it with a $TICKER, like $NVDA or $AAPL. Mark it bull or bear, argue it out in the replies, and let the market decide who was right.\n\nBe sharp, be fair, and keep it about the stock.'
 };
+const DEBATES = [
+  { q:'Earnings are coming and expectations are huge. Is the good news already priced in on $NVDA?', t:['NVDA'], side:true },
+  { q:'Is $TSLA a car company or a tech company? Pick a side and defend it.', t:['TSLA'], side:true },
+  { q:'You can hold only one for five years: $AAPL or $MSFT. Which one, and why?', t:['AAPL','MSFT'] },
+  { q:'Bullpen question: one big winner in 3 sectors, or a spread across 6? The diversification bonus says one thing, your gut says another. $JPM $UNH $XOM', t:['JPM','UNH','XOM'] },
+  { q:'Boring stocks with loyal customers, like $COST, keep beating the hype. Overrated or underrated?', t:['COST'], side:true },
+  { q:'Is $AMZN still a growth stock, or has it become a utility? Take a side.', t:['AMZN'], side:true },
+  { q:'Name one stock you would put on your bench this week and tell us the one reason. Tag it with a $TICKER.', t:[] }
+];
+function dayDebates(){
+  const d = Math.floor(Date.now()/86400000), n = posts.length < 10 ? 3 : 1, out = [];
+  for(let i = 0; i < n; i++) out.push(DEBATES[(d + i) % DEBATES.length]);
+  return out;
+}
+function debatesHtml(){
+  if(tickerFilter || sentFilter || tab !== 'new' || groupId) return '';
+  return dayDebates().map(function(d, i){
+    const idx = DEBATES.indexOf(d);
+    const chips = d.t.map(function(t){
+      const q = quoteCache[t];
+      if(!q || q.none || q.regularMarketPrice == null) return '<div class="qchip" data-t="'+t+'">$'+t+'</div>';
+      const c = q.regularMarketChangePercent || 0;
+      return '<div class="qchip" data-t="'+t+'">$'+t+' <span class="px">'+Number(q.regularMarketPrice).toFixed(2)+'</span> <span class="'+(c>=0?'up':'dn')+'">'+(c>=0?'+':'')+c.toFixed(2)+'%</span></div>';
+    }).join('');
+    return '<article class="post dq"><div class="av sp"><img src="/logo-mark-256.png" alt=""></div><div class="post-main">'
+      +'<div class="dtag">DEBATE OF THE DAY</div>'
+      +'<div class="post-top"><span class="pname">StockPilot</span>'+I.ver+'<span class="pmeta">@stockpilot</span></div>'
+      +'<div class="pbody">'+render(d.q)+'</div>'+(chips ? '<div class="quotes">'+chips+'</div>' : '')
+      +'<div class="dbtns">'+(d.side ? '<button class="b" data-debate="'+idx+'" data-s="bull">Bull</button><button class="r" data-debate="'+idx+'" data-s="bear">Bear</button>' : '')
+      +'<button data-debate="'+idx+'" data-s="">Post your take</button></div></div></article>';
+  }).join('');
+}
+function takeDebate(idx, s){
+  if(!signedIn()){ openSignin(); return; }
+  const d = DEBATES[idx], ta = document.getElementById('cText'); if(!ta) return;
+  ta.value = d.t.map(function(t){ return '$'+t; }).join(' ') + ' '; composeSent = s || null; pickSentUI(); updateCount(); autosize();
+  window.scrollTo({top:0,behavior:'smooth'}); setTimeout(function(){ ta.focus(); ta.setSelectionRange(ta.value.length, ta.value.length); }, 250);
+}
 function pinnedHtml(){
   if(tickerFilter || sentFilter || tab !== 'new' || groupId) return '';
   return '<article class="post pinned"><div class="av sp"><img src="/logo-mark-256.png" alt=""></div><div class="post-main">'
@@ -504,7 +549,7 @@ function draw(keepFocus){
   const feed = document.getElementById('feed');
   if(keepFocus){ const a = document.activeElement; if(a && a.tagName === 'INPUT' && a.id.indexOf('ri_') === 0) return; }
   const list = visiblePosts();
-  let html = pinnedHtml();
+  let html = pinnedHtml() + debatesHtml();
   if(!list.length){
     html += '<div class="empty"><b>'+(tickerFilter||sentFilter ? 'Nothing here yet' : 'No posts yet')+'</b>'+(tickerFilter ? 'Be the first to post a take on $'+tickerFilter+'.' : 'Be the first to post a take.')+'</div>';
   } else html += list.map(postHtml).join('');
@@ -643,6 +688,8 @@ function focusComposer(){
 
 document.addEventListener('click', function(e){
   const t = e.target.closest('[data-t]'); if(t && !t.closest('.composer')){ e.preventDefault(); setTicker(t.getAttribute('data-t')); return; }
+  const db = e.target.closest('[data-debate]');
+  if(db){ takeDebate(+db.getAttribute('data-debate'), db.getAttribute('data-s')); return; }
   const dmEl = e.target.closest('[data-dm]');
   if(dmEl){ startDm(dmEl.getAttribute('data-dm'), dmEl.getAttribute('data-n')); return; }
   const a = e.target.closest('[data-act]'); if(!a) return;
